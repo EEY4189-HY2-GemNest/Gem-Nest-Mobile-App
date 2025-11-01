@@ -17,5 +17,14 @@ class DatabaseHelper {
     return _database!;
   }
 
-  
+  Future<Database> _initDatabase() async {
+    String path = join(await getDatabasesPath(), 'signup.db');
+    return await openDatabase(
+      path,
+      version: 1,
+      onCreate: _onCreate,
+    );
+  }
+
+
 }
