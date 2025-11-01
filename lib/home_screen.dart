@@ -346,7 +346,39 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-                
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: SliverGrid(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.7,
+                      mainAxisSpacing: 8,
+                      crossAxisSpacing: 8,
+                    ),
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        if (popularProducts.isNotEmpty) {
+                          final product = popularProducts[index];
+                          return ProductCard(
+                            id: product['id'] as String,
+                            imagePath: product['imageUrl'] as String,
+                            title: product['title'] as String,
+                            price:
+                                'Rs. ${(product['pricing'] as num).toStringAsFixed(2)}',
+                            product: product,
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                      childCount: popularProducts.length,
+                    ),
+                  ),
+                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 30)),
+              ],
+            ),
+          ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
               Navigator.push(
