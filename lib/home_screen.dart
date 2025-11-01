@@ -195,7 +195,164 @@ class _HomeScreenState extends State<HomeScreen> {
                 onPressed: _onWillPop,
               ),
             ],
-        
+          ),
+          body: RefreshIndicator(
+            onRefresh: _fetchRandomGems,
+            child: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: Text(
+                      'Welcome $userName,',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Consumer<BannerProvider>(
+                    builder: (context, bannerProvider, child) {
+                      if (bannerProvider.isLoading) {
+                        return const SizedBox(
+                          height: 150,
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                      if (bannerProvider.error != null) {
+                        return SizedBox(
+                          height: 150,
+                          child: Center(
+                            child: Text(
+                              bannerProvider.error!,
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        );
+                      }
+                      if (bannerProvider.bannerList.isEmpty) {
+                        return const SizedBox(
+                          height: 150,
+                          child: Center(
+                            child: Text(
+                              'No banners available',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                        );
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: CarouselSlider(
+                          options: CarouselOptions(
+                            height: 150,
+                            autoPlay: true,
+                            enlargeCenterPage: false,
+                            viewportFraction: 1.0,
+                            aspectRatio: 16 / 9,
+                          ),
+                          items: bannerProvider.bannerList.map((imageUrl) {
+                            return ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.network(
+                                imageUrl,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Center(
+                                    child: Text(
+                                      'Failed to load image',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  );
+                                },
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Categories',
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Scaffold(
+                                  appBar: AppBar(
+                                      title: const Text('All Categories')),
+                                  body: const Center(
+                                      child: Text(
+                                          'All categories will be displayed here.')),
+                                ),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            'See All',
+                            style: TextStyle(fontSize: 14, color: Colors.blue),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: SliverGrid(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      childAspectRatio: 1.0,
+                      mainAxisSpacing: 8,
+                      crossAxisSpacing: 8,
+                    ),
+                    delegate: SliverChildListDelegate(
+                      const [
+                        CategoryCard(
+                            imagePath: 'assets/images/category1.jpg',
+                            title: 'Blue Sapphires'),
+                        CategoryCard(
+                            imagePath: 'assets/images/category2.jpg',
+                            title: 'White Sapphires'),
+                        CategoryCard(
+                            imagePath: 'assets/images/category3.jpg',
+                            title: 'Yellow Sapphires'),
+                      ],
+                    ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: const Text(
+                      'Popular Gems',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AuctionScreen()),
+              );
             },
             backgroundColor: const Color.fromARGB(255, 173, 216, 230),
             shape:
