@@ -1,5 +1,5 @@
-import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -50,13 +50,14 @@ class DatabaseHelper {
     return await db.query('users');
   }
 
-Future<void> updateUserPassword(String phoneNumber, String newPassword) async {
-  final db = await database;
-  await db.update(
-    'users',
-    {'password': newPassword},
-    where: 'phoneNumber = ?',
-    whereArgs: [phoneNumber],
-  );
-}
+  Future<void> updateUserPassword(
+      String phoneNumber, String newPassword) async {
+    final db = await database;
+    await db.update(
+      'users',
+      {'password': newPassword},
+      where: 'phoneNumber = ?',
+      whereArgs: [phoneNumber],
+    );
+  }
 }
