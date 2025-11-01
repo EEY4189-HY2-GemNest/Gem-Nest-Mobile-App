@@ -50,5 +50,13 @@ class DatabaseHelper {
     return await db.query('users');
   }
 
-
+Future<void> updateUserPassword(String phoneNumber, String newPassword) async {
+  final db = await database;
+  await db.update(
+    'users',
+    {'password': newPassword},
+    where: 'phoneNumber = ?',
+    whereArgs: [phoneNumber],
+  );
+}
 }
