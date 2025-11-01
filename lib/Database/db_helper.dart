@@ -26,5 +26,29 @@ class DatabaseHelper {
     );
   }
 
+  Future<void> _onCreate(Database db, int version) async {
+    await db.execute('''
+      CREATE TABLE users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        displayName TEXT,
+        address TEXT,
+        username TEXT,
+        password TEXT,
+        email TEXT,
+        phoneNumber TEXT
+      )
+    ''');
+  }
+
+  Future<int> insertUser(Map<String, dynamic> user) async {
+    final db = await database;
+    return await db.insert('users', user);
+  }
+
+  Future<List<Map<String, dynamic>>> getUsers() async {
+    final db = await database;
+    return await db.query('users');
+  }
+
 
 }
