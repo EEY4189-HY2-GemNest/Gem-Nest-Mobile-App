@@ -155,7 +155,68 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
- 
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => BannerProvider()..fetchBannerImages(),
+      child: WillPopScope(
+        onWillPop: _onWillPop,
+        child: Scaffold(
+          appBar: AppBar(
+            automaticallyImplyLeading: false, // Removes the back button
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF0072ff), Color(0xFF00c6ff)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+            ),
+            elevation: 4,
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset('assets/images/logo_new.png', height: 35),
+                const SizedBox(width: 8),
+                const Text(
+                  'GemHub',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 24,
+                  ),
+                ),
+              ],
+            ),
+            centerTitle: true,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.logout, color: Colors.white, size: 24),
+                onPressed: _onWillPop,
+              ),
+            ],
+        
+            },
+            backgroundColor: const Color.fromARGB(255, 173, 216, 230),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            elevation: 8,
+            child: const Icon(Icons.gavel),
+          ),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerDocked,
+          bottomNavigationBar: AnimatedBottomNavigationBar(
+            icons: iconList,
+            activeIndex: _selectedIndex,
+            gapLocation: GapLocation.center,
+            notchSmoothness: NotchSmoothness.smoothEdge,
+            onTap: _onItemTapped,
+            backgroundColor: const Color.fromARGB(255, 173, 216, 230),
+            activeColor: const Color.fromARGB(255, 0, 0, 139),
+            leftCornerRadius: 32,
+            rightCornerRadius: 32,
+          ),
+        ),
       ),
     );
   }
