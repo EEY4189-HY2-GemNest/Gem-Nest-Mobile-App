@@ -22,7 +22,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-
+  final iconList = const [
+    Icons.home,
+    Icons.shopping_cart,
+    Icons.receipt,
+    Icons.person,
+  ];
   String userName = 'Guest';
   List<Map<String, dynamic>> popularProducts = [];
 
