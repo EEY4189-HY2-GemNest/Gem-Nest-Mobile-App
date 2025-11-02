@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "808192790957",
+    "project_id": "gem-nest-mobileapp",
+    "storage_bucket": "gem-nest-mobileapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:808192790957:android:433d3cd003e9570848d124",
+        "android_client_info": {
+          "package_name": "com.example.gemnest_mobile_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRJYfUAP7g4Soqb_04WrSjxe_ue4fDATE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
