@@ -3,14 +3,14 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gemhub/providers/banner_provider.dart';
-import 'package:gemhub/screens/auction_screen/auction_screen.dart';
-import 'package:gemhub/screens/auth_screens/login_screen.dart';
-import 'package:gemhub/screens/cart_screen/cart_screen.dart';
-import 'package:gemhub/screens/category_screen/category_card.dart';
-import 'package:gemhub/screens/order_history_screen/oreder_history_screen.dart';
-import 'package:gemhub/screens/product_screen/product_card.dart';
-import 'package:gemhub/screens/profile_screen/profile_screen.dart';
+import 'package:gemnest_mobile_app/providers/banner_provider.dart';
+import 'package:gemnest_mobile_app/screens/auction_screen/auction_screen.dart';
+import 'package:gemnest_mobile_app/screens/auth_screens/login_screen.dart';
+import 'package:gemnest_mobile_app/screens/cart_screen/cart_screen.dart';
+import 'package:gemnest_mobile_app/screens/category_screen/category_card.dart';
+import 'package:gemnest_mobile_app/screens/order_history_screen/oreder_history_screen.dart';
+import 'package:gemnest_mobile_app/screens/product_screen/product_card.dart';
+import 'package:gemnest_mobile_app/screens/profile_screen/profile_screen.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -179,7 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Image.asset('assets/images/logo_new.png', height: 35),
                 const SizedBox(width: 8),
                 const Text(
-                  'GemHub',
+                  'gemnest_mobile_app',
                   style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.w600,
