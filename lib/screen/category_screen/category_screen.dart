@@ -170,6 +170,122 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 
+  // Updated product details dialog with modern design
+  void _showProductDetails(BuildContext context, Map<String, dynamic> product) {
+    int cartQuantity = 0; // Local state to track quantity in the dialog
+    String? sellerName; // Variable to hold the seller's name
+    bool isLoadingSeller = true; // To show a loading indicator while fetching
+
+    // Fetch seller name from Firestore (sellers collection)
+    Future<void> fetchSellerName() async {
+      try {
+        final userDoc = await FirebaseFirestore.instance
+            .collection('sellers')
+            .doc(product['userId'])
+            .get();
+        if (userDoc.exists) {
+          sellerName = userDoc.data()?['displayName'] ?? 'Unknown';
+        } else {
+          sellerName = 'Unknown';
+        }
+      } catch (e) {
+        sellerName = 'Error fetching seller';
+      }
+      isLoadingSeller = false;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        elevation: 8,
+        backgroundColor: Colors.white,
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.8,
+            maxWidth: MediaQuery.of(context).size.width * 0.9,
+          ),
+          child: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              // Fetch seller name when the dialog is built
+              fetchSellerName().then((_) {
+                setState(() {
+                  // Trigger rebuild after fetching seller name
+                });
+              });
+
+              return Stack(
+                children: [
+                  SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Product Image (unchanged)
+                        if (product['imageUrl'] != null &&
+                            product['imageUrl'].isNotEmpty)
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
+                              child: Image.network(
+                                product['imageUrl'],
+                                height: 200,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    height: 200,
+                                    color: Colors.grey[300],
+                                    child: const Icon(Icons.broken_image,
+                                        size: 50, color: Colors.grey),
+                                  );
+                                },
+                              ),
+                            ),
+                          )
+                        
+                  // Close Icon in Top-Right Corner (unchanged)
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
   // Helper method to build detail rows
   Widget _buildDetailRow({
     required IconData icon,
