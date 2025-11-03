@@ -73,7 +73,214 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await showModalBottomSheet<XFile?>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => _buildImagePickerBottomSheet(picker),
+    );
+
+    if (pickedFile != null) {
+      setState(() {
+        _profileImage = File(pickedFile.path);
+      });
+    }
+  }
+
+  Widget _buildImagePickerBottomSheet(ImagePicker picker) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            'Choose Profile Picture',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 20),
+          _buildBottomSheetTile(
+            Icons.camera_alt,
+            'Take a Photo',
+            Colors.blueAccent,
+            () async {
+              Navigator.of(
+                context,
+              ).pop(await picker.pickImage(source: ImageSource.camera));
+            },
+          ),
+          _buildBottomSheetTile(
+            Icons.photo_library,
+            'Choose from Gallery',
+            Colors.green,
+            () async {
+              Navigator.of(
+                context,
+              ).pop(await picker.pickImage(source: ImageSource.gallery));
+            },
+          ),
+          _buildBottomSheetTile(Icons.cancel, 'Cancel', Colors.redAccent, () {
+            Navigator.of(context).pop();
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomSheetTile(
+    IconData icon,
+    String title,
+    Color color,
+    VoidCallback onTap,
+  ) {
+    return ListTile(
+      leading: Icon(icon, color: color),
+      title: Text(title, style: const TextStyle(fontSize: 16)),
+      onTap: onTap,
+    );
+  }
+
+  Future<String?> _uploadProfileImage(File? imageFile) async {
+    if (imageFile == null) return imageUrl;
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) {
+      _showSnackBar('You must be logged in to upload an image.', Colors.red);
+      return null;
+    }
+
+    try {
+      final ref = FirebaseStorage.instance
+          .ref()
+          .child('profile_images')
+          .child('$userId.jpg');
+      await ref.putFile(imageFile);
+      return await ref.getDownloadURL();
+    } catch (e) {
+      _showSnackBar('Failed to upload image: $e', Colors.red);
+      return null;
+    }
+  }
+
+  Future<void> _saveUserDetails(
+    String name,
+    String email,
+    String phone,
+    String? newImageUrl,
+  ) async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) {
+      _showSnackBar('You must be logged in to save your profile.', Colors.red);
+      return;
+    }
+
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(userId).set({
+        'name': name,
+        'email': email,
+        'phone': phone,
+        'imageUrl': newImageUrl ?? imageUrl,
+      }, SetOptions(merge: true));
+      _showSnackBar('Profile updated successfully', Colors.green);
+    } catch (e) {
+      _showSnackBar('Failed to save profile: $e', Colors.red);
+    }
+  }
+
+  void _logout() {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            title: const Row(
+              children: [
+                Icon(Icons.logout, color: Colors.redAccent),
+                SizedBox(width: 10),
+                Text(
+                  'Confirm Logout',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            content: const Text('Are you sure you want to logout?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  await FirebaseAuth.instance.signOut();
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.redAccent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text(
+                  'Logout',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+    );
+  }
+
+  void _showSnackBar(String message, Color color) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: color));
+  }
+
+  Widget _buildProfileField({
+    required String label,
+    required TextEditingController controller,
+    bool enabled = true,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: TextField(
+        controller: controller,
+        enabled: enabled,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(color: Colors.blueAccent.shade700),
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey.shade300),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.blueAccent.shade700, width: 2),
+          ),
+          disabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey.shade200),
+          ),
+        ),
+      ),
+    );
+  }
 
   Future<bool> _onWillPop() async {
     if (_isEditing) {
