@@ -11,7 +11,164 @@ class CategoryScreen extends StatefulWidget {
   State<CategoryScreen> createState() => _CategoryScreenState();
 }
 
+class _CategoryScreenState extends State<CategoryScreen> {
+  String _searchQuery = '';
+  String _sortOrder = 'asc';
+  List<Map<String, dynamic>> _products = [];
+  List<Map<String, dynamic>> _filteredProducts = [];
+  bool _isLoading = true;
 
+  final CollectionReference _productsCollection =
+      FirebaseFirestore.instance.collection('products');
+
+  void _fetchProducts() {
+    _productsCollection
+        .where('category', isEqualTo: widget.categoryTitle)
+        .snapshots()
+        .listen((snapshot) {
+      setState(() {
+        _products = snapshot.docs
+            .map((doc) => {
+                  'id': doc.id,
+                  ...doc.data() as Map<String, dynamic>,
+                })
+            .toList();
+        _applyFilters();
+        _isLoading = false;
+      });
+    }, onError: (error) {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching products: $error')),
+      );
+    });
+  }
+
+  void _applyFilters() {
+    setState(() {
+      _filteredProducts = List.from(_products);
+
+      if (_searchQuery.isNotEmpty) {
+        _filteredProducts = _filteredProducts
+            .where((product) => product['title']
+                .toString()
+                .toLowerCase()
+                .contains(_searchQuery.toLowerCase()))
+            .toList();
+      }
+
+      _filteredProducts.sort((a, b) {
+        final aPrice = a['pricing'] as num? ?? 0;
+        final bPrice = b['pricing'] as num? ?? 0;
+        return _sortOrder == 'asc'
+            ? aPrice.compareTo(bPrice)
+            : bPrice.compareTo(aPrice);
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProducts();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.blue[700],
+        title: Text(widget.categoryTitle,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              setState(() {
+                _sortOrder = value;
+                _applyFilters();
+              });
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'asc',
+                child: Text('Price: Low to High'),
+              ),
+              const PopupMenuItem(
+                value: 'desc',
+                child: Text('Price: High to Low'),
+              ),
+            ],
+            icon: const Icon(Icons.sort, color: Colors.white),
+          ),
+        ],
+      ),
+      body: Container(
+        color: Colors.lightBlue[50],
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 20),
+            TextField(
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value.trim();
+                  _applyFilters();
+                });
+              },
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search, color: Colors.blue),
+                hintText: 'Search gems...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25),
+                  borderSide: const BorderSide(color: Colors.blue),
+                ),
+                filled: true,
+                fillColor: Colors.blue[50],
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _filteredProducts.isEmpty
+                      ? const Center(child: Text('No products found.'))
+                      : GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.75,
+                            crossAxisSpacing: 15,
+                            mainAxisSpacing: 15,
+                          ),
+                          itemCount: _filteredProducts.length,
+                          itemBuilder: (context, index) {
+                            final product = _filteredProducts[index];
+                            return GestureDetector(
+                              onTap: () {
+                                _showProductDetails(context, product);
+                              },
+                              child: ProductCard(
+                                id: product['id'],
+                                imagePath: product['imageUrl'] ?? '',
+                                title: product['title'] ?? 'Untitled',
+                                price:
+                                    'Rs. ${(product['pricing'] as num? ?? 0).toStringAsFixed(2)}',
+                                product: product,
+                              ),
+                            );
+                          },
+                        ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   // Helper method to build detail rows
   Widget _buildDetailRow({
