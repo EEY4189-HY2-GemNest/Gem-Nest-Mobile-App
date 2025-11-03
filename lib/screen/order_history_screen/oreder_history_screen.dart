@@ -98,4 +98,22 @@ class OrderHistoryScreen extends StatelessWidget {
                             const Text('Total',
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 16)),
-
+                            Text(
+                                'Rs. ${order['totalAmount'].toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: Colors.green)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
+  }
