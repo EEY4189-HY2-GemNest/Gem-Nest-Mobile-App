@@ -256,7 +256,84 @@ class _CategoryScreenState extends State<CategoryScreen> {
                               ),
                             ),
                           )
-                        
+                        else
+                          Container(
+                            height: 200,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: const Icon(Icons.image_not_supported,
+                                size: 50, color: Colors.grey),
+                          ),
+                        const SizedBox(height: 16),
+
+                        // Product Title (unchanged)
+                        Text(
+                          product['title'] ?? 'Untitled',
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 8),
+
+                        // Price (unchanged)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.green[100],
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            'Price: Rs. ${(product['pricing'] as num? ?? 0).toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Product Details
+                        _buildDetailRow(
+                          icon: Icons.inventory,
+                          label: 'Quantity',
+                          value: product['quantity']?.toString() ?? 'N/A',
+                        ),
+                        _buildDetailRow(
+                          icon: Icons.straighten,
+                          label: 'Unit',
+                          value: product['unit'] ?? 'N/A',
+                        ),
+                        _buildDetailRow(
+                          icon: Icons.description,
+                          label: 'Description',
+                          value: product['description'] ?? 'No description',
+                          isMultiLine: true,
+                        ),
+                        _buildDetailRow(
+                          icon: Icons.category,
+                          label: 'Category',
+                          value: product['category'] ?? 'N/A',
+                        ),
+                        _buildDetailRow(
+                          icon: Icons.person,
+                          label: 'Listed by',
+                          value: isLoadingSeller
+                              ? 'Loading...' // Show loading while fetching
+                              : sellerName ?? 'Unknown',
+                        ),
+                        const SizedBox(height: 16), // Extra space at the bottom
+                      ],
+                    ),
+                  ),
                   // Close Icon in Top-Right Corner (unchanged)
                   Positioned(
                     top: 0,
