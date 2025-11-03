@@ -117,3 +117,21 @@ class OrderHistoryScreen extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: Colors.blue[700]),
+          const SizedBox(width: 12),
+          Text('$label ',
+              style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+          Expanded(
+            child: Text(value, style: const TextStyle(fontSize: 14)),
+          ),
+        ],
+      ),
+    );
+  }
+}
