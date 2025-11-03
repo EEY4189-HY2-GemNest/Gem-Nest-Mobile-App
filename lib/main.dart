@@ -47,7 +47,20 @@ void main() async {
   }
 }
 
-
+// Function to sign in anonymously (can be called from elsewhere if needed)
+Future<void> signInAnonymously() async {
+  try {
+    UserCredential userCredential =
+        await FirebaseAuth.instance.signInAnonymously();
+    print('Signed in anonymously with UID: ${userCredential.user?.uid}');
+  } on FirebaseAuthException catch (e) {
+    print('Failed to sign in anonymously: ${e.message}');
+    rethrow; // Optionally rethrow to handle this error elsewhere
+  } catch (e) {
+    print('Unexpected error during anonymous sign-in: $e');
+    rethrow;
+  }
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
