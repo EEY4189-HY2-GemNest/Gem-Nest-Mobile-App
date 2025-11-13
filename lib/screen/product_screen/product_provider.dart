@@ -19,10 +19,22 @@ class Product {
     );
   }
 }
+
 // Create the ProductProvider class
 class ProductProvider with ChangeNotifier {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   List<Product> _products = [];
 
   List<Product> get products => _products;
+  // Fetch products from Firestore
+  Future<void> fetchProducts() async {
+    try {
+      QuerySnapshot snapshot = await _db.collection('products').get();
+      _products =
+          snapshot.docs.map((doc) => Product.fromFirestore(doc)).toList();
+      notifyListeners();
+    } catch (e) {
+      print("Error fetching products: $e");
+    }
+  }
 }
