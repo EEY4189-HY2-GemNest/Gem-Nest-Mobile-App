@@ -18,8 +18,19 @@ class ProductCard extends StatelessWidget {
 
   @override
 Widget build(BuildContext context) {
-  return Consumer<CartProvider>(
-    builder: (context, cartProvider, child) {
+    return Consumer<CartProvider>(
+      builder: (context, cartProvider, child) {
+        final cartItem = cartProvider.cartItems.firstWhere(
+          (item) => item.id == id,
+          orElse: () => CartItem(
+            id: id,
+            imagePath: '',
+            title: '',
+            price: 0,
+            quantity: 0,
+          ),
+        );
+        final int quantity = cartItem.quantity;
       return const SizedBox();
     },
   );
