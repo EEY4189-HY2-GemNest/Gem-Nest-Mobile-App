@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gemhub/screens/cart_screen/cart_provider.dart';
+import 'package:provider/provider.dart';
 
 class ProductCard extends StatelessWidget {
   final String imagePath;
@@ -144,8 +146,6 @@ class ProductCard extends StatelessWidget {
             ),
           ),
         );
-
-        return const SizedBox();
       },
     );
   }
