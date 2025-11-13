@@ -86,9 +86,29 @@ class ProductCard extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
+                          quantity == 0
+                            ? SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    cartProvider.addToCart(product);
+                                  },
+                                  child: const Text("Add to Cart"),
+                                ),
+                            )
+                              
                         ],
+                        
                       ),
                     ),
+                    
                   ),
                   const SizedBox(height: 5),
                 ],
