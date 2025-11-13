@@ -37,4 +37,16 @@ class ProductProvider with ChangeNotifier {
       print("Error fetching products: $e");
     }
   }
+
+  // Sort products by price (low to high)
+  void sortProductsByPriceLowToHigh() {
+    _products.sort((a, b) => a.price.compareTo(b.price));
+    notifyListeners();
+  }
+
+// Sort products by price (high to low)
+  void sortProductsByPriceHighToLow() {
+    _products.sort((a, b) => b.price.compareTo(a.price));
+    notifyListeners();
+  }
 }
