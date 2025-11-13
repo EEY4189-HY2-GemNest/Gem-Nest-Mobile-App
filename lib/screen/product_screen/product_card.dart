@@ -17,7 +17,12 @@ class ProductCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    return const SizedBox(); // Placeholder for future content
-  }
+Widget build(BuildContext context) {
+  return Consumer<CartProvider>(
+    builder: (context, cartProvider, child) {
+      return const SizedBox();
+    },
+  );
+}
+
 }
