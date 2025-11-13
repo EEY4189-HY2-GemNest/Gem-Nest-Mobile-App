@@ -87,28 +87,56 @@ class ProductCard extends StatelessWidget {
                             ),
                           ),
                           quantity == 0
-                            ? SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blue,
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
+                              ? SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blue,
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
                                     ),
+                                    onPressed: () {
+                                      cartProvider.addToCart(product);
+                                    },
+                                    child: const Text("Add to Cart"),
                                   ),
-                                  onPressed: () {
-                                    cartProvider.addToCart(product);
-                                  },
-                                  child: const Text("Add to Cart"),
+                                )
+                              : Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.remove,
+                                            color: Colors.blue),
+                                        onPressed: () =>
+                                            cartProvider.decrementQuantity(id),
+                                      ),
+                                      Text(
+                                        "$quantity",
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.add,
+                                            color: Colors.blue),
+                                        onPressed: () =>
+                                            cartProvider.incrementQuantity(id),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                            )
-                              
                         ],
-                        
                       ),
                     ),
-                    
                   ),
                   const SizedBox(height: 5),
                 ],
