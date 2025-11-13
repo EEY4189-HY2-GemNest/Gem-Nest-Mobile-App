@@ -19,3 +19,10 @@ class Product {
     );
   }
 }
+// Create the ProductProvider class
+class ProductProvider with ChangeNotifier {
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  List<Product> _products = [];
+
+  List<Product> get products => _products;
+}
