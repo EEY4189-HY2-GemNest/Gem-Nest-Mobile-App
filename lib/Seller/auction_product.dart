@@ -3,6 +3,8 @@
   late AnimationController _controller;
   late Animation<double> _animation;
   File? _image;
+    DateTime? _selectedEndTime;
+
 
   @override
   void initState() {
@@ -44,6 +46,37 @@
       return await snapshot.ref.getDownloadURL();
     }
     return null;
+  }
+
+  Future<void> _selectDateTime(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+
+    if (pickedDate != null) {
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+
+      if (pickedTime != null) {
+        setState(() {
+          _selectedEndTime = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          );
+          // Format for display
+          _endTimeController.text =
+              DateFormat('yyyy-MM-dd HH:mm').format(_selectedEndTime!);
+        });
+      }
+    }
   }
 
       body: SafeArea(
@@ -89,7 +122,38 @@
                             ),
                     ),
                   ),
-
+                  GestureDetector(
+                        onTap: () => _selectDateTime(context),
+                        child: AbsorbPointer(
+                          child: TextFormField(
+                            controller: _endTimeController,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.grey[900],
+                              hintText: 'Select date and time',
+                              hintStyle: const TextStyle(
+                                  color: Colors.white54, fontSize: 14),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(
+                                    color: Colors.blue, width: 2),
+                              ),
+                              errorStyle: const TextStyle(
+                                  color: Colors.red, fontSize: 12),
+                              suffixIcon: const Icon(Icons.calendar_today,
+                                  color: Colors.blue),
+                            ),
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 16),
+                            validator: (value) =>
+                                value!.isEmpty ? 'End time is required' : null,
+                          ),
+                        ),
+                      ),
                 ],
               ),
             ),
