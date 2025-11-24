@@ -2,7 +2,7 @@
 
   late AnimationController _controller;
   late Animation<double> _animation;
-  
+  File? _image;
 
   @override
   void initState() {
@@ -25,6 +25,27 @@
     super.dispose();
   }
 
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<String?> _uploadImage() async {
+    if (_image != null) {
+      String fileName =
+          'auction_images/${DateTime.now().millisecondsSinceEpoch}_${_image!.path.split('/').last}';
+      UploadTask uploadTask = _storage.ref(fileName).putFile(_image!);
+      TaskSnapshot snapshot = await uploadTask;
+      return await snapshot.ref.getDownloadURL();
+    }
+    return null;
+  }
+
       body: SafeArea(
         child: FadeTransition(
           opacity: _animation,
@@ -35,14 +56,48 @@
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.grey[900]!, Colors.grey[800]!],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.blue, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.blue.withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: _image != null
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(14),
+                              child: Image.file(_image!, fit: BoxFit.cover),
+                            )
+                          : const Center(
+                              child: Icon(Icons.camera_alt,
+                                  color: Colors.white, size: 40),
+                            ),
+                    ),
+                  ),
+
                 ],
               ),
             ),
           ),
         ),
       ),
-    );
-  }
+    
+  
 
   Widget _buildInputField({
     required String label,
