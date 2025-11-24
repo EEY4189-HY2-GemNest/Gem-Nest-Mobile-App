@@ -1,10 +1,33 @@
+import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
+class AuctionProduct extends StatefulWidget {
+  const AuctionProduct({super.key});
+
+  @override
+  State<AuctionProduct> createState() => _AuctionProductState();
+}
+
+class _AuctionProductState extends State<AuctionProduct>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
   File? _image;
-    DateTime? _selectedEndTime;
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _currentBidController = TextEditingController();
+  final TextEditingController _minimumIncrementController =
+      TextEditingController();
+  final TextEditingController _endTimeController = TextEditingController();
 
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+  DateTime? _selectedEndTime;
 
   @override
   void initState() {
@@ -79,6 +102,175 @@
     }
   }
 
+  Future<void> _saveAuctionToFirestore(String? imageUrl) async {
+    try {
+      // Convert to ISO 8601 format for Firebase
+      String endTimeIso = _selectedEndTime != null
+          ? _selectedEndTime!.toUtc().toIso8601String()
+          : DateTime.now().toUtc().toIso8601String();
+
+      await _firestore.collection('auctions').add({
+        'title': _titleController.text,
+        'currentBid': double.tryParse(_currentBidController.text) ?? 0.0,
+        'endTime': endTimeIso,
+        'imagePath': imageUrl,
+        'lastBidTime': FieldValue.serverTimestamp(),
+        'minimumIncrement':
+            double.tryParse(_minimumIncrementController.text) ?? 0.0,
+        'paymentInitiatedAt': null,
+        'paymentStatus': 'pending',
+        'winningUserId': null,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      _showErrorDialog('Error saving auction: $e');
+    }
+  }
+
+  void _showConfirmationDialog() {
+    if (_formKey.currentState!.validate() &&
+        _image != null &&
+        _selectedEndTime != null) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: Colors.grey[900],
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text(
+            'Confirm Auction',
+            style: TextStyle(
+                color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          content: const Text(
+            'Are you sure you want to start this auction?',
+            style: TextStyle(color: Colors.white70, fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                String? imageUrl = await _uploadImage();
+                await _saveAuctionToFirestore(imageUrl);
+                _showSuccessDialog();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text('Confirm'),
+            ),
+          ],
+        ),
+      );
+    } else {
+      _showErrorDialog(
+          'Please fill all fields, upload an image, and select an end time.');
+    }
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Success!',
+          style: TextStyle(
+              color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        content: const Text(
+          'Your auction has been created successfully!',
+          style: TextStyle(color: Colors.white70, fontSize: 16),
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pop(context, {
+                'title': _titleController.text,
+                'imagePath': _image?.path,
+                'type': 'auction',
+              });
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Error',
+          style: TextStyle(
+              color: Colors.red, fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          message,
+          style: const TextStyle(color: Colors.white70, fontSize: 16),
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blueAccent, Colors.lightBlue],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        elevation: 4,
+        shadowColor: Colors.black26,
+        title: const Text(
+          'Auction Product',
+          style: TextStyle(
+              color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
       body: SafeArea(
         child: FadeTransition(
           opacity: _animation,
@@ -89,7 +281,11 @@
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-
+                  const Text(
+                    'Photo (First image will be displayed)',
+                    style: TextStyle(color: Colors.white70, fontSize: 16),
+                  ),
+                  const SizedBox(height: 16),
                   GestureDetector(
                     onTap: _pickImage,
                     child: Container(
@@ -122,7 +318,42 @@
                             ),
                     ),
                   ),
-                  GestureDetector(
+                  const SizedBox(height: 32),
+                  _buildInputField(
+                    label: 'Title',
+                    hint: 'Enter auction title',
+                    controller: _titleController,
+                    validator: (value) =>
+                        value!.isEmpty ? 'Title is required' : null,
+                  ),
+                  const SizedBox(height: 20),
+                  _buildInputField(
+                    label: 'Current Bid',
+                    hint: 'Enter current bid',
+                    controller: _currentBidController,
+                    validator: (value) =>
+                        value!.isEmpty ? 'Current bid is required' : null,
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 20),
+                  _buildInputField(
+                    label: 'Minimum Increment',
+                    hint: 'Enter minimum increment',
+                    controller: _minimumIncrementController,
+                    validator: (value) =>
+                        value!.isEmpty ? 'Minimum increment is required' : null,
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 20),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'End Time',
+                        style: TextStyle(color: Colors.white70, fontSize: 16),
+                      ),
+                      const SizedBox(height: 10),
+                      GestureDetector(
                         onTap: () => _selectDateTime(context),
                         child: AbsorbPointer(
                           child: TextFormField(
@@ -154,14 +385,48 @@
                           ),
                         ),
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+                  Center(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.85,
+                      child: ElevatedButton(
+                        onPressed: _showConfirmationDialog,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 6,
+                          shadowColor: Colors.blue.withOpacity(0.5),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'ALL DONE',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(width: 8),
+                            Icon(Icons.check_circle,
+                                size: 20, color: Colors.white),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
         ),
       ),
-    
-  
+    );
+  }
 
   Widget _buildInputField({
     required String label,
@@ -204,4 +469,4 @@
       ],
     );
   }
-
+}
