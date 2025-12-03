@@ -287,7 +287,58 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
- 
+  Widget _buildCardDetailsInput() {
+    return Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            _buildTextField(
+              _cardNumberController,
+              'Card Number',
+              _getCardType(_cardNumberController.text) == 'Visa'
+                  ? Icons.credit_card
+                  : Icons.payment,
+              maxLength: 16,
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildTextField(
+                    _expiryController,
+                    'MM/YY',
+                    Icons.calendar_today,
+                    onChanged: _formatExpiryDate,
+                    maxLength: 5,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildTextField(_cvvController, 'CVV', Icons.lock,
+                      maxLength: 3),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Checkbox(
+                  value: saveCard,
+                  onChanged: (value) => setState(() => saveCard = value!),
+                  activeColor: Colors.blue[700],
+                ),
+                const Text('Save this card for future use',
+                    style: TextStyle(fontSize: 16)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _buildTotalCard() {
     return Card(
