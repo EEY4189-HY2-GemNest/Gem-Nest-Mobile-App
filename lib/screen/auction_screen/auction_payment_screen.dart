@@ -504,7 +504,381 @@ class _AuctionPaymentScreenState extends State<AuctionPaymentScreen> {
                 ),
               ],
             ),
-           
+            const SizedBox(height: 24),
+            if (_selectedDeliveryOption == 'pickup') ...[
+              const Text(
+                'Pickup Location',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.blueGrey,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: const Text(
+                  '123 Luxury Auction St, Colombo, Sri Lanka',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+              ),
+            ] else ...[
+              const Text(
+                'Delivery Details',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.blueGrey,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _fullNameController,
+                decoration: InputDecoration(
+                  labelText: 'Full Name *',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  errorText: _fullNameController.text.isEmpty &&
+                          _selectedDeliveryOption == 'delivery'
+                      ? 'Required'
+                      : null,
+                ),
+                onChanged: (_) => setState(() {}),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _addressController,
+                decoration: InputDecoration(
+                  labelText: 'Address *',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  errorText: _addressController.text.isEmpty &&
+                          _selectedDeliveryOption == 'delivery'
+                      ? 'Required'
+                      : null,
+                ),
+                onChanged: (_) => setState(() {}),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _cityController,
+                decoration: InputDecoration(
+                  labelText: 'City *',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  errorText: _cityController.text.isEmpty &&
+                          _selectedDeliveryOption == 'delivery'
+                      ? 'Required'
+                      : null,
+                ),
+                onChanged: (_) => setState(() {}),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _postalCodeController,
+                decoration: InputDecoration(
+                  labelText: 'Postal Code (5 digits) *',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  errorText: _selectedDeliveryOption == 'delivery' &&
+                          (!_postalCodeController.text.isNotEmpty ||
+                              !RegExp(r'^\d{5}$')
+                                  .hasMatch(_postalCodeController.text))
+                      ? 'Enter a valid 5-digit code'
+                      : null,
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (_) => setState(() {}),
+              ),
+            ],
+            const SizedBox(height: 24),
+            const Text(
+              'Payment Method',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.blueGrey,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedPaymentMethod =
+                            _selectedDeliveryOption == 'pickup'
+                                ? 'cash'
+                                : 'cod';
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: (_selectedPaymentMethod == 'cash' &&
+                                    _selectedDeliveryOption == 'pickup') ||
+                                (_selectedPaymentMethod == 'cod' &&
+                                    _selectedDeliveryOption == 'delivery')
+                            ? Colors.blue[100]
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: (_selectedPaymentMethod == 'cash' &&
+                                      _selectedDeliveryOption == 'pickup') ||
+                                  (_selectedPaymentMethod == 'cod' &&
+                                      _selectedDeliveryOption == 'delivery')
+                              ? Colors.blue[700]!
+                              : Colors.grey[300]!,
+                          width: 2,
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(Icons.money, color: Colors.blue[700], size: 30),
+                          const SizedBox(height: 8),
+                          Text(
+                            _selectedDeliveryOption == 'pickup'
+                                ? 'Cash Payment'
+                                : 'Cash on Delivery',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.blue[900],
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedPaymentMethod = 'card';
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: _selectedPaymentMethod == 'card'
+                            ? Colors.blue[100]
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: _selectedPaymentMethod == 'card'
+                              ? Colors.blue[700]!
+                              : Colors.grey[300]!,
+                          width: 2,
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(Icons.credit_card,
+                              color: Colors.blue[700], size: 30),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Card Payment',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.blue[900],
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            if (_selectedPaymentMethod == 'card') ...[
+              const Text(
+                'Card Details',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.blueGrey,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _cardNumberController,
+                decoration: InputDecoration(
+                  labelText: 'Card Number (16 digits) *',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  prefixIcon: Icon(Icons.credit_card, color: Colors.blue[700]),
+                  errorText: _selectedPaymentMethod == 'card' &&
+                          _cardNumberController.text.length < 16
+                      ? 'Enter a valid 16-digit card number'
+                      : null,
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (_) => setState(() {}),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _expDateController,
+                      decoration: InputDecoration(
+                        labelText: 'Exp Date (MM/YY) *',
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        errorText: _selectedPaymentMethod == 'card' &&
+                                !RegExp(r'^\d{2}/\d{2}$')
+                                    .hasMatch(_expDateController.text)
+                            ? 'Enter MM/YY'
+                            : null,
+                      ),
+                      keyboardType: TextInputType.datetime,
+                      onChanged: (_) => setState(() {}),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: TextField(
+                      controller: _cvcController,
+                      decoration: InputDecoration(
+                        labelText: 'CVC (3-4 digits) *',
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        errorText: _selectedPaymentMethod == 'card' &&
+                                !RegExp(r'^\d{3,4}$')
+                                    .hasMatch(_cvcController.text)
+                            ? 'Enter 3-4 digits'
+                            : null,
+                      ),
+                      keyboardType: TextInputType.number,
+                      onChanged: (_) => setState(() {}),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Item Price',
+                        style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                      ),
+                      Text(
+                        _formatCurrency(widget.itemPrice),
+                        style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                      ),
+                    ],
+                  ),
+                  if (_selectedDeliveryOption == 'delivery') ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Delivery Charge',
+                          style:
+                              TextStyle(fontSize: 16, color: Colors.grey[700]),
+                        ),
+                        Text(
+                          _formatCurrency(_deliveryCharge),
+                          style:
+                              TextStyle(fontSize: 16, color: Colors.grey[700]),
+                        ),
+                      ],
+                    ),
+                  ],
+                  const Divider(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Total',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.blue[900],
+                        ),
+                      ),
+                      Text(
+                        _formatCurrency(_calculateTotalPrice()),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.blue[900],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton(
+                onPressed: _isFormValid() && !_isLoading
+                    ? _handlePaymentSubmission
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue[700],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 4,
+                ),
+                child: _isLoading
+                    ? const CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2.5,
+                      )
+                    : const Text(
+                        'Confirm Payment',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
