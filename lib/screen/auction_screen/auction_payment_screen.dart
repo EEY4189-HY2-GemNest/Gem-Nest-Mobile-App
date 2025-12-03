@@ -51,5 +51,24 @@ class _AuctionPaymentScreenState extends State<AuctionPaymentScreen> {
         : widget.itemPrice;
   }
 
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.info, color: Colors.white, size: 20),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        backgroundColor: Colors.blue[800],
+        elevation: 6,
+        margin: const EdgeInsets.all(16),
+      ),
+    );
+  }
+
   
 }
