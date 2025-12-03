@@ -881,5 +881,15 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     );
   }
 
-  
+  String _getButtonText() {
+    if (_remainingTime.inSeconds > 0) {
+      return 'Place Bid';
+    } else if (_winningUserId == FirebaseAuth.instance.currentUser?.uid) {
+      return widget.paymentStatus == 'completed' ? 'Paid' : 'Pay Now';
+    } else {
+      return 'Auction Ended';
+    }
+  }
+
+ 
 }
