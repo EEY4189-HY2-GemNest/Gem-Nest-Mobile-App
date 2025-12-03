@@ -287,5 +287,16 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     });
   }
 
+  void _updateTime(Timer timer) {
+    final now = DateTime.now();
+    if (widget.endTime.isAfter(now)) {
+      setState(() {
+        _remainingTime = widget.endTime.difference(now);
+      });
+    } else {
+      _timer.cancel();
+    }
+  }
+
   
 }
