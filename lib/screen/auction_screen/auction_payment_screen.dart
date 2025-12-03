@@ -183,5 +183,99 @@ class _AuctionPaymentScreenState extends State<AuctionPaymentScreen> {
         _areCardFieldsValid();
   }
 
-  
+  Future<void> _handlePaymentSubmission() async {
+    if (!_isFormValid()) {
+      _showSnackBar('Please fill all required fields correctly');
+      return;
+    }
+
+    final currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser == null) {
+      _showSnackBar('Please log in to proceed');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      Map<String, dynamic> paymentData = {
+        'auctionId': widget.auctionId,
+        'userId': currentUser.uid,
+        'totalPrice': _calculateTotalPrice(),
+        'paymentMethod': _selectedPaymentMethod == 'cash' &&
+                _selectedDeliveryOption == 'pickup'
+            ? 'cash'
+            : _selectedPaymentMethod,
+        'paymentStatus': 'pending',
+        'paymentInitiatedAt': FieldValue.serverTimestamp(),
+      };
+
+      if (_selectedDeliveryOption == 'delivery') {
+        paymentData.addAll({
+          'deliveryDetails': {
+            'fullName': _fullNameController.text,
+            'address': _addressController.text,
+            'city': _cityController.text,
+            'postalCode': _postalCodeController.text,
+          },
+        });
+      }
+
+      if (_selectedPaymentMethod == 'card') {
+        paymentData.addAll({
+          'cardDetails': {
+            'cardNumber': _cardNumberController.text,
+            'expDate': _expDateController.text,
+            'cvc': _cvcController.text,
+          },
+        });
+      }
+
+      DocumentReference paymentRef = await FirebaseFirestore.instance
+          .collection('payments')
+          .add(paymentData);
+
+      DateTime paymentDate = DateTime.now();
+      DateTime deliveryDate = paymentDate.add(const Duration(days: 5));
+
+      Map<String, dynamic> orderData = {
+        'userId': currentUser.uid,
+        'auctionId': widget.auctionId,
+        'orderDate': paymentDate.toIso8601String(),
+        'deliveryDate': _selectedDeliveryOption == 'delivery'
+            ? deliveryDate.toIso8601String()
+            : null,
+        'address': _selectedDeliveryOption == 'delivery'
+            ? '${_fullNameController.text}, ${_addressController.text}, ${_cityController.text}, ${_postalCodeController.text}'
+            : 'Pickup at 123 Luxury Auction St, Colombo, Sri Lanka',
+        'paymentMethod': _selectedPaymentMethod == 'cash' &&
+                _selectedDeliveryOption == 'pickup'
+            ? 'cash'
+            : _selectedPaymentMethod,
+        'totalAmount': _calculateTotalPrice(),
+        'status': 'Pending',
+        'createdAt': FieldValue.serverTimestamp(),
+      };
+
+      await FirebaseFirestore.instance.collection('orders').add(orderData);
+
+      await FirebaseFirestore.instance
+          .collection('auctions')
+          .doc(widget.auctionId)
+          .update({
+        'paymentStatus': 'completed',
+        'paymentInitiatedAt': FieldValue.serverTimestamp(),
+      });
+
+      await _showPaymentSuccessDialog();
+    } catch (e) {
+      print("Payment error: $e");
+      _showSnackBar('Payment error: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+ 
 }
