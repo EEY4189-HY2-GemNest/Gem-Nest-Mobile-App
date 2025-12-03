@@ -903,5 +903,15 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     }
   }
 
-
+  VoidCallback? _getButtonAction() {
+    if (_remainingTime.inSeconds > 0 && !_isLoading) {
+      return _placeBid;
+    } else if (_winningUserId == FirebaseAuth.instance.currentUser?.uid &&
+        !_isLoading &&
+        widget.paymentStatus != 'completed') {
+      return _handlePayment;
+    } else {
+      return null; // Disable button if payment is completed or user is not the winner
+    }
+  }
 }
