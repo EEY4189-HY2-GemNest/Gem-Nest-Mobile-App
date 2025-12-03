@@ -419,7 +419,34 @@ class _SellerHomePageState extends State<SellerHomePage>
                   ),
                   label: 'Notifications',
                 ),
-               
+                BottomNavigationBarItem(
+                  icon: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: _selectedIndex == 2
+                          ? Colors.blueAccent.withOpacity(0.2)
+                          : Colors.transparent,
+                    ),
+                    child: const Icon(Icons.person, size: 28),
+                  ),
+                  label: 'Profile',
+                ),
+                BottomNavigationBarItem(
+                  icon: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: _selectedIndex == 3
+                          ? Colors.blueAccent.withOpacity(0.2)
+                          : Colors.transparent,
+                    ),
+                    child: const Icon(Icons.logout, size: 28),
+                  ),
+                  label: 'Logout',
+                ),
               ],
               selectedLabelStyle:
                   const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
