@@ -480,5 +480,44 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     }
   }
 
-  
+  Future<void> _handlePayment() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+
+    print("Current user UID: ${currentUser?.uid ?? 'Not authenticated'}");
+    print("Auction ID: ${widget.auctionId}");
+
+    if (currentUser == null) {
+      _showSnackBar('Please log in to pay');
+      return;
+    }
+
+    if (_winningUserId != currentUser.uid) {
+      _showSnackBar('Only the winner can initiate payment');
+      return;
+    }
+
+    if (widget.endTime.isAfter(DateTime.now())) {
+      _showSnackBar('Auction is still active');
+      return;
+    }
+
+    if (widget.paymentStatus == 'completed') {
+      _showSnackBar('Payment already completed');
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AuctionPaymentScreen(
+          auctionId: widget.auctionId,
+          itemPrice: _currentBid,
+          title: widget.title,
+          imagePath: widget.imagePath,
+        ),
+      ),
+    );
+  }
+
+ 
 }
