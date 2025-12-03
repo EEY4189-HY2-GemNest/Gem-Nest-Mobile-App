@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gemhub/screens/category_screen/category_screen.dart';
+import 'package:gemnest_mobile_app/screens/category_screen/category_screen.dart';
 
 class CategoryCard extends StatelessWidget {
   final String imagePath;
