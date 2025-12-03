@@ -519,5 +519,52 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     );
   }
 
- 
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.info, color: Colors.white, size: 20),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        backgroundColor: Colors.blue[800],
+        elevation: 6,
+        margin: const EdgeInsets.all(16),
+      ),
+    );
+  }
+
+  String _formatTime(Duration duration) {
+    if (duration.inSeconds <= 0) {
+      return '00d : 00h : 00m : 00s';
+    }
+
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+
+    final days = duration.inDays;
+    final hours = twoDigits(duration.inHours.remainder(24));
+    final minutes = twoDigits(duration.inMinutes.remainder(60));
+    final seconds = twoDigits(duration.inSeconds.remainder(60));
+
+    return '${days}d : ${hours}h : ${minutes}m : ${seconds}s';
+  }
+
+  String _formatCurrency(double amount) {
+    return 'Rs.${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}';
+  }
+
+  @override
+  void dispose() {
+    _auctionSubscription.cancel();
+    _timer.cancel();
+    _bidController.dispose();
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  
 }
