@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gemnest_mobile_app/screens/order_history_screen/oreder_history_screen.dart';
+import 'package:gemnest_mobile_app/screen/order_history_screen/oreder_history_screen.dart';
 
 class AuctionPaymentScreen extends StatefulWidget {
   final String auctionId;
