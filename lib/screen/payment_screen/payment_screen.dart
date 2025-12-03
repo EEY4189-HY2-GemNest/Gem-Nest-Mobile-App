@@ -232,7 +232,62 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
+  Widget _buildSavedCards() {
+    return Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Saved Cards',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge!
+                  .copyWith(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+            const SizedBox(height: 16),
+            ...savedCards.map(
+              (card) => GestureDetector(
+                onTap: () {
+                  setState(() {
+                    selectedSavedCard = card['number'] == selectedSavedCard
+                        ? null
+                        : card['number'];
+                    isCardDetailsComplete = selectedSavedCard != null;
+                  });
+                },
+                child: ListTile(
+                  leading: Icon(
+                    card['type'] == 'Visa' ? Icons.credit_card : Icons.payment,
+                    color: Colors.blue[700],
+                  ),
+                  title: Text(card['number']!),
+                  subtitle: Text('Expires: ${card['expiry']}'),
+                  trailing: Radio<String>(
+                    value: card['number']!,
+                    groupValue: selectedSavedCard,
+                    activeColor: Colors.blue[700],
+                    onChanged: (value) {
+                      setState(() {
+                        selectedSavedCard =
+                            value == selectedSavedCard ? null : value;
+                        isCardDetailsComplete = selectedSavedCard != null;
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
+ 
 
   Widget _buildTotalCard() {
     return Card(
