@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gemhub/screens/cart_screen/cart_provider.dart';
-import 'package:gemhub/screens/payment_screen/payment_screen.dart';
+import 'package:gemnest_mobile_app/screens/cart_screen/cart_provider.dart';
+import 'package:gemnest_mobile_app/screens/payment_screen/payment_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
