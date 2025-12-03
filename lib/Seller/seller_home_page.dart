@@ -342,7 +342,95 @@ class _SellerHomePageState extends State<SellerHomePage>
               ),
             ],
           ),
-          
+          bottomNavigationBar: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.grey[900]!, Colors.black87],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.blue.withOpacity(0.2),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: BottomNavigationBar(
+              backgroundColor: Colors.transparent,
+              selectedItemColor: Colors.blueAccent,
+              unselectedItemColor: Colors.grey[400],
+              type: BottomNavigationBarType.fixed,
+              elevation: 0,
+              currentIndex: _selectedIndex,
+              onTap: _onItemTapped,
+              items: [
+                BottomNavigationBarItem(
+                  icon: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: _selectedIndex == 0
+                          ? Colors.blueAccent.withOpacity(0.2)
+                          : Colors.transparent,
+                    ),
+                    child: const Icon(Icons.home, size: 28),
+                  ),
+                  label: 'Home',
+                ),
+                BottomNavigationBarItem(
+                  icon: Stack(
+                    children: [
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: _selectedIndex == 1
+                              ? Colors.blueAccent.withOpacity(0.2)
+                              : Colors.transparent,
+                        ),
+                        child: const Icon(Icons.notifications, size: 28),
+                      ),
+                      if (_notifications.isNotEmpty)
+                        Positioned(
+                          right: 0,
+                          top: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.redAccent,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              _notifications.length.toString(),
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  label: 'Notifications',
+                ),
+               
+              ],
+              selectedLabelStyle:
+                  const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+              unselectedLabelStyle: const TextStyle(fontSize: 10),
+              showUnselectedLabels: true,
+              selectedIconTheme:
+                  const IconThemeData(size: 32, color: Colors.blueAccent),
+              unselectedIconTheme:
+                  const IconThemeData(size: 28, color: Colors.grey),
+            ),
+          ),
         ),
       ),
     );
