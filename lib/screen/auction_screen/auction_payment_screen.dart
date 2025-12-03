@@ -277,5 +277,43 @@ class _AuctionPaymentScreenState extends State<AuctionPaymentScreen> {
     }
   }
 
- 
-}
+  @override
+  void dispose() {
+    _fullNameController.dispose();
+    _addressController.dispose();
+    _cityController.dispose();
+    _postalCodeController.dispose();
+    _cardNumberController.dispose();
+    _expDateController.dispose();
+    _cvcController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[100],
+      appBar: AppBar(
+        title: const Text(
+          'Payment',
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            fontSize: 26,
+            letterSpacing: 1.5,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blue[900]!, Colors.blue[700]!],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+        ),
+      ),
+      
