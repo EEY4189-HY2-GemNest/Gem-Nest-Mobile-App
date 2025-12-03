@@ -29,6 +29,43 @@ class PaymentScreen extends StatefulWidget {
   State<PaymentScreen> createState() => _PaymentScreenState();
 }
 
+class _PaymentScreenState extends State<PaymentScreen> {
+  String paymentMethod = 'Cash on Delivery';
+  bool isCardDetailsComplete = false;
+  bool saveCard = false;
+  final _cardNumberController = TextEditingController();
+  final _expiryController = TextEditingController();
+  final _cvvController = TextEditingController();
+
+  List<Map<String, String>> savedCards = [];
+  String? selectedSavedCard;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedCards();
+  }
+
+  // Load saved cards from SharedPreferences
+  Future<void> _loadSavedCards() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedCardsString = prefs.getString('savedCards');
+    if (savedCardsString != null) {
+      setState(() {
+        savedCards = List<Map<String, String>>.from(
+            savedCardsString.split('|').map((card) {
+          final parts = card.split(',');
+          return {
+            'number': parts[0],
+            'expiry': parts[1],
+            'type': parts[2],
+          };
+        }).where((card) => card['number']!.isNotEmpty));
+      });
+    }
+  }
+
+  // Save cards to SharedPreferences
 
   @override
   void dispose() {
