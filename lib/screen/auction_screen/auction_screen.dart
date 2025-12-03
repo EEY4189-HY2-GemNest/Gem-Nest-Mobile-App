@@ -211,5 +211,59 @@ class AuctionScreen extends StatelessWidget {
   }
 }
 
+class AuctionItemCard extends StatefulWidget {
+  final String auctionId;
+  final String imagePath;
+  final String title;
+  final double currentBid;
+  final DateTime endTime;
+  final double minimumIncrement;
+  final String paymentStatus; // Add paymentStatus field
 
+  const AuctionItemCard({
+    super.key,
+    required this.auctionId,
+    required this.imagePath,
+    required this.title,
+    required this.currentBid,
+    required this.endTime,
+    required this.minimumIncrement,
+    required this.paymentStatus,
+  });
+
+  @override
+  _AuctionItemCardState createState() => _AuctionItemCardState();
+}
+
+class _AuctionItemCardState extends State<AuctionItemCard>
+    with SingleTickerProviderStateMixin {
+  late double _currentBid;
+  late Duration _remainingTime;
+  late Timer _timer;
+  final TextEditingController _bidController = TextEditingController();
+  bool _isLoading = false;
+  late AnimationController _animationController;
+  late Animation<double> _bidAnimation;
+  String? _winningUserId;
+  late StreamSubscription<DocumentSnapshot> _auctionSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentBid = widget.currentBid;
+    _remainingTime = widget.endTime.difference(DateTime.now());
+    _timer = Timer.periodic(const Duration(seconds: 1), _updateTime);
+
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _bidAnimation = Tween<double>(begin: 0.95, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
+
+    _setupRealtimeListener();
+  }
+
+  
 }
