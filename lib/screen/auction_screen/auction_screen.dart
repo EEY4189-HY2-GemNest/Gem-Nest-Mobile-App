@@ -298,5 +298,48 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     }
   }
 
-  
+  Future<void> _placeBid() async {
+    final enteredBid = double.tryParse(_bidController.text.trim());
+    final currentUser = FirebaseAuth.instance.currentUser;
+
+    print("Current user UID: ${currentUser?.uid ?? 'Not authenticated'}");
+    print("Auction ID: ${widget.auctionId}");
+    print("Attempting bid: $enteredBid, Current bid: $_currentBid");
+
+    if (currentUser == null) {
+      _showSnackBar('Please log in to bid');
+      return;
+    }
+
+    if (enteredBid == null) {
+      _showSnackBar('Please enter a valid number');
+      return;
+    }
+
+    if (widget.endTime.isBefore(DateTime.now())) {
+      _showSnackBar('Auction has ended');
+      return;
+    }
+
+    if (enteredBid <= _currentBid) {
+      _showSnackBar('Bid must exceed current bid');
+      return;
+    }
+
+    if ((enteredBid - _currentBid) < widget.minimumIncrement) {
+      _showSnackBar(
+          'Minimum increment: ${_formatCurrency(widget.minimumIncrement)}');
+      return;
+    }
+
+    final docSnapshot = await FirebaseFirestore.instance
+        .collection('auctions')
+        .doc(widget.auctionId)
+        .get();
+    if (!docSnapshot.exists) {
+      _showSnackBar('Auction not found');
+      return;
+    }
+
+   
 }
