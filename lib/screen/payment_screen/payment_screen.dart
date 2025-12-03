@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:gemnest_mobile_app/screens/cart_screen/cart_provider.dart';
-import 'package:gemnest_mobile_app/screens/order_history_screen/oreder_history_screen.dart';
+import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
+import 'package:gemnest_mobile_app/screen/order_history_screen/oreder_history_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
