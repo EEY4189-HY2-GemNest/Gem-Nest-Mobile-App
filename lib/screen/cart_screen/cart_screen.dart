@@ -130,7 +130,58 @@ class CartScreen extends StatelessWidget {
                                           ],
                                         ),
                                       ),
-                                      
+                                      Column(
+                                        children: [
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              color: Colors.blue[50],
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                IconButton(
+                                                  icon: const Icon(Icons.remove,
+                                                      size: 20),
+                                                  onPressed: () => cartProvider
+                                                      .decrementQuantity(
+                                                          item.id),
+                                                ),
+                                                Text(
+                                                  '${item.quantity}',
+                                                  style: const TextStyle(
+                                                      fontSize: 16),
+                                                ),
+                                                IconButton(
+                                                  icon: const Icon(Icons.add,
+                                                      size: 20),
+                                                  onPressed: () => cartProvider
+                                                      .incrementQuantity(
+                                                          item.id),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Text(
+                                            'Rs. ${item.totalPrice.toStringAsFixed(2)}',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.green,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      
+                    ],
+                  ),
           ),
         );
       },
