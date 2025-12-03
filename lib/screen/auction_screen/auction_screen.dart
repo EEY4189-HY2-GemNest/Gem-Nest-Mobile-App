@@ -776,5 +776,110 @@ class _AuctionItemCardState extends State<AuctionItemCard>
                     ),
                   ),
                 ],
-                
+                const SizedBox(height: 20),
+                if (isAuctionActive) ...[
+                  TextField(
+                    controller: _bidController,
+                    keyboardType: TextInputType.number,
+                    enabled: !_isLoading,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.grey[50],
+                      hintText: 'Enter your bid',
+                      hintStyle: TextStyle(color: Colors.grey[400]),
+                      prefixIcon:
+                          Icon(Icons.monetization_on, color: Colors.blue[600]),
+                      suffixIcon: IconButton(
+                        icon: Icon(Icons.clear, color: Colors.grey[400]),
+                        onPressed: () => _bidController.clear(),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide:
+                            BorderSide(color: Colors.blue[200]!, width: 1.5),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide:
+                            BorderSide(color: Colors.blue[700]!, width: 2),
+                      ),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 20),
+                Container(
+                  width: double.infinity,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blue.withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton(
+                    onPressed: _getButtonAction(),
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: _getButtonColor(),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 4,
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.5,
+                            ),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (!isAuctionActive &&
+                                  isCurrentUserWinner &&
+                                  !isPaymentCompleted)
+                                const Icon(Icons.payment, size: 20),
+                              if (!isAuctionActive &&
+                                  isCurrentUserWinner &&
+                                  !isPaymentCompleted)
+                                const SizedBox(width: 8),
+                              if (!isAuctionActive &&
+                                  isCurrentUserWinner &&
+                                  isPaymentCompleted)
+                                const Icon(Icons.check_circle, size: 20),
+                              if (!isAuctionActive &&
+                                  isCurrentUserWinner &&
+                                  isPaymentCompleted)
+                                const SizedBox(width: 8),
+                              Text(
+                                _getButtonText(),
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                            ],
+                          ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  
 }
