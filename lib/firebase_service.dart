@@ -16,4 +16,20 @@ class FirebaseService {
     }
   }
 
+  // Method to fetch products from Firestore
+  Future<List<Map<String, dynamic>>> getProducts() async {
+    try {
+      QuerySnapshot snapshot = await _db.collection('products').get();
+      return snapshot.docs
+          .map((doc) => {
+                'title': doc['title'],
+                'price': doc['price'],
+                'imagePath': doc['imagePath'],
+              })
+          .toList();
+    } catch (e) {
+      print("Error fetching products: $e");
+      return [];
+    }
+  }
 }
