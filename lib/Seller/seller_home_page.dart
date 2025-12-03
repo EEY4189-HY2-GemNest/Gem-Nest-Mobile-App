@@ -6,7 +6,7 @@ import 'package:gemnest_mobile_app/Seller/listed_auction_screen.dart';
 import 'package:gemnest_mobile_app/Seller/listed_product_screen.dart';
 import 'package:gemnest_mobile_app/Seller/order_history_screen.dart';
 import 'package:gemnest_mobile_app/Seller/seller_profile_screen.dart';
-import 'package:gemnest_mobile_app/screens/auth_screens/login_screen.dart';
+import 'package:gemnest_mobile_app/screen/auth_screens/login_screen.dart';
 
 import 'auction_product.dart' as auction;
 import 'notifications_page.dart';
