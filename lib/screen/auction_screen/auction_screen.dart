@@ -643,5 +643,138 @@ class _AuctionItemCardState extends State<AuctionItemCard>
               ],
             ),
           ),
-         
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        widget.title,
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.blue[900],
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.blue[100],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        'Lot #${widget.title.hashCode.toString().substring(0, 4)}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.blue[800],
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                ScaleTransition(
+                  scale: _bidAnimation,
+                  child: Row(
+                    children: [
+                      Icon(Icons.gavel, color: Colors.green[700], size: 22),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Current Bid: ${_formatCurrency(_currentBid)}',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.green[700],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.timer,
+                      color: _remainingTime.inSeconds < 300
+                          ? Colors.red[700]
+                          : Colors.grey[600],
+                      size: 22,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Time Left: ${_formatTime(_remainingTime)}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: _remainingTime.inSeconds < 300
+                            ? Colors.red[700]
+                            : Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Icon(Icons.add_circle_outline,
+                        color: Colors.grey[600], size: 22),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Min. Inc: ${_formatCurrency(widget.minimumIncrement)}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                if (!isAuctionActive && _winningUserId != null) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: isCurrentUserWinner
+                            ? [Colors.green[100]!, Colors.green[50]!]
+                            : [Colors.grey[200]!, Colors.grey[100]!],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          isCurrentUserWinner ? Icons.celebration : Icons.info,
+                          color: isCurrentUserWinner
+                              ? Colors.green[800]
+                              : Colors.grey[800],
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            isCurrentUserWinner
+                                ? 'You Won! Congratulations!'
+                                : 'Won by another bidder',
+                            style: TextStyle(
+                              color: isCurrentUserWinner
+                                  ? Colors.green[800]
+                                  : Colors.grey[800],
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                
 }
