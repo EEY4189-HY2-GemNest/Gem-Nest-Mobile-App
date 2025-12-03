@@ -161,5 +161,27 @@ class _AuctionPaymentScreenState extends State<AuctionPaymentScreen> {
     );
   }
 
- 
+  bool _areDeliveryFieldsValid() {
+    if (_selectedDeliveryOption == 'pickup') return true;
+    return _fullNameController.text.isNotEmpty &&
+        _addressController.text.isNotEmpty &&
+        _cityController.text.isNotEmpty &&
+        _postalCodeController.text.isNotEmpty &&
+        RegExp(r'^\d{5}$').hasMatch(_postalCodeController.text);
+  }
+
+  bool _areCardFieldsValid() {
+    if (_selectedPaymentMethod != 'card') return true;
+    return _cardNumberController.text.length >= 16 &&
+        RegExp(r'^\d{2}/\d{2}$').hasMatch(_expDateController.text) &&
+        RegExp(r'^\d{3,4}$').hasMatch(_cvcController.text);
+  }
+
+  bool _isFormValid() {
+    return _selectedPaymentMethod != null &&
+        _areDeliveryFieldsValid() &&
+        _areCardFieldsValid();
+  }
+
+  
 }
