@@ -48,13 +48,23 @@ class CartScreen extends StatelessWidget {
                 colors: [Colors.grey[100]!, Colors.white],
               ),
             ),
-           
-                            ),
-                          ],
+            child: cartItems.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.shopping_cart_outlined,
+                            size: 80, color: Colors.grey[400]),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Your cart is empty',
+                          style:
+                              TextStyle(fontSize: 20, color: Colors.grey[600]),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  )
+                
           ),
         );
       },
