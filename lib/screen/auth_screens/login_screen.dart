@@ -3,8 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/Seller/seller_home_page.dart';
 import 'package:gemnest_mobile_app/home_screen.dart';
-import 'package:gemnest_mobile_app/screens/auth_screens/forgot_password_screen.dart';
-import 'package:gemnest_mobile_app/screens/auth_screens/signup_screen.dart';
+import 'package:gemnest_mobile_app/screen/auth_screens/forgot_password_screen.dart';
+import 'package:gemnest_mobile_app/screen/auth_screens/signup_screen.dart';
 import 'package:gemnest_mobile_app/widget/custom_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

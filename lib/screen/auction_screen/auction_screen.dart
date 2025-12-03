@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gemnest_mobile_app/screens/auction_screen/auction_payment_screen.dart';
+import 'package:gemnest_mobile_app/screen/auction_screen/auction_payment_screen.dart';
 
 class AuctionScreen extends StatelessWidget {
   const AuctionScreen({super.key});
