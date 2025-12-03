@@ -129,7 +129,216 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
   }
 
-  
+  String _getCardType(String cardNumber) {
+    if (cardNumber.startsWith('4')) return 'Visa';
+    if (cardNumber.startsWith('5')) return 'Mastercard';
+    return 'Unknown';
+  }
+
+  void _formatExpiryDate(String value) {
+    if (value.length == 2 && !value.contains('/')) {
+      _expiryController.text = '$value/';
+      _expiryController.selection = TextSelection.fromPosition(
+        TextPosition(offset: _expiryController.text.length),
+      );
+    }
+  }
+
+  bool _validateCardDetails() {
+    final cardNumber = _cardNumberController.text;
+    final expiry = _expiryController.text;
+    final cvv = _cvvController.text;
+
+    return cardNumber.length >= 16 &&
+        RegExp(r'^\d{2}/\d{2}$').hasMatch(expiry) &&
+        cvv.length == 3;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blueAccent, Colors.lightBlue],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        elevation: 6,
+        shadowColor: Colors.black38,
+        title: const Text(
+          'Payment',
+          style: TextStyle(
+              color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.grey[100]!, Colors.white],
+          ),
+        ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildPaymentOptions(),
+                if (paymentMethod == 'Card Payment') ...[
+                  const SizedBox(height: 20),
+                  if (savedCards.isNotEmpty) _buildSavedCards(),
+                  const SizedBox(height: 20),
+                  if (selectedSavedCard == null) _buildCardDetailsInput(),
+                ],
+                const SizedBox(height: 24),
+                _buildTotalCard(),
+                const SizedBox(height: 24),
+                _buildCompleteOrderButton(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPaymentOptions() {
+    return Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            _buildRadioTile(
+                'Cash on Delivery', Icons.money, 'Cash on Delivery'),
+            const Divider(height: 24),
+            _buildRadioTile('Card Payment', Icons.credit_card, 'Card Payment'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSavedCards() {
+    return Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Saved Cards',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge!
+                  .copyWith(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+            const SizedBox(height: 16),
+            ...savedCards.map(
+              (card) => GestureDetector(
+                onTap: () {
+                  setState(() {
+                    selectedSavedCard = card['number'] == selectedSavedCard
+                        ? null
+                        : card['number'];
+                    isCardDetailsComplete = selectedSavedCard != null;
+                  });
+                },
+                child: ListTile(
+                  leading: Icon(
+                    card['type'] == 'Visa' ? Icons.credit_card : Icons.payment,
+                    color: Colors.blue[700],
+                  ),
+                  title: Text(card['number']!),
+                  subtitle: Text('Expires: ${card['expiry']}'),
+                  trailing: Radio<String>(
+                    value: card['number']!,
+                    groupValue: selectedSavedCard,
+                    activeColor: Colors.blue[700],
+                    onChanged: (value) {
+                      setState(() {
+                        selectedSavedCard =
+                            value == selectedSavedCard ? null : value;
+                        isCardDetailsComplete = selectedSavedCard != null;
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCardDetailsInput() {
+    return Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            _buildTextField(
+              _cardNumberController,
+              'Card Number',
+              _getCardType(_cardNumberController.text) == 'Visa'
+                  ? Icons.credit_card
+                  : Icons.payment,
+              maxLength: 16,
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildTextField(
+                    _expiryController,
+                    'MM/YY',
+                    Icons.calendar_today,
+                    onChanged: _formatExpiryDate,
+                    maxLength: 5,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildTextField(_cvvController, 'CVV', Icons.lock,
+                      maxLength: 3),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Checkbox(
+                  value: saveCard,
+                  onChanged: (value) => setState(() => saveCard = value!),
+                  activeColor: Colors.blue[700],
+                ),
+                const Text('Save this card for future use',
+                    style: TextStyle(fontSize: 16)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _buildTotalCard() {
     return Card(
