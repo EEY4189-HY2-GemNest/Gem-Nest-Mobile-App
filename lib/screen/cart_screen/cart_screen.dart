@@ -214,7 +214,32 @@ class CartScreen extends StatelessWidget {
                               ],
                             ),
                             const SizedBox(height: 16),
-                            
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blue[700],
+                                  foregroundColor: Colors.white,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 15),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const CheckoutScreen()),
+                                  );
+                                },
+                                child: const Text(
+                                  'Proceed to Checkout',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),
