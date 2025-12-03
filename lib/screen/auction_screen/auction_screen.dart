@@ -265,5 +265,27 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     _setupRealtimeListener();
   }
 
+  void _setupRealtimeListener() {
+    _auctionSubscription = FirebaseFirestore.instance
+        .collection('auctions')
+        .doc(widget.auctionId)
+        .snapshots()
+        .listen((snapshot) {
+      if (snapshot.exists) {
+        final data = snapshot.data() as Map<String, dynamic>;
+        setState(() {
+          _currentBid =
+              (data['currentBid'] as num?)?.toDouble() ?? widget.currentBid;
+          _winningUserId = data['winningUserId'];
+        });
+        if (data['currentBid'] > widget.currentBid) {
+          _animationController.forward(from: 0.0);
+        }
+      }
+    }, onError: (error) {
+      print("Realtime listener error: $error");
+    });
+  }
+
   
 }
