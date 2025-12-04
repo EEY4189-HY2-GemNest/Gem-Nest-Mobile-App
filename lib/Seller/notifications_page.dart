@@ -142,7 +142,43 @@ class _NotificationsPageState extends State<NotificationsPage>
                             width: 1.5,
                           ),
                         ),
-                        
+                        margin: const EdgeInsets.only(bottom: 12),
+                        elevation: 4,
+                        child: ListTile(
+                          leading: notification['imagePath'] != null
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.file(
+                                    File(notification['imagePath']),
+                                    width: 60,
+                                    height: 60,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : const Icon(Icons.image_not_supported,
+                                  color: Colors.white, size: 60),
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                notification['title'],
+                                style: TextStyle(
+                                  color: isRead ? Colors.white70 : Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: isRead
+                                      ? FontWeight.normal
+                                      : FontWeight.bold,
+                                  fontFamily: 'Roboto',
+                                ),
+                              ),
+                              Icon(
+                                isRead ? Icons.check_circle : Icons.circle,
+                                color: isRead ? Colors.teal : Colors.blue,
+                                size: 16,
+                              ),
+                            ],
+                          ),
+                          
                   ),
           ),
         ),
