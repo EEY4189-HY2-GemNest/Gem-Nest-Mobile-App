@@ -40,7 +40,58 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
     _loadProfileImage();
   }
 
+  Future<void> _fetchSellerData() async {
+    final userId = _auth.currentUser?.uid;
+    if (userId != null) {
+      try {
+        DocumentSnapshot doc =
+            await _firestore.collection('sellers').doc(userId).get();
+        if (doc.exists) {
+          setState(() {
+            sellerData = doc.data() as Map<String, dynamic>;
+            _displayNameController.text = sellerData!['displayName'] ?? '';
+            _addressController.text = sellerData!['address'] ?? '';
+            _emailController.text = sellerData!['email'] ?? '';
+            _usernameController.text = sellerData!['username'] ?? '';
+            _isLoading = false;
+          });
+        } else {
+          setState(() {
+            _isLoading = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Seller data not found')),
+          );
+        }
+      } catch (e) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error fetching data: $e')),
+        );
+      }
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User not logged in')),
+      );
+    }
+  }
+
   
+          Expanded(
+            flex: 3,
+            child: Text(
+              value,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            ),
+          ),
         ],
       ),
     );
