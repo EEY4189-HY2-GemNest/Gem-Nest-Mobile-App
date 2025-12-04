@@ -195,7 +195,38 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
   }
 
   // Method to pick date range
-  
+  Future<void> _pickDateRange(BuildContext context) async {
+    final initialDateRange = DateTimeRange(
+      start: DateTime.now().subtract(const Duration(days: 30)),
+      end: DateTime.now(),
+    );
+    final newDateRange = await showDateRangePicker(
+      context: context,
+      initialDateRange: _selectedDateRange ?? initialDateRange,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: Colors.blueAccent,
+              onPrimary: Colors.white,
+              surface: Colors.grey,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    
+        elevation: 4,
+        shadowColor: Colors.black26,
+        title: const Text(
+          'Order History',
+          style: TextStyle(
+              color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
