@@ -129,7 +129,58 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
     }
   }
 
+  Future<void> _saveProfile() async {
+    final userId = _auth.currentUser?.uid;
+    if (userId != null) {
+      try {
+        await _firestore.collection('sellers').doc(userId).update({
+          'displayName': _displayNameController.text,
+          'address': _addressController.text,
+          'email': _emailController.text,
+          'username': _usernameController.text,
+        });
+        setState(() {
+          _isEditing = false;
+          sellerData = {
+            ...sellerData!,
+            'displayName': _displayNameController.text,
+            'address': _addressController.text,
+            'email': _emailController.text,
+            'username': _usernameController.text,
+          };
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile updated successfully')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error updating profile: $e')),
+        );
+      }
+    }
+  }
+
   
+                                            child: const Text(
+                                              'Edit Profile',
+                                              style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white),
+                                            ),
+                                          ).animate().scale(
+                                              duration: 300.ms,
+                                              curve: Curves.easeInOut),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 40),
+                              ],
+                            ),
+                          ),
+              ),
+            ],
           ),
           bottomNavigationBar: Container(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
