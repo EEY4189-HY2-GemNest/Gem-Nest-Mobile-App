@@ -140,4 +140,57 @@ class _ListedProductScreenState extends State<ListedProductScreen> {
     return pdf.save();
   }
 
-  
+  // Method to save PDF to internal storage
+  Future<String> _savePdfToStorage(Uint8List pdfBytes) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final fileName =
+        'Product_Report_${DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.pdf';
+    final file = File('${directory.path}/$fileName');
+    await file.writeAsBytes(pdfBytes);
+    return file.path;
+  }
+
+  // Method to show save/share dialog
+  Future<void> _showSaveOrShareDialog(
+      List<QueryDocumentSnapshot> products) async {
+    final pdfBytes = await _generatePdfReport(products);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: Colors.grey[900],
+        title: const Row(
+          children: [
+            Icon(Icons.download, color: Colors.blueAccent),
+            SizedBox(width: 10),
+            Text(
+              'Download Product Report',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Choose an option to proceed with your product report:',
+              style: TextStyle(color: Colors.white70),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Products in Range: ${products.length}',
+              style: const TextStyle(color: Colors.white60),
+            ),
+            if (_selectedDateRange != null)
+              Text(
+                'Date Range: ${DateFormat('yyyy-MM-dd').format(_selectedDateRange!.start)} - ${DateFormat('yyyy-MM-dd').format(_selectedDateRange!.end)}',
+                style: const TextStyle(color: Colors.white60),
+              ),
+          ],
+        ),
+        
