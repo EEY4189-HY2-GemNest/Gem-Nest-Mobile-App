@@ -360,6 +360,22 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     );
   }
 
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'Pending':
+        return Colors.yellow[900]!.withOpacity(0.8);
+      case 'Processing':
+        return Colors.blue[800]!.withOpacity(0.8);
+      case 'Shipped':
+        return Colors.purple[800]!.withOpacity(0.8);
+      case 'Delivered':
+        return Colors.green[800]!.withOpacity(0.8);
+      case 'Cancelled':
+        return Colors.red[800]!.withOpacity(0.8);
+      default:
+        return Colors.grey[800]!.withOpacity(0.8);
+    }
+  }
 
   @override
   void dispose() {
