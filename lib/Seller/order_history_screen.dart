@@ -37,7 +37,43 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
   }
 
   // Method to generate PDF report
-  
+  Future<Uint8List> _generatePdfReport(
+      List<QueryDocumentSnapshot> orders) async {
+    final pdf = pw.Document();
+    final dateFormat = DateFormat('yyyy-MM-dd');
+    double totalIncome = 0;
+
+    for (var order in orders) {
+      final data = order.data() as Map<String, dynamic>;
+      final amount = data['totalAmount'];
+      totalIncome += (amount is int ? amount.toDouble() : amount as double);
+    }
+
+    
+
+              if (orders.isEmpty) {
+                return const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.receipt_long_outlined,
+                          color: Colors.white70, size: 60),
+                      SizedBox(height: 16),
+                      Text('No orders found',
+                          style:
+                              TextStyle(color: Colors.white70, fontSize: 18)),
+                    ],
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: orders.length,
+                itemBuilder: (context, index) {
+                  final order = orders[index].data() as Map<String, dynamic>;
+                  final orderId = orders[index].id;
+                  final isOverdue = isOrderOverdue(order);
 
                   return Card(
                     elevation: 4,
