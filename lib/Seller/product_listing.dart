@@ -112,7 +112,57 @@ class _ProductListingState extends State<ProductListing>
     }
   }
 
+  Future<void> _saveProductToFirestore(String? imageUrl) async {
+    if (imageUrl == null) {
+      _showErrorDialog('Image upload failed. Please try again.');
+      return;
+    }
+
+    try {
+      await _firestore.collection('products').add({
+        'title': _titleController.text,
+        'category': _selectedCategory,
+        'pricing': double.tryParse(_pricingController.text) ?? 0.0,
+        'unit': _unitController.text,
+        'quantity': int.tryParse(_quantityController.text) ?? 0,
+        'description': _descriptionController.text,
+        'imageUrl': imageUrl,
+        'timestamp': FieldValue.serverTimestamp(),
+        'userId': _auth.currentUser?.uid,
+      });
+    } catch (e) {
+      _showErrorDialog('Error saving product: $e');
+    }
+  }
+
   
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              _isBulkUploading
+                                  ? 'UPLOADING...'
+                                  : 'BULK PRODUCT LISTING',
+                              style: const TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(width: 8),
+                            _isBulkUploading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(Icons.upload_file,
+                                    size: 20, color: Colors.white),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   Center(
                     child: SizedBox(
