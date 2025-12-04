@@ -162,7 +162,50 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
                   borderRadius: BorderRadius.circular(10)),
             ),
           ),
-          
+          ElevatedButton.icon(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await Printing.sharePdf(
+                bytes: pdfBytes,
+                filename:
+                    'Order_History_${DateFormat('yyyyMMdd').format(DateTime.now())}.pdf',
+              );
+              Fluttertoast.showToast(
+                msg: 'Sharing report...',
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                backgroundColor: Colors.blueAccent.withOpacity(0.9),
+                textColor: Colors.white,
+                fontSize: 16.0,
+              );
+            },
+            icon: const Icon(Icons.share),
+            label: const Text('Share'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blueAccent,
+              foregroundColor: Colors.white, // Set text and icon color to white
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+        ],
+        actionsAlignment: MainAxisAlignment.spaceEvenly,
+      ),
+    );
+  }
+
+  // Method to pick date range
+  
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.date_range, color: Colors.white),
+            onPressed: () => _pickDateRange(context),
+          ),
           IconButton(
             icon: const Icon(Icons.download, color: Colors.white),
             onPressed: () async {
