@@ -160,7 +160,157 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
     }
   }
 
-  
+  @override
+  void dispose() {
+    _displayNameController.dispose();
+    _addressController.dispose();
+    _emailController.dispose();
+    _usernameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async => true,
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light,
+        child: Scaffold(
+          backgroundColor: Colors.black,
+          body: Stack(
+            children: [
+              Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Colors.black87, Colors.black54],
+                    stops: [0.2, 0.8],
+                  ),
+                ),
+              ),
+              SafeArea(
+                child: _isLoading
+                    ? const Center(
+                        child:
+                            CircularProgressIndicator(color: Colors.blueAccent))
+                    : sellerData == null
+                        ? const Center(
+                            child: Text(
+                              'No Data Available',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          )
+                        : SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // Profile Header with Photo
+                                Container(
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 20),
+                                  padding: const EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[900],
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.blue.withOpacity(0.2),
+                                        blurRadius: 15,
+                                        offset: const Offset(0, 6),
+                                      ),
+                                    ],
+                                  ),
+                                  
+                                      const SizedBox(height: 20),
+                                      if (_isEditing)
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  _isEditing = false;
+                                                  _displayNameController.text =
+                                                      sellerData![
+                                                              'displayName'] ??
+                                                          '';
+                                                  _addressController.text =
+                                                      sellerData!['address'] ??
+                                                          '';
+                                                  _emailController.text =
+                                                      sellerData!['email'] ??
+                                                          '';
+                                                  _usernameController.text =
+                                                      sellerData!['username'] ??
+                                                          '';
+                                                });
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    const Color.fromARGB(
+                                                        255, 255, 255, 255),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 20,
+                                                        vertical: 12),
+                                              ),
+                                              child: const Text(
+                                                'Cancel',
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.black),
+                                              ),
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: _saveProfile,
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    Colors.blueAccent,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 20,
+                                                        vertical: 12),
+                                              ),
+                                              child: const Text(
+                                                'Save',
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.white),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      if (!_isEditing)
+                                        Center(
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                _isEditing = true;
+                                              });
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  Colors.blueAccent,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 30,
+                                                      vertical: 12),
+                                            ),
                                             child: const Text(
                                               'Edit Profile',
                                               style: TextStyle(
