@@ -81,7 +81,67 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
     }
   }
 
+  Future<void> _loadProfileImage() async {
+    final userId = _auth.currentUser?.uid;
+    if (userId != null) {
+      try {
+        final ref = _storage.ref().child('profile_images/$userId.jpg');
+        final url = await ref.getDownloadURL();
+        setState(() {
+          _profileImageUrl = url;
+        });
+      } catch (e) {
+        setState(() {
+          _profileImageUrl = null;
+        });
+      }
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
+      await _uploadImage();
+    }
+  }
+
   
+              selectedLabelStyle:
+                  const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+              unselectedLabelStyle: const TextStyle(fontSize: 10),
+              showUnselectedLabels: true,
+              selectedIconTheme:
+                  const IconThemeData(size: 32, color: Colors.blueAccent),
+              unselectedIconTheme:
+                  const IconThemeData(size: 28, color: Colors.grey),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileField(String label, String value,
+      {bool readOnly = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
           Expanded(
             flex: 3,
             child: Text(
