@@ -123,7 +123,27 @@ class _NotificationsPageState extends State<NotificationsPage>
                       ),
                     ),
                   )
-                : 
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _notifications.length,
+                    itemBuilder: (context, index) {
+                      final notification = _notifications[index];
+                      final isProduct = notification['type'] == 'product';
+                      final isRead = notification['isRead'] ?? false;
+
+                      return Card(
+                        color: Colors.grey[900],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          side: BorderSide(
+                            color: isRead
+                                ? Colors.teal.withOpacity(0.3)
+                                : Colors.blue,
+                            width: 1.5,
+                          ),
+                        ),
+                        
+                  ),
           ),
         ),
       ),
