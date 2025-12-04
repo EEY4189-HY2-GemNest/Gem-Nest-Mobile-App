@@ -51,5 +51,26 @@ class _ListedProductScreenState extends State<ListedProductScreen> {
     }
   }
 
-  
+  // Method to generate PDF report
+  Future<Uint8List> _generatePdfReport(
+      List<QueryDocumentSnapshot> products) async {
+    final pdf = pw.Document();
+    final dateFormat = DateFormat('yyyy-MM-dd');
+    double totalValueInRange = 0;
+    double allTimeTotalValue = 0;
+
+    // Calculate total value for products in the selected date range (if any)
+    for (var product in products) {
+      final data = product.data() as Map<String, dynamic>;
+      final pricing = data['pricing'] is int
+          ? (data['pricing'] as int).toDouble()
+          : data['pricing'] as double;
+      final quantity = data['quantity'] is int
+          ? (data['quantity'] as int).toDouble()
+          : data['quantity'] as double;
+      totalValueInRange += pricing * quantity;
+    }
+
+    // Fetch all products for all-time total value
+    
 }
