@@ -50,7 +50,36 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     }
   }
 
-  
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime initialDate = DateTime.parse(_deliveryDateController.text);
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 30)),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            colorScheme: ColorScheme.dark(
+              primary: Colors.blueAccent,
+              onPrimary: Colors.white,
+              surface: Colors.grey[900]!,
+              onSurface: Colors.white,
+            ),
+            dialogBackgroundColor: Colors.grey[900]!,
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != initialDate) {
+      setState(() {
+        _deliveryDateController.text = DateFormat('yyyy-MM-dd').format(picked);
+      });
+    }
+  }
+
+ 
 
   @override
   void dispose() {
