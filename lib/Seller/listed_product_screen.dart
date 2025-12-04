@@ -273,3 +273,58 @@ class _ListedProductScreenState extends State<ListedProductScreen> {
       ),
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blueAccent, Colors.lightBlue],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        elevation: 4,
+        shadowColor: Colors.black26,
+        title: const Text(
+          'Listed Products',
+          style: TextStyle(
+              color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.date_range, color: Colors.white),
+            onPressed: () => _pickDateRange(context),
+          ),
+          IconButton(
+            icon: const Icon(Icons.download, color: Colors.white),
+            onPressed: () async {
+              final snapshot = await FirebaseFirestore.instance
+                  .collection('products')
+                  .orderBy('timestamp', descending: true)
+                  .get();
+              var filteredProducts = snapshot.docs;
+              if (_selectedDateRange != null) {
+                filteredProducts = filteredProducts.where((product) {
+                  final data = product.data();
+                  final timestamp = (data['timestamp'] as Timestamp).toDate();
+                  return timestamp.isAfter(_selectedDateRange!.start) &&
+                      timestamp.isBefore(
+                          _selectedDateRange!.end.add(const Duration(days: 1)));
+                }).toList();
+              }
+              await _showSaveOrShareDialog(filteredProducts);
+            },
+          ),
+        ],
+      ),
+      
