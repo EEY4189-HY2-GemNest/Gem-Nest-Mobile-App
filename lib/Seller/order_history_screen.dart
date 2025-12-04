@@ -139,7 +139,49 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
               ),
           ],
         ),
-        
+        actions: [
+          ElevatedButton.icon(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              final filePath = await _savePdfToStorage(pdfBytes);
+              Fluttertoast.showToast(
+                msg: 'Saved to $filePath',
+                toastLength: Toast.LENGTH_LONG,
+                gravity: ToastGravity.BOTTOM,
+                backgroundColor: Colors.green.withOpacity(0.9),
+                textColor: Colors.white,
+                fontSize: 16.0,
+              );
+            },
+            icon: const Icon(Icons.save),
+            label: const Text('Save'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blueAccent,
+              foregroundColor: Colors.white, // Set text and icon color to white
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+          
+          IconButton(
+            icon: const Icon(Icons.download, color: Colors.white),
+            onPressed: () async {
+              final snapshot =
+                  await FirebaseFirestore.instance.collection('orders').get();
+              await _showSaveOrShareDialog(snapshot.docs);
+            },
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.black, Colors.grey[900]!],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
           child: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance.collection('orders').snapshots(),
             builder: (context, snapshot) {
