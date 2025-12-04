@@ -327,4 +327,49 @@ class _ListedProductScreenState extends State<ListedProductScreen> {
           ),
         ],
       ),
-      
+      body: SafeArea(
+        child: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('products')
+              .orderBy('timestamp', descending: true)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                  child: CircularProgressIndicator(
+                      color: Colors.blue, strokeWidth: 3));
+            }
+
+            if (snapshot.hasError) {
+              return Center(
+                child: Text(
+                  'Error: ${snapshot.error}',
+                  style: const TextStyle(
+                      color: Colors.redAccent,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500),
+                ),
+              );
+            }
+
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.inventory_2_outlined,
+                        color: Colors.white70, size: 60),
+                    SizedBox(height: 16),
+                    Text(
+                      'No products listed yet',
+                      style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+           
