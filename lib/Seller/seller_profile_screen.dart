@@ -222,7 +222,78 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                                       ),
                                     ],
                                   ),
-                                  
+                                  child: Column(
+                                    children: [
+                                      Stack(
+                                        alignment: Alignment.bottomRight,
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 70,
+                                            backgroundImage: _profileImageUrl !=
+                                                    null
+                                                ? NetworkImage(
+                                                    _profileImageUrl!)
+                                                : const AssetImage(
+                                                        'assets/images/default_profile.png')
+                                                    as ImageProvider,
+                                            backgroundColor: Colors.grey[800],
+                                          ).animate().scale(duration: 500.ms),
+                                          Positioned(
+                                            bottom: -10,
+                                            right: -10,
+                                            child: GestureDetector(
+                                              onTap: _pickImage,
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.all(10),
+                                                decoration: const BoxDecoration(
+                                                  color: Colors.blueAccent,
+                                                  shape: BoxShape.circle,
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.blueAccent,
+                                                      blurRadius: 10,
+                                                      offset: Offset(0, 5),
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: const Icon(
+                                                  Icons.camera_alt,
+                                                  color: Colors.white,
+                                                  size: 26,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      
+                                          : Column(
+                                              children: [
+                                                _buildProfileField(
+                                                    'Address',
+                                                    sellerData!['address'] ??
+                                                        'N/A'),
+                                                const SizedBox(height: 15),
+                                                _buildProfileField(
+                                                    'NIC Number',
+                                                    sellerData!['nicNumber'] ??
+                                                        'N/A',
+                                                    readOnly: true),
+                                                const SizedBox(height: 15),
+                                                _buildProfileField(
+                                                    'Phone Number',
+                                                    sellerData![
+                                                            'phoneNumber'] ??
+                                                        'N/A',
+                                                    readOnly: true),
+                                                const SizedBox(height: 15),
+                                                _buildProfileField(
+                                                    'Username',
+                                                    sellerData!['username'] ??
+                                                        'N/A'),
+                                              ],
+                                            ),
                                       const SizedBox(height: 20),
                                       if (_isEditing)
                                         Row(
