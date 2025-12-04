@@ -310,7 +310,36 @@ class _ProductListingState extends State<ProductListing>
         }
       }
 
-      
+      if (products.isEmpty) {
+        if (errorMessages.isNotEmpty) {
+          _showErrorDialog(
+              'Upload failed due to the following errors:\n${errorMessages.toString()}');
+        } else {
+          _showErrorDialog(
+              'No valid products to upload. CSV file contains only headers or all rows are invalid.');
+        }
+        setState(() => _isBulkUploading = false);
+        return;
+      }
+
+      // Batch write to Firestore
+      WriteBatch batch = _firestore.batch();
+      for (var product in products) {
+        DocumentReference docRef = _firestore.collection('products').doc();
+        batch.set(docRef, product);
+      }
+
+      await batch.commit();
+      _showSuccessDialog(
+          message: 'Successfully uploaded ${products.length} products');
+    } catch (e) {
+      _showErrorDialog('Error uploading bulk products: $e');
+    } finally {
+      setState(() => _isBulkUploading = false);
+    }
+  }
+
+  
                                   child: _images[index] != null
                                       ? ClipRRect(
                                           borderRadius:
