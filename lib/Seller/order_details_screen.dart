@@ -272,6 +272,22 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     );
   }
 
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: Colors.blueAccent),
+          const SizedBox(width: 12),
+          Text('$label ', style: const TextStyle(color: Colors.white60, fontSize: 14)),
+          Expanded(
+            child: Text(value, style: const TextStyle(fontSize: 14, color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
   
 
   @override
