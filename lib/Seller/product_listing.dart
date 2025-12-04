@@ -259,7 +259,56 @@ class _ProductListingState extends State<ProductListing>
           continue;
         }
 
+        String title = row[0].toString().trim();
+        String category = row[1].toString().trim();
+        String pricingStr = row[2].toString().trim();
+        String quantityStr = row[3].toString().trim();
+        String unit = row[4].toString().trim();
+        String description = row[5].toString().trim();
+        String imageUrl = row[6].toString().trim();
+
         
+                  const SizedBox(height: 20),
+                  _buildInputField(
+                    label: 'Description',
+                    hint: 'Enter product description',
+                    controller: _descriptionController,
+                    validator: (value) =>
+                        value!.isEmpty ? 'Description is required' : null,
+                    maxLines: 5,
+                  ),
+                  const SizedBox(height: 32),
+                  Center(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.85,
+                      child: ElevatedButton(
+                        onPressed: _showConfirmationDialog,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 6,
+                          shadowColor: Colors.blue.withOpacity(0.5),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'ALL DONE, SELL IT',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(width: 8),
+                            Icon(Icons.check_circle,
+                                size: 20, color: Colors.white),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   Center(
                     child: SizedBox(
