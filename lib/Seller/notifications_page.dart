@@ -109,7 +109,23 @@ class _NotificationsPageState extends State<NotificationsPage>
               ),
           ],
         ),
-        
+        body: SafeArea(
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: _notifications.isEmpty
+                ? const Center(
+                    child: Text(
+                      'No notifications yet.',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 20,
+                        fontFamily: 'Roboto',
+                      ),
+                    ),
+                  )
+                : 
+          ),
+        ),
       ),
     );
   }
