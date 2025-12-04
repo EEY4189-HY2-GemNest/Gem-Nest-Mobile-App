@@ -85,4 +85,59 @@ class _ListedProductScreenState extends State<ListedProductScreen> {
       allTimeTotalValue += pricing * quantity;
     }
 
-    
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) => pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text(
+              'Listed Products Report',
+              style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
+            ),
+            pw.SizedBox(height: 10),
+            pw.Text(
+              'Date Range: ${_selectedDateRange != null ? '${dateFormat.format(_selectedDateRange!.start)} - ${dateFormat.format(_selectedDateRange!.end)}' : 'All Time'}',
+              style: const pw.TextStyle(fontSize: 16),
+            ),
+            pw.Text(
+              'Total Value (Selected Range): Rs. ${totalValueInRange.toStringAsFixed(2)}',
+              style: const pw.TextStyle(fontSize: 16),
+            ),
+            pw.Text(
+              'All-Time Total Value: Rs. ${allTimeTotalValue.toStringAsFixed(2)}',
+              style: const pw.TextStyle(fontSize: 16),
+            ),
+            pw.SizedBox(height: 20),
+            pw.Text(
+              'Product Details:',
+              style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
+            ),
+            pw.SizedBox(height: 10),
+            pw.Table.fromTextArray(
+              headers: ['Title', 'Category', 'Pricing', 'Quantity', 'Total'],
+              data: products.map((product) {
+                final data = product.data() as Map<String, dynamic>;
+                final pricing = data['pricing'] is int
+                    ? (data['pricing'] as int).toDouble()
+                    : data['pricing'] as double;
+                final quantity = data['quantity'] is int
+                    ? (data['quantity'] as int).toDouble()
+                    : data['quantity'] as double;
+                return [
+                  data['title'],
+                  data['category'],
+                  'Rs. ${pricing.toStringAsFixed(2)}',
+                  quantity.toString(),
+                  'Rs. ${(pricing * quantity).toStringAsFixed(2)}',
+                ];
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    return pdf.save();
+  }
+
+  
