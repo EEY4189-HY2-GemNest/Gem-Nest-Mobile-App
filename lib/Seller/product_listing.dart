@@ -70,7 +70,67 @@ class _ProductListingState extends State<ProductListing>
     }
   }
 
+  Future<String?> _uploadFirstImage() async {
+    if (_auth.currentUser == null) {
+      _showErrorDialog('You must be signed in to upload images.');
+      return null;
+    }
+
+    File? firstImage =
+        _images.firstWhere((image) => image != null, orElse: () => null);
+
+    if (firstImage == null) {
+      _showErrorDialog('Please select at least one image.');
+      return null;
+    }
+
+    String fileName =
+        'product_images/${DateTime.now().millisecondsSinceEpoch}_${firstImage.path.split('/').last}';
+
+    try {
+      SettableMetadata metadata = SettableMetadata(
+        cacheControl: 'public,max-age=31536000',
+        contentType: 'image/jpeg',
+      );
+
+      UploadTask uploadTask =
+          _storage.ref(fileName).putFile(firstImage, metadata);
+      TaskSnapshot snapshot = await uploadTask;
+      String downloadUrl = await snapshot.ref.getDownloadURL();
+      return downloadUrl;
+    } on FirebaseException catch (e) {
+      String errorMessage = 'Error uploading image: ${e.message}';
+      if (e.code == 'permission-denied') {
+        errorMessage =
+            'Permission denied. Check your authentication status or storage rules.';
+      }
+      _showErrorDialog(errorMessage);
+      return null;
+    } catch (e) {
+      _showErrorDialog('Unexpected error uploading image: $e');
+      return null;
+    }
+  }
+
   
+                  const SizedBox(height: 16),
+                  Center(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.85,
+                      child: ElevatedButton(
+                        onPressed: _isDownloadingTemplate
+                            ? null
+                            : _downloadCsvTemplate,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 6,
+                          shadowColor: Colors.orange.withOpacity(0.5),
+                        ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
