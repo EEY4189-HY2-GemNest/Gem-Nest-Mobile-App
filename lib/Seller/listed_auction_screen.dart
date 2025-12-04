@@ -8,5 +8,13 @@ class ListedAuctionScreen extends StatelessWidget {
 
   const ListedAuctionScreen({super.key, required this.sellerId});
 
-  
+  @override
+  Widget build(BuildContext context) {
+    // Get current user ID for additional verification
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    print('Passed sellerId: $sellerId');
+    print('Current Firebase user ID: $currentUserId');
+
+    
+  }
 }
