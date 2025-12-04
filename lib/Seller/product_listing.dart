@@ -60,7 +60,52 @@ class _ProductListingState extends State<ProductListing>
     super.dispose();
   }
 
+  Future<void> _pickImage(int index) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _images[index] = File(pickedFile.path);
+      });
+    }
+  }
+
   
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              _isDownloadingTemplate
+                                  ? 'DOWNLOADING...'
+                                  : 'DOWNLOAD CSV TEMPLATE',
+                              style: const TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(width: 8),
+                            _isDownloadingTemplate
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(Icons.download,
+                                    size: 20, color: Colors.white),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _buildInputField({
     required String label,
