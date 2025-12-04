@@ -267,7 +267,213 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                                           ),
                                         ],
                                       ),
-                                      
+                                      const SizedBox(height: 20),
+                                      _isEditing
+                                          ? TextFormField(
+                                              controller:
+                                                  _displayNameController,
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 22),
+                                              decoration: InputDecoration(
+                                                labelText: 'Display Name',
+                                                labelStyle: const TextStyle(
+                                                    color: Colors.grey,
+                                                    fontSize: 16),
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                  borderSide: BorderSide(
+                                                      color: Colors.blueAccent),
+                                                ),
+                                                focusedBorder:
+                                                    OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                  borderSide: const BorderSide(
+                                                      color: Colors.blueAccent,
+                                                      width: 2),
+                                                ),
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            )
+                                          : Text(
+                                              sellerData!['displayName'] ??
+                                                  'N/A',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 26,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                      const SizedBox(height: 10),
+                                      _isEditing
+                                          ? TextFormField(
+                                              controller: _emailController,
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 16),
+                                              decoration: InputDecoration(
+                                                labelText: 'Email',
+                                                labelStyle: const TextStyle(
+                                                    color: Colors.grey,
+                                                    fontSize: 14),
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                  borderSide: BorderSide(
+                                                      color: Colors.blueAccent),
+                                                ),
+                                                focusedBorder:
+                                                    OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                  borderSide: const BorderSide(
+                                                      color: Colors.blueAccent,
+                                                      width: 2),
+                                                ),
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            )
+                                          : Text(
+                                              sellerData!['email'] ?? 'N/A',
+                                              style: TextStyle(
+                                                color: Colors.grey[300],
+                                                fontSize: 16,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 30),
+                                // Profile Details Section
+                                Container(
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 16),
+                                  padding: const EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.grey[850]!,
+                                        Colors.grey[900]!
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.blue.withOpacity(0.2),
+                                        blurRadius: 15,
+                                        offset: const Offset(0, 6),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Profile Details',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                          shadows: [
+                                            Shadow(
+                                              color: Colors.blueAccent,
+                                              offset: Offset(0, 2),
+                                              blurRadius: 4,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 20),
+                                      _isEditing
+                                          ? Column(
+                                              children: [
+                                                TextFormField(
+                                                  controller:
+                                                      _addressController,
+                                                  style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 16),
+                                                  decoration: InputDecoration(
+                                                    labelText: 'Address',
+                                                    labelStyle: const TextStyle(
+                                                        color: Colors.grey,
+                                                        fontSize: 14),
+                                                    border: OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12),
+                                                      borderSide: BorderSide(
+                                                          color: Colors
+                                                              .blueAccent),
+                                                    ),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12),
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              color: Colors
+                                                                  .blueAccent,
+                                                              width: 2),
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 15),
+                                                _buildProfileField(
+                                                    'NIC Number',
+                                                    sellerData!['nicNumber'] ??
+                                                        'N/A',
+                                                    readOnly: true),
+                                                const SizedBox(height: 15),
+                                                _buildProfileField(
+                                                    'Phone Number',
+                                                    sellerData![
+                                                            'phoneNumber'] ??
+                                                        'N/A',
+                                                    readOnly: true),
+                                                const SizedBox(height: 15),
+                                                TextFormField(
+                                                  controller:
+                                                      _usernameController,
+                                                  style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 16),
+                                                  decoration: InputDecoration(
+                                                    labelText: 'Username',
+                                                    labelStyle: const TextStyle(
+                                                        color: Colors.grey,
+                                                        fontSize: 14),
+                                                    border: OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12),
+                                                      borderSide: BorderSide(
+                                                          color: Colors
+                                                              .blueAccent),
+                                                    ),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12),
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              color: Colors
+                                                                  .blueAccent,
+                                                              width: 2),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            )
                                           : Column(
                                               children: [
                                                 _buildProfileField(
