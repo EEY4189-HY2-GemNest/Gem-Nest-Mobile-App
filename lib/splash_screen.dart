@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gemnest_mobile_app/screens/auth_screens/login_screen.dart';
+import 'package:gemnest_mobile_app/screen/auth_screens/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

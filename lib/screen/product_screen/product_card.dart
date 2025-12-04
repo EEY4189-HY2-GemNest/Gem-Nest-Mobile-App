@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gemhub/screens/cart_screen/cart_provider.dart';
+import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
 import 'package:provider/provider.dart';
 
 class ProductCard extends StatelessWidget {
