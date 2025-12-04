@@ -428,4 +428,26 @@ class _EditEndTimeDialogState extends State<EditEndTimeDialog> {
     }
   }
 
- 
+  Future<void> _updateEndTime() async {
+    try {
+      print(
+          'Updating auction ${widget.auctionId} with new end time: $selectedDateTime');
+      await FirebaseFirestore.instance
+          .collection('auctions')
+          .doc(widget.auctionId)
+          .update({
+        'endTime': selectedDateTime.toIso8601String(),
+      });
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('End time updated successfully')),
+      );
+    } catch (e) {
+      print('Error updating end time: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating end time: $e')),
+      );
+    }
+  }
+
+  
