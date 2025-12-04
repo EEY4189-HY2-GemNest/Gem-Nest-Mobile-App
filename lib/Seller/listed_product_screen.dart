@@ -430,3 +430,88 @@ class ProductCard extends StatefulWidget {
   State<ProductCard> createState() => _ProductCardState();
 }
 
+class _ProductCardState extends State<ProductCard> {
+  void _showEditDialog(BuildContext context) {
+    final titleController = TextEditingController(text: widget.title);
+    final pricingController = TextEditingController(text: widget.pricing);
+    final quantityController = TextEditingController(text: widget.quantity);
+    final descriptionController =
+        TextEditingController(text: widget.description);
+    String? selectedCategory = widget.category;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          'Edit Product',
+          style: TextStyle(
+              color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700),
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildTextField('Title', titleController),
+              const SizedBox(height: 12),
+              _buildDropdownField('Category', selectedCategory, (value) {
+                selectedCategory = value;
+              }),
+              const SizedBox(height: 12),
+              _buildTextField(
+                  'Pricing', pricingController, TextInputType.number),
+              const SizedBox(height: 12),
+              _buildTextField(
+                  'Quantity', quantityController, TextInputType.number),
+              const SizedBox(height: 12),
+              _buildTextField('Description', descriptionController, null, 3),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              try {
+                await FirebaseFirestore.instance
+                    .collection('products')
+                    .doc(widget.docId)
+                    .update({
+                  'title': titleController.text,
+                  'pricing': double.parse(pricingController.text),
+                  'quantity': int.parse(quantityController.text),
+                  'category': selectedCategory,
+                  'description': descriptionController.text,
+                });
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text('Product updated successfully'),
+                      backgroundColor: Colors.green),
+                );
+              } catch (e) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content: Text('Error updating product: $e'),
+                      backgroundColor: Colors.red),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  
