@@ -18,7 +18,50 @@ class SellerOrderHistoryScreen extends StatefulWidget {
       _SellerOrderHistoryScreenState();
 }
 
+class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
+  DateTimeRange? _selectedDateRange;
 
+  // Helper method to check if order is overdue
+  bool isOrderOverdue(Map<String, dynamic> order) {
+    final deliveryDateStr = order['deliveryDate'] as String;
+    final status = order['status'] as String;
+
+    try {
+      final deliveryDate = DateTime.parse(deliveryDateStr);
+      final currentDate = DateTime.now();
+      return currentDate.isAfter(deliveryDate) &&
+          status.toLowerCase() != 'delivered';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Method to generate PDF report
+  
+
+                  return Card(
+                    elevation: 4,
+                    color: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: isOverdue
+                              ? [Colors.red[800]!, Colors.red[900]!]
+                              : [Colors.grey[850]!, Colors.grey[900]!],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: isOverdue
+                              ? Colors.red.withOpacity(0.5)
+                              : Colors.blue.withOpacity(0.3),
+                          width: 1,
+                        ),
+                      ),
                       child: ListTile(
                         contentPadding: const EdgeInsets.all(16),
                         title: Text('Order #${orderId.substring(0, 8)}',
