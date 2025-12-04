@@ -406,3 +406,27 @@ class _ListedProductScreenState extends State<ListedProductScreen> {
   }
 }
 
+class ProductCard extends StatefulWidget {
+  final String docId;
+  final String title;
+  final String pricing;
+  final String quantity;
+  final String imageUrl;
+  final String category;
+  final String description;
+
+  const ProductCard({
+    super.key,
+    required this.docId,
+    required this.title,
+    required this.pricing,
+    required this.quantity,
+    required this.imageUrl,
+    required this.category,
+    required this.description,
+  });
+
+  @override
+  State<ProductCard> createState() => _ProductCardState();
+}
+
