@@ -377,3 +377,27 @@ class AuctionCard extends StatelessWidget {
   }
 }
 
+class EditEndTimeDialog extends StatefulWidget {
+  final String auctionId;
+  final DateTime currentEndTime;
+
+  const EditEndTimeDialog({
+    super.key,
+    required this.auctionId,
+    required this.currentEndTime,
+  });
+
+  @override
+  State<EditEndTimeDialog> createState() => _EditEndTimeDialogState();
+}
+
+class _EditEndTimeDialogState extends State<EditEndTimeDialog> {
+  late DateTime selectedDateTime;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedDateTime = widget.currentEndTime;
+  }
+
+  
