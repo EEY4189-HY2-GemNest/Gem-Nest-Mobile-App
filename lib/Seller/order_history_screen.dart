@@ -49,7 +49,58 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
       totalIncome += (amount is int ? amount.toDouble() : amount as double);
     }
 
-    
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) => pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text(
+              'Order History Report',
+              style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
+            ),
+            pw.SizedBox(height: 10),
+            pw.Text(
+              'Date Range: ${dateFormat.format(_selectedDateRange?.start ?? DateTime.now())} - ${dateFormat.format(_selectedDateRange?.end ?? DateTime.now())}',
+              style: const pw.TextStyle(fontSize: 16),
+            ),
+            pw.Text(
+              'Total Income: Rs. ${totalIncome.toStringAsFixed(2)}',
+              style: const pw.TextStyle(fontSize: 16),
+            ),
+            pw.SizedBox(height: 20),
+            pw.Table.fromTextArray(
+              headers: ['Order ID', 'Status', 'Total Amount', 'Delivery Date'],
+              data: orders.map((order) {
+                final data = order.data() as Map<String, dynamic>;
+                return [
+                  order.id.substring(0, 8),
+                  data['status'],
+                  'Rs. ${(data['totalAmount'] is int ? (data['totalAmount'] as int).toDouble() : data['totalAmount'] as double).toStringAsFixed(2)}',
+                  data['deliveryDate'],
+                ];
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    return pdf.save();
+  }
+
+  // Method to save PDF to internal storage
+  
+
+              var orders = snapshot.data!.docs;
+              if (_selectedDateRange != null) {
+                orders = orders.where((order) {
+                  final data = order.data() as Map<String, dynamic>;
+                  final orderDate = DateTime.parse(data['deliveryDate']);
+                  return orderDate.isAfter(_selectedDateRange!.start) &&
+                      orderDate.isBefore(
+                          _selectedDateRange!.end.add(const Duration(days: 1)));
+                }).toList();
+              }
 
               if (orders.isEmpty) {
                 return const Center(
