@@ -219,7 +219,27 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
       },
     );
 
-    
+    if (newDateRange != null) {
+      setState(() {
+        _selectedDateRange = newDateRange;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blueAccent, Colors.blue],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
         elevation: 4,
         shadowColor: Colors.black26,
         title: const Text(
