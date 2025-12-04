@@ -103,7 +103,43 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
       List<QueryDocumentSnapshot> orders) async {
     final pdfBytes = await _generatePdfReport(orders);
 
-    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: Colors.grey[900], // Dark background to match app theme
+        title: const Row(
+          children: [
+            Icon(Icons.download, color: Colors.blueAccent),
+            SizedBox(width: 10),
+            Text(
+              'Download Report',
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Choose an option to proceed with your order history report:',
+              style: TextStyle(color: Colors.white70),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Orders: ${orders.length}',
+              style: const TextStyle(color: Colors.white60),
+            ),
+            if (_selectedDateRange != null)
+              Text(
+                'Date Range: ${DateFormat('yyyy-MM-dd').format(_selectedDateRange!.start)} - ${DateFormat('yyyy-MM-dd').format(_selectedDateRange!.end)}',
+                style: const TextStyle(color: Colors.white60),
+              ),
+          ],
+        ),
+        
           child: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance.collection('orders').snapshots(),
             builder: (context, snapshot) {
