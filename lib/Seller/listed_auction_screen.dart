@@ -450,4 +450,38 @@ class _EditEndTimeDialogState extends State<EditEndTimeDialog> {
     }
   }
 
-  
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Colors.grey[900],
+      title: const Text('Edit End Time', style: TextStyle(color: Colors.white)),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Current: ${DateFormat('MMM d, yyyy - HH:mm').format(selectedDateTime)}',
+            style: const TextStyle(color: Colors.white70),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () => _selectDateTime(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blueAccent,
+            ),
+            child: const Text('Select New Date & Time'),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+        ),
+        TextButton(
+          onPressed: _updateEndTime,
+          child: const Text('Save', style: TextStyle(color: Colors.blueAccent)),
+        ),
+      ],
+    );
+  }
+}
