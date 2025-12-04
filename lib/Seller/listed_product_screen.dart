@@ -372,4 +372,37 @@ class _ListedProductScreenState extends State<ListedProductScreen> {
               );
             }
 
-           
+            var products = snapshot.data!.docs;
+            if (_selectedDateRange != null) {
+              products = products.where((product) {
+                final data = product.data() as Map<String, dynamic>;
+                final timestamp = (data['timestamp'] as Timestamp).toDate();
+                return timestamp.isAfter(_selectedDateRange!.start) &&
+                    timestamp.isBefore(
+                        _selectedDateRange!.end.add(const Duration(days: 1)));
+              }).toList();
+            }
+
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: products.length,
+              itemBuilder: (context, index) {
+                var product = products[index];
+                return ProductCard(
+                  docId: product.id,
+                  title: product['title'],
+                  pricing: product['pricing'].toString(),
+                  quantity: product['quantity'].toString(),
+                  imageUrl: product['imageUrl'],
+                  category: product['category'],
+                  description: product['description'],
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
