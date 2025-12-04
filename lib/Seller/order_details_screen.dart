@@ -114,7 +114,65 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               end: Alignment.bottomRight,
             ),
           ),
-          
+          child: FutureBuilder<DocumentSnapshot>(
+            future: FirebaseFirestore.instance.collection('orders').doc(widget.orderId).get(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator(color: Colors.blueAccent));
+              }
+              if (snapshot.hasError) {
+                return const Center(child: Text('Error loading order details', style: TextStyle(color: Colors.white)));
+              }
+
+              final order = snapshot.data!.data() as Map<String, dynamic>;
+              final items = order['items'] as List<dynamic>;
+
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Card(
+                      elevation: 4,
+                      color: Colors.transparent,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Colors.grey[850]!, Colors.grey[900]!],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.blue.withOpacity(0.3), width: 1),
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('Order #${widget.orderId.substring(0, 8)}',
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
+                                Chip(
+                                  label: Text(_selectedStatus ?? order['status'], style: const TextStyle(color: Colors.white)),
+                                  backgroundColor: _getStatusColor(_selectedStatus ?? order['status']),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            _buildInfoRow(Icons.calendar_today, 'Order Date:', order['orderDate']),
+                            _buildEditableDateRow(Icons.local_shipping, 'Delivery Date:'),
+                            _buildInfoRow(Icons.location_on, 'Address:', order['address']),
+                            _buildInfoRow(Icons.payment, 'Payment:', order['paymentMethod']),
+                            _buildEditableStatusRow(Icons.update, 'Status:'),
+                          ],
+                        ),
+                      ),
+                    ),
+                    
+
   @override
   void dispose() {
     _deliveryDateController.dispose();
