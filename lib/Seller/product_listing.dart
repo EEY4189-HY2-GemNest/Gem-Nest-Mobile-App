@@ -17,7 +17,53 @@ class ProductListing extends StatefulWidget {
   State<ProductListing> createState() => _ProductListingState();
 }
 
+class _ProductListingState extends State<ProductListing>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+  final List<File?> _images = List.filled(3, null);
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _categoryController = TextEditingController();
+  final TextEditingController _pricingController = TextEditingController();
+  final TextEditingController _unitController = TextEditingController();
+  final TextEditingController _quantityController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  String? _selectedCategory;
+  bool _isBulkUploading = false;
+  bool _isDownloadingTemplate = false;
 
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  
+        const SizedBox(height: 10),
+        TextFormField(
+          controller: controller,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.grey[900],
+            hintText: hint,
+            hintStyle: const TextStyle(color: Colors.white54, fontSize: 14),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: Colors.blue, width: 2),
+            ),
+            errorStyle: const TextStyle(color: Colors.red, fontSize: 12),
+          ),
+          maxLines: maxLines,
+          keyboardType: keyboardType,
+          style: const TextStyle(color: Colors.white, fontSize: 16),
+          validator: validator,
+        ),
+      ],
+    );
+  }
 
   Widget _buildDropdownField({
     required String label,
