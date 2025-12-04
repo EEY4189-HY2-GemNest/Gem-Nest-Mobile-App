@@ -108,7 +108,75 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
     }
   }
 
+  Future<void> _uploadImage() async {
+    if (_selectedImage != null) {
+      final userId = _auth.currentUser?.uid;
+      if (userId != null) {
+        try {
+          final ref = _storage.ref().child('profile_images/$userId.jpg');
+          await ref.putFile(_selectedImage!);
+          final url = await ref.getDownloadURL();
+          setState(() {
+            _profileImageUrl = url;
+            _selectedImage = null;
+          });
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to upload image')),
+          );
+        }
+      }
+    }
+  }
+
   
+          ),
+          bottomNavigationBar: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.grey[900]!, Colors.black87],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.blue.withOpacity(0.2),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: BottomNavigationBar(
+              backgroundColor: Colors.transparent,
+              selectedItemColor: Colors.blueAccent,
+              unselectedItemColor: Colors.grey[400],
+              type: BottomNavigationBarType.fixed,
+              elevation: 0,
+              currentIndex: 2,
+              onTap: (index) {
+                if (index == 2) return;
+                Navigator.pop(context);
+              },
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home),
+                  label: 'Home',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.notifications),
+                  label: 'Notifications',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.person),
+                  label: 'Profile',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.logout),
+                  label: 'Logout',
+                ),
+              ],
               selectedLabelStyle:
                   const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
               unselectedLabelStyle: const TextStyle(fontSize: 10),
