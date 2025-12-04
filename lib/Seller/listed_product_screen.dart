@@ -514,4 +514,26 @@ class _ProductCardState extends State<ProductCard> {
     );
   }
 
-  
+  Widget _buildTextField(String label, TextEditingController controller,
+      [TextInputType? keyboardType, int maxLines = 1]) {
+    return TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.white70),
+        filled: true,
+        fillColor: Colors.grey[800],
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.blue)),
+      ),
+    );
+  }
+
+ 
