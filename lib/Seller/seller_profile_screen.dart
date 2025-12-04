@@ -24,4 +24,25 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
   final ImagePicker _picker = ImagePicker();
 
   // Seller data and form controllers
+  Map<String, dynamic>? sellerData;
+  bool _isLoading = true;
+  bool _isEditing = false;
+
+  final TextEditingController _displayNameController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchSellerData();
+    _loadProfileImage();
+  }
+
   
+        ],
+      ),
+    );
+  }
+}
