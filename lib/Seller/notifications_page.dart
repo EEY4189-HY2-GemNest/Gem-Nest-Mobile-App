@@ -178,7 +178,40 @@ class _NotificationsPageState extends State<NotificationsPage>
                               ),
                             ],
                           ),
-                          
+                          subtitle: Text(
+                            'Quantity: ${notification['quantity']} ${isProduct ? 'listed successfully' : 'auction created successfully'}',
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 16,
+                              fontFamily: 'Roboto',
+                            ),
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(
+                                  isRead
+                                      ? Icons.mark_chat_read
+                                      : Icons.mark_chat_unread,
+                                  color: Colors.blue,
+                                  size: 24,
+                                ),
+                                onPressed: () => _markAsRead(index),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete,
+                                    color: Colors.red, size: 24),
+                                onPressed: () => _deleteNotification(index),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ).animate().fadeIn(duration: 300.ms).scale(
+                          begin: Offset(0.95, 0.95),
+                          end: Offset(1.0, 1.0),
+                          duration: 300.ms);
+                    },
                   ),
           ),
         ),
