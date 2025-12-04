@@ -60,6 +60,38 @@ class ListedAuctionScreen extends StatelessWidget {
             }
 
             if (snapshot.hasError) {
-        
+              return Center(
+                child: Text(
+                  'Error: ${snapshot.error}',
+                  style: const TextStyle(
+                    color: Colors.redAccent,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              );
+            }
+
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.gavel_outlined, color: Colors.white70, size: 60),
+                    SizedBox(height: 16),
+                    Text(
+                      'No auctions listed yet',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            
   }
 }
