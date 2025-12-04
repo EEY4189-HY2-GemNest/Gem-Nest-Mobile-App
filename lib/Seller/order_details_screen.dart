@@ -171,7 +171,57 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                         ),
                       ),
                     ),
-                    
+                    const SizedBox(height: 16),
+                    Card(
+                      elevation: 4,
+                      color: Colors.transparent,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Colors.grey[850]!, Colors.grey[900]!],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.blue.withOpacity(0.3), width: 1),
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Items',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge!
+                                    .copyWith(fontWeight: FontWeight.bold, color: Colors.white)),
+                            const SizedBox(height: 12),
+                            ...items.map((item) => Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(item['title'],
+                                                style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white)),
+                                            Text('Qty: ${item['quantity']}',
+                                                style: const TextStyle(color: Colors.white60)),
+                                          ],
+                                        ),
+                                      ),
+                                      Text('Rs. ${item['totalPrice'].toStringAsFixed(2)}',
+                                          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blueAccent)),
+                                    ],
+                                  ),
+                                )),
+                          ],
+                        ),
+                      ),
+                    ),
+                   
 
   @override
   void dispose() {
