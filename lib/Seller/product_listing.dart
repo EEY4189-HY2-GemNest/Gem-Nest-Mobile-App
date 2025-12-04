@@ -267,7 +267,103 @@ class _ProductListingState extends State<ProductListing>
         String description = row[5].toString().trim();
         String imageUrl = row[6].toString().trim();
 
-        
+        // Validate each field
+        bool hasErrors = false;
+        if (title.isEmpty) {
+          errorMessages.writeln('Row ${i + 1}: Title is empty');
+          hasErrors = true;
+        }
+        if (category.isEmpty ||
+            !['Blue Sapphires', 'White Sapphires', 'Yellow Sapphires']
+                .contains(category)) {
+          errorMessages.writeln(
+              'Row ${i + 1}: Category is empty or invalid. Must be Blue Sapphires, White Sapphires, or Yellow Sapphires');
+          hasErrors = true;
+        }
+        double? pricing = double.tryParse(pricingStr);
+        if (pricingStr.isEmpty || pricing == null) {
+          errorMessages.writeln('Row ${i + 1}: Pricing is empty or invalid');
+          hasErrors = true;
+        }
+        int? quantity = int.tryParse(quantityStr);
+        if (quantityStr.isEmpty || quantity == null) {
+          errorMessages.writeln('Row ${i + 1}: Quantity is empty or invalid');
+          hasErrors = true;
+        }
+        if (description.isEmpty) {
+          errorMessages.writeln('Row ${i + 1}: Description is empty');
+          hasErrors = true;
+        }
+
+        if (!hasErrors) {
+          products.add({
+            'title': title,
+            'category': category,
+            'pricing': pricing!,
+            'quantity': quantity!,
+            'unit': unit,
+            'description': description,
+            'imageUrl': imageUrl,
+            'timestamp': FieldValue.serverTimestamp(),
+            'userId': _auth.currentUser!.uid,
+          });
+        }
+      }
+
+      
+                                  child: _images[index] != null
+                                      ? ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(14),
+                                          child: Image.file(
+                                            _images[index]!,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        )
+                                      : const Center(
+                                          child: Icon(Icons.camera_alt,
+                                              color: Colors.white, size: 40),
+                                        ),
+                                ),
+                              )),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  _buildInputField(
+                    label: 'Title',
+                    hint: 'Enter product title',
+                    controller: _titleController,
+                    validator: (value) =>
+                        value!.isEmpty ? 'Title is required' : null,
+                  ),
+                  const SizedBox(height: 20),
+                  _buildDropdownField(
+                    label: 'Category',
+                    hint: 'Select category',
+                    value: _selectedCategory,
+                    onChanged: (value) =>
+                        setState(() => _selectedCategory = value),
+                    validator: (value) =>
+                        value == null ? 'Category is required' : null,
+                  ),
+                  const SizedBox(height: 20),
+                  _buildInputField(
+                    label: 'Pricing',
+                    hint: 'Enter price',
+                    controller: _pricingController,
+                    validator: (value) =>
+                        value!.isEmpty ? 'Pricing is required' : null,
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 20),
+                  _buildInputField(
+                    label: 'Product quantity',
+                    hint: 'Enter quantity',
+                    controller: _quantityController,
+                    validator: (value) =>
+                        value!.isEmpty ? 'Quantity is required' : null,
+                    keyboardType: TextInputType.number,
+                  ),
                   const SizedBox(height: 20),
                   _buildInputField(
                     label: 'Description',
