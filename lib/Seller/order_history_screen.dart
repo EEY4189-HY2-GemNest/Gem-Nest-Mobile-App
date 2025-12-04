@@ -89,7 +89,33 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
   }
 
   // Method to save PDF to internal storage
-  
+  Future<String> _savePdfToStorage(Uint8List pdfBytes) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final fileName =
+        'Order_History_${DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.pdf';
+    final file = File('${directory.path}/$fileName');
+    await file.writeAsBytes(pdfBytes);
+    return file.path;
+  }
+
+  // Method to show improved save/share dialog
+  Future<void> _showSaveOrShareDialog(
+      List<QueryDocumentSnapshot> orders) async {
+    final pdfBytes = await _generatePdfReport(orders);
+
+    
+          child: StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance.collection('orders').snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Center(
+                    child: CircularProgressIndicator(color: Colors.blueAccent));
+              }
+              if (snapshot.hasError) {
+                return const Center(
+                    child: Text('Error loading orders',
+                        style: TextStyle(color: Colors.white)));
+              }
 
               var orders = snapshot.data!.docs;
               if (_selectedDateRange != null) {
