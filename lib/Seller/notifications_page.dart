@@ -39,5 +39,35 @@ class _NotificationsPageState extends State<NotificationsPage>
     _controller.forward();
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  // Mark a notification as read
+  void _markAsRead(int index) {
+    setState(() {
+      _notifications[index]['isRead'] = true;
+    });
+  }
+
+  // Delete a single notification and notify SellerHomePage
+  void _deleteNotification(int index) {
+    setState(() {
+      _notifications.removeAt(index);
+    });
+    widget.onDelete?.call(index); // Call the callback to update SellerHomePage
+  }
+
+  // Clear all notifications and notify SellerHomePage
+  void _clearAllNotifications() {
+    setState(() {
+      _notifications.clear();
+    });
+    widget.onClearAll?.call(); // Call the callback to update SellerHomePage
+    Navigator.pop(context); // Optionally close the page after clearing
+  }
+
   
 }
