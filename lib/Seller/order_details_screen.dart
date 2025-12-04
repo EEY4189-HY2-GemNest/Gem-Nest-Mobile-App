@@ -321,7 +321,45 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     );
   }
 
-  
+  Widget _buildEditableStatusRow(IconData icon, String label) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: Colors.blueAccent),
+          const SizedBox(width: 12),
+          Text('$label ', style: const TextStyle(color: Colors.white60, fontSize: 14)),
+          Expanded(
+            child: DropdownButtonFormField<String>(
+              value: _selectedStatus,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.grey[850]!,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              dropdownColor: Colors.grey[900]!,
+              style: const TextStyle(color: Colors.white),
+              items: _statusOptions.map((String status) {
+                return DropdownMenuItem<String>(
+                  value: status,
+                  child: Text(status),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedStatus = newValue;
+                });
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   @override
   void dispose() {
