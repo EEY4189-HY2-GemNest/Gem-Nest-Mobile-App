@@ -135,7 +135,147 @@ class _ProductListingState extends State<ProductListing>
     }
   }
 
-  
+  Future<void> _downloadCsvTemplate() async {
+    try {
+      setState(() => _isDownloadingTemplate = true);
+
+      // Define the CSV headers
+      List<List<dynamic>> csvData = [
+        [
+          'title',
+          'category',
+          'pricing',
+          'quantity',
+          'unit',
+          'description',
+          'imageUrl'
+        ],
+      ];
+
+      // Convert to CSV string
+      String csv = const ListToCsvConverter().convert(csvData);
+
+      // Get the temporary directory
+      final directory = await getTemporaryDirectory();
+      final filePath = '${directory.path}/product_template.csv';
+      final file = File(filePath);
+
+      // Write the CSV string to the file
+      await file.writeAsString(csv);
+
+      // Share the file
+      await Share.shareXFiles([XFile(filePath)],
+          text: 'Product Listing CSV Template');
+    } catch (e) {
+      _showErrorDialog('Error generating CSV template: $e');
+    } finally {
+      setState(() => _isDownloadingTemplate = false);
+    }
+  }
+
+  Future<void> _handleBulkUpload() async {
+    try {
+      setState(() => _isBulkUploading = true);
+
+      // Check if the user is authenticated
+      if (_auth.currentUser == null) {
+        _showErrorDialog('You must be signed in to upload products.');
+        return;
+      }
+
+      // Pick the CSV file
+      FilePickerResult? csvResult = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['csv'],
+      );
+
+      if (csvResult == null || csvResult.files.single.path == null) {
+        _showErrorDialog('No CSV file selected.');
+        setState(() => _isBulkUploading = false);
+        return;
+      }
+
+      // Read the CSV file
+      final csvFile = File(csvResult.files.single.path!);
+      final input = await csvFile.readAsString();
+      final List<List<dynamic>> csvData =
+          const CsvToListConverter().convert(input);
+
+      // Validate CSV headers
+      if (csvData.isEmpty) {
+        _showErrorDialog('CSV file is empty.');
+        setState(() => _isBulkUploading = false);
+        return;
+      }
+
+      List<String> expectedHeaders = [
+        'title',
+        'category',
+        'pricing',
+        'quantity',
+        'unit',
+        'description',
+        'imageUrl'
+      ];
+
+      List<String> actualHeaders =
+          csvData[0].map((e) => e.toString().trim()).toList();
+
+      // Check number of columns
+      if (actualHeaders.length != expectedHeaders.length) {
+        _showErrorDialog(
+            'Header mismatch: Expected ${expectedHeaders.length} columns but found ${actualHeaders.length} columns.\n\n'
+            'Expected headers: ${expectedHeaders.join(", ")}\n'
+            'Found headers: ${actualHeaders.join(", ")}');
+        setState(() => _isBulkUploading = false);
+        return;
+      }
+
+      // Check each header for an exact match
+      StringBuffer headerErrors = StringBuffer();
+      for (int i = 0; i < expectedHeaders.length; i++) {
+        if (actualHeaders[i] != expectedHeaders[i]) {
+          headerErrors.writeln(
+              'Column ${i + 1}: Expected "${expectedHeaders[i]}", but found "${actualHeaders[i]}"');
+        }
+      }
+
+      if (headerErrors.isNotEmpty) {
+        _showErrorDialog(
+            'Header mismatch detected:\n\n${headerErrors.toString()}\n\n'
+            'Please ensure the CSV headers match exactly: ${expectedHeaders.join(", ")}');
+        setState(() => _isBulkUploading = false);
+        return;
+      }
+
+      // If headers are correct, proceed with data validation
+      List<Map<String, dynamic>> products = [];
+      StringBuffer errorMessages = StringBuffer();
+      for (int i = 1; i < csvData.length; i++) {
+        final row = csvData[i];
+        if (row.length != 7) {
+          errorMessages.writeln(
+              'Row ${i + 1}: Invalid number of columns. Expected 7, found ${row.length}');
+          continue;
+        }
+
+        
+                  const SizedBox(height: 16),
+                  Center(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.85,
+                      child: ElevatedButton(
+                        onPressed: _isBulkUploading ? null : _handleBulkUpload,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 6,
+                          shadowColor: Colors.green.withOpacity(0.5),
+                        ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
