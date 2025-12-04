@@ -193,4 +193,83 @@ class _ListedProductScreenState extends State<ListedProductScreen> {
               ),
           ],
         ),
-        
+        actions: [
+          ElevatedButton.icon(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              final filePath = await _savePdfToStorage(pdfBytes);
+              if (Platform.isAndroid || Platform.isIOS) {
+                try {
+                  Fluttertoast.showToast(
+                    msg: 'Saved to $filePath',
+                    toastLength: Toast.LENGTH_LONG,
+                    gravity: ToastGravity.BOTTOM,
+                    backgroundColor: Colors.green.withOpacity(0.9),
+                    textColor: Colors.white,
+                    fontSize: 16.0,
+                  );
+                } catch (e) {
+                  print('Toast error: $e');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Saved to $filePath')),
+                  );
+                }
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Saved to $filePath')),
+                );
+              }
+            },
+            icon: const Icon(Icons.save),
+            label: const Text('Save'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blueAccent,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+          ElevatedButton.icon(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await Printing.sharePdf(
+                bytes: pdfBytes,
+                filename:
+                    'Product_Report_${DateFormat('yyyyMMdd').format(DateTime.now())}.pdf',
+              );
+              if (Platform.isAndroid || Platform.isIOS) {
+                try {
+                  Fluttertoast.showToast(
+                    msg: 'Sharing report...',
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    backgroundColor: Colors.blueAccent.withOpacity(0.9),
+                    textColor: Colors.white,
+                    fontSize: 16.0,
+                  );
+                } catch (e) {
+                  print('Toast error: $e');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Sharing report...')),
+                  );
+                }
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Sharing report...')),
+                );
+              }
+            },
+            icon: const Icon(Icons.share),
+            label: const Text('Share'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blueAccent,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+        ],
+        actionsAlignment: MainAxisAlignment.spaceEvenly,
+      ),
+    );
+  }
