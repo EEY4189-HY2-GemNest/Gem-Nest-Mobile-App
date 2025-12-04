@@ -79,8 +79,42 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     }
   }
 
- 
-
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blueAccent, Colors.blue],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        elevation: 4,
+        shadowColor: Colors.black26,
+        title: const Text(
+          'Order Details',
+          style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: SafeArea(
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.black, Colors.grey[900]!],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          
   @override
   void dispose() {
     _deliveryDateController.dispose();
