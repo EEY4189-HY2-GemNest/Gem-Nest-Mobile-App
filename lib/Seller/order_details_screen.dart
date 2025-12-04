@@ -1,6 +1,6 @@
 // order_details_screen.dart
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class OrderDetailsScreen extends StatefulWidget {
@@ -15,7 +15,13 @@ class OrderDetailsScreen extends StatefulWidget {
 class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   final TextEditingController _deliveryDateController = TextEditingController();
   String? _selectedStatus;
-  final List<String> _statusOptions = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+  final List<String> _statusOptions = [
+    'Pending',
+    'Processing',
+    'Shipped',
+    'Delivered',
+    'Cancelled'
+  ];
   late DocumentSnapshot orderData;
 
   @override
@@ -25,7 +31,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   }
 
   Future<void> _fetchOrderData() async {
-    final doc = await FirebaseFirestore.instance.collection('orders').doc(widget.orderId).get();
+    final doc = await FirebaseFirestore.instance
+        .collection('orders')
+        .doc(widget.orderId)
+        .get();
     setState(() {
       orderData = doc;
       _deliveryDateController.text = doc['deliveryDate'];
@@ -35,17 +44,24 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
 
   Future<void> _updateOrder() async {
     try {
-      await FirebaseFirestore.instance.collection('orders').doc(widget.orderId).update({
+      await FirebaseFirestore.instance
+          .collection('orders')
+          .doc(widget.orderId)
+          .update({
         'deliveryDate': _deliveryDateController.text,
         'status': _selectedStatus,
         'lastUpdated': DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now()),
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Order updated successfully', style: TextStyle(color: Colors.white))),
+        const SnackBar(
+            content: Text('Order updated successfully',
+                style: TextStyle(color: Colors.white))),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update order: $e', style: const TextStyle(color: Colors.white))),
+        SnackBar(
+            content: Text('Failed to update order: $e',
+                style: const TextStyle(color: Colors.white))),
       );
     }
   }
@@ -97,7 +113,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         shadowColor: Colors.black26,
         title: const Text(
           'Order Details',
-          style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         leading: IconButton(
@@ -115,13 +132,19 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             ),
           ),
           child: FutureBuilder<DocumentSnapshot>(
-            future: FirebaseFirestore.instance.collection('orders').doc(widget.orderId).get(),
+            future: FirebaseFirestore.instance
+                .collection('orders')
+                .doc(widget.orderId)
+                .get(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator(color: Colors.blueAccent));
+                return const Center(
+                    child: CircularProgressIndicator(color: Colors.blueAccent));
               }
               if (snapshot.hasError) {
-                return const Center(child: Text('Error loading order details', style: TextStyle(color: Colors.white)));
+                return const Center(
+                    child: Text('Error loading order details',
+                        style: TextStyle(color: Colors.white)));
               }
 
               final order = snapshot.data!.data() as Map<String, dynamic>;
@@ -135,7 +158,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     Card(
                       elevation: 4,
                       color: Colors.transparent,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
                       child: Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -144,7 +168,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                             end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.blue.withOpacity(0.3), width: 1),
+                          border: Border.all(
+                              color: Colors.blue.withOpacity(0.3), width: 1),
                         ),
                         padding: const EdgeInsets.all(16),
                         child: Column(
@@ -154,18 +179,29 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text('Order #${widget.orderId.substring(0, 8)}',
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                        color: Colors.white)),
                                 Chip(
-                                  label: Text(_selectedStatus ?? order['status'], style: const TextStyle(color: Colors.white)),
-                                  backgroundColor: _getStatusColor(_selectedStatus ?? order['status']),
+                                  label: Text(
+                                      _selectedStatus ?? order['status'],
+                                      style:
+                                          const TextStyle(color: Colors.white)),
+                                  backgroundColor: _getStatusColor(
+                                      _selectedStatus ?? order['status']),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 12),
-                            _buildInfoRow(Icons.calendar_today, 'Order Date:', order['orderDate']),
-                            _buildEditableDateRow(Icons.local_shipping, 'Delivery Date:'),
-                            _buildInfoRow(Icons.location_on, 'Address:', order['address']),
-                            _buildInfoRow(Icons.payment, 'Payment:', order['paymentMethod']),
+                            _buildInfoRow(Icons.calendar_today, 'Order Date:',
+                                order['orderDate']),
+                            _buildEditableDateRow(
+                                Icons.local_shipping, 'Delivery Date:'),
+                            _buildInfoRow(Icons.location_on, 'Address:',
+                                order['address']),
+                            _buildInfoRow(Icons.payment, 'Payment:',
+                                order['paymentMethod']),
                             _buildEditableStatusRow(Icons.update, 'Status:'),
                           ],
                         ),
@@ -175,7 +211,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     Card(
                       elevation: 4,
                       color: Colors.transparent,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
                       child: Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -184,7 +221,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                             end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.blue.withOpacity(0.3), width: 1),
+                          border: Border.all(
+                              color: Colors.blue.withOpacity(0.3), width: 1),
                         ),
                         padding: const EdgeInsets.all(16),
                         child: Column(
@@ -194,26 +232,37 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleLarge!
-                                    .copyWith(fontWeight: FontWeight.bold, color: Colors.white)),
+                                    .copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white)),
                             const SizedBox(height: 12),
                             ...items.map((item) => Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8),
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(item['title'],
-                                                style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white)),
+                                                style: const TextStyle(
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.white)),
                                             Text('Qty: ${item['quantity']}',
-                                                style: const TextStyle(color: Colors.white60)),
+                                                style: const TextStyle(
+                                                    color: Colors.white60)),
                                           ],
                                         ),
                                       ),
-                                      Text('Rs. ${item['totalPrice'].toStringAsFixed(2)}',
-                                          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blueAccent)),
+                                      Text(
+                                          'Rs. ${item['totalPrice'].toStringAsFixed(2)}',
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.blueAccent)),
                                     ],
                                   ),
                                 )),
@@ -225,7 +274,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     Card(
                       elevation: 4,
                       color: Colors.transparent,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
                       child: Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -234,16 +284,24 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                             end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.blue.withOpacity(0.3), width: 1),
+                          border: Border.all(
+                              color: Colors.blue.withOpacity(0.3), width: 1),
                         ),
                         padding: const EdgeInsets.all(16),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text('Total',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
-                            Text('Rs. ${order['totalAmount'].toStringAsFixed(2)}',
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.blueAccent)),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                    color: Colors.white)),
+                            Text(
+                                'Rs. ${order['totalAmount'].toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                    color: Colors.blueAccent)),
                           ],
                         ),
                       ),
@@ -255,11 +313,14 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blueAccent,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
                           elevation: 2,
                         ),
                         onPressed: _updateOrder,
-                        child: const Text('Save Changes', style: TextStyle(fontSize: 16, color: Colors.white)),
+                        child: const Text('Save Changes',
+                            style:
+                                TextStyle(fontSize: 16, color: Colors.white)),
                       ),
                     ),
                   ],
@@ -279,9 +340,11 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         children: [
           Icon(icon, size: 20, color: Colors.blueAccent),
           const SizedBox(width: 12),
-          Text('$label ', style: const TextStyle(color: Colors.white60, fontSize: 14)),
+          Text('$label ',
+              style: const TextStyle(color: Colors.white60, fontSize: 14)),
           Expanded(
-            child: Text(value, style: const TextStyle(fontSize: 14, color: Colors.white)),
+            child: Text(value,
+                style: const TextStyle(fontSize: 14, color: Colors.white)),
           ),
         ],
       ),
@@ -295,7 +358,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         children: [
           Icon(icon, size: 20, color: Colors.blueAccent),
           const SizedBox(width: 12),
-          Text('$label ', style: const TextStyle(color: Colors.white60, fontSize: 14)),
+          Text('$label ',
+              style: const TextStyle(color: Colors.white60, fontSize: 14)),
           Expanded(
             child: GestureDetector(
               onTap: () => _selectDate(context),
@@ -309,7 +373,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
-                    suffixIcon: const Icon(Icons.calendar_today, color: Colors.blueAccent),
+                    suffixIcon: const Icon(Icons.calendar_today,
+                        color: Colors.blueAccent),
                   ),
                   style: const TextStyle(color: Colors.white),
                 ),
@@ -328,7 +393,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         children: [
           Icon(icon, size: 20, color: Colors.blueAccent),
           const SizedBox(width: 12),
-          Text('$label ', style: const TextStyle(color: Colors.white60, fontSize: 14)),
+          Text('$label ',
+              style: const TextStyle(color: Colors.white60, fontSize: 14)),
           Expanded(
             child: DropdownButtonFormField<String>(
               value: _selectedStatus,
