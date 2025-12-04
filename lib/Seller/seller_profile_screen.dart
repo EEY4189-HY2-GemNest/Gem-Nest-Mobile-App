@@ -15,3 +15,13 @@ class SellerProfileScreen extends StatefulWidget {
   State<SellerProfileScreen> createState() => _SellerProfileScreenState();
 }
 
+class _SellerProfileScreenState extends State<SellerProfileScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+  String? _profileImageUrl;
+  File? _selectedImage;
+  final ImagePicker _picker = ImagePicker();
+
+  // Seller data and form controllers
+  
