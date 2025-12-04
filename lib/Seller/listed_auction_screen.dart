@@ -92,6 +92,48 @@ class ListedAuctionScreen extends StatelessWidget {
               );
             }
 
-            
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (context, index) {
+                var auction = snapshot.data!.docs[index];
+                Map<String, dynamic> auctionData =
+                    auction.data() as Map<String, dynamic>;
+
+                // Enhanced debugging
+                print('Auction ID: ${auction.id}');
+                print('Auction data: $auctionData');
+                bool hasSellerId = auctionData.containsKey('sellerId');
+                print('Has sellerId field: $hasSellerId');
+                if (hasSellerId) {
+                  print('Auction sellerId: ${auctionData['sellerId']}');
+                }
+
+                bool isSeller =
+                    hasSellerId && auctionData['sellerId'] == sellerId;
+                print('isSeller for ${auction.id}: $isSeller');
+
+                return AuctionCard(
+                  title: auctionData['title'] ?? 'Untitled',
+                  currentBid: auctionData['currentBid']?.toString() ?? '0',
+                  endTime: DateTime.parse(auctionData['endTime'] ??
+                      DateTime.now().toIso8601String()),
+                  imageUrl: auctionData['imagePath'] ?? '',
+                  minimumIncrement:
+                      auctionData['minimumIncrement']?.toString() ?? '0',
+                  auctionId: auction.id,
+                  isSeller: isSeller,
+                  onTap: () {
+                    // Add navigation to detail screen if needed
+                  },
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
   }
 }
+
+
