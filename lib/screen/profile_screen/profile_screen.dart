@@ -53,11 +53,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     try {
-      final userDoc =
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(userId)
-              .get();
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
       if (userDoc.exists) {
         final data = userDoc.data();
         setState(() {
@@ -192,52 +191,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _logout() {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.logout, color: Colors.redAccent),
+            SizedBox(width: 10),
+            Text(
+              'Confirm Logout',
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            title: const Row(
-              children: [
-                Icon(Icons.logout, color: Colors.redAccent),
-                SizedBox(width: 10),
-                Text(
-                  'Confirm Logout',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ],
+          ],
+        ),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.grey),
             ),
-            content: const Text('Are you sure you want to logout?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text(
-                  'Cancel',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  await FirebaseAuth.instance.signOut();
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => const LoginScreen(),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: const Text(
-                  'Logout',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ],
           ),
+          ElevatedButton(
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => const LoginScreen(),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text(
+              'Logout',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -287,41 +285,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_isEditing) {
       return await showDialog(
             context: context,
-            builder:
-                (context) => AlertDialog(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+            builder: (context) => AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              title: const Text(
+                'Unsaved Changes',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              content: const Text(
+                'You have unsaved changes. Are you sure you want to leave without saving?',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.grey),
                   ),
-                  title: const Text(
-                    'Unsaved Changes',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  content: const Text(
-                    'You have unsaved changes. Are you sure you want to leave without saving?',
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text(
-                        'Cancel',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(true),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: const Text(
-                        'Leave',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
                 ),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    'Leave',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
           ) ??
           false;
     }
@@ -371,156 +368,151 @@ class _ProfileScreenState extends State<ProfileScreen> {
               end: Alignment.bottomCenter,
             ),
           ),
-          child:
-              isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : SingleChildScrollView(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      children: [
-                        GestureDetector(
-                          onTap: _isEditing ? _pickImage : null,
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.blueAccent.shade700,
-                                width: 3,
+          child: isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      GestureDetector(
+                        onTap: _isEditing ? _pickImage : null,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.blueAccent.shade700,
+                              width: 3,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 12,
+                                spreadRadius: 3,
                               ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
-                                  blurRadius: 12,
-                                  spreadRadius: 3,
-                                ),
-                              ],
-                            ),
-                            child: CircleAvatar(
-                              radius: 80,
-                              backgroundImage:
-                                  _profileImage != null
-                                      ? FileImage(_profileImage!)
-                                      : (imageUrl != null
-                                          ? NetworkImage(imageUrl!)
-                                              as ImageProvider<Object>
-                                          : null),
-                              backgroundColor: Colors.grey.shade300,
-                              child:
-                                  _profileImage == null && imageUrl == null
-                                      ? Icon(
-                                        Icons.camera_alt,
-                                        color: Colors.blueAccent.shade700,
-                                        size: 50,
-                                      )
-                                      : null,
-                            ),
+                            ],
+                          ),
+                          child: CircleAvatar(
+                            radius: 80,
+                            backgroundImage: _profileImage != null
+                                ? FileImage(_profileImage!)
+                                : (imageUrl != null
+                                    ? NetworkImage(imageUrl!)
+                                        as ImageProvider<Object>
+                                    : null),
+                            backgroundColor: Colors.grey.shade300,
+                            child: _profileImage == null && imageUrl == null
+                                ? Icon(
+                                    Icons.camera_alt,
+                                    color: Colors.blueAccent.shade700,
+                                    size: 50,
+                                  )
+                                : null,
                           ),
                         ),
-                        const SizedBox(height: 30),
-                        Card(
-                          elevation: 6,
+                      ),
+                      const SizedBox(height: 30),
+                      Card(
+                        elevation: 6,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            children: [
+                              _buildProfileField(
+                                label: 'Full Name',
+                                controller: _nameController,
+                                enabled: _isEditing,
+                              ),
+                              _buildProfileField(
+                                label: 'Mobile Number',
+                                controller: _phoneController,
+                                enabled: _isEditing,
+                              ),
+                              _buildProfileField(
+                                label: 'Email Address',
+                                controller: _emailController,
+                                enabled: _isEditing,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 60,
+                            vertical: 16,
+                          ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              children: [
-                                _buildProfileField(
-                                  label: 'Full Name',
-                                  controller: _nameController,
-                                  enabled: _isEditing,
-                                ),
-                                _buildProfileField(
-                                  label: 'Mobile Number',
-                                  controller: _phoneController,
-                                  enabled: _isEditing,
-                                ),
-                                _buildProfileField(
-                                  label: 'Email Address',
-                                  controller: _emailController,
-                                  enabled: _isEditing,
-                                ),
-                              ],
-                            ),
+                          backgroundColor: Colors.blueAccent.shade700,
+                          elevation: 6,
+                        ),
+                        onPressed: _isEditing
+                            ? () async {
+                                setState(() => isLoading = true);
+                                final newImageUrl = await _uploadProfileImage(
+                                  _profileImage,
+                                );
+                                if (_profileImage != null &&
+                                    newImageUrl == null) {
+                                  setState(() => isLoading = false);
+                                  return;
+                                }
+                                await _saveUserDetails(
+                                  _nameController.text,
+                                  _emailController.text,
+                                  _phoneController.text,
+                                  newImageUrl,
+                                );
+                                setState(() {
+                                  _isEditing = false;
+                                  imageUrl = newImageUrl;
+                                  isLoading = false;
+                                });
+                              }
+                            : () => setState(() => _isEditing = true),
+                        child: Text(
+                          _isEditing ? 'Save' : 'Edit Profile',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
-                        const SizedBox(height: 30),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 60,
-                              vertical: 16,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            backgroundColor: Colors.blueAccent.shade700,
-                            elevation: 6,
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 60,
+                            vertical: 16,
                           ),
-                          onPressed:
-                              _isEditing
-                                  ? () async {
-                                    setState(() => isLoading = true);
-                                    final newImageUrl =
-                                        await _uploadProfileImage(
-                                          _profileImage,
-                                        );
-                                    if (_profileImage != null &&
-                                        newImageUrl == null) {
-                                      setState(() => isLoading = false);
-                                      return;
-                                    }
-                                    await _saveUserDetails(
-                                      _nameController.text,
-                                      _emailController.text,
-                                      _phoneController.text,
-                                      newImageUrl,
-                                    );
-                                    setState(() {
-                                      _isEditing = false;
-                                      imageUrl = newImageUrl;
-                                      isLoading = false;
-                                    });
-                                  }
-                                  : () => setState(() => _isEditing = true),
-                          child: Text(
-                            _isEditing ? 'Save' : 'Edit Profile',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          backgroundColor: Colors.redAccent,
+                          elevation: 6,
+                        ),
+                        icon: const Icon(Icons.logout, color: Colors.white),
+                        label: const Text(
+                          'Logout',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
-                        const SizedBox(height: 20),
-                        ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 60,
-                              vertical: 16,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            backgroundColor: Colors.redAccent,
-                            elevation: 6,
-                          ),
-                          icon: const Icon(Icons.logout, color: Colors.white),
-                          label: const Text(
-                            'Logout',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          onPressed: _logout,
-                        ),
-                      ],
-                    ),
+                        onPressed: _logout,
+                      ),
+                    ],
                   ),
+                ),
         ),
       ),
     );
