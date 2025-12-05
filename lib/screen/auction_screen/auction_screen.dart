@@ -195,18 +195,19 @@ class _AuctionScreenState extends State<AuctionScreen> {
 
   Stream<QuerySnapshot> _getFilteredAuctionsStream() {
     Query query = FirebaseFirestore.instance.collection('auctions');
-
+    
     // Apply category filter
     if (_selectedCategory != 'all') {
       query = query.where('category', isEqualTo: _selectedCategory);
     }
-
+    
     // Apply price range filter
     query = query
         .where('currentBid', isGreaterThanOrEqualTo: _minPrice)
         .where('currentBid', isLessThanOrEqualTo: _maxPrice);
-
-    return query.orderBy('currentBid').orderBy('endTime').snapshots();
+    
+    // Only order by currentBid to avoid composite index requirement
+    return query.orderBy('currentBid').snapshots();
   }
 
   List<QueryDocumentSnapshot> _filterAuctionsByStatus(
@@ -214,7 +215,8 @@ class _AuctionScreenState extends State<AuctionScreen> {
     final currentUserId = FirebaseAuth.instance.currentUser?.uid;
     final now = DateTime.now();
 
-    return auctions.where((doc) {
+    // First filter by criteria
+    final filteredList = auctions.where((doc) {
       final data = doc.data() as Map<String, dynamic>;
       final endTime = _parseEndTime(data['endTime']);
       final title = (data['title'] ?? '').toLowerCase();
@@ -243,6 +245,17 @@ class _AuctionScreenState extends State<AuctionScreen> {
           return true;
       }
     }).toList();
+
+    // Sort by endTime (soonest ending first) for better UX
+    filteredList.sort((a, b) {
+      final dataA = a.data() as Map<String, dynamic>;
+      final dataB = b.data() as Map<String, dynamic>;
+      final endTimeA = _parseEndTime(dataA['endTime']);
+      final endTimeB = _parseEndTime(dataB['endTime']);
+      return endTimeA.compareTo(endTimeB);
+    });
+
+    return filteredList;
   }
 
   Widget _buildAuctionsList() {
