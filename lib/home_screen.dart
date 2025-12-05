@@ -89,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
       // Home is already selected, do nothing
       return;
     }
-    
+
     // Don't update selected index here - let it reset to home when user returns
     switch (index) {
       case 1: // Cart
@@ -412,7 +412,8 @@ class _HomeScreenState extends State<HomeScreen> {
           bottomNavigationBar: AnimatedBottomNavigationBar(
             icons: iconList,
             activeIndex: _selectedIndex,
-            gapLocation: GapLocation.none, // Remove center gap since no floating button
+            gapLocation:
+                GapLocation.none, // Remove center gap since no floating button
             notchSmoothness: NotchSmoothness.smoothEdge,
             onTap: _onItemTapped,
             backgroundColor: const Color.fromARGB(255, 173, 216, 230),
