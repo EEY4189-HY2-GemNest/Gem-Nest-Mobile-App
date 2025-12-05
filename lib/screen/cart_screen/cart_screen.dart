@@ -440,138 +440,11 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildCouponSection(CartProvider cartProvider) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.local_offer, color: Color(0xFF667eea), size: 20),
-              const SizedBox(width: 8),
-              const Text(
-                'Apply Coupon',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          if (cartProvider.appliedCouponCode != null) ...[
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.green.shade50,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.green.shade200),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.check_circle,
-                      color: Colors.green.shade600, size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Coupon Applied: ${cartProvider.appliedCouponCode}',
-                          style: TextStyle(
-                            color: Colors.green.shade700,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          'You saved LKR ${cartProvider.couponDiscount.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            color: Colors.green.shade600,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.close,
-                        color: Colors.green.shade600, size: 20),
-                    onPressed: () => cartProvider.removeCoupon(),
-                  ),
-                ],
-              ),
-            ),
-          ] else ...[
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _couponController,
-                    decoration: InputDecoration(
-                      hintText: 'Enter coupon code',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: Color(0xFF667eea)),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
-                    ),
-                    textCapitalization: TextCapitalization.characters,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                ElevatedButton(
-                  onPressed: _isLoadingCoupon
-                      ? null
-                      : () => _applyCoupon(cartProvider),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF667eea),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 16),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                  ),
-                  child: _isLoadingCoupon
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : const Text('Apply'),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildPriceBreakdown(CartProvider cartProvider) {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -586,45 +459,84 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Price Details',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+          InkWell(
+            onTap: () => setState(() => _isExpanded = !_isExpanded),
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Price Details',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        'LKR ${cartProvider.totalAmount.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF667eea),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(
+                        _isExpanded ? Icons.expand_less : Icons.expand_more,
+                        color: const Color(0xFF667eea),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 12),
-          _buildPriceRow(
-              'Subtotal', 'LKR ${cartProvider.subtotal.toStringAsFixed(2)}'),
-          if (cartProvider.couponDiscount > 0)
-            _buildPriceRow(
-              'Coupon Discount',
-              '-LKR ${cartProvider.couponDiscount.toStringAsFixed(2)}',
-              color: Colors.green,
+          if (_isExpanded) ...[
+            const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              child: Column(
+                children: [
+                  _buildPriceRow(
+                      'Subtotal', 'LKR ${cartProvider.subtotal.toStringAsFixed(2)}'),
+                  if (cartProvider.couponDiscount > 0)
+                    _buildPriceRow(
+                      'Coupon Discount',
+                      '-LKR ${cartProvider.couponDiscount.toStringAsFixed(2)}',
+                      color: Colors.green,
+                    ),
+                  _buildPriceRow(
+                      'Tax', 'LKR ${cartProvider.taxAmount.toStringAsFixed(2)}'),
+                  const SizedBox(height: 8),
+                  const Divider(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Total Amount',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'LKR ${cartProvider.totalAmount.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF667eea),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          _buildPriceRow(
-              'Tax', 'LKR ${cartProvider.taxAmount.toStringAsFixed(2)}'),
-          const Divider(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Total Amount',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                'LKR ${cartProvider.totalAmount.toStringAsFixed(2)}',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF667eea),
-                ),
-              ),
-            ],
-          ),
+          ],
         ],
       ),
     );
@@ -697,33 +609,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
     );
   }
 
-  Future<void> _applyCoupon(CartProvider cartProvider) async {
-    final couponCode = _couponController.text.trim();
-    if (couponCode.isEmpty) return;
 
-    setState(() => _isLoadingCoupon = true);
-
-    final success = await cartProvider.applyCoupon(couponCode);
-
-    setState(() => _isLoadingCoupon = false);
-
-    if (success) {
-      _couponController.clear();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Coupon "$couponCode" applied successfully!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Invalid or expired coupon code'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
 
   void _showClearCartDialog(CartProvider cartProvider) {
     showDialog(
