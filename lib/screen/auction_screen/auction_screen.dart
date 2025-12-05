@@ -17,6 +17,16 @@ class AuctionScreen extends StatefulWidget {
 
 class _AuctionScreenState extends State<AuctionScreen>
     with TickerProviderStateMixin {
+  // Filter Controllers
+  final TextEditingController _filterController = TextEditingController();
+  
+  // Filter State Variables
+  bool _isFilterExpanded = false;
+  String _searchQuery = '';
+  String _selectedStatus = 'all';
+  String _selectedCategory = 'all';
+  double _minPrice = 0;
+  double _maxPrice = 10000;
   final String _selectedStatusFilter = 'All';
   final String _selectedCategoryFilter = 'All';
   final RangeValues _priceRange = const RangeValues(0, 100000);
@@ -161,15 +171,17 @@ class _AuctionScreenState extends State<AuctionScreen>
                     },
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Status Filter
                   Row(
                     children: [
-                      const Text('Status: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text('Status: ',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                       Expanded(
                         child: Wrap(
                           spacing: 8,
-                          children: ['all', 'live', 'ended', 'won'].map((status) {
+                          children:
+                              ['all', 'live', 'ended', 'won'].map((status) {
                             final isSelected = _selectedStatus == status;
                             return FilterChip(
                               label: Text(status.toUpperCase()),
@@ -187,16 +199,25 @@ class _AuctionScreenState extends State<AuctionScreen>
                     ],
                   ),
                   const SizedBox(height: 12),
-                  
+
                   // Category Filter
                   Row(
                     children: [
-                      const Text('Category: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text('Category: ',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                       Expanded(
                         child: DropdownButton<String>(
                           value: _selectedCategory,
                           isExpanded: true,
-                          items: ['all', 'electronics', 'jewelry', 'art', 'collectibles', 'antiques', 'other']
+                          items: [
+                            'all',
+                            'electronics',
+                            'jewelry',
+                            'art',
+                            'collectibles',
+                            'antiques',
+                            'other'
+                          ]
                               .map((category) => DropdownMenuItem(
                                     value: category,
                                     child: Text(category.toUpperCase()),
@@ -211,18 +232,20 @@ class _AuctionScreenState extends State<AuctionScreen>
                       ),
                     ],
                   ),
-                  
+
                   // Price Range Filter
                   Row(
                     children: [
-                      const Text('Price Range: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text('Price Range: ',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                       Expanded(
                         child: RangeSlider(
                           values: RangeValues(_minPrice, _maxPrice),
                           min: 0,
                           max: 10000,
                           divisions: 100,
-                          labels: RangeLabels('₹${_minPrice.toInt()}', '₹${_maxPrice.toInt()}'),
+                          labels: RangeLabels(
+                              '₹${_minPrice.toInt()}', '₹${_maxPrice.toInt()}'),
                           onChanged: (values) {
                             setState(() {
                               _minPrice = values.start;
@@ -242,45 +265,49 @@ class _AuctionScreenState extends State<AuctionScreen>
 
   Stream<QuerySnapshot> _getFilteredAuctionsStream() {
     Query query = FirebaseFirestore.instance.collection('auctions');
-    
+
     // Apply category filter
     if (_selectedCategory != 'all') {
       query = query.where('category', isEqualTo: _selectedCategory);
     }
-    
+
     // Apply price range filter
     query = query
         .where('currentBid', isGreaterThanOrEqualTo: _minPrice)
         .where('currentBid', isLessThanOrEqualTo: _maxPrice);
-    
+
     return query.orderBy('currentBid').orderBy('endTime').snapshots();
   }
 
-  List<QueryDocumentSnapshot> _filterAuctionsByStatus(List<QueryDocumentSnapshot> auctions) {
+  List<QueryDocumentSnapshot> _filterAuctionsByStatus(
+      List<QueryDocumentSnapshot> auctions) {
     final currentUserId = FirebaseAuth.instance.currentUser?.uid;
     final now = DateTime.now();
-    
+
     return auctions.where((doc) {
       final data = doc.data() as Map<String, dynamic>;
       final endTime = _parseEndTime(data['endTime']);
       final title = (data['title'] ?? '').toLowerCase();
       final description = (data['description'] ?? '').toLowerCase();
-      
+
       // Apply search filter
       if (_searchQuery.isNotEmpty) {
-        if (!title.contains(_searchQuery) && !description.contains(_searchQuery)) {
+        if (!title.contains(_searchQuery) &&
+            !description.contains(_searchQuery)) {
           return false;
         }
       }
-      
+
       // Apply status filter
       switch (_selectedStatus) {
         case 'live':
           return endTime.isAfter(now);
         case 'ended':
-          return endTime.isBefore(now) && data['winningUserId'] != currentUserId;
+          return endTime.isBefore(now) &&
+              data['winningUserId'] != currentUserId;
         case 'won':
-          return endTime.isBefore(now) && data['winningUserId'] == currentUserId;
+          return endTime.isBefore(now) &&
+              data['winningUserId'] == currentUserId;
         case 'all':
         default:
           return true;
@@ -311,20 +338,21 @@ class _AuctionScreenState extends State<AuctionScreen>
             ),
           );
         }
-        
+
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
         }
 
         final allAuctions = snapshot.data!.docs;
         final filteredAuctions = _filterAuctionsByStatus(allAuctions);
-        
+
         if (filteredAuctions.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.gavel_outlined, size: 64, color: Colors.grey.shade400),
+                Icon(Icons.gavel_outlined,
+                    size: 64, color: Colors.grey.shade400),
                 const SizedBox(height: 16),
                 Text(
                   'No auctions found',
@@ -353,7 +381,7 @@ class _AuctionScreenState extends State<AuctionScreen>
           itemBuilder: (context, index) {
             final doc = filteredAuctions[index];
             final data = doc.data() as Map<String, dynamic>;
-            
+
             return Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: AuctionItemCard(
@@ -362,7 +390,8 @@ class _AuctionScreenState extends State<AuctionScreen>
                 title: data['title'] ?? 'Untitled',
                 currentBid: (data['currentBid'] as num?)?.toDouble() ?? 0.0,
                 endTime: _parseEndTime(data['endTime']),
-                minimumIncrement: (data['minimumIncrement'] as num?)?.toDouble() ?? 0.0,
+                minimumIncrement:
+                    (data['minimumIncrement'] as num?)?.toDouble() ?? 0.0,
                 paymentStatus: data['paymentStatus'] ?? 'pending',
               ),
             );
