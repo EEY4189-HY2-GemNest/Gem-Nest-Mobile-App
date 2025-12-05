@@ -1,7 +1,8 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 
 class CartItem {
   final String id;
@@ -40,7 +41,7 @@ class CartItem {
   double get finalPrice => price; // Price after any applicable discounts
   String get name => title; // Alias for title
   String get image => imagePath; // Alias for imagePath
-  
+
   bool get isInStock => availableStock > 0;
   bool get isQuantityAvailable => quantity <= availableStock;
 
@@ -93,28 +94,33 @@ class CartProvider with ChangeNotifier {
   // Getters
   List<CartItem> get cartItems => _cartItems;
   List<CartItem> get wishlistItems => _wishlistItems;
-  List<CartItem> get selectedCartItems => _cartItems.where((item) => item.isSelected).toList();
+  List<CartItem> get selectedCartItems =>
+      _cartItems.where((item) => item.isSelected).toList();
   String? get appliedCouponCode => _appliedCouponCode;
   double get couponDiscount => _couponDiscount;
   double get shippingCost => _shippingCost;
   double get taxRate => _taxRate;
   bool get isLoading => _isLoading;
-  
-  int get cartItemCount => _cartItems.fold(0, (total, item) => total + (item.isSelected ? item.quantity : 0));
+
+  int get cartItemCount => _cartItems.fold(
+      0, (total, item) => total + (item.isSelected ? item.quantity : 0));
   int get wishlistItemCount => _wishlistItems.length;
 
   // Price calculations
-  double get subtotal => selectedCartItems.fold(0.0, (total, item) => total + item.totalPrice);
-  double get originalSubtotal => selectedCartItems.fold(0.0, (total, item) => total + item.originalTotalPrice);
+  double get subtotal =>
+      selectedCartItems.fold(0.0, (total, item) => total + item.totalPrice);
+  double get originalSubtotal => selectedCartItems.fold(
+      0.0, (total, item) => total + item.originalTotalPrice);
   double get totalSavings => originalSubtotal - subtotal + _couponDiscount;
   double get taxAmount => (subtotal - _couponDiscount) * _taxRate;
-  double get totalAmount => subtotal - _couponDiscount + _shippingCost + taxAmount;
-  
+  double get totalAmount =>
+      subtotal - _couponDiscount + _shippingCost + taxAmount;
+
   // Additional computed properties
   double get savings => _couponDiscount;
   String? get appliedCoupon => _appliedCouponCode;
   double get discountAmount => _couponDiscount;
-  
+
   // Cart operations
   Future<bool> addToCart(Map<String, dynamic> product) async {
     try {
@@ -126,7 +132,7 @@ class CartProvider with ChangeNotifier {
           .collection('products')
           .doc(product['id'])
           .get();
-      
+
       if (!productDoc.exists) {
         _isLoading = false;
         notifyListeners();
@@ -135,9 +141,10 @@ class CartProvider with ChangeNotifier {
 
       final stockData = productDoc.data()!;
       final availableStock = stockData['quantity'] ?? 0;
-      
-      final existingItemIndex = _cartItems.indexWhere((item) => item.id == product['id']);
-      
+
+      final existingItemIndex =
+          _cartItems.indexWhere((item) => item.id == product['id']);
+
       if (existingItemIndex != -1) {
         final currentItem = _cartItems[existingItemIndex];
         if (currentItem.quantity < availableStock) {
@@ -154,13 +161,16 @@ class CartProvider with ChangeNotifier {
             imagePath: product['imageUrl'] ?? '',
             title: product['title'] ?? 'Untitled',
             price: (product['pricing'] as num? ?? 0).toDouble(),
-            originalPrice: ((product['originalPrice'] as num?) ?? (product['pricing'] as num? ?? 0)).toDouble(),
+            originalPrice: ((product['originalPrice'] as num?) ??
+                    (product['pricing'] as num? ?? 0))
+                .toDouble(),
             category: product['category'] ?? '',
             sellerId: product['userId'] ?? '',
             availableStock: (availableStock as num).toInt(),
             productData: product,
             isDiscounted: product['isDiscounted'] ?? false,
-            discountPercentage: (product['discountPercentage'] as num?)?.toDouble() ?? 0.0,
+            discountPercentage:
+                (product['discountPercentage'] as num?)?.toDouble() ?? 0.0,
           ));
         } else {
           _isLoading = false;
@@ -241,14 +251,17 @@ class CartProvider with ChangeNotifier {
 
   // Wishlist operations
   void addToWishlist(Map<String, dynamic> product) {
-    final existingIndex = _wishlistItems.indexWhere((item) => item.id == product['id']);
+    final existingIndex =
+        _wishlistItems.indexWhere((item) => item.id == product['id']);
     if (existingIndex == -1) {
       _wishlistItems.add(CartItem(
         id: product['id'],
         imagePath: product['imageUrl'] ?? '',
         title: product['title'] ?? 'Untitled',
         price: (product['pricing'] as num? ?? 0).toDouble(),
-        originalPrice: ((product['originalPrice'] as num?) ?? (product['pricing'] as num? ?? 0)).toDouble(),
+        originalPrice: ((product['originalPrice'] as num?) ??
+                (product['pricing'] as num? ?? 0))
+            .toDouble(),
         category: product['category'] ?? '',
         sellerId: product['userId'] ?? '',
         availableStock: ((product['quantity'] as num?) ?? 0).toInt(),
@@ -282,7 +295,7 @@ class CartProvider with ChangeNotifier {
           .collection('coupons')
           .doc(couponCode.toUpperCase())
           .get();
-      
+
       if (couponDoc.exists) {
         final couponData = couponDoc.data()!;
         final isActive = couponData['isActive'] ?? false;
@@ -290,22 +303,26 @@ class CartProvider with ChangeNotifier {
         final discountType = couponData['discountType'] ?? 'percentage';
         final discountValue = couponData['discountValue']?.toDouble() ?? 0.0;
         final expiryDate = couponData['expiryDate']?.toDate();
-        
-        if (!isActive || (expiryDate != null && expiryDate.isBefore(DateTime.now()))) {
+
+        if (!isActive ||
+            (expiryDate != null && expiryDate.isBefore(DateTime.now()))) {
           return false; // Coupon expired or inactive
         }
-        
+
         if (subtotal < minAmount) {
           return false; // Minimum amount not met
         }
-        
+
         _appliedCouponCode = couponCode.toUpperCase();
         if (discountType == 'percentage') {
-          _couponDiscount = (subtotal * discountValue / 100).clamp(0.0, couponData['maxDiscount']?.toDouble() ?? double.infinity).toDouble();
+          _couponDiscount = (subtotal * discountValue / 100)
+              .clamp(
+                  0.0, couponData['maxDiscount']?.toDouble() ?? double.infinity)
+              .toDouble();
         } else {
           _couponDiscount = discountValue.clamp(0, subtotal);
         }
-        
+
         notifyListeners();
         return true;
       }
@@ -353,19 +370,20 @@ class CartProvider with ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final cartString = prefs.getString('cart_items');
       final wishlistString = prefs.getString('wishlist_items');
-      
+
       if (cartString != null) {
         final cartJson = jsonDecode(cartString) as List;
         _cartItems.clear();
         _cartItems.addAll(cartJson.map((item) => CartItem.fromJson(item)));
       }
-      
+
       if (wishlistString != null) {
         final wishlistJson = jsonDecode(wishlistString) as List;
         _wishlistItems.clear();
-        _wishlistItems.addAll(wishlistJson.map((item) => CartItem.fromJson(item)));
+        _wishlistItems
+            .addAll(wishlistJson.map((item) => CartItem.fromJson(item)));
       }
-      
+
       notifyListeners();
     } catch (e) {
       // Handle error silently
@@ -375,7 +393,7 @@ class CartProvider with ChangeNotifier {
   // Stock validation
   Future<void> validateCartStock() async {
     bool hasChanges = false;
-    
+
     for (int i = _cartItems.length - 1; i >= 0; i--) {
       final item = _cartItems[i];
       try {
@@ -383,13 +401,13 @@ class CartProvider with ChangeNotifier {
             .collection('products')
             .doc(item.id)
             .get();
-        
+
         if (!productDoc.exists) {
           _cartItems.removeAt(i);
           hasChanges = true;
           continue;
         }
-        
+
         final currentStock = productDoc.data()!['quantity'] ?? 0;
         if (currentStock == 0) {
           _cartItems.removeAt(i);
@@ -398,7 +416,7 @@ class CartProvider with ChangeNotifier {
           item.quantity = currentStock;
           hasChanges = true;
         }
-        
+
         // Update available stock
         _cartItems[i] = CartItem(
           id: item.id,
@@ -421,10 +439,10 @@ class CartProvider with ChangeNotifier {
         hasChanges = true;
       }
     }
-    
+
     if (hasChanges) {
       await _saveCartToLocal();
       notifyListeners();
     }
   }
-} 
+}
