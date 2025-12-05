@@ -564,7 +564,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> with TickerProviderStat
           ),
           const SizedBox(height: 16),
           if (_addresses.isNotEmpty && !_showAddressForm) ...[
-            ...._addresses.map((address) => _buildAddressCard(address)),
+            ..._addresses.map((address) => _buildAddressCard(address)),
           ] else if (!_showAddressForm) ...[
             Container(
               padding: const EdgeInsets.all(20),
