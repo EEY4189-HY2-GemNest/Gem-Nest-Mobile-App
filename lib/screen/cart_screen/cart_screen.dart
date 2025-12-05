@@ -1,6 +1,5 @@
 // cart_screen.dart
 import 'package:flutter/material.dart';
-
 import 'package:gemnest_mobile_app/screen/checkout_screen/checkout_screen.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
@@ -16,10 +15,9 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
-  final TextEditingController _couponController = TextEditingController();
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  bool _isLoadingCoupon = false;
+  bool _isExpanded = false;
 
   @override
   void initState() {
@@ -43,7 +41,6 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
   @override
   void dispose() {
     _animationController.dispose();
-    _couponController.dispose();
     super.dispose();
   }
 
@@ -69,10 +66,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                 ? _buildEmptyCart()
                 : Column(
                     children: [
-                      _buildPromotionalBanner(),
                       _buildCartHeader(cartProvider),
                       Expanded(child: _buildCartItems(cartProvider)),
-                      _buildCouponSection(cartProvider),
                       _buildPriceBreakdown(cartProvider),
                       _buildCheckoutButton(cartProvider),
                     ],
@@ -181,64 +176,6 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildPromotionalBanner() {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF4CAF50), Color(0xFF45a049)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.green.withOpacity(0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.local_shipping,
-                color: Color(0xFF4CAF50), size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Free Delivery',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(
-                  'On orders above Rs. 2,500',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildCartHeader(CartProvider cartProvider) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -293,225 +230,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildCartItemCard(CartItem item, CartProvider cartProvider) {
-    return
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-          border: item.isSelected
-              ? Border.all(color: const Color(0xFF667eea), width: 2)
-              : null,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Checkbox(
-                    value: item.isSelected,
-                    onChanged: (value) =>
-                        cartProvider.toggleItemSelection(item.id),
-                    activeColor: const Color(0xFF667eea),
-                  ),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      item.imagePath,
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          width: 80,
-                          height: 80,
-                          color: Colors.grey.shade200,
-                          child: Icon(Icons.image, color: Colors.grey.shade400),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item.title,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        if (item.category.isNotEmpty)
-                          Text(
-                            item.category,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            if (item.isDiscounted) ...[
-                              Text(
-                                'Rs. ${item.originalPrice.toStringAsFixed(2)}',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey.shade500,
-                                  decoration: TextDecoration.lineThrough,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                            ],
-                            Text(
-                              'Rs. ${item.price.toStringAsFixed(2)}',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: item.isDiscounted
-                                    ? Colors.red
-                                    : Colors.black,
-                              ),
-                            ),
-                            if (item.isDiscounted)
-                              Container(
-                                margin: const EdgeInsets.only(left: 8),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  '${item.discountPercentage.toInt()}% OFF',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                        if (!item.isInStock)
-                          Container(
-                            margin: const EdgeInsets.only(top: 4),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.red.shade100,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: const Text(
-                              'Out of Stock',
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        if (item.isInStock && item.availableStock < 10)
-                          Container(
-                            margin: const EdgeInsets.only(top: 4),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.orange.shade100,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              'Only ${item.availableStock} left',
-                              style: const TextStyle(
-                                color: Colors.orange,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.remove, size: 20),
-                          onPressed: item.quantity > 1
-                              ? () => cartProvider.decrementQuantity(item.id)
-                              : null,
-                          style: IconButton.styleFrom(
-                            minimumSize: const Size(40, 40),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Text(
-                            '${item.quantity}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.add, size: 20),
-                          onPressed: item.quantity < item.availableStock
-                              ? () => cartProvider.incrementQuantity(item.id)
-                              : null,
-                          style: IconButton.styleFrom(
-                            minimumSize: const Size(40, 40),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    'Rs. ${item.totalPrice.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF667eea),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCouponSection(CartProvider cartProvider) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -522,124 +242,207 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
             offset: const Offset(0, 2),
           ),
         ],
+        border: item.isSelected
+            ? Border.all(color: const Color(0xFF667eea), width: 2)
+            : null,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.local_offer, color: Color(0xFF667eea), size: 20),
-              const SizedBox(width: 8),
-              const Text(
-                'Apply Coupon',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Checkbox(
+              value: item.isSelected,
+              onChanged: (value) => cartProvider.toggleItemSelection(item.id),
+              activeColor: const Color(0xFF667eea),
+            ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                item.imagePath,
+                width: 70,
+                height: 70,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    width: 70,
+                    height: 70,
+                    color: Colors.grey.shade200,
+                    child: Icon(Icons.image, color: Colors.grey.shade400),
+                  );
+                },
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          if (cartProvider.appliedCouponCode != null) ...[
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.green.shade50,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.green.shade200),
-              ),
-              child: Row(
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.check_circle,
-                      color: Colors.green.shade600, size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Coupon Applied: ${cartProvider.appliedCouponCode}',
-                          style: TextStyle(
-                            color: Colors.green.shade700,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          'You saved Rs. ${cartProvider.couponDiscount.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            color: Colors.green.shade600,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
+                  Text(
+                    item.title,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  IconButton(
-                    icon: Icon(Icons.close,
-                        color: Colors.green.shade600, size: 20),
-                    onPressed: () => cartProvider.removeCoupon(),
+                  if (item.category.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      item.category,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      if (item.isDiscounted) ...[
+                        Text(
+                          'LKR ${item.originalPrice.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade500,
+                            decoration: TextDecoration.lineThrough,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                      ],
+                      Text(
+                        'LKR ${item.price.toStringAsFixed(2)}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: item.isDiscounted ? Colors.red : Colors.black,
+                        ),
+                      ),
+                      if (item.isDiscounted)
+                        Container(
+                          margin: const EdgeInsets.only(left: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 4, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                          child: Text(
+                            '${item.discountPercentage.toInt()}% OFF',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            InkWell(
+                              onTap: item.quantity > 1
+                                  ? () =>
+                                      cartProvider.decrementQuantity(item.id)
+                                  : null,
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                child: const Icon(Icons.remove, size: 16),
+                              ),
+                            ),
+                            Container(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 12),
+                              child: Text(
+                                '${item.quantity}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            InkWell(
+                              onTap: item.quantity < item.availableStock
+                                  ? () =>
+                                      cartProvider.incrementQuantity(item.id)
+                                  : null,
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                child: const Icon(Icons.add, size: 16),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        'LKR ${item.totalPrice.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF667eea),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (!item.isInStock)
+                    Container(
+                      margin: const EdgeInsets.only(top: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade100,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text(
+                        'Out of Stock',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  if (item.isInStock && item.availableStock < 10)
+                    Container(
+                      margin: const EdgeInsets.only(top: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.shade100,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        'Only ${item.availableStock} left',
+                        style: const TextStyle(
+                          color: Colors.orange,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
-          ] else ...[
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _couponController,
-                    decoration: InputDecoration(
-                      hintText: 'Enter coupon code',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: Color(0xFF667eea)),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
-                    ),
-                    textCapitalization: TextCapitalization.characters,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                ElevatedButton(
-                  onPressed: _isLoadingCoupon
-                      ? null
-                      : () => _applyCoupon(cartProvider),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF667eea),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 16),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                  ),
-                  child: _isLoadingCoupon
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : const Text('Apply'),
-                ),
-              ],
-            ),
           ],
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildPriceBreakdown(CartProvider cartProvider) {
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -654,71 +457,81 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Price Details',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+          InkWell(
+            onTap: () => setState(() => _isExpanded = !_isExpanded),
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Price Details',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        'LKR ${cartProvider.totalAmount.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF667eea),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(
+                        _isExpanded ? Icons.expand_less : Icons.expand_more,
+                        color: const Color(0xFF667eea),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 16),
-          _buildPriceRow(
-              'Subtotal', 'Rs. ${cartProvider.subtotal.toStringAsFixed(2)}'),
-          if (cartProvider.originalSubtotal != cartProvider.subtotal)
-            _buildPriceRow(
-              'Item Discount',
-              '-Rs. ${(cartProvider.originalSubtotal - cartProvider.subtotal).toStringAsFixed(2)}',
-              color: Colors.green,
-            ),
-          if (cartProvider.couponDiscount > 0)
-            _buildPriceRow(
-              'Coupon Discount',
-              '-Rs. ${cartProvider.couponDiscount.toStringAsFixed(2)}',
-              color: Colors.green,
-            ),
-          _buildPriceRow(
-              'Tax', 'Rs. ${cartProvider.taxAmount.toStringAsFixed(2)}'),
-          if (cartProvider.shippingCost > 0)
-            _buildPriceRow('Shipping',
-                'Rs. ${cartProvider.shippingCost.toStringAsFixed(2)}')
-          else
-            _buildPriceRow('Shipping', 'FREE', color: Colors.green),
-          const Divider(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Total Amount',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                'Rs. ${cartProvider.totalAmount.toStringAsFixed(2)}',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF667eea),
-                ),
-              ),
-            ],
-          ),
-          if (cartProvider.totalSavings > 0) ...[
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.green.shade50,
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                'You saved Rs. ${cartProvider.totalSavings.toStringAsFixed(2)}',
-                style: TextStyle(
-                  color: Colors.green.shade700,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
+          if (_isExpanded) ...[
+            const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              child: Column(
+                children: [
+                  _buildPriceRow('Subtotal',
+                      'LKR ${cartProvider.subtotal.toStringAsFixed(2)}'),
+                  if (cartProvider.couponDiscount > 0)
+                    _buildPriceRow(
+                      'Coupon Discount',
+                      '-LKR ${cartProvider.couponDiscount.toStringAsFixed(2)}',
+                      color: Colors.green,
+                    ),
+                  _buildPriceRow('Tax',
+                      'LKR ${cartProvider.taxAmount.toStringAsFixed(2)}'),
+                  const SizedBox(height: 8),
+                  const Divider(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Total Amount',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'LKR ${cartProvider.totalAmount.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF667eea),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
@@ -729,21 +542,21 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
 
   Widget _buildPriceRow(String label, String value, {Color? color}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 14,
               color: Colors.grey.shade600,
             ),
           ),
           Text(
             value,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: color ?? Colors.black,
             ),
@@ -792,34 +605,6 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
         ),
       ),
     );
-  }
-
-  Future<void> _applyCoupon(CartProvider cartProvider) async {
-    final couponCode = _couponController.text.trim();
-    if (couponCode.isEmpty) return;
-
-    setState(() => _isLoadingCoupon = true);
-
-    final success = await cartProvider.applyCoupon(couponCode);
-
-    setState(() => _isLoadingCoupon = false);
-
-    if (success) {
-      _couponController.clear();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Coupon "$couponCode" applied successfully!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Invalid or expired coupon code'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
   }
 
   void _showClearCartDialog(CartProvider cartProvider) {
