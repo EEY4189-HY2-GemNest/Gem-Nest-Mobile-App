@@ -410,57 +410,62 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                Image.asset('assets/images/logo_new.png', height: 90),
-                const SizedBox(height: 20),
-                const Text(
-                  'Create an Account',
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                _roleSelector(),
-                if (!isBuyer) _customTextField('Name', displayNameController),
-                if (!isBuyer) _customTextField('Address', addressController),
-                if (!isBuyer) _customTextField('NIC Number', nicController),
-                if (!isBuyer)
-                  _customTextField('Business Name', businessNameController),
-                if (!isBuyer) _customTextField('BR Number', brNumberController),
-                if (!isBuyer)
-                  _buildFileUploadSection(
-                      'Business Registration',
-                      _businessRegistrationFileName,
-                      _isUploadingBusinessReg,
-                      _pickBusinessRegistrationFile),
-                if (!isBuyer)
-                  _buildFileUploadSection('NIC Document', _nicFileName,
-                      _isUploadingNic, _pickNicFile),
-                _customTextField('Email', emailController),
-                _customTextField('Phone Number', phoneNumberController,
-                    keyboardType: TextInputType.phone),
-                _customTextField('Password', passwordController,
-                    isPassword: true),
-                _customTextField('Confirm Password', confirmPasswordController,
-                    isPassword: true),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _saveUser,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 50, vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    Image.asset('assets/images/logo_new.png', height: 90),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Create an Account',
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    'Register',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                  ),
-                ),
+                    const SizedBox(height: 20),
+                    _roleSelector(),
+                    if (!isBuyer)
+                      _customTextField('Name', displayNameController),
+                    if (!isBuyer)
+                      _customTextField('Address', addressController),
+                    if (!isBuyer) _customTextField('NIC Number', nicController),
+                    if (!isBuyer)
+                      _customTextField('Business Name', businessNameController),
+                    if (!isBuyer)
+                      _customTextField('BR Number', brNumberController),
+                    if (!isBuyer)
+                      _buildFileUploadSection(
+                          'Business Registration',
+                          _businessRegistrationFileName,
+                          _isUploadingBusinessReg,
+                          _pickBusinessRegistrationFile),
+                    if (!isBuyer)
+                      _buildFileUploadSection('NIC Document', _nicFileName,
+                          _isUploadingNic, _pickNicFile),
+                    _customTextField('Email', emailController),
+                    _customTextField('Phone Number', phoneNumberController,
+                        keyboardType: TextInputType.phone),
+                    _customTextField('Password', passwordController,
+                        isPassword: true),
+                    _customTextField(
+                        'Confirm Password', confirmPasswordController,
+                        isPassword: true),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: _saveUser,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 50, vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Register',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w500),
+                      ),
+                    ),
                   ],
                 ),
               ),
