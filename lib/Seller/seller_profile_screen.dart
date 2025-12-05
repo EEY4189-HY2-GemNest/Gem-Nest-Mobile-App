@@ -208,12 +208,14 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
           fileExtension = '.pdf';
         } else if (url.toLowerCase().contains('.png')) {
           fileExtension = '.png';
-        } else if (url.toLowerCase().contains('.jpeg') || url.toLowerCase().contains('.jpg')) {
+        } else if (url.toLowerCase().contains('.jpeg') ||
+            url.toLowerCase().contains('.jpg')) {
           fileExtension = '.jpg';
         }
 
         // Create filename with proper extension
-        final cleanFileName = fileName.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
+        final cleanFileName =
+            fileName.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
         final fullFileName = '$cleanFileName$fileExtension';
 
         // Get app directory
@@ -253,7 +255,8 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
           );
         }
       } else {
-        throw Exception('Failed to download file - Status: ${response.statusCode}');
+        throw Exception(
+            'Failed to download file - Status: ${response.statusCode}');
       }
     } catch (e) {
       // Close loading dialog if open
@@ -262,7 +265,8 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to download $fileName\nError: ${e.toString()}'),
+            content:
+                Text('Failed to download $fileName\nError: ${e.toString()}'),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 4),
           ),
@@ -921,7 +925,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
         ),
         actions: [
           TextButton(
-            onPressed: () => _downloadDocument(url, '$title.jpg'),
+            onPressed: () => _downloadDocument(url, title),
             child:
                 const Text('Download', style: TextStyle(color: Colors.green)),
           ),
