@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:intl/intl.dart';
 
 class ListedAuctionScreen extends StatelessWidget {
@@ -38,10 +39,7 @@ class ListedAuctionScreen extends StatelessWidget {
           ),
         ),
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        leading: const ProfessionalAppBarBackButton(),
       ),
       body: SafeArea(
         child: StreamBuilder<QuerySnapshot>(
