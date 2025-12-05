@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
@@ -18,6 +19,7 @@ class ListedProductScreen extends StatefulWidget {
 }
 
 class _ListedProductScreenState extends State<ListedProductScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   DateTimeRange? _selectedDateRange;
 
   // Method to pick date range
@@ -306,8 +308,12 @@ class _ListedProductScreenState extends State<ListedProductScreen> {
           IconButton(
             icon: const Icon(Icons.download, color: Colors.white),
             onPressed: () async {
+              final currentUserId = _auth.currentUser?.uid;
+              if (currentUserId == null) return;
+              
               final snapshot = await FirebaseFirestore.instance
                   .collection('products')
+                  .where('sellerId', isEqualTo: currentUserId)
                   .orderBy('timestamp', descending: true)
                   .get();
               var filteredProducts = snapshot.docs;
@@ -327,10 +333,13 @@ class _ListedProductScreenState extends State<ListedProductScreen> {
       ),
       body: SafeArea(
         child: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('products')
-              .orderBy('timestamp', descending: true)
-              .snapshots(),
+          stream: _auth.currentUser?.uid != null
+              ? FirebaseFirestore.instance
+                  .collection('products')
+                  .where('sellerId', isEqualTo: _auth.currentUser!.uid)
+                  .orderBy('timestamp', descending: true)
+                  .snapshots()
+              : const Stream.empty(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
