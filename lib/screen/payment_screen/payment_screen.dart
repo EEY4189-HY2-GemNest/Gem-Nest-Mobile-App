@@ -1100,44 +1100,44 @@ class _PaymentScreenState extends State<PaymentScreen>
   bool _validateCardNumber(String cardNumber) {
     int sum = 0;
     bool isEven = false;
-    
+
     for (int i = cardNumber.length - 1; i >= 0; i--) {
       int digit = int.parse(cardNumber[i]);
-      
+
       if (isEven) {
         digit *= 2;
         if (digit > 9) {
           digit = digit % 10 + digit ~/ 10;
         }
       }
-      
+
       sum += digit;
       isEven = !isEven;
     }
-    
+
     return sum % 10 == 0;
   }
 
   // Validate expiry date (MM/YY format)
   bool _validateExpiryDate(String expiryDate) {
     if (expiryDate.length != 5) return false;
-    
+
     final parts = expiryDate.split('/');
     if (parts.length != 2) return false;
-    
+
     final month = int.tryParse(parts[0]);
     final year = int.tryParse(parts[1]);
-    
+
     if (month == null || year == null) return false;
     if (month < 1 || month > 12) return false;
-    
+
     final now = DateTime.now();
     final currentYear = now.year % 100; // Get last 2 digits
     final currentMonth = now.month;
-    
+
     if (year < currentYear) return false;
     if (year == currentYear && month < currentMonth) return false;
-    
+
     return true;
   }
 
@@ -1145,13 +1145,13 @@ class _PaymentScreenState extends State<PaymentScreen>
   Future<void> _processCardPayment() async {
     // Step 1: Validate card details
     await Future.delayed(const Duration(milliseconds: 800));
-    
+
     // Step 2: Contact bank
     await Future.delayed(const Duration(milliseconds: 1000));
-    
+
     // Step 3: Authorize payment
     await Future.delayed(const Duration(milliseconds: 1200));
-    
+
     // Simulate 95% success rate
     if (DateTime.now().millisecond % 20 == 0) {
       throw Exception('Payment declined by bank');
