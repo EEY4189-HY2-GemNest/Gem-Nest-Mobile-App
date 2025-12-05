@@ -315,7 +315,7 @@ class _ListedProductScreenState extends State<ListedProductScreen> {
             onPressed: () async {
               final currentUserId = _auth.currentUser?.uid;
               if (currentUserId == null) return;
-              
+
               final snapshot = await FirebaseFirestore.instance
                   .collection('products')
                   .where('sellerId', isEqualTo: currentUserId)
