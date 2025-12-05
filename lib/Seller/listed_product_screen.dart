@@ -74,18 +74,23 @@ class _ListedProductScreenState extends State<ListedProductScreen> {
       totalValueInRange += pricing * quantity;
     }
 
-    // Fetch all products for all-time total value
-    final allProductsSnapshot =
-        await FirebaseFirestore.instance.collection('products').get();
-    for (var product in allProductsSnapshot.docs) {
-      final data = product.data();
-      final pricing = data['pricing'] is int
-          ? (data['pricing'] as int).toDouble()
-          : data['pricing'] as double;
-      final quantity = data['quantity'] is int
-          ? (data['quantity'] as int).toDouble()
-          : data['quantity'] as double;
-      allTimeTotalValue += pricing * quantity;
+    // Fetch all products for all-time total value (seller specific)
+    String? currentSellerId = _auth.currentUser?.uid;
+    if (currentSellerId != null) {
+      final allProductsSnapshot = await FirebaseFirestore.instance
+          .collection('products')
+          .where('sellerId', isEqualTo: currentSellerId)
+          .get();
+      for (var product in allProductsSnapshot.docs) {
+        final data = product.data();
+        final pricing = data['pricing'] is int
+            ? (data['pricing'] as int).toDouble()
+            : data['pricing'] as double;
+        final quantity = data['quantity'] is int
+            ? (data['quantity'] as int).toDouble()
+            : data['quantity'] as double;
+        allTimeTotalValue += pricing * quantity;
+      }
     }
 
     pdf.addPage(
