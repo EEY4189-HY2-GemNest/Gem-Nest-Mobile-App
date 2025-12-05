@@ -25,7 +25,6 @@ class _HomeScreenState extends State<HomeScreen> {
   final iconList = const [
     Icons.home,
     Icons.shopping_cart,
-    Icons.gavel, // Auction icon
     Icons.receipt,
     Icons.person,
   ];
@@ -85,56 +84,27 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onItemTapped(int index) {
-    if (index == 0) {
-      // Home is already selected, do nothing
-      return;
-    }
-
-    // Don't update selected index here - let it reset to home when user returns
+    setState(() {
+      _selectedIndex = index;
+    });
     switch (index) {
-      case 1: // Cart
+      case 1:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const CartScreen()),
-        ).then((_) {
-          // Reset to home when returning from cart
-          setState(() {
-            _selectedIndex = 0;
-          });
-        });
+        );
         break;
-      case 2: // Auction
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const AuctionScreen()),
-        ).then((_) {
-          // Reset to home when returning from auction
-          setState(() {
-            _selectedIndex = 0;
-          });
-        });
-        break;
-      case 3: // Order History
+      case 2:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const OrderHistoryScreen()),
-        ).then((_) {
-          // Reset to home when returning from order history
-          setState(() {
-            _selectedIndex = 0;
-          });
-        });
+        );
         break;
-      case 4: // Profile
+      case 3:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const ProfileScreen()),
-        ).then((_) {
-          // Reset to home when returning from profile
-          setState(() {
-            _selectedIndex = 0;
-          });
-        });
+        );
         break;
     }
   }
@@ -409,16 +379,29 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AuctionScreen()),
+              );
+            },
+            backgroundColor: const Color.fromARGB(255, 173, 216, 230),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            elevation: 8,
+            child: const Icon(Icons.gavel),
+          ),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerDocked,
           bottomNavigationBar: AnimatedBottomNavigationBar(
             icons: iconList,
             activeIndex: _selectedIndex,
-            gapLocation:
-                GapLocation.none, // Remove center gap since no floating button
+            gapLocation: GapLocation.center,
             notchSmoothness: NotchSmoothness.smoothEdge,
             onTap: _onItemTapped,
             backgroundColor: const Color.fromARGB(255, 173, 216, 230),
             activeColor: const Color.fromARGB(255, 0, 0, 139),
-            inactiveColor: Colors.grey[600],
             leftCornerRadius: 32,
             rightCornerRadius: 32,
           ),
