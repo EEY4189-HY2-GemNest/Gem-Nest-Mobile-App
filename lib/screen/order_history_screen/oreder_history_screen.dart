@@ -425,11 +425,56 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
   Widget _buildOrderCard(
       Map<String, dynamic> order, String orderId, int index) {
     final status = order['status'] ?? 'Pending';
-    final orderDate = order['orderDate'] ?? 'N/A';
-    final deliveryDate = order['deliveryDate'] ?? 'N/A';
+
+    // Handle orderDate - could be String or Timestamp
+    String orderDate = 'N/A';
+    if (order['orderDate'] != null) {
+      if (order['orderDate'] is String) {
+        orderDate = order['orderDate'];
+      } else if (order['orderDate'] is Timestamp) {
+        orderDate = DateFormat('MMM dd, yyyy')
+            .format((order['orderDate'] as Timestamp).toDate());
+      }
+    }
+
+    // Handle deliveryDate - could be String or Timestamp
+    String deliveryDate = 'N/A';
+    if (order['deliveryDate'] != null) {
+      if (order['deliveryDate'] is String) {
+        deliveryDate = order['deliveryDate'];
+      } else if (order['deliveryDate'] is Timestamp) {
+        deliveryDate = DateFormat('MMM dd, yyyy')
+            .format((order['deliveryDate'] as Timestamp).toDate());
+      }
+    }
+
     final totalAmount = order['totalAmount'] ?? 0.0;
-    final address = order['address'] ?? 'N/A';
-    final paymentMethod = order['paymentMethod'] ?? 'N/A';
+
+    // Handle address - could be String or Map
+    String address = 'N/A';
+    if (order['address'] != null) {
+      if (order['address'] is String) {
+        address = order['address'];
+      } else if (order['address'] is Map) {
+        final addressMap = order['address'] as Map<String, dynamic>;
+        address =
+            '${addressMap['street'] ?? ''} ${addressMap['city'] ?? ''} ${addressMap['postalCode'] ?? ''}'
+                .trim();
+        if (address.isEmpty) address = 'N/A';
+      }
+    }
+
+    // Handle paymentMethod - could be String or Map
+    String paymentMethod = 'N/A';
+    if (order['paymentMethod'] != null) {
+      if (order['paymentMethod'] is String) {
+        paymentMethod = order['paymentMethod'];
+      } else if (order['paymentMethod'] is Map) {
+        final paymentMap = order['paymentMethod'] as Map<String, dynamic>;
+        paymentMethod = paymentMap['type'] ?? paymentMap['method'] ?? 'N/A';
+      }
+    }
+
     final items = order['items'] as List<dynamic>? ?? [];
 
     return Container(
@@ -504,29 +549,38 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                           ),
                         ),
                         const SizedBox(height: 8),
-                        ...items.take(2).map((item) => Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 2),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      '${item['quantity']}x ${item['title']}',
-                                      style: const TextStyle(fontSize: 12),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
+                        ...items.take(2).map((item) {
+                          final itemMap = item as Map<String, dynamic>;
+                          final quantity = itemMap['quantity'] ?? 1;
+                          final title = itemMap['title'] ??
+                              itemMap['name'] ??
+                              'Unknown Item';
+                          final totalPrice =
+                              itemMap['totalPrice'] ?? itemMap['price'] ?? 0.0;
+
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 2),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    '${quantity}x $title',
+                                    style: const TextStyle(fontSize: 12),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  Text(
-                                    'Rs. ${item['totalPrice']?.toStringAsFixed(2) ?? '0.00'}',
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                ),
+                                Text(
+                                  'Rs. ${totalPrice.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                ],
-                              ),
-                            )),
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
                         if (items.length > 2)
                           Text(
                             'and ${items.length - 2} more item(s)',
@@ -837,15 +891,69 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     switch (_selectedSortBy) {
       case 'date_desc':
         orders.sort((a, b) {
-          final aDate = (a.data() as Map<String, dynamic>)['orderDate'] ?? '';
-          final bDate = (b.data() as Map<String, dynamic>)['orderDate'] ?? '';
+          final aData = a.data() as Map<String, dynamic>;
+          final bData = b.data() as Map<String, dynamic>;
+
+          DateTime? aDate, bDate;
+
+          if (aData['orderDate'] is Timestamp) {
+            aDate = (aData['orderDate'] as Timestamp).toDate();
+          } else if (aData['orderDate'] is String) {
+            try {
+              aDate = DateTime.parse(aData['orderDate']);
+            } catch (e) {
+              aDate = DateTime.now();
+            }
+          } else {
+            aDate = DateTime.now();
+          }
+
+          if (bData['orderDate'] is Timestamp) {
+            bDate = (bData['orderDate'] as Timestamp).toDate();
+          } else if (bData['orderDate'] is String) {
+            try {
+              bDate = DateTime.parse(bData['orderDate']);
+            } catch (e) {
+              bDate = DateTime.now();
+            }
+          } else {
+            bDate = DateTime.now();
+          }
+
           return bDate.compareTo(aDate);
         });
         break;
       case 'date_asc':
         orders.sort((a, b) {
-          final aDate = (a.data() as Map<String, dynamic>)['orderDate'] ?? '';
-          final bDate = (b.data() as Map<String, dynamic>)['orderDate'] ?? '';
+          final aData = a.data() as Map<String, dynamic>;
+          final bData = b.data() as Map<String, dynamic>;
+
+          DateTime? aDate, bDate;
+
+          if (aData['orderDate'] is Timestamp) {
+            aDate = (aData['orderDate'] as Timestamp).toDate();
+          } else if (aData['orderDate'] is String) {
+            try {
+              aDate = DateTime.parse(aData['orderDate']);
+            } catch (e) {
+              aDate = DateTime.now();
+            }
+          } else {
+            aDate = DateTime.now();
+          }
+
+          if (bData['orderDate'] is Timestamp) {
+            bDate = (bData['orderDate'] as Timestamp).toDate();
+          } else if (bData['orderDate'] is String) {
+            try {
+              bDate = DateTime.parse(bData['orderDate']);
+            } catch (e) {
+              bDate = DateTime.now();
+            }
+          } else {
+            bDate = DateTime.now();
+          }
+
           return aDate.compareTo(bDate);
         });
         break;
@@ -882,59 +990,120 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.7,
-        maxChildSize: 0.9,
+        initialChildSize: 0.75,
+        maxChildSize: 0.95,
         minChildSize: 0.5,
         builder: (context, scrollController) => Container(
-          padding: const EdgeInsets.all(20),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFFF8F9FA), Colors.white],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 10,
+                offset: Offset(0, -5),
+              ),
+            ],
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+              // Header with drag handle and close button
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 15, 20, 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      width: 50,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade400,
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Icon(
+                          Icons.close,
+                          color: Colors.grey.shade600,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 20),
-              Text(
-                'Order #${orderId.substring(0, 8)}',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2C3E50),
+              // Order title with status chip
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Order Details',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey.shade600,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '#${orderId.substring(0, 8).toUpperCase()}',
+                            style: const TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF2C3E50),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    _buildModernStatusChip(order['status'] ?? 'Pending'),
+                  ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 25),
               Expanded(
                 child: SingleChildScrollView(
                   controller: scrollController,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildDetailSection('Order Information', [
                         _buildDetailItem(
-                            'Order Date', order['orderDate'] ?? 'N/A'),
-                        _buildDetailItem(
-                            'Delivery Date', order['deliveryDate'] ?? 'N/A'),
+                            'Order Date', _formatDate(order['orderDate'])),
+                        _buildDetailItem('Delivery Date',
+                            _formatDate(order['deliveryDate'])),
                         _buildDetailItem('Status', order['status'] ?? 'N/A'),
-                        _buildDetailItem(
-                            'Payment Method', order['paymentMethod'] ?? 'N/A'),
+                        _buildDetailItem('Payment Method',
+                            _formatPaymentMethod(order['paymentMethod'])),
                       ]),
                       const SizedBox(height: 20),
                       _buildDetailSection('Delivery Information', [
                         _buildDetailItem('Name', order['name'] ?? 'N/A'),
                         _buildDetailItem('Mobile', order['mobile'] ?? 'N/A'),
                         _buildDetailItem('Email', order['email'] ?? 'N/A'),
-                        _buildDetailItem('Address', order['address'] ?? 'N/A'),
+                        _buildDetailItem(
+                            'Address', _formatAddress(order['address'])),
                         _buildDetailItem(
                             'Delivery Note', order['deliveryNote'] ?? 'None'),
                       ]),
@@ -945,37 +1114,65 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                             .map((item) => _buildItemDetail(item))
                             .toList(),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 25),
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF28a745).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                              color: const Color(0xFF28a745).withOpacity(0.3)),
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF667eea).withOpacity(0.3),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'Total Amount',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF2C3E50),
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Total Amount',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white70,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Rs. ${order['totalAmount']?.toStringAsFixed(2) ?? '0.00'}',
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              'Rs. ${order['totalAmount']?.toStringAsFixed(2) ?? '0.00'}',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF28a745),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                Icons.account_balance_wallet,
+                                color: Colors.white,
+                                size: 28,
                               ),
                             ),
                           ],
                         ),
                       ),
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),
@@ -988,24 +1185,70 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
   }
 
   Widget _buildDetailSection(String title, List<Widget> children) {
+    IconData sectionIcon;
+    Color sectionColor;
+
+    switch (title) {
+      case 'Order Information':
+        sectionIcon = Icons.receipt_long;
+        sectionColor = const Color(0xFF667eea);
+        break;
+      case 'Delivery Information':
+        sectionIcon = Icons.local_shipping;
+        sectionColor = const Color(0xFF28a745);
+        break;
+      case 'Items Ordered':
+        sectionIcon = Icons.shopping_bag;
+        sectionColor = const Color(0xFFf093fb);
+        break;
+      default:
+        sectionIcon = Icons.info;
+        sectionColor = const Color(0xFF667eea);
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF2C3E50),
-          ),
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: sectionColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                sectionIcon,
+                color: sectionColor,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2C3E50),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         Container(
-          padding: const EdgeInsets.all(16),
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.grey.shade50,
-            borderRadius: BorderRadius.circular(12),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(color: Colors.grey.shade200),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.shade100,
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Column(
             children: children,
@@ -1017,17 +1260,18 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
 
   Widget _buildDetailItem(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             flex: 2,
             child: Text(
-              '$label:',
+              label,
               style: TextStyle(
-                color: Colors.grey.shade700,
+                color: Colors.grey.shade600,
                 fontWeight: FontWeight.w500,
+                fontSize: 14,
               ),
             ),
           ),
@@ -1037,8 +1281,10 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
               value,
               style: const TextStyle(
                 color: Color(0xFF2C3E50),
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
               ),
+              textAlign: TextAlign.right,
             ),
           ),
         ],
@@ -1047,44 +1293,108 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
   }
 
   Widget _buildItemDetail(dynamic item) {
+    final itemMap = item as Map<String, dynamic>;
+    final title = itemMap['title'] ?? itemMap['name'] ?? 'Unknown Item';
+    final quantity = itemMap['quantity'] ?? 1;
+    final price = itemMap['price'] ?? 0.0;
+    final totalPrice = itemMap['totalPrice'] ?? (price * quantity);
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
+        gradient: LinearGradient(
+          colors: [Colors.white, Colors.grey.shade50],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade100,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      child: Row(
+      child: Column(
         children: [
-          Expanded(
-            flex: 3,
-            child: Text(
-              item['title'] ?? 'Unknown Item',
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF2C3E50),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF667eea).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.shopping_bag_outlined,
+                  color: Color(0xFF667eea),
+                  size: 16,
+                ),
               ),
-            ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF2C3E50),
+                    fontSize: 15,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
-          Expanded(
-            child: Text(
-              'Qty: ${item['quantity'] ?? 1}',
-              style: TextStyle(
-                color: Colors.grey.shade600,
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.blue.shade200),
+                ),
+                child: Text(
+                  'Qty: $quantity',
+                  style: TextStyle(
+                    color: Colors.blue.shade700,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                  ),
+                ),
               ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Expanded(
-            child: Text(
-              'Rs. ${item['totalPrice']?.toStringAsFixed(2) ?? '0.00'}',
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF28a745),
+              if (quantity > 1) ...[
+                Text(
+                  'Rs. ${price.toStringAsFixed(2)} each',
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF28a745).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'Rs. ${totalPrice.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF28a745),
+                    fontSize: 14,
+                  ),
+                ),
               ),
-              textAlign: TextAlign.right,
-            ),
+            ],
           ),
         ],
       ),
@@ -1135,6 +1445,121 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
             child: const Text(
               'Add to Cart',
               style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(dynamic dateValue) {
+    if (dateValue == null) return 'N/A';
+
+    if (dateValue is String) {
+      return dateValue;
+    } else if (dateValue is Timestamp) {
+      return DateFormat('MMM dd, yyyy').format(dateValue.toDate());
+    }
+
+    return 'N/A';
+  }
+
+  String _formatPaymentMethod(dynamic paymentValue) {
+    if (paymentValue == null) return 'N/A';
+
+    if (paymentValue is String) {
+      return paymentValue;
+    } else if (paymentValue is Map) {
+      final paymentMap = paymentValue as Map<String, dynamic>;
+      return paymentMap['type'] ?? paymentMap['method'] ?? 'N/A';
+    }
+
+    return 'N/A';
+  }
+
+  String _formatAddress(dynamic addressValue) {
+    if (addressValue == null) return 'N/A';
+
+    if (addressValue is String) {
+      return addressValue;
+    } else if (addressValue is Map) {
+      final addressMap = addressValue as Map<String, dynamic>;
+      final street = addressMap['street'] ?? '';
+      final city = addressMap['city'] ?? '';
+      final postalCode = addressMap['postalCode'] ?? '';
+      final state = addressMap['state'] ?? '';
+
+      final parts = [street, city, state, postalCode]
+          .where((part) => part.toString().isNotEmpty)
+          .toList();
+      return parts.isNotEmpty ? parts.join(', ') : 'N/A';
+    }
+
+    return 'N/A';
+  }
+
+  Widget _buildModernStatusChip(String status) {
+    Color backgroundColor;
+    Color textColor;
+    IconData icon;
+
+    switch (status.toLowerCase()) {
+      case 'delivered':
+        backgroundColor = const Color(0xFF28a745);
+        textColor = Colors.white;
+        icon = Icons.check_circle;
+        break;
+      case 'shipped':
+      case 'in transit':
+        backgroundColor = const Color(0xFF007bff);
+        textColor = Colors.white;
+        icon = Icons.local_shipping;
+        break;
+      case 'processing':
+        backgroundColor = const Color(0xFFffc107);
+        textColor = Colors.white;
+        icon = Icons.hourglass_empty;
+        break;
+      case 'cancelled':
+        backgroundColor = const Color(0xFFdc3545);
+        textColor = Colors.white;
+        icon = Icons.cancel;
+        break;
+      case 'pending':
+      default:
+        backgroundColor = const Color(0xFF6c757d);
+        textColor = Colors.white;
+        icon = Icons.schedule;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: backgroundColor.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: textColor,
+            size: 16,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            status.toUpperCase(),
+            style: TextStyle(
+              color: textColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
             ),
           ),
         ],
