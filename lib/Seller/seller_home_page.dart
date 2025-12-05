@@ -602,117 +602,50 @@ class _SellerHomePageState extends State<SellerHomePage>
 
   Widget _buildRecentActivitySection() {
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Quick Access',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
-              TextButton(
-                onPressed: () => _navigateToOrderHistory(),
-                child: Text(
-                  'View Orders',
-                  style: TextStyle(
-                    color: Colors.blue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
+          Text(
+            'Quick Access',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
           ).animate().fadeIn(duration: 600.ms),
           const SizedBox(height: 16),
-          _buildQuickAccessCard(
-            'Manage Your Products',
-            'View and edit your listed products',
-            Icons.inventory_2_outlined,
-            Colors.blue,
-            () => _navigateToListedProducts(),
-          ).animate().fadeIn(duration: 500.ms).slideX(begin: 0.3),
-          const SizedBox(height: 12),
-          _buildQuickAccessCard(
-            'Auction History',
-            'Check your auction performance',
-            Icons.history_outlined,
-            Colors.orange,
-            () => _navigateToAuctionHistory(),
-          )
-              .animate()
-              .fadeIn(duration: 500.ms, delay: 100.ms)
-              .slideX(begin: 0.3),
+          GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 16,
+            childAspectRatio: 1.1,
+            children: [
+              _buildActionCard(
+                'Listed Products',
+                Icons.inventory_outlined,
+                Colors.green,
+                () => _navigateToListedProducts(),
+                0.ms,
+              ),
+              _buildActionCard(
+                'Auction History',
+                Icons.timeline_outlined,
+                Colors.purple,
+                () => _navigateToAuctionHistory(),
+                200.ms,
+              ),
+            ],
+          ),
           const SizedBox(height: 100),
         ],
       ),
     );
   }
 
-  Widget _buildQuickAccessCard(String title, String subtitle, IconData icon,
-      Color color, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.grey[900]!.withOpacity(0.6),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.3), width: 1),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                icon,
-                color: color,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[400],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.arrow_forward_ios,
-              color: color,
-              size: 16,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+
 
   Widget _buildModernBottomNav() {
     return Container(
