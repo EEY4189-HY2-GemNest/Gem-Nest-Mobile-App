@@ -226,15 +226,14 @@ class _PaymentScreenState extends State<PaymentScreen>
         ),
       ),
       elevation: 0,
-      leading: ProfessionalBackButton(
-        onPressed: () => Navigator.pop(context),
-      ),
+      leading: const ProfessionalAppBarBackButton(),
       title: const Text(
         'Payment',
         style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
           color: Colors.white,
+          fontSize: 24,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.5,
         ),
       ),
       centerTitle: true,
