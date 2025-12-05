@@ -11,6 +11,7 @@ import 'package:gemnest_mobile_app/screen/category_screen/category_card.dart';
 import 'package:gemnest_mobile_app/screen/order_history_screen/oreder_history_screen.dart';
 import 'package:gemnest_mobile_app/screen/product_screen/product_card.dart';
 import 'package:gemnest_mobile_app/screen/profile_screen/profile_screen.dart';
+import 'package:gemnest_mobile_app/widget/bottom_navigation_widget.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
