@@ -82,10 +82,10 @@ class CartProvider with ChangeNotifier {
   final List<CartItem> _cartItems = [];
   final List<CartItem> _wishlistItems = [];
   String? _appliedCouponCode;
-  double _couponDiscount = 0.0;
-  double _shippingCost = 0.0;
+  final double _couponDiscount = 0.0;
+  final double _shippingCost = 0.0;
   final double _taxRate = 0.1; // 10% tax
-  bool _isLoading = false;
+  final bool _isLoading = false;
 
   // Getters
   List<CartItem> get cartItems => _cartItems;

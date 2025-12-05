@@ -5,6 +5,78 @@ import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// Address Model
+class Address {
+  final String id;
+  final String label;
+  final String fullName;
+  final String mobile;
+  final String address;
+  final String city;
+  final String state;
+  final String pincode;
+  final bool isDefault;
+
+  Address({
+    required this.id,
+    required this.label,
+    required this.fullName,
+    required this.mobile,
+    required this.address,
+    required this.city,
+    required this.state,
+    required this.pincode,
+    this.isDefault = false,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'label': label,
+      'fullName': fullName,
+      'mobile': mobile,
+      'address': address,
+      'city': city,
+      'state': state,
+      'pincode': pincode,
+      'isDefault': isDefault,
+    };
+  }
+
+  factory Address.fromMap(Map<String, dynamic> map) {
+    return Address(
+      id: map['id'] ?? '',
+      label: map['label'] ?? '',
+      fullName: map['fullName'] ?? '',
+      mobile: map['mobile'] ?? '',
+      address: map['address'] ?? '',
+      city: map['city'] ?? '',
+      state: map['state'] ?? '',
+      pincode: map['pincode'] ?? '',
+      isDefault: map['isDefault'] ?? false,
+    );
+  }
+}
+
+// Delivery Option Model
+class DeliveryOption {
+  final String id;
+  final String name;
+  final String description;
+  final double cost;
+  final int estimatedDays;
+  final String icon;
+
+  DeliveryOption({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.cost,
+    required this.estimatedDays,
+    required this.icon,
+  });
+}
+
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
 
@@ -12,22 +84,98 @@ class CheckoutScreen extends StatefulWidget {
   State<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
-class _CheckoutScreenState extends State<CheckoutScreen> {
-  final TextEditingController _nameController = TextEditingController();
+class _CheckoutScreenState extends State<CheckoutScreen>
+    with TickerProviderStateMixin {
+  // Form Controllers
+  final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _deliveryNoteController = TextEditingController();
-  final double deliveryCharge = 400.0;
-  bool _saveDetails = false;
+  final TextEditingController _cityController = TextEditingController();
+  final TextEditingController _stateController = TextEditingController();
+  final TextEditingController _pincodeController = TextEditingController();
+  final TextEditingController _specialInstructionsController =
+      TextEditingController();
+  final TextEditingController _promoController = TextEditingController();
+
+  // Form Keys
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _addressFormKey = GlobalKey<FormState>();
+
+  // State Variables
+  final List<Address> _addresses = [];
+  Address? _selectedAddress;
+  DeliveryOption? _selectedDelivery;
+  final bool _isLoading = false;
+  final bool _showAddressForm = false;
+  bool _saveDetails = true;
+  final int _currentStep = 0;
+
+  // Animation Controllers
+  late AnimationController _fadeController;
+  late AnimationController _slideController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  // Delivery Options
+  final List<DeliveryOption> _deliveryOptions = [
+    DeliveryOption(
+      id: 'standard',
+      name: 'Standard Delivery',
+      description: 'Delivered in 3-5 business days',
+      cost: 50.0,
+      estimatedDays: 5,
+      icon: '🚚',
+    ),
+    DeliveryOption(
+      id: 'express',
+      name: 'Express Delivery',
+      description: 'Delivered within 24-48 hours',
+      cost: 150.0,
+      estimatedDays: 2,
+      icon: '⚡',
+    ),
+    DeliveryOption(
+      id: 'same_day',
+      name: 'Same Day Delivery',
+      description: 'Order before 2 PM for same day delivery',
+      cost: 250.0,
+      estimatedDays: 0,
+      icon: '🏃',
+    ),
+  ];
 
   @override
   void initState() {
     super.initState();
-    _loadSavedDetails(); // Load saved details when screen initializes
+    _initializeAnimations();
+    _loadUserData();
+    _selectedDelivery = _deliveryOptions.first;
   }
 
-  // Load saved details from SharedPreferences
+  void _initializeAnimations() {
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _slideController = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(1.0, 0.0),
+      end: Offset.zero,
+    ).animate(
+        CurvedAnimation(parent: _slideController, curve: Curves.easeInOut));
+
+    _fadeController.forward();
+  }
+
+  // Load saved user data and addresses
   Future<void> _loadSavedDetails() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
