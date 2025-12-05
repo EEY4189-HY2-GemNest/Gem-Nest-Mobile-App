@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/home_screen.dart';
+import 'package:gemnest_mobile_app/theme/app_theme.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
 import 'package:intl/intl.dart';
@@ -117,22 +118,15 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       flexibleSpace: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+        decoration: BoxDecoration(
+          gradient: AppTheme.primaryGradient,
         ),
       ),
       elevation: 0,
-      title: const Text(
+      title: Text(
         'My Orders',
-        style: TextStyle(
+        style: AppTheme.headingLarge.copyWith(
           color: Colors.white,
-          fontSize: 24,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.5,
         ),
       ),
       centerTitle: true,
