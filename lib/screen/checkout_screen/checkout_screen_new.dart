@@ -107,7 +107,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> with TickerProviderStat
   bool _isLoading = false;
   bool _showAddressForm = false;
   bool _saveDetails = true;
-  int _currentStep = 0;
+  final int _currentStep = 0;
 
   // Animation Controllers
   late AnimationController _fadeController;
