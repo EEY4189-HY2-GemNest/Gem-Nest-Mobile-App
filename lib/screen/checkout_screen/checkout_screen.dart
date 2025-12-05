@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
 import 'package:gemnest_mobile_app/screen/payment_screen/payment_screen.dart';
+import 'package:gemnest_mobile_app/theme/app_theme.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -244,7 +245,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
         .toList();
     await prefs.setStringList('saved_addresses', addressesJson);
 
-    _showSnackBar('Address saved successfully!', Colors.green);
+    _showSnackBar('Address saved successfully!', AppTheme.successGreen);
   }
 
   void _showSnackBar(String message, Color color) {
@@ -278,11 +279,11 @@ class _CheckoutScreenState extends State<CheckoutScreen>
     return Scaffold(
       appBar: _buildAppBar(),
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFFF8F9FA), Colors.white],
+            colors: [AppTheme.backgroundColor, Colors.white],
           ),
         ),
         child: Consumer<CartProvider>(
@@ -325,12 +326,8 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       flexibleSpace: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+        decoration: BoxDecoration(
+          gradient: AppTheme.primaryGradient,
         ),
       ),
       elevation: 0,
@@ -373,7 +370,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
           height: 30,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isActive ? const Color(0xFF667eea) : Colors.grey[300],
+            color: isActive ? AppTheme.primaryBlue : Colors.grey[300],
           ),
           child: Center(
             child: Text(
@@ -391,7 +388,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
           title,
           style: TextStyle(
             fontSize: 10,
-            color: isActive ? const Color(0xFF667eea) : Colors.grey[600],
+            color: isActive ? AppTheme.primaryBlue : Colors.grey[600],
             fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
           ),
         ),
@@ -404,7 +401,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
       child: Container(
         height: 2,
         margin: const EdgeInsets.only(bottom: 20),
-        color: isActive ? const Color(0xFF667eea) : Colors.grey[300],
+        color: isActive ? AppTheme.primaryBlue : Colors.grey[300],
       ),
     );
   }
@@ -431,12 +428,12 @@ class _CheckoutScreenState extends State<CheckoutScreen>
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF667eea).withOpacity(0.1),
+                  color: AppTheme.primaryBlue.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
                   Icons.shopping_bag_outlined,
-                  color: Color(0xFF667eea),
+                  color: AppTheme.primaryBlue,
                   size: 20,
                 ),
               ),
@@ -461,7 +458,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                         '${item.name} × ${item.quantity}',
                         style: const TextStyle(
                           fontSize: 14,
-                          color: Color(0xFF4A5568),
+                          color: AppTheme.mediumGray,
                         ),
                       ),
                     ),

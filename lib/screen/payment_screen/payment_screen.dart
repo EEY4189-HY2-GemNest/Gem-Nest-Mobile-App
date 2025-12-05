@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
 import 'package:gemnest_mobile_app/screen/checkout_screen/checkout_screen.dart';
 import 'package:gemnest_mobile_app/screen/order_history_screen/oreder_history_screen.dart';
+import 'package:gemnest_mobile_app/theme/app_theme.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:provider/provider.dart';
 
@@ -138,11 +139,11 @@ class _PaymentScreenState extends State<PaymentScreen>
     return Scaffold(
       appBar: _buildAppBar(),
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFFF8F9FA), Colors.white],
+            colors: [AppTheme.backgroundColor, Colors.white],
           ),
         ),
         child: FadeTransition(
@@ -181,12 +182,8 @@ class _PaymentScreenState extends State<PaymentScreen>
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       flexibleSpace: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+        decoration: BoxDecoration(
+          gradient: AppTheme.primaryGradient,
         ),
       ),
       elevation: 0,
@@ -229,7 +226,7 @@ class _PaymentScreenState extends State<PaymentScreen>
           height: 30,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isActive ? const Color(0xFF667eea) : Colors.grey[300],
+            color: isActive ? AppTheme.primaryBlue : Colors.grey[300],
           ),
           child: Center(
             child: Text(
@@ -247,7 +244,7 @@ class _PaymentScreenState extends State<PaymentScreen>
           title,
           style: TextStyle(
             fontSize: 10,
-            color: isActive ? const Color(0xFF667eea) : Colors.grey[600],
+            color: isActive ? AppTheme.primaryBlue : Colors.grey[600],
             fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
           ),
         ),
@@ -260,7 +257,7 @@ class _PaymentScreenState extends State<PaymentScreen>
       child: Container(
         height: 2,
         margin: const EdgeInsets.only(bottom: 20),
-        color: isActive ? const Color(0xFF667eea) : Colors.grey[300],
+        color: isActive ? AppTheme.primaryBlue : Colors.grey[300],
       ),
     );
   }
@@ -377,10 +374,10 @@ class _PaymentScreenState extends State<PaymentScreen>
           if (processingFee > 0)
             _buildPriceRow(
                 'Processing Fee', 'Rs.${processingFee.toStringAsFixed(2)}',
-                textColor: const Color(0xFFE53E3E)),
+                textColor: AppTheme.errorRed),
           const Divider(thickness: 1.5),
           _buildPriceRow('Total Amount', 'Rs.${finalTotal.toStringAsFixed(2)}',
-              isBold: true, textSize: 18, textColor: const Color(0xFF667eea)),
+              isBold: true, textSize: 18, textColor: AppTheme.primaryBlue),
         ],
       ),
     );
@@ -452,7 +449,7 @@ class _PaymentScreenState extends State<PaymentScreen>
               : Colors.grey[50],
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? const Color(0xFF667eea) : Colors.grey[300]!,
+            color: isSelected ? AppTheme.primaryBlue : Colors.grey[300]!,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -649,7 +646,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                       _saveCard = value ?? false;
                     });
                   },
-                  activeColor: const Color(0xFF667eea),
+                  activeColor: AppTheme.primaryBlue,
                 ),
                 const Expanded(
                   child: Text(

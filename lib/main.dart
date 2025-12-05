@@ -2,8 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/firebase_options.dart';
-import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart'; // Import CartProvider
+import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
 import 'package:gemnest_mobile_app/splash_screen.dart';
+import 'package:gemnest_mobile_app/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -69,8 +70,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'gemnest_mobile_app Mobile App',
-      theme: ThemeData.light(useMaterial3: true), // Material 3 enabled
+      title: 'GemNest Mobile App',
+      theme: AppTheme.lightTheme,
       home: const SplashScreen(),
     );
   }
