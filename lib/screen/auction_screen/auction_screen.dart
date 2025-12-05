@@ -28,15 +28,13 @@ class _AuctionScreenState extends State<AuctionScreen>
   double _minPrice = 0;
   double _maxPrice = 10000;
 
-
-
   @override
   void dispose() {
     _filterController.dispose();
     super.dispose();
   }
 
-  Widget _buildAppBar() {
+  PreferredSizeWidget _buildAppBar() {
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 0,
