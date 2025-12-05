@@ -84,27 +84,48 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    // Only update selected index for home (index 0)
+    if (index == 0) {
+      setState(() {
+        _selectedIndex = 0;
+      });
+      return;
+    }
+
+    // For other screens, navigate but reset index when returning
     switch (index) {
       case 1:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const CartScreen()),
-        );
+        ).then((_) {
+          // Reset to home index when returning
+          setState(() {
+            _selectedIndex = 0;
+          });
+        });
         break;
       case 2:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const OrderHistoryScreen()),
-        );
+        ).then((_) {
+          // Reset to home index when returning
+          setState(() {
+            _selectedIndex = 0;
+          });
+        });
         break;
       case 3:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const ProfileScreen()),
-        );
+        ).then((_) {
+          // Reset to home index when returning
+          setState(() {
+            _selectedIndex = 0;
+          });
+        });
         break;
     }
   }
@@ -384,7 +405,12 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const AuctionScreen()),
-              );
+              ).then((_) {
+                // Reset to home index when returning from auction
+                setState(() {
+                  _selectedIndex = 0;
+                });
+              });
             },
             backgroundColor: const Color.fromARGB(255, 173, 216, 230),
             shape:
