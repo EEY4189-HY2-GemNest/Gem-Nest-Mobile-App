@@ -1,11 +1,9 @@
 // order_history_screen.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/home_screen.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
-import 'package:intl/intl.dart';
 
 class OrderHistoryScreen extends StatefulWidget {
   const OrderHistoryScreen({super.key});
@@ -18,23 +16,23 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     with TickerProviderStateMixin {
   String? _selectedStatusFilter;
   DateTimeRange? _selectedDateRange;
-  String _selectedSortBy = 'date_desc';
-  bool _isLoading = false;
-  
+  final String _selectedSortBy = 'date_desc';
+  final bool _isLoading = false;
+
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  
+
   // Filter and sort options
   final List<String> _statusOptions = [
     'All',
     'Pending',
-    'Processing', 
+    'Processing',
     'Shipped',
     'Delivered',
     'Cancelled'
   ];
-  
+
   final Map<String, String> _sortOptions = {
     'date_desc': 'Newest First',
     'date_asc': 'Oldest First',
@@ -47,13 +45,13 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
   void initState() {
     super.initState();
     _selectedStatusFilter = 'All';
-    
+
     // Initialize animations
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -61,7 +59,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
       parent: _animationController,
       curve: Curves.easeInOut,
     ));
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0.0, 0.3),
       end: Offset.zero,
@@ -69,7 +67,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
       parent: _animationController,
       curve: Curves.elasticOut,
     ));
-    
+
     _animationController.forward();
   }
 
