@@ -327,33 +327,33 @@ class _SellerHomePageState extends State<SellerHomePage>
                   ).animate().fadeIn(duration: 800.ms, delay: 200.ms),
                 ],
               ),
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.blue.shade600, Colors.blue.shade400],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.blue.shade300, width: 2),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.blue.withOpacity(0.4),
-                      blurRadius: 15,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(18),
-                  child: Image.asset(
-                    'assets/images/logo_new.png',
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ).animate().scale(duration: 800.ms, curve: Curves.elasticOut),
+              // Container(
+              //   width: 80,
+              //   height: 80,
+              //   decoration: BoxDecoration(
+              //     gradient: LinearGradient(
+              //       colors: [Colors.blue.shade600, Colors.blue.shade400],
+              //       begin: Alignment.topLeft,
+              //       end: Alignment.bottomRight,
+              //     ),
+              //     borderRadius: BorderRadius.circular(20),
+              //     border: Border.all(color: Colors.blue.shade300, width: 2),
+              //     boxShadow: [
+              //       BoxShadow(
+              //         color: Colors.blue.withOpacity(0.4),
+              //         blurRadius: 15,
+              //         offset: const Offset(0, 8),
+              //       ),
+              //     ],
+              //   ),
+              //   child: ClipRRect(
+              //     borderRadius: BorderRadius.circular(18),
+              //     child: Image.asset(
+              //       'assets/images/logo_new.png',
+              //       fit: BoxFit.cover,
+              //     ),
+              //   ),
+              // ).animate().scale(duration: 800.ms, curve: Curves.elasticOut),
             ],
           ),
         ],
