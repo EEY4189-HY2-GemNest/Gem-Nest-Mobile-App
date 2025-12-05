@@ -302,7 +302,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                     children: [
                       if (item.isDiscounted) ...[
                         Text(
-                          'LKR ${item.originalPrice.toStringAsFixed(2)}',
+                          'Rs. ${item.originalPrice.toStringAsFixed(2)}',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey.shade500,
@@ -312,7 +312,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                         const SizedBox(width: 6),
                       ],
                       Text(
-                        'LKR ${item.price.toStringAsFixed(2)}',
+                        'Rs. ${item.price.toStringAsFixed(2)}',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -386,7 +386,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                       ),
                       const Spacer(),
                       Text(
-                        'LKR ${item.totalPrice.toStringAsFixed(2)}',
+                        'Rs. ${item.totalPrice.toStringAsFixed(2)}',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -475,9 +475,9 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                   Row(
                     children: [
                       Text(
-                        'LKR ${cartProvider.totalAmount.toStringAsFixed(2)}',
+                        'Rs. ${cartProvider.totalAmount.toStringAsFixed(2)}',
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF667eea),
                         ),
@@ -500,15 +500,15 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
               child: Column(
                 children: [
                   _buildPriceRow('Subtotal',
-                      'LKR ${cartProvider.subtotal.toStringAsFixed(2)}'),
+                      'Rs. ${cartProvider.subtotal.toStringAsFixed(2)}'),
                   if (cartProvider.couponDiscount > 0)
                     _buildPriceRow(
                       'Coupon Discount',
-                      '-LKR ${cartProvider.couponDiscount.toStringAsFixed(2)}',
+                      '-Rs. ${cartProvider.couponDiscount.toStringAsFixed(2)}',
                       color: Colors.green,
                     ),
                   _buildPriceRow('Tax',
-                      'LKR ${cartProvider.taxAmount.toStringAsFixed(2)}'),
+                      'Rs. ${cartProvider.taxAmount.toStringAsFixed(2)}'),
                   const SizedBox(height: 8),
                   const Divider(height: 16),
                   Row(
@@ -522,7 +522,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                         ),
                       ),
                       Text(
-                        'LKR ${cartProvider.totalAmount.toStringAsFixed(2)}',
+                        'Rs. ${cartProvider.totalAmount.toStringAsFixed(2)}',
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
