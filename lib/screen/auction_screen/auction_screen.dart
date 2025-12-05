@@ -7,7 +7,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/auction_screen/auction_payment_screen.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
-import 'package:intl/intl.dart';
 
 class AuctionScreen extends StatefulWidget {
   const AuctionScreen({super.key});
@@ -18,21 +17,39 @@ class AuctionScreen extends StatefulWidget {
 
 class _AuctionScreenState extends State<AuctionScreen>
     with TickerProviderStateMixin {
-  String _selectedStatusFilter = 'All';
-  String _selectedCategoryFilter = 'All';
-  RangeValues _priceRange = const RangeValues(0, 100000);
-  String _selectedTimeFilter = 'All';
-  String _selectedSortBy = 'ending_soon';
-  bool _showMyBids = false;
-  
+  final String _selectedStatusFilter = 'All';
+  final String _selectedCategoryFilter = 'All';
+  final RangeValues _priceRange = const RangeValues(0, 100000);
+  final String _selectedTimeFilter = 'All';
+  final String _selectedSortBy = 'ending_soon';
+  final bool _showMyBids = false;
+
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  
+
   // Filter options
-  final List<String> _statusOptions = ['All', 'Live', 'Won by Me', 'Ended', 'Ending Soon'];
-  final List<String> _categoryOptions = ['All', 'Jewelry', 'Art', 'Collectibles', 'Watches', 'Antiques'];
-  final List<String> _timeOptions = ['All', 'Ending in 1h', 'Ending Today', 'This Week'];
+  final List<String> _statusOptions = [
+    'All',
+    'Live',
+    'Won by Me',
+    'Ended',
+    'Ending Soon'
+  ];
+  final List<String> _categoryOptions = [
+    'All',
+    'Jewelry',
+    'Art',
+    'Collectibles',
+    'Watches',
+    'Antiques'
+  ];
+  final List<String> _timeOptions = [
+    'All',
+    'Ending in 1h',
+    'Ending Today',
+    'This Week'
+  ];
   final Map<String, String> _sortOptions = {
     'ending_soon': 'Ending Soon',
     'newest': 'Newest First',
@@ -40,6 +57,41 @@ class _AuctionScreenState extends State<AuctionScreen>
     'price_high': 'Highest Price',
     'most_bids': 'Most Popular',
   };
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // Initialize animations
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+    
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0.0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.elasticOut,
+    ));
+    
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   DateTime _parseEndTime(dynamic endTime) {
     if (endTime is Timestamp) {
