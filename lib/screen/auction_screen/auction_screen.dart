@@ -27,46 +27,6 @@ class _AuctionScreenState extends State<AuctionScreen>
   String _selectedCategory = 'all';
   double _minPrice = 0;
   double _maxPrice = 10000;
-  final String _selectedStatusFilter = 'All';
-  final String _selectedCategoryFilter = 'All';
-  final RangeValues _priceRange = const RangeValues(0, 100000);
-  final String _selectedTimeFilter = 'All';
-  final String _selectedSortBy = 'ending_soon';
-  final bool _showMyBids = false;
-
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
-
-  // Filter options
-  final List<String> _statusOptions = [
-    'All',
-    'Live',
-    'Won by Me',
-    'Ended',
-    'Ending Soon'
-  ];
-  final List<String> _categoryOptions = [
-    'All',
-    'Jewelry',
-    'Art',
-    'Collectibles',
-    'Watches',
-    'Antiques'
-  ];
-  final List<String> _timeOptions = [
-    'All',
-    'Ending in 1h',
-    'Ending Today',
-    'This Week'
-  ];
-  final Map<String, String> _sortOptions = {
-    'ending_soon': 'Ending Soon',
-    'newest': 'Newest First',
-    'price_low': 'Lowest Price',
-    'price_high': 'Highest Price',
-    'most_bids': 'Most Popular',
-  };
 
   @override
   void initState() {
