@@ -144,7 +144,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   );
                   if (result != null && result.files.single.path != null) {
                     setState(() {
-                      _businessRegistrationFile = File(result.files.single.path!);
+                      _businessRegistrationFile =
+                          File(result.files.single.path!);
                       _businessRegistrationFileName = result.files.single.name;
                     });
                   }
