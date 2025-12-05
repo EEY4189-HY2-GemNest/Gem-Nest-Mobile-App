@@ -6,10 +6,355 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/auction_screen/auction_payment_screen.dart';
+import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
 
-class AuctionScreen extends StatelessWidget {
+class AuctionScreen extends StatefulWidget {
   const AuctionScreen({super.key});
+
+  @override
+  State<AuctionScreen> createState() => _AuctionScreenState();
+}
+
+class _AuctionScreenState extends State<AuctionScreen> {
+  // Filter Controllers
+  final TextEditingController _filterController = TextEditingController();
+
+  // Filter State Variables
+  bool _isFilterExpanded = false;
+  String _searchQuery = '';
+  String _selectedStatus = 'all';
+  String _selectedCategory = 'all';
+  double _minPrice = 0;
+  double _maxPrice = 10000;
+
+  @override
+  void dispose() {
+    _filterController.dispose();
+    super.dispose();
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      flexibleSpace: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+      ),
+      elevation: 0,
+      title: const Text(
+        'Auctions',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 24,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.5,
+        ),
+      ),
+      centerTitle: true,
+      leading: ProfessionalAppBarBackButton(
+        onPressed: () => Navigator.pop(context),
+      ),
+      actions: [
+        IconButton(
+          icon: Icon(
+            _isFilterExpanded ? Icons.filter_list_off : Icons.filter_list,
+            color: Colors.white,
+            size: 26,
+          ),
+          onPressed: () {
+            setState(() {
+              _isFilterExpanded = !_isFilterExpanded;
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFiltersSection() {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      height: _isFilterExpanded ? 320 : 0,
+      child: _isFilterExpanded
+          ? Container(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Search Filter
+                    TextField(
+                      controller: _filterController,
+                      decoration: const InputDecoration(
+                        labelText: 'Search auctions...',
+                        prefixIcon: Icon(Icons.search),
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value.toLowerCase();
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Status Filter
+                    Row(
+                      children: [
+                        const Text('Status: ',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Expanded(
+                          child: Wrap(
+                            spacing: 8,
+                            children:
+                                ['all', 'live', 'ended', 'won'].map((status) {
+                              final isSelected = _selectedStatus == status;
+                              return FilterChip(
+                                label: Text(status.toUpperCase()),
+                                selected: isSelected,
+                                onSelected: (selected) {
+                                  setState(() {
+                                    _selectedStatus = status;
+                                  });
+                                },
+                                selectedColor: Colors.blue.shade100,
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Category Filter
+                    Row(
+                      children: [
+                        const Text('Category: ',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Expanded(
+                          child: DropdownButton<String>(
+                            value: _selectedCategory,
+                            isExpanded: true,
+                            items: [
+                              'all',
+                              'electronics',
+                              'jewelry',
+                              'art',
+                              'collectibles',
+                              'antiques',
+                              'other'
+                            ]
+                                .map((category) => DropdownMenuItem(
+                                      value: category,
+                                      child: Text(category.toUpperCase()),
+                                    ))
+                                .toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedCategory = value!;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    // Price Range Filter
+                    Row(
+                      children: [
+                        const Text('Price Range: ',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Expanded(
+                          child: RangeSlider(
+                            values: RangeValues(_minPrice, _maxPrice),
+                            min: 0,
+                            max: 10000,
+                            divisions: 100,
+                            labels: RangeLabels('₹${_minPrice.toInt()}',
+                                '₹${_maxPrice.toInt()}'),
+                            onChanged: (values) {
+                              setState(() {
+                                _minPrice = values.start;
+                                _maxPrice = values.end;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : const SizedBox.shrink(),
+    );
+  }
+
+  Stream<QuerySnapshot> _getFilteredAuctionsStream() {
+    Query query = FirebaseFirestore.instance.collection('auctions');
+
+    // Apply category filter
+    if (_selectedCategory != 'all') {
+      query = query.where('category', isEqualTo: _selectedCategory);
+    }
+
+    // Apply price range filter
+    query = query
+        .where('currentBid', isGreaterThanOrEqualTo: _minPrice)
+        .where('currentBid', isLessThanOrEqualTo: _maxPrice);
+
+    // Only order by currentBid to avoid composite index requirement
+    return query.orderBy('currentBid').snapshots();
+  }
+
+  List<QueryDocumentSnapshot> _filterAuctionsByStatus(
+      List<QueryDocumentSnapshot> auctions) {
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    final now = DateTime.now();
+
+    // First filter by criteria
+    final filteredList = auctions.where((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      final endTime = _parseEndTime(data['endTime']);
+      final title = (data['title'] ?? '').toLowerCase();
+      final description = (data['description'] ?? '').toLowerCase();
+
+      // Apply search filter
+      if (_searchQuery.isNotEmpty) {
+        if (!title.contains(_searchQuery) &&
+            !description.contains(_searchQuery)) {
+          return false;
+        }
+      }
+
+      // Apply status filter
+      switch (_selectedStatus) {
+        case 'live':
+          return endTime.isAfter(now);
+        case 'ended':
+          return endTime.isBefore(now) &&
+              data['winningUserId'] != currentUserId;
+        case 'won':
+          return endTime.isBefore(now) &&
+              data['winningUserId'] == currentUserId;
+        case 'all':
+        default:
+          return true;
+      }
+    }).toList();
+
+    // Sort by endTime (soonest ending first) for better UX
+    filteredList.sort((a, b) {
+      final dataA = a.data() as Map<String, dynamic>;
+      final dataB = b.data() as Map<String, dynamic>;
+      final endTimeA = _parseEndTime(dataA['endTime']);
+      final endTimeB = _parseEndTime(dataB['endTime']);
+      return endTimeA.compareTo(endTimeB);
+    });
+
+    return filteredList;
+  }
+
+  Widget _buildAuctionsList() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: _getFilteredAuctionsStream(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+                const SizedBox(height: 16),
+                Text('Error: ${snapshot.error}'),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {}); // Refresh
+                  },
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          );
+        }
+
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final allAuctions = snapshot.data!.docs;
+        final filteredAuctions = _filterAuctionsByStatus(allAuctions);
+
+        if (filteredAuctions.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.gavel_outlined,
+                    size: 64, color: Colors.grey.shade400),
+                const SizedBox(height: 16),
+                Text(
+                  'No auctions found',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.grey.shade600,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Try adjusting your filters',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade500,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: filteredAuctions.length,
+          itemBuilder: (context, index) {
+            final doc = filteredAuctions[index];
+            final data = doc.data() as Map<String, dynamic>;
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: AuctionItemCard(
+                auctionId: doc.id,
+                imagePath: data['imagePath'] ?? '',
+                title: data['title'] ?? 'Untitled',
+                currentBid: (data['currentBid'] as num?)?.toDouble() ?? 0.0,
+                endTime: _parseEndTime(data['endTime']),
+                minimumIncrement:
+                    (data['minimumIncrement'] as num?)?.toDouble() ?? 0.0,
+                paymentStatus: data['paymentStatus'] ?? 'pending',
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
   DateTime _parseEndTime(dynamic endTime) {
     if (endTime is Timestamp) {
@@ -27,186 +372,15 @@ class AuctionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        title: const Text(
-          'Luxury Auction',
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: 26,
-            letterSpacing: 1.5,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.blue[900]!, Colors.blue[700]!],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.blue.withOpacity(0.3),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: () {},
+      backgroundColor: const Color(0xFFF8F9FA),
+      appBar: _buildAppBar(),
+      body: Column(
+        children: [
+          _buildFiltersSection(),
+          Expanded(
+            child: _buildAuctionsList(),
           ),
         ],
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('auctions')
-            .orderBy('endTime')
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final auctions = snapshot.data!.docs;
-          final currentUserId = FirebaseAuth.instance.currentUser?.uid;
-
-          // Separate auctions into won, ongoing, and ended
-          final now = DateTime.now();
-          final wonAuctions = auctions.where((doc) {
-            final data = doc.data() as Map<String, dynamic>;
-            final endTime = _parseEndTime(data['endTime']);
-            return endTime.isBefore(now) &&
-                data['winningUserId'] == currentUserId;
-          }).toList();
-
-          final ongoingAuctions = auctions.where((doc) {
-            final data = doc.data() as Map<String, dynamic>;
-            final endTime = _parseEndTime(data['endTime']);
-            return endTime.isAfter(now);
-          }).toList();
-
-          final endedAuctions = auctions.where((doc) {
-            final data = doc.data() as Map<String, dynamic>;
-            final endTime = _parseEndTime(data['endTime']);
-            return endTime.isBefore(now) &&
-                data['winningUserId'] != currentUserId;
-          }).toList();
-
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
-            child: ListView(
-              children: [
-                // Won Auctions Section
-                if (wonAuctions.isNotEmpty) ...[
-                  const Text(
-                    'Your Won Auctions',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.blueGrey,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ...wonAuctions.map((doc) {
-                    final data = doc.data() as Map<String, dynamic>;
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 20.0),
-                      child: AuctionItemCard(
-                        auctionId: doc.id,
-                        imagePath: data['imagePath'] ?? '',
-                        title: data['title'] ?? 'Untitled',
-                        currentBid:
-                            (data['currentBid'] as num?)?.toDouble() ?? 0.0,
-                        endTime: _parseEndTime(data['endTime']),
-                        minimumIncrement:
-                            (data['minimumIncrement'] as num?)?.toDouble() ??
-                                0.0,
-                        paymentStatus: data['paymentStatus'] ??
-                            'pending', // Pass payment status
-                      ),
-                    );
-                  }),
-                  const SizedBox(height: 24),
-                ],
-
-                // Ongoing Auctions Section
-                if (ongoingAuctions.isNotEmpty) ...[
-                  const Text(
-                    'Live Bidding',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.blueGrey,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ...ongoingAuctions.map((doc) {
-                    final data = doc.data() as Map<String, dynamic>;
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 20.0),
-                      child: AuctionItemCard(
-                        auctionId: doc.id,
-                        imagePath: data['imagePath'] ?? '',
-                        title: data['title'] ?? 'Untitled',
-                        currentBid:
-                            (data['currentBid'] as num?)?.toDouble() ?? 0.0,
-                        endTime: _parseEndTime(data['endTime']),
-                        minimumIncrement:
-                            (data['minimumIncrement'] as num?)?.toDouble() ??
-                                0.0,
-                        paymentStatus: data['paymentStatus'] ??
-                            'pending', // Pass payment status
-                      ),
-                    );
-                  }),
-                  const SizedBox(height: 24),
-                ],
-
-                // Ended Auctions Section
-                if (endedAuctions.isNotEmpty) ...[
-                  const Text(
-                    'Ended Auctions',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.blueGrey,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ...endedAuctions.map((doc) {
-                    final data = doc.data() as Map<String, dynamic>;
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 20.0),
-                      child: AuctionItemCard(
-                        auctionId: doc.id,
-                        imagePath: data['imagePath'] ?? '',
-                        title: data['title'] ?? 'Untitled',
-                        currentBid:
-                            (data['currentBid'] as num?)?.toDouble() ?? 0.0,
-                        endTime: _parseEndTime(data['endTime']),
-                        minimumIncrement:
-                            (data['minimumIncrement'] as num?)?.toDouble() ??
-                                0.0,
-                        paymentStatus: data['paymentStatus'] ??
-                            'pending', // Pass payment status
-                      ),
-                    );
-                  }),
-                ],
-              ],
-            ),
-          );
-        },
       ),
       bottomNavigationBar: const SharedBottomNavigation(currentIndex: 4),
     );
