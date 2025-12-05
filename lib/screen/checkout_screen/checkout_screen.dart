@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
 import 'package:gemnest_mobile_app/screen/payment_screen/payment_screen.dart';
+import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -75,10 +76,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        leading: const ProfessionalAppBarBackButton(),
       ),
       body: Container(
         decoration: BoxDecoration(

@@ -1,6 +1,7 @@
 // cart_screen.dart
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/checkout_screen/checkout_screen.dart';
+import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:provider/provider.dart';
 
 import 'cart_provider.dart';
@@ -35,10 +36,7 @@ class CartScreen extends StatelessWidget {
                   fontWeight: FontWeight.bold),
             ),
             centerTitle: true,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
+            leading: const ProfessionalAppBarBackButton(),
           ),
           body: Container(
             decoration: BoxDecoration(

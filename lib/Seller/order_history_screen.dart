@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart'; // For toast messages
 import 'package:gemnest_mobile_app/Seller/order_details_screen.dart';
+import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:intl/intl.dart'; // For date formatting
 import 'package:path_provider/path_provider.dart'; // For internal storage access
 import 'package:pdf/widgets.dart' as pw; // For PDF generation
@@ -248,10 +249,7 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
               color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        leading: const ProfessionalAppBarBackButton(),
         actions: [
           IconButton(
             icon: const Icon(Icons.date_range, color: Colors.white),
