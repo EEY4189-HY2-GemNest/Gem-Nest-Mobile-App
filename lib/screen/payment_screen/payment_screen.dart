@@ -67,11 +67,9 @@ class _PaymentScreenState extends State<PaymentScreen>
   final TextEditingController _expiryController = TextEditingController();
   final TextEditingController _cvvController = TextEditingController();
   final TextEditingController _holderNameController = TextEditingController();
-  final TextEditingController _upiController = TextEditingController();
 
   // Form Keys
   final GlobalKey<FormState> _cardFormKey = GlobalKey<FormState>();
-  final GlobalKey<FormState> _upiFormKey = GlobalKey<FormState>();
 
   // State Variables
   PaymentMethod? _selectedPaymentMethod;
@@ -92,32 +90,13 @@ class _PaymentScreenState extends State<PaymentScreen>
       name: 'Credit/Debit Card',
       description: 'Pay securely with your card',
       icon: '💳',
-      processingFee: 200.0,
-    ),
-    PaymentMethod(
-      id: 'upi',
-      name: 'UPI Payment',
-      description: 'Pay using UPI ID or scan QR code',
-      icon: '📱',
-    ),
-    PaymentMethod(
-      id: 'netbanking',
-      name: 'Net Banking',
-      description: 'Pay through your bank account',
-      icon: '🏦',
-    ),
-    PaymentMethod(
-      id: 'wallet',
-      name: 'Digital Wallet',
-      description: 'Pay using digital wallets',
-      icon: '💰',
     ),
     PaymentMethod(
       id: 'cod',
       name: 'Cash on Delivery',
       description: 'Pay when you receive your order',
       icon: '💵',
-      processingFee: 250.0,
+      processingFee: 50.0,
     ),
   ];
 
@@ -164,7 +143,6 @@ class _PaymentScreenState extends State<PaymentScreen>
     _expiryController.dispose();
     _cvvController.dispose();
     _holderNameController.dispose();
-    _upiController.dispose();
     super.dispose();
   }
 
@@ -197,7 +175,6 @@ class _PaymentScreenState extends State<PaymentScreen>
                       const SizedBox(height: 24),
                       if (_selectedPaymentMethod?.id == 'card')
                         _buildCardDetailsForm(),
-                      if (_selectedPaymentMethod?.id == 'upi') _buildUPIForm(),
                       if (_selectedPaymentMethod?.id == 'cod') _buildCODInfo(),
                       const SizedBox(height: 24),
                       _buildSecurityInfo(),
@@ -700,84 +677,7 @@ class _PaymentScreenState extends State<PaymentScreen>
     );
   }
 
-  Widget _buildUPIForm() {
-    return SlideTransition(
-      position: _slideAnimation,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Form(
-          key: _upiFormKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'UPI Details',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3748),
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                _upiController,
-                'UPI ID (e.g., yourname@paytm)',
-                Icons.account_balance_wallet_outlined,
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value?.isEmpty ?? true) {
-                    return 'Please enter UPI ID';
-                  }
-                  if (!value!.contains('@')) {
-                    return 'Please enter valid UPI ID';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF667eea).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(
-                      Icons.info_outline,
-                      color: Color(0xFF667eea),
-                      size: 20,
-                    ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'You will be redirected to your UPI app to complete the payment',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF667eea),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+
 
   Widget _buildCODInfo() {
     return Container(
@@ -837,7 +737,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                   '• Additional Rs.25 processing fee applies\n'
                   '• Please keep exact change ready\n'
                   '• Payment due upon delivery\n'
-                  '• Cash/UPI accepted at doorstep',
+                  '• Cash accepted at doorstep',
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.orange,
@@ -1091,8 +991,7 @@ class _PaymentScreenState extends State<PaymentScreen>
     bool isValid = true;
     if (_selectedPaymentMethod?.id == 'card') {
       isValid = _cardFormKey.currentState?.validate() ?? false;
-    } else if (_selectedPaymentMethod?.id == 'upi') {
-      isValid = _upiFormKey.currentState?.validate() ?? false;
+
     }
 
     if (!isValid) return;
