@@ -84,22 +84,98 @@ class CheckoutScreen extends StatefulWidget {
   State<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
-class _CheckoutScreenState extends State<CheckoutScreen> {
-  final TextEditingController _nameController = TextEditingController();
+class _CheckoutScreenState extends State<CheckoutScreen>
+    with TickerProviderStateMixin {
+  // Form Controllers
+  final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _deliveryNoteController = TextEditingController();
-  final double deliveryCharge = 400.0;
-  bool _saveDetails = false;
+  final TextEditingController _cityController = TextEditingController();
+  final TextEditingController _stateController = TextEditingController();
+  final TextEditingController _pincodeController = TextEditingController();
+  final TextEditingController _specialInstructionsController =
+      TextEditingController();
+  final TextEditingController _promoController = TextEditingController();
+
+  // Form Keys
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _addressFormKey = GlobalKey<FormState>();
+
+  // State Variables
+  final List<Address> _addresses = [];
+  Address? _selectedAddress;
+  DeliveryOption? _selectedDelivery;
+  final bool _isLoading = false;
+  final bool _showAddressForm = false;
+  bool _saveDetails = true;
+  final int _currentStep = 0;
+
+  // Animation Controllers
+  late AnimationController _fadeController;
+  late AnimationController _slideController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  // Delivery Options
+  final List<DeliveryOption> _deliveryOptions = [
+    DeliveryOption(
+      id: 'standard',
+      name: 'Standard Delivery',
+      description: 'Delivered in 3-5 business days',
+      cost: 50.0,
+      estimatedDays: 5,
+      icon: '🚚',
+    ),
+    DeliveryOption(
+      id: 'express',
+      name: 'Express Delivery',
+      description: 'Delivered within 24-48 hours',
+      cost: 150.0,
+      estimatedDays: 2,
+      icon: '⚡',
+    ),
+    DeliveryOption(
+      id: 'same_day',
+      name: 'Same Day Delivery',
+      description: 'Order before 2 PM for same day delivery',
+      cost: 250.0,
+      estimatedDays: 0,
+      icon: '🏃',
+    ),
+  ];
 
   @override
   void initState() {
     super.initState();
-    _loadSavedDetails(); // Load saved details when screen initializes
+    _initializeAnimations();
+    _loadUserData();
+    _selectedDelivery = _deliveryOptions.first;
   }
 
-  // Load saved details from SharedPreferences
+  void _initializeAnimations() {
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _slideController = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(1.0, 0.0),
+      end: Offset.zero,
+    ).animate(
+        CurvedAnimation(parent: _slideController, curve: Curves.easeInOut));
+
+    _fadeController.forward();
+  }
+
+  // Load saved user data and addresses
   Future<void> _loadSavedDetails() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
