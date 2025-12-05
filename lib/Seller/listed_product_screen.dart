@@ -319,7 +319,6 @@ class _ListedProductScreenState extends State<ListedProductScreen> {
               final snapshot = await FirebaseFirestore.instance
                   .collection('products')
                   .where('sellerId', isEqualTo: currentUserId)
-                  .orderBy('timestamp', descending: true)
                   .get();
               var filteredProducts = snapshot.docs;
               if (_selectedDateRange != null) {
@@ -342,7 +341,6 @@ class _ListedProductScreenState extends State<ListedProductScreen> {
               ? FirebaseFirestore.instance
                   .collection('products')
                   .where('sellerId', isEqualTo: _auth.currentUser!.uid)
-                  .orderBy('timestamp', descending: true)
                   .snapshots()
               : const Stream.empty(),
           builder: (context, snapshot) {
