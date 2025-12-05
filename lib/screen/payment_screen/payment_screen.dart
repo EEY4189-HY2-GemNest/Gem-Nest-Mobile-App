@@ -677,8 +677,6 @@ class _PaymentScreenState extends State<PaymentScreen>
     );
   }
 
-
-
   Widget _buildCODInfo() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -991,7 +989,6 @@ class _PaymentScreenState extends State<PaymentScreen>
     bool isValid = true;
     if (_selectedPaymentMethod?.id == 'card') {
       isValid = _cardFormKey.currentState?.validate() ?? false;
-
     }
 
     if (!isValid) return;
