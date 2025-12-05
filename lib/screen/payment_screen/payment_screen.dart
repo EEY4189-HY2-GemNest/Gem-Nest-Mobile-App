@@ -79,9 +79,7 @@ class _PaymentScreenState extends State<PaymentScreen>
 
   // Animation Controllers
   late AnimationController _fadeController;
-  late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
 
   // Payment Methods
   final List<PaymentMethod> _paymentMethods = [
@@ -113,20 +111,10 @@ class _PaymentScreenState extends State<PaymentScreen>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    _slideController = AnimationController(
-      duration: const Duration(milliseconds: 400),
-      vsync: this,
-    );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
     );
-
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0.0, 1.0),
-      end: Offset.zero,
-    ).animate(
-        CurvedAnimation(parent: _slideController, curve: Curves.easeInOut));
 
     _fadeController.forward();
   }
@@ -138,7 +126,6 @@ class _PaymentScreenState extends State<PaymentScreen>
   @override
   void dispose() {
     _fadeController.dispose();
-    _slideController.dispose();
     _cardNumberController.dispose();
     _expiryController.dispose();
     _cvvController.dispose();
@@ -537,9 +524,7 @@ class _PaymentScreenState extends State<PaymentScreen>
   }
 
   Widget _buildCardDetailsForm() {
-    return SlideTransition(
-      position: _slideAnimation,
-      child: Container(
+    return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -680,7 +665,6 @@ class _PaymentScreenState extends State<PaymentScreen>
             ],
           ),
         ),
-      ),
     );
   }
 
