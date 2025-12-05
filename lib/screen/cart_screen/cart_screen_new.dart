@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'cart_provider.dart';
 
 class CartScreen extends StatefulWidget {
@@ -13,7 +14,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   final TextEditingController _couponController = TextEditingController();
-  
+
   @override
   void initState() {
     super.initState();
@@ -116,11 +117,13 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
             },
             itemBuilder: (context) => [
               PopupMenuItem(
-                value: cartProvider.selectedCartItems.length == cartProvider.cartItems.length
+                value: cartProvider.selectedCartItems.length ==
+                        cartProvider.cartItems.length
                     ? 'deselectAll'
                     : 'selectAll',
                 child: Text(
-                  cartProvider.selectedCartItems.length == cartProvider.cartItems.length
+                  cartProvider.selectedCartItems.length ==
+                          cartProvider.cartItems.length
                       ? 'Deselect All'
                       : 'Select All',
                 ),
@@ -284,7 +287,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
               ),
             ),
             const SizedBox(width: 12),
-            
+
             // Product Image
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
@@ -315,7 +318,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
               ),
             ),
             const SizedBox(width: 12),
-            
+
             // Product Details
             Expanded(
               child: Column(
@@ -339,7 +342,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  
+
                   // Price and Discount
                   Row(
                     children: [
@@ -383,7 +386,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                       ],
                     ],
                   ),
-                  
+
                   // Stock Status
                   if (item.availableStock <= 5)
                     Padding(
@@ -393,15 +396,17 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                             ? 'Out of Stock'
                             : 'Only ${item.availableStock} left!',
                         style: TextStyle(
-                          color: item.availableStock == 0 ? Colors.red : Colors.orange,
+                          color: item.availableStock == 0
+                              ? Colors.red
+                              : Colors.orange,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
-                  
+
                   const SizedBox(height: 12),
-                  
+
                   // Quantity Controls and Actions
                   Row(
                     children: [
@@ -416,7 +421,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                           children: [
                             GestureDetector(
                               onTap: item.quantity > 1
-                                  ? () => cartProvider.decrementQuantity(item.id)
+                                  ? () =>
+                                      cartProvider.decrementQuantity(item.id)
                                   : null,
                               child: Container(
                                 padding: const EdgeInsets.all(8),
@@ -432,12 +438,15 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                                 child: Icon(
                                   Icons.remove,
                                   size: 16,
-                                  color: item.quantity > 1 ? Colors.white : Colors.grey[600],
+                                  color: item.quantity > 1
+                                      ? Colors.white
+                                      : Colors.grey[600],
                                 ),
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
                               child: Text(
                                 '${item.quantity}',
                                 style: const TextStyle(
@@ -448,7 +457,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                             ),
                             GestureDetector(
                               onTap: item.quantity < item.availableStock
-                                  ? () => cartProvider.incrementQuantity(item.id)
+                                  ? () =>
+                                      cartProvider.incrementQuantity(item.id)
                                   : null,
                               child: Container(
                                 padding: const EdgeInsets.all(8),
@@ -464,8 +474,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                                 child: Icon(
                                   Icons.add,
                                   size: 16,
-                                  color: item.quantity < item.availableStock 
-                                      ? Colors.white 
+                                  color: item.quantity < item.availableStock
+                                      ? Colors.white
                                       : Colors.grey[600],
                                 ),
                               ),
@@ -473,9 +483,9 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                           ],
                         ),
                       ),
-                      
+
                       const Spacer(),
-                      
+
                       // Action Buttons
                       Row(
                         children: [
@@ -484,23 +494,26 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                             child: Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: cartProvider.isInWishlist(item.id) 
+                                color: cartProvider.isInWishlist(item.id)
                                     ? Colors.pink.withOpacity(0.1)
                                     : Colors.grey.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Icon(
-                                cartProvider.isInWishlist(item.id) 
-                                    ? Icons.favorite 
+                                cartProvider.isInWishlist(item.id)
+                                    ? Icons.favorite
                                     : Icons.favorite_border,
                                 size: 18,
-                                color: cartProvider.isInWishlist(item.id) ? Colors.pink : Colors.grey[600],
+                                color: cartProvider.isInWishlist(item.id)
+                                    ? Colors.pink
+                                    : Colors.grey[600],
                               ),
                             ),
                           ),
                           const SizedBox(width: 8),
                           GestureDetector(
-                            onTap: () => _showRemoveItemDialog(item, cartProvider),
+                            onTap: () =>
+                                _showRemoveItemDialog(item, cartProvider),
                             child: Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
@@ -563,8 +576,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
             ],
           ),
           const SizedBox(height: 12),
-          
-          if (cartProvider.appliedCouponCode != null && cartProvider.appliedCouponCode!.isNotEmpty) ...[
+          if (cartProvider.appliedCouponCode != null &&
+              cartProvider.appliedCouponCode!.isNotEmpty) ...[
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -602,7 +615,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                       cartProvider.removeCoupon();
                       _couponController.clear();
                     },
-                    child: const Icon(Icons.close, color: Colors.green, size: 20),
+                    child:
+                        const Icon(Icons.close, color: Colors.green, size: 20),
                   ),
                 ],
               ),
@@ -636,7 +650,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF667eea),
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -726,7 +741,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildPriceRow(String label, String value, {Color? valueColor, bool isTotal = false}) {
+  Widget _buildPriceRow(String label, String value,
+      {Color? valueColor, bool isTotal = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -745,7 +761,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
             style: TextStyle(
               fontSize: isTotal ? 18 : 14,
               fontWeight: isTotal ? FontWeight.bold : FontWeight.w600,
-              color: valueColor ?? (isTotal ? const Color(0xFF667eea) : Colors.black87),
+              color: valueColor ??
+                  (isTotal ? const Color(0xFF667eea) : Colors.black87),
             ),
           ),
         ],
@@ -755,7 +772,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
 
   Widget _buildCheckoutButton(CartProvider cartProvider) {
     final hasSelectedItems = cartProvider.selectedCartItems.isNotEmpty;
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
@@ -797,10 +814,12 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
               const SizedBox(width: 16),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: hasSelectedItems ? () => _proceedToCheckout(cartProvider) : null,
+                  onPressed: hasSelectedItems
+                      ? () => _proceedToCheckout(cartProvider)
+                      : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: hasSelectedItems 
-                        ? const Color(0xFF667eea) 
+                    backgroundColor: hasSelectedItems
+                        ? const Color(0xFF667eea)
                         : Colors.grey[300],
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -857,7 +876,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Clear Cart'),
-        content: const Text('Are you sure you want to remove all items from your cart?'),
+        content: const Text(
+            'Are you sure you want to remove all items from your cart?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
