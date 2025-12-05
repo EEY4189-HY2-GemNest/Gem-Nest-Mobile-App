@@ -645,8 +645,6 @@ class _SellerHomePageState extends State<SellerHomePage>
     );
   }
 
-
-
   Widget _buildModernBottomNav() {
     return Container(
       margin: const EdgeInsets.all(16),
