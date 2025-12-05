@@ -7,9 +7,39 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/auction_screen/auction_payment_screen.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
+import 'package:intl/intl.dart';
 
-class AuctionScreen extends StatelessWidget {
+class AuctionScreen extends StatefulWidget {
   const AuctionScreen({super.key});
+
+  @override
+  State<AuctionScreen> createState() => _AuctionScreenState();
+}
+
+class _AuctionScreenState extends State<AuctionScreen>
+    with TickerProviderStateMixin {
+  String _selectedStatusFilter = 'All';
+  String _selectedCategoryFilter = 'All';
+  RangeValues _priceRange = const RangeValues(0, 100000);
+  String _selectedTimeFilter = 'All';
+  String _selectedSortBy = 'ending_soon';
+  bool _showMyBids = false;
+  
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+  
+  // Filter options
+  final List<String> _statusOptions = ['All', 'Live', 'Won by Me', 'Ended', 'Ending Soon'];
+  final List<String> _categoryOptions = ['All', 'Jewelry', 'Art', 'Collectibles', 'Watches', 'Antiques'];
+  final List<String> _timeOptions = ['All', 'Ending in 1h', 'Ending Today', 'This Week'];
+  final Map<String, String> _sortOptions = {
+    'ending_soon': 'Ending Soon',
+    'newest': 'Newest First',
+    'price_low': 'Lowest Price',
+    'price_high': 'Highest Price',
+    'most_bids': 'Most Popular',
+  };
 
   DateTime _parseEndTime(dynamic endTime) {
     if (endTime is Timestamp) {
