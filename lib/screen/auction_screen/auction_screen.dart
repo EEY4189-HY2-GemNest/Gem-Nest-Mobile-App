@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/auction_screen/auction_payment_screen.dart';
+import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
 
 class AuctionScreen extends StatefulWidget {
@@ -35,26 +36,35 @@ class _AuctionScreenState extends State<AuctionScreen> {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      backgroundColor: Colors.white,
+      flexibleSpace: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+      ),
       elevation: 0,
       title: const Text(
         'Auctions',
         style: TextStyle(
-          color: Colors.black87,
+          color: Colors.white,
           fontSize: 24,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.5,
         ),
       ),
       centerTitle: true,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios, color: Colors.black87),
+      leading: ProfessionalAppBarBackButton(
         onPressed: () => Navigator.pop(context),
       ),
       actions: [
         IconButton(
           icon: Icon(
             _isFilterExpanded ? Icons.filter_list_off : Icons.filter_list,
-            color: Colors.black87,
+            color: Colors.white,
+            size: 26,
           ),
           onPressed: () {
             setState(() {
@@ -69,7 +79,7 @@ class _AuctionScreenState extends State<AuctionScreen> {
   Widget _buildFiltersSection() {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      height: _isFilterExpanded ? 280 : 0,
+      height: _isFilterExpanded ? 320 : 0,
       child: _isFilterExpanded
           ? Container(
               padding: const EdgeInsets.all(16),
@@ -83,8 +93,9 @@ class _AuctionScreenState extends State<AuctionScreen> {
                   ),
                 ],
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Search Filter
                   TextField(
@@ -187,6 +198,7 @@ class _AuctionScreenState extends State<AuctionScreen> {
                     ],
                   ),
                 ],
+                ),
               ),
             )
           : const SizedBox.shrink(),
