@@ -18,7 +18,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
   final TextEditingController _couponController = TextEditingController();
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  bool _isLoadingCoupon = false;
+  final bool _isLoadingCoupon = false;
 
   @override
   void initState() {
@@ -179,11 +179,11 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
     );
   }
 
-  // Widget _buildPromotionalBanner() {
+  Widget _buildCartHeader(CartProvider cartProvider) {
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      decoration: BoxDecoration(
+      margin = const EdgeInsets.all(16),
+      padding = const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration = BoxDecoration(
         gradient: const LinearGradient(
           colors: [Color(0xFF4CAF50), Color(0xFF45a049)],
           begin: Alignment.centerLeft,
@@ -198,7 +198,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
           ),
         ],
       ),
-      child: Row(
+      child = Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
