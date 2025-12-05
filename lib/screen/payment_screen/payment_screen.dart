@@ -525,146 +525,146 @@ class _PaymentScreenState extends State<PaymentScreen>
 
   Widget _buildCardDetailsForm() {
     return Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Form(
+        key: _cardFormKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Card Details',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2D3748),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildTextField(
+              _cardNumberController,
+              'Card Number',
+              Icons.credit_card_outlined,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                _CardNumberFormatter(),
+                LengthLimitingTextInputFormatter(19),
+              ],
+              validator: (value) {
+                if (value?.isEmpty ?? true) {
+                  return 'Please enter card number';
+                }
+                final cleanValue = value!.replaceAll(' ', '');
+                if (cleanValue.length < 13 || cleanValue.length > 19) {
+                  return 'Please enter valid card number';
+                }
+                if (!_validateCardNumber(cleanValue)) {
+                  return 'Invalid card number';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            _buildTextField(
+              _holderNameController,
+              'Cardholder Name',
+              Icons.person_outline,
+              validator: (value) {
+                if (value?.isEmpty ?? true) {
+                  return 'Please enter cardholder name';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildTextField(
+                    _expiryController,
+                    'MM/YY',
+                    Icons.calendar_month_outlined,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      _ExpiryDateFormatter(),
+                      LengthLimitingTextInputFormatter(5),
+                    ],
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) {
+                        return 'Please enter expiry';
+                      }
+                      if (value!.length != 5) {
+                        return 'Please enter valid expiry';
+                      }
+                      if (!_validateExpiryDate(value)) {
+                        return 'Card has expired';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildTextField(
+                    _cvvController,
+                    'CVV',
+                    Icons.security_outlined,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(4),
+                    ],
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) {
+                        return 'Please enter CVV';
+                      }
+                      if (value!.length < 3 || value.length > 4) {
+                        return 'Please enter valid CVV';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Checkbox(
+                  value: _saveCard,
+                  onChanged: (value) {
+                    setState(() {
+                      _saveCard = value ?? false;
+                    });
+                  },
+                  activeColor: const Color(0xFF667eea),
+                ),
+                const Expanded(
+                  child: Text(
+                    'Save card for future payments (Secure)',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF4A5568),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
-        child: Form(
-          key: _cardFormKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Card Details',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3748),
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                _cardNumberController,
-                'Card Number',
-                Icons.credit_card_outlined,
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  _CardNumberFormatter(),
-                  LengthLimitingTextInputFormatter(19),
-                ],
-                validator: (value) {
-                  if (value?.isEmpty ?? true) {
-                    return 'Please enter card number';
-                  }
-                  final cleanValue = value!.replaceAll(' ', '');
-                  if (cleanValue.length < 13 || cleanValue.length > 19) {
-                    return 'Please enter valid card number';
-                  }
-                  if (!_validateCardNumber(cleanValue)) {
-                    return 'Invalid card number';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                _holderNameController,
-                'Cardholder Name',
-                Icons.person_outline,
-                validator: (value) {
-                  if (value?.isEmpty ?? true) {
-                    return 'Please enter cardholder name';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildTextField(
-                      _expiryController,
-                      'MM/YY',
-                      Icons.calendar_month_outlined,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        _ExpiryDateFormatter(),
-                        LengthLimitingTextInputFormatter(5),
-                      ],
-                      validator: (value) {
-                        if (value?.isEmpty ?? true) {
-                          return 'Please enter expiry';
-                        }
-                        if (value!.length != 5) {
-                          return 'Please enter valid expiry';
-                        }
-                        if (!_validateExpiryDate(value)) {
-                          return 'Card has expired';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildTextField(
-                      _cvvController,
-                      'CVV',
-                      Icons.security_outlined,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(4),
-                      ],
-                      validator: (value) {
-                        if (value?.isEmpty ?? true) {
-                          return 'Please enter CVV';
-                        }
-                        if (value!.length < 3 || value.length > 4) {
-                          return 'Please enter valid CVV';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Checkbox(
-                    value: _saveCard,
-                    onChanged: (value) {
-                      setState(() {
-                        _saveCard = value ?? false;
-                      });
-                    },
-                    activeColor: const Color(0xFF667eea),
-                  ),
-                  const Expanded(
-                    child: Text(
-                      'Save card for future payments (Secure)',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF4A5568),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+      ),
     );
   }
 
