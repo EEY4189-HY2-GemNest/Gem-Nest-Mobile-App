@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
 import 'package:gemnest_mobile_app/screen/order_history_screen/oreder_history_screen.dart';
@@ -78,10 +79,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Future<void> _saveOrderToFirebase() async {
     try {
       final firestore = FirebaseFirestore.instance;
+      final currentUser = FirebaseAuth.instance.currentUser;
       DateTime now = DateTime.now();
       DateTime deliveryDate = now.add(const Duration(days: 3));
 
       final order = {
+        'userId': currentUser?.uid, // Add userId to track orders per user
         'items': widget.cartItems
             .map((item) => {
                   'title': item.title,
@@ -101,6 +104,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         'orderDate': DateFormat('yyyy-MM-dd').format(now),
         'deliveryDate': DateFormat('yyyy-MM-dd').format(deliveryDate),
         'status': 'Pending',
+        'createdAt': FieldValue.serverTimestamp(), // Add timestamp for better sorting
       };
 
       await firestore.collection('orders').add(order);
