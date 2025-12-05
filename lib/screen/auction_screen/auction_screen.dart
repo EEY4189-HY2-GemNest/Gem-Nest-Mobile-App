@@ -213,7 +213,12 @@ class AuctionScreen extends StatelessWidget {
         },
       ),
       bottomNavigationBar: AnimatedBottomNavigationBar(
-        icons: const [Icons.home, Icons.shopping_cart, Icons.receipt, Icons.person],
+        icons: const [
+          Icons.home,
+          Icons.shopping_cart,
+          Icons.receipt,
+          Icons.person
+        ],
         activeIndex: -1, // No active index since auction is the floating button
         gapLocation: GapLocation.center,
         notchSmoothness: NotchSmoothness.smoothEdge,
@@ -238,9 +243,11 @@ class AuctionScreen extends StatelessWidget {
           Navigator.pushReplacement(
             context,
             PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) => targetScreen,
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  targetScreen,
               transitionDuration: const Duration(milliseconds: 300),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
                 return FadeTransition(opacity: animation, child: child);
               },
             ),
