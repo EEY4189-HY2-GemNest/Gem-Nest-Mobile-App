@@ -1114,37 +1114,65 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                             .map((item) => _buildItemDetail(item))
                             .toList(),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 25),
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF28a745).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                              color: const Color(0xFF28a745).withOpacity(0.3)),
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF667eea).withOpacity(0.3),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'Total Amount',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF2C3E50),
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Total Amount',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white70,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Rs. ${order['totalAmount']?.toStringAsFixed(2) ?? '0.00'}',
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              'Rs. ${order['totalAmount']?.toStringAsFixed(2) ?? '0.00'}',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF28a745),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                Icons.account_balance_wallet,
+                                color: Colors.white,
+                                size: 28,
                               ),
                             ),
                           ],
                         ),
                       ),
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),
@@ -1159,7 +1187,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
   Widget _buildDetailSection(String title, List<Widget> children) {
     IconData sectionIcon;
     Color sectionColor;
-    
+
     switch (title) {
       case 'Order Information':
         sectionIcon = Icons.receipt_long;
@@ -1177,7 +1205,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
         sectionIcon = Icons.info;
         sectionColor = const Color(0xFF667eea);
     }
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1232,17 +1260,18 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
 
   Widget _buildDetailItem(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             flex: 2,
             child: Text(
-              '$label:',
+              label,
               style: TextStyle(
-                color: Colors.grey.shade700,
+                color: Colors.grey.shade600,
                 fontWeight: FontWeight.w500,
+                fontSize: 14,
               ),
             ),
           ),
@@ -1252,8 +1281,10 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
               value,
               style: const TextStyle(
                 color: Color(0xFF2C3E50),
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
               ),
+              textAlign: TextAlign.right,
             ),
           ),
         ],
@@ -1262,44 +1293,108 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
   }
 
   Widget _buildItemDetail(dynamic item) {
+    final itemMap = item as Map<String, dynamic>;
+    final title = itemMap['title'] ?? itemMap['name'] ?? 'Unknown Item';
+    final quantity = itemMap['quantity'] ?? 1;
+    final price = itemMap['price'] ?? 0.0;
+    final totalPrice = itemMap['totalPrice'] ?? (price * quantity);
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
+        gradient: LinearGradient(
+          colors: [Colors.white, Colors.grey.shade50],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade100,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      child: Row(
+      child: Column(
         children: [
-          Expanded(
-            flex: 3,
-            child: Text(
-              item['title'] ?? 'Unknown Item',
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF2C3E50),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF667eea).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.shopping_bag_outlined,
+                  color: Color(0xFF667eea),
+                  size: 16,
+                ),
               ),
-            ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF2C3E50),
+                    fontSize: 15,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
-          Expanded(
-            child: Text(
-              'Qty: ${item['quantity'] ?? 1}',
-              style: TextStyle(
-                color: Colors.grey.shade600,
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.blue.shade200),
+                ),
+                child: Text(
+                  'Qty: $quantity',
+                  style: TextStyle(
+                    color: Colors.blue.shade700,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                  ),
+                ),
               ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Expanded(
-            child: Text(
-              'Rs. ${item['totalPrice']?.toStringAsFixed(2) ?? '0.00'}',
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF28a745),
+              if (quantity > 1) ...[
+                Text(
+                  'Rs. ${price.toStringAsFixed(2)} each',
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF28a745).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'Rs. ${totalPrice.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF28a745),
+                    fontSize: 14,
+                  ),
+                ),
               ),
-              textAlign: TextAlign.right,
-            ),
+            ],
           ),
         ],
       ),
@@ -1401,5 +1496,74 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     }
 
     return 'N/A';
+  }
+
+  Widget _buildModernStatusChip(String status) {
+    Color backgroundColor;
+    Color textColor;
+    IconData icon;
+
+    switch (status.toLowerCase()) {
+      case 'delivered':
+        backgroundColor = const Color(0xFF28a745);
+        textColor = Colors.white;
+        icon = Icons.check_circle;
+        break;
+      case 'shipped':
+      case 'in transit':
+        backgroundColor = const Color(0xFF007bff);
+        textColor = Colors.white;
+        icon = Icons.local_shipping;
+        break;
+      case 'processing':
+        backgroundColor = const Color(0xFFffc107);
+        textColor = Colors.white;
+        icon = Icons.hourglass_empty;
+        break;
+      case 'cancelled':
+        backgroundColor = const Color(0xFFdc3545);
+        textColor = Colors.white;
+        icon = Icons.cancel;
+        break;
+      case 'pending':
+      default:
+        backgroundColor = const Color(0xFF6c757d);
+        textColor = Colors.white;
+        icon = Icons.schedule;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: backgroundColor.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: textColor,
+            size: 16,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            status.toUpperCase(),
+            style: TextStyle(
+              color: textColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
