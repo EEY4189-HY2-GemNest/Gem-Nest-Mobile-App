@@ -17,7 +17,7 @@ class CartScreen extends StatefulWidget {
 class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  final bool _isExpanded = false;
+  bool _isExpanded = false;
 
   @override
   void initState() {
