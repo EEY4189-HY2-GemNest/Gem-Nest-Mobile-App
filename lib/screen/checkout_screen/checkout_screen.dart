@@ -1,9 +1,83 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
 import 'package:gemnest_mobile_app/screen/payment_screen/payment_screen.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+// Address Model
+class Address {
+  final String id;
+  final String label;
+  final String fullName;
+  final String mobile;
+  final String address;
+  final String city;
+  final String state;
+  final String pincode;
+  final bool isDefault;
+
+  Address({
+    required this.id,
+    required this.label,
+    required this.fullName,
+    required this.mobile,
+    required this.address,
+    required this.city,
+    required this.state,
+    required this.pincode,
+    this.isDefault = false,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'label': label,
+      'fullName': fullName,
+      'mobile': mobile,
+      'address': address,
+      'city': city,
+      'state': state,
+      'pincode': pincode,
+      'isDefault': isDefault,
+    };
+  }
+
+  factory Address.fromMap(Map<String, dynamic> map) {
+    return Address(
+      id: map['id'] ?? '',
+      label: map['label'] ?? '',
+      fullName: map['fullName'] ?? '',
+      mobile: map['mobile'] ?? '',
+      address: map['address'] ?? '',
+      city: map['city'] ?? '',
+      state: map['state'] ?? '',
+      pincode: map['pincode'] ?? '',
+      isDefault: map['isDefault'] ?? false,
+    );
+  }
+}
+
+// Delivery Option Model
+class DeliveryOption {
+  final String id;
+  final String name;
+  final String description;
+  final double cost;
+  final int estimatedDays;
+  final String icon;
+
+  DeliveryOption({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.cost,
+    required this.estimatedDays,
+    required this.icon,
+  });
+}
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
