@@ -11,6 +11,7 @@ import 'package:gemnest_mobile_app/screen/category_screen/category_card.dart';
 import 'package:gemnest_mobile_app/screen/order_history_screen/oreder_history_screen.dart';
 import 'package:gemnest_mobile_app/screen/product_screen/product_card.dart';
 import 'package:gemnest_mobile_app/screen/profile_screen/profile_screen.dart';
+import 'package:gemnest_mobile_app/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -162,7 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
+                  backgroundColor: AppTheme.errorRed,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
                 ),
@@ -183,14 +184,10 @@ class _HomeScreenState extends State<HomeScreen> {
         onWillPop: _onWillPop,
         child: Scaffold(
           appBar: AppBar(
-            automaticallyImplyLeading: false, // Removes the back button
+            automaticallyImplyLeading: false,
             flexibleSpace: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF0072ff), Color(0xFF00c6ff)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+              decoration: BoxDecoration(
+                gradient: AppTheme.primaryGradient,
               ),
             ),
             elevation: 4,
@@ -199,12 +196,11 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Image.asset('assets/images/logo_new.png', height: 35),
                 const SizedBox(width: 8),
-                const Text(
+                Text(
                   'GemNest Mobile App',
-                  style: TextStyle(
-                    color: Colors.black,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    color: Colors.white,
                     fontWeight: FontWeight.w600,
-                    fontSize: 24,
                   ),
                 ),
               ],
@@ -412,7 +408,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 });
               });
             },
-            backgroundColor: const Color.fromARGB(255, 173, 216, 230),
+            backgroundColor: AppTheme.mediumBlue,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             elevation: 8,
@@ -426,8 +422,8 @@ class _HomeScreenState extends State<HomeScreen> {
             gapLocation: GapLocation.center,
             notchSmoothness: NotchSmoothness.smoothEdge,
             onTap: _onItemTapped,
-            backgroundColor: const Color.fromARGB(255, 173, 216, 230),
-            activeColor: const Color.fromARGB(255, 0, 0, 139),
+            backgroundColor: AppTheme.lightBlue,
+            activeColor: AppTheme.primaryBlue,
             leftCornerRadius: 32,
             rightCornerRadius: 32,
           ),
