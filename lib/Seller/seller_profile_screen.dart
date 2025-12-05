@@ -15,7 +15,8 @@ class SellerProfileScreen extends StatefulWidget {
   State<SellerProfileScreen> createState() => _SellerProfileScreenState();
 }
 
-class _SellerProfileScreenState extends State<SellerProfileScreen> {
+class _SellerProfileScreenState extends State<SellerProfileScreen>
+    with TickerProviderStateMixin {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -23,61 +24,82 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
   File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
 
-  // Seller data and form controllers
+  // Animation controllers
+  late AnimationController _fadeController;
+  late AnimationController _slideController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  // Seller data
   Map<String, dynamic>? sellerData;
   bool _isLoading = true;
-  bool _isEditing = false;
-
-  final TextEditingController _displayNameController = TextEditingController();
-  final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _usernameController = TextEditingController();
+  bool _isUploadingProfilePic = false;
 
   @override
   void initState() {
     super.initState();
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+    _slideController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    
+    _fadeAnimation = CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut);
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutBack));
+    
     _fetchSellerData();
     _loadProfileImage();
+    
+    // Start animations
+    _fadeController.forward();
+    _slideController.forward();
   }
 
   Future<void> _fetchSellerData() async {
     final userId = _auth.currentUser?.uid;
     if (userId != null) {
       try {
-        DocumentSnapshot doc =
-            await _firestore.collection('sellers').doc(userId).get();
+        DocumentSnapshot doc = await _firestore.collection('sellers').doc(userId).get();
         if (doc.exists) {
           setState(() {
             sellerData = doc.data() as Map<String, dynamic>;
-            _displayNameController.text = sellerData!['displayName'] ?? '';
-            _addressController.text = sellerData!['address'] ?? '';
-            _emailController.text = sellerData!['email'] ?? '';
-            _usernameController.text = sellerData!['username'] ?? '';
             _isLoading = false;
           });
         } else {
           setState(() {
             _isLoading = false;
           });
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Seller data not found')),
-          );
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Seller data not found')),
+            );
+          }
         }
       } catch (e) {
         setState(() {
           _isLoading = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error fetching data: $e')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error fetching data: $e')),
+          );
+        }
       }
     } else {
       setState(() {
         _isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User not logged in')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User not logged in')),
+        );
+      }
     }
   }
 
@@ -98,74 +120,60 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
     }
   }
 
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
-      });
-      await _uploadImage();
-    }
-  }
+  Future<void> _pickAndUploadProfileImage() async {
+    setState(() {
+      _isUploadingProfilePic = true;
+    });
 
-  Future<void> _uploadImage() async {
-    if (_selectedImage != null) {
-      final userId = _auth.currentUser?.uid;
-      if (userId != null) {
-        try {
+    try {
+      final pickedFile = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 80,
+      );
+      
+      if (pickedFile != null) {
+        final userId = _auth.currentUser?.uid;
+        if (userId != null) {
           final ref = _storage.ref().child('profile_images/$userId.jpg');
-          await ref.putFile(_selectedImage!);
+          await ref.putFile(File(pickedFile.path));
           final url = await ref.getDownloadURL();
+          
           setState(() {
             _profileImageUrl = url;
-            _selectedImage = null;
           });
-        } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to upload image')),
-          );
+          
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Profile picture updated successfully!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
         }
       }
-    }
-  }
-
-  Future<void> _saveProfile() async {
-    final userId = _auth.currentUser?.uid;
-    if (userId != null) {
-      try {
-        await _firestore.collection('sellers').doc(userId).update({
-          'displayName': _displayNameController.text,
-          'address': _addressController.text,
-          'email': _emailController.text,
-          'username': _usernameController.text,
-        });
-        setState(() {
-          _isEditing = false;
-          sellerData = {
-            ...sellerData!,
-            'displayName': _displayNameController.text,
-            'address': _addressController.text,
-            'email': _emailController.text,
-            'username': _usernameController.text,
-          };
-        });
+    } catch (e) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile updated successfully')),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating profile: $e')),
+          const SnackBar(
+            content: Text('Failed to update profile picture'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
+    } finally {
+      setState(() {
+        _isUploadingProfilePic = false;
+      });
     }
   }
 
   @override
   void dispose() {
-    _displayNameController.dispose();
-    _addressController.dispose();
-    _emailController.dispose();
-    _usernameController.dispose();
+    _fadeController.dispose();
+    _slideController.dispose();
     super.dispose();
   }
 
