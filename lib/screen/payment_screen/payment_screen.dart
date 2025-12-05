@@ -67,11 +67,9 @@ class _PaymentScreenState extends State<PaymentScreen>
   final TextEditingController _expiryController = TextEditingController();
   final TextEditingController _cvvController = TextEditingController();
   final TextEditingController _holderNameController = TextEditingController();
-  final TextEditingController _upiController = TextEditingController();
 
   // Form Keys
   final GlobalKey<FormState> _cardFormKey = GlobalKey<FormState>();
-  final GlobalKey<FormState> _upiFormKey = GlobalKey<FormState>();
 
   // State Variables
   PaymentMethod? _selectedPaymentMethod;
@@ -81,9 +79,7 @@ class _PaymentScreenState extends State<PaymentScreen>
 
   // Animation Controllers
   late AnimationController _fadeController;
-  late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
 
   // Payment Methods
   final List<PaymentMethod> _paymentMethods = [
@@ -92,32 +88,13 @@ class _PaymentScreenState extends State<PaymentScreen>
       name: 'Credit/Debit Card',
       description: 'Pay securely with your card',
       icon: '💳',
-      processingFee: 200.0,
-    ),
-    PaymentMethod(
-      id: 'upi',
-      name: 'UPI Payment',
-      description: 'Pay using UPI ID or scan QR code',
-      icon: '📱',
-    ),
-    PaymentMethod(
-      id: 'netbanking',
-      name: 'Net Banking',
-      description: 'Pay through your bank account',
-      icon: '🏦',
-    ),
-    PaymentMethod(
-      id: 'wallet',
-      name: 'Digital Wallet',
-      description: 'Pay using digital wallets',
-      icon: '💰',
     ),
     PaymentMethod(
       id: 'cod',
       name: 'Cash on Delivery',
       description: 'Pay when you receive your order',
       icon: '💵',
-      processingFee: 250.0,
+      processingFee: 50.0,
     ),
   ];
 
@@ -134,20 +111,10 @@ class _PaymentScreenState extends State<PaymentScreen>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    _slideController = AnimationController(
-      duration: const Duration(milliseconds: 400),
-      vsync: this,
-    );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
     );
-
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0.0, 1.0),
-      end: Offset.zero,
-    ).animate(
-        CurvedAnimation(parent: _slideController, curve: Curves.easeInOut));
 
     _fadeController.forward();
   }
@@ -159,12 +126,10 @@ class _PaymentScreenState extends State<PaymentScreen>
   @override
   void dispose() {
     _fadeController.dispose();
-    _slideController.dispose();
     _cardNumberController.dispose();
     _expiryController.dispose();
     _cvvController.dispose();
     _holderNameController.dispose();
-    _upiController.dispose();
     super.dispose();
   }
 
@@ -197,7 +162,6 @@ class _PaymentScreenState extends State<PaymentScreen>
                       const SizedBox(height: 24),
                       if (_selectedPaymentMethod?.id == 'card')
                         _buildCardDetailsForm(),
-                      if (_selectedPaymentMethod?.id == 'upi') _buildUPIForm(),
                       if (_selectedPaymentMethod?.id == 'cod') _buildCODInfo(),
                       const SizedBox(height: 24),
                       _buildSecurityInfo(),
@@ -560,220 +524,145 @@ class _PaymentScreenState extends State<PaymentScreen>
   }
 
   Widget _buildCardDetailsForm() {
-    return SlideTransition(
-      position: _slideAnimation,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Form(
-          key: _cardFormKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Card Details',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3748),
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                _cardNumberController,
-                'Card Number',
-                Icons.credit_card_outlined,
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  _CardNumberFormatter(),
-                  LengthLimitingTextInputFormatter(19),
-                ],
-                validator: (value) {
-                  if (value?.isEmpty ?? true) {
-                    return 'Please enter card number';
-                  }
-                  if (value!.replaceAll(' ', '').length < 16) {
-                    return 'Please enter valid card number';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                _holderNameController,
-                'Cardholder Name',
-                Icons.person_outline,
-                validator: (value) {
-                  if (value?.isEmpty ?? true) {
-                    return 'Please enter cardholder name';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildTextField(
-                      _expiryController,
-                      'MM/YY',
-                      Icons.calendar_month_outlined,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        _ExpiryDateFormatter(),
-                        LengthLimitingTextInputFormatter(5),
-                      ],
-                      validator: (value) {
-                        if (value?.isEmpty ?? true) {
-                          return 'Please enter expiry';
-                        }
-                        if (value!.length != 5) {
-                          return 'Please enter valid expiry';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildTextField(
-                      _cvvController,
-                      'CVV',
-                      Icons.security_outlined,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(3),
-                      ],
-                      validator: (value) {
-                        if (value?.isEmpty ?? true) {
-                          return 'Please enter CVV';
-                        }
-                        if (value!.length != 3) {
-                          return 'Please enter valid CVV';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Checkbox(
-                    value: _saveCard,
-                    onChanged: (value) {
-                      setState(() {
-                        _saveCard = value ?? false;
-                      });
-                    },
-                    activeColor: const Color(0xFF667eea),
-                  ),
-                  const Expanded(
-                    child: Text(
-                      'Save card for future payments (Secure)',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF4A5568),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
-        ),
+        ],
       ),
-    );
-  }
-
-  Widget _buildUPIForm() {
-    return SlideTransition(
-      position: _slideAnimation,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
+      child: Form(
+        key: _cardFormKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Card Details',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2D3748),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildTextField(
+              _cardNumberController,
+              'Card Number',
+              Icons.credit_card_outlined,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                _CardNumberFormatter(),
+                LengthLimitingTextInputFormatter(19),
+              ],
+              validator: (value) {
+                if (value?.isEmpty ?? true) {
+                  return 'Please enter card number';
+                }
+                final cleanValue = value!.replaceAll(' ', '');
+                if (cleanValue.length < 13 || cleanValue.length > 19) {
+                  return 'Please enter valid card number';
+                }
+                if (!_validateCardNumber(cleanValue)) {
+                  return 'Invalid card number';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            _buildTextField(
+              _holderNameController,
+              'Cardholder Name',
+              Icons.person_outline,
+              validator: (value) {
+                if (value?.isEmpty ?? true) {
+                  return 'Please enter cardholder name';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildTextField(
+                    _expiryController,
+                    'MM/YY',
+                    Icons.calendar_month_outlined,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      _ExpiryDateFormatter(),
+                      LengthLimitingTextInputFormatter(5),
+                    ],
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) {
+                        return 'Please enter expiry';
+                      }
+                      if (value!.length != 5) {
+                        return 'Please enter valid expiry';
+                      }
+                      if (!_validateExpiryDate(value)) {
+                        return 'Card has expired';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildTextField(
+                    _cvvController,
+                    'CVV',
+                    Icons.security_outlined,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(4),
+                    ],
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) {
+                        return 'Please enter CVV';
+                      }
+                      if (value!.length < 3 || value.length > 4) {
+                        return 'Please enter valid CVV';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Checkbox(
+                  value: _saveCard,
+                  onChanged: (value) {
+                    setState(() {
+                      _saveCard = value ?? false;
+                    });
+                  },
+                  activeColor: const Color(0xFF667eea),
+                ),
+                const Expanded(
+                  child: Text(
+                    'Save card for future payments (Secure)',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF4A5568),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
-        ),
-        child: Form(
-          key: _upiFormKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'UPI Details',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3748),
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildTextField(
-                _upiController,
-                'UPI ID (e.g., yourname@paytm)',
-                Icons.account_balance_wallet_outlined,
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value?.isEmpty ?? true) {
-                    return 'Please enter UPI ID';
-                  }
-                  if (!value!.contains('@')) {
-                    return 'Please enter valid UPI ID';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF667eea).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(
-                      Icons.info_outline,
-                      color: Color(0xFF667eea),
-                      size: 20,
-                    ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'You will be redirected to your UPI app to complete the payment',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF667eea),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -837,7 +726,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                   '• Additional Rs.25 processing fee applies\n'
                   '• Please keep exact change ready\n'
                   '• Payment due upon delivery\n'
-                  '• Cash/UPI accepted at doorstep',
+                  '• Cash accepted at doorstep',
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.orange,
@@ -866,60 +755,60 @@ class _PaymentScreenState extends State<PaymentScreen>
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF38A169).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.security_outlined,
-                  color: Color(0xFF38A169),
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'Secure Payment',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3748),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          const Row(
-            children: [
-              Icon(Icons.lock_outlined, color: Color(0xFF38A169), size: 16),
-              SizedBox(width: 8),
-              Text('256-bit SSL encryption', style: TextStyle(fontSize: 14)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          const Row(
-            children: [
-              Icon(Icons.verified_outlined, color: Color(0xFF38A169), size: 16),
-              SizedBox(width: 8),
-              Text('PCI DSS compliant', style: TextStyle(fontSize: 14)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          const Row(
-            children: [
-              Icon(Icons.shield_outlined, color: Color(0xFF38A169), size: 16),
-              SizedBox(width: 8),
-              Text('100% secure transactions', style: TextStyle(fontSize: 14)),
-            ],
-          ),
-        ],
-      ),
+      // child: Column(
+      //   crossAxisAlignment: CrossAxisAlignment.start,
+      //   children: [
+      //     Row(
+      //       children: [
+      //         Container(
+      //           padding: const EdgeInsets.all(8),
+      //           decoration: BoxDecoration(
+      //             color: const Color(0xFF38A169).withOpacity(0.1),
+      //             borderRadius: BorderRadius.circular(8),
+      //           ),
+      //           child: const Icon(
+      //             Icons.security_outlined,
+      //             color: Color(0xFF38A169),
+      //             size: 20,
+      //           ),
+      //         ),
+      //         const SizedBox(width: 12),
+      //         const Text(
+      //           'Secure Payment',
+      //           style: TextStyle(
+      //             fontSize: 18,
+      //             fontWeight: FontWeight.bold,
+      //             color: Color(0xFF2D3748),
+      //           ),
+      //         ),
+      //       ],
+      //     ),
+      //     const SizedBox(height: 16),
+      //     const Row(
+      //       children: [
+      //         Icon(Icons.lock_outlined, color: Color(0xFF38A169), size: 16),
+      //         SizedBox(width: 8),
+      //         Text('256-bit SSL encryption', style: TextStyle(fontSize: 14)),
+      //       ],
+      //     ),
+      //     const SizedBox(height: 8),
+      //     const Row(
+      //       children: [
+      //         Icon(Icons.verified_outlined, color: Color(0xFF38A169), size: 16),
+      //         SizedBox(width: 8),
+      //         Text('PCI DSS compliant', style: TextStyle(fontSize: 14)),
+      //       ],
+      //     ),
+      //     const SizedBox(height: 8),
+      //     const Row(
+      //       children: [
+      //         Icon(Icons.shield_outlined, color: Color(0xFF38A169), size: 16),
+      //         SizedBox(width: 8),
+      //         Text('100% secure transactions', style: TextStyle(fontSize: 14)),
+      //       ],
+      //     ),
+      //   ],
+      // ),
     );
   }
 
@@ -1091,8 +980,6 @@ class _PaymentScreenState extends State<PaymentScreen>
     bool isValid = true;
     if (_selectedPaymentMethod?.id == 'card') {
       isValid = _cardFormKey.currentState?.validate() ?? false;
-    } else if (_selectedPaymentMethod?.id == 'upi') {
-      isValid = _upiFormKey.currentState?.validate() ?? false;
     }
 
     if (!isValid) return;
@@ -1112,8 +999,13 @@ class _PaymentScreenState extends State<PaymentScreen>
       final processingFee = _selectedPaymentMethod?.processingFee ?? 0.0;
       final finalTotal = widget.totalAmount + processingFee;
 
-      // Simulate payment processing
-      await Future.delayed(const Duration(seconds: 3));
+      // Simulate card payment processing
+      if (_selectedPaymentMethod?.id == 'card') {
+        await _processCardPayment();
+      } else {
+        // For COD, just simulate order processing
+        await Future.delayed(const Duration(seconds: 2));
+      }
 
       // Create order in Firestore
       final orderData = {
@@ -1186,6 +1078,68 @@ class _PaymentScreenState extends State<PaymentScreen>
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
+  }
+
+  // Luhn algorithm for card validation
+  bool _validateCardNumber(String cardNumber) {
+    int sum = 0;
+    bool isEven = false;
+
+    for (int i = cardNumber.length - 1; i >= 0; i--) {
+      int digit = int.parse(cardNumber[i]);
+
+      if (isEven) {
+        digit *= 2;
+        if (digit > 9) {
+          digit = digit % 10 + digit ~/ 10;
+        }
+      }
+
+      sum += digit;
+      isEven = !isEven;
+    }
+
+    return sum % 10 == 0;
+  }
+
+  // Validate expiry date (MM/YY format)
+  bool _validateExpiryDate(String expiryDate) {
+    if (expiryDate.length != 5) return false;
+
+    final parts = expiryDate.split('/');
+    if (parts.length != 2) return false;
+
+    final month = int.tryParse(parts[0]);
+    final year = int.tryParse(parts[1]);
+
+    if (month == null || year == null) return false;
+    if (month < 1 || month > 12) return false;
+
+    final now = DateTime.now();
+    final currentYear = now.year % 100; // Get last 2 digits
+    final currentMonth = now.month;
+
+    if (year < currentYear) return false;
+    if (year == currentYear && month < currentMonth) return false;
+
+    return true;
+  }
+
+  // Simulate card payment processing
+  Future<void> _processCardPayment() async {
+    // Step 1: Validate card details
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    // Step 2: Contact bank
+    await Future.delayed(const Duration(milliseconds: 1000));
+
+    // Step 3: Authorize payment
+    await Future.delayed(const Duration(milliseconds: 1200));
+
+    // Simulate 95% success rate
+    if (DateTime.now().millisecond % 20 == 0) {
+      throw Exception('Payment declined by bank');
+    }
   }
 }
 
