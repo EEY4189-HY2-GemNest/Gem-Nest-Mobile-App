@@ -16,10 +16,9 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
-  final TextEditingController _couponController = TextEditingController();
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  bool _isLoadingCoupon = false;
+  bool _isExpanded = false;
 
   @override
   void initState() {
@@ -43,7 +42,6 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
   @override
   void dispose() {
     _animationController.dispose();
-    _couponController.dispose();
     super.dispose();
   }
 
@@ -71,7 +69,6 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                     children: [
                       _buildCartHeader(cartProvider),
                       Expanded(child: _buildCartItems(cartProvider)),
-                      _buildCouponSection(cartProvider),
                       _buildPriceBreakdown(cartProvider),
                       _buildCheckoutButton(cartProvider),
                     ],
