@@ -485,7 +485,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           fontSize: 16,
                           color: Colors.blue,
                           fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.underline,
+                          // decoration: TextDecoration.underline,
                         ),
                       ),
                     ),
