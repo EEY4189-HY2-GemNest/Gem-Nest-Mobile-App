@@ -37,6 +37,9 @@ class CartItem {
   double get totalPrice => price * quantity;
   double get originalTotalPrice => originalPrice * quantity;
   double get savings => originalTotalPrice - totalPrice;
+  double get finalPrice => price; // Price after any applicable discounts
+  String get name => title; // Alias for title
+  String get image => imagePath; // Alias for imagePath
   
   bool get isInStock => availableStock > 0;
   bool get isQuantityAvailable => quantity <= availableStock;
@@ -97,15 +100,20 @@ class CartProvider with ChangeNotifier {
   double get taxRate => _taxRate;
   bool get isLoading => _isLoading;
   
-  int get cartItemCount => _cartItems.fold(0, (sum, item) => sum + (item.isSelected ? item.quantity : 0));
+  int get cartItemCount => _cartItems.fold(0, (total, item) => total + (item.isSelected ? item.quantity : 0));
   int get wishlistItemCount => _wishlistItems.length;
 
   // Price calculations
-  double get subtotal => selectedCartItems.fold(0, (sum, item) => sum + item.totalPrice);
-  double get originalSubtotal => selectedCartItems.fold(0, (sum, item) => sum + item.originalTotalPrice);
+  double get subtotal => selectedCartItems.fold(0.0, (total, item) => total + item.totalPrice);
+  double get originalSubtotal => selectedCartItems.fold(0.0, (total, item) => total + item.originalTotalPrice);
   double get totalSavings => originalSubtotal - subtotal + _couponDiscount;
   double get taxAmount => (subtotal - _couponDiscount) * _taxRate;
   double get totalAmount => subtotal - _couponDiscount + _shippingCost + taxAmount;
+  
+  // Additional computed properties
+  double get savings => _couponDiscount;
+  String? get appliedCoupon => _appliedCouponCode;
+  double get discountAmount => _couponDiscount;
   
   // Cart operations
   Future<bool> addToCart(Map<String, dynamic> product) async {
@@ -146,10 +154,10 @@ class CartProvider with ChangeNotifier {
             imagePath: product['imageUrl'] ?? '',
             title: product['title'] ?? 'Untitled',
             price: (product['pricing'] as num? ?? 0).toDouble(),
-            originalPrice: (product['originalPrice'] as num?) ?? (product['pricing'] as num? ?? 0).toDouble(),
+            originalPrice: ((product['originalPrice'] as num?) ?? (product['pricing'] as num? ?? 0)).toDouble(),
             category: product['category'] ?? '',
             sellerId: product['userId'] ?? '',
-            availableStock: availableStock,
+            availableStock: (availableStock as num).toInt(),
             productData: product,
             isDiscounted: product['isDiscounted'] ?? false,
             discountPercentage: (product['discountPercentage'] as num?)?.toDouble() ?? 0.0,
@@ -240,10 +248,10 @@ class CartProvider with ChangeNotifier {
         imagePath: product['imageUrl'] ?? '',
         title: product['title'] ?? 'Untitled',
         price: (product['pricing'] as num? ?? 0).toDouble(),
-        originalPrice: (product['originalPrice'] as num?) ?? (product['pricing'] as num? ?? 0).toDouble(),
+        originalPrice: ((product['originalPrice'] as num?) ?? (product['pricing'] as num? ?? 0)).toDouble(),
         category: product['category'] ?? '',
         sellerId: product['userId'] ?? '',
-        availableStock: product['quantity'] ?? 0,
+        availableStock: ((product['quantity'] as num?) ?? 0).toInt(),
         productData: product,
         quantity: 0, // Wishlist items don't have quantity
       ));
@@ -293,7 +301,7 @@ class CartProvider with ChangeNotifier {
         
         _appliedCouponCode = couponCode.toUpperCase();
         if (discountType == 'percentage') {
-          _couponDiscount = (subtotal * discountValue / 100).clamp(0, couponData['maxDiscount']?.toDouble() ?? double.infinity);
+          _couponDiscount = (subtotal * discountValue / 100).clamp(0.0, couponData['maxDiscount']?.toDouble() ?? double.infinity).toDouble();
         } else {
           _couponDiscount = discountValue.clamp(0, subtotal);
         }
@@ -419,4 +427,4 @@ class CartProvider with ChangeNotifier {
       notifyListeners();
     }
   }
-}final 
+} 
