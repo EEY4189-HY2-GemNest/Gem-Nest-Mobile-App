@@ -89,8 +89,287 @@ class _AuctionScreenState extends State<AuctionScreen>
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _filterController.dispose();
     super.dispose();
+  }
+
+  Widget _buildAppBar() {
+    return AppBar(
+      backgroundColor: Colors.white,
+      elevation: 0,
+      title: const Text(
+        'Auctions',
+        style: TextStyle(
+          color: Colors.black87,
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      centerTitle: true,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios, color: Colors.black87),
+        onPressed: () => Navigator.pop(context),
+      ),
+      actions: [
+        IconButton(
+          icon: Icon(
+            _isFilterExpanded ? Icons.filter_list_off : Icons.filter_list,
+            color: Colors.black87,
+          ),
+          onPressed: () {
+            setState(() {
+              _isFilterExpanded = !_isFilterExpanded;
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFiltersSection() {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      height: _isFilterExpanded ? 280 : 0,
+      child: _isFilterExpanded
+          ? Container(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Search Filter
+                  TextField(
+                    controller: _filterController,
+                    decoration: const InputDecoration(
+                      labelText: 'Search auctions...',
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value.toLowerCase();
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Status Filter
+                  Row(
+                    children: [
+                      const Text('Status: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Expanded(
+                        child: Wrap(
+                          spacing: 8,
+                          children: ['all', 'live', 'ended', 'won'].map((status) {
+                            final isSelected = _selectedStatus == status;
+                            return FilterChip(
+                              label: Text(status.toUpperCase()),
+                              selected: isSelected,
+                              onSelected: (selected) {
+                                setState(() {
+                                  _selectedStatus = status;
+                                });
+                              },
+                              selectedColor: Colors.blue.shade100,
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  // Category Filter
+                  Row(
+                    children: [
+                      const Text('Category: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Expanded(
+                        child: DropdownButton<String>(
+                          value: _selectedCategory,
+                          isExpanded: true,
+                          items: ['all', 'electronics', 'jewelry', 'art', 'collectibles', 'antiques', 'other']
+                              .map((category) => DropdownMenuItem(
+                                    value: category,
+                                    child: Text(category.toUpperCase()),
+                                  ))
+                              .toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedCategory = value!;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  // Price Range Filter
+                  Row(
+                    children: [
+                      const Text('Price Range: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Expanded(
+                        child: RangeSlider(
+                          values: RangeValues(_minPrice, _maxPrice),
+                          min: 0,
+                          max: 10000,
+                          divisions: 100,
+                          labels: RangeLabels('₹${_minPrice.toInt()}', '₹${_maxPrice.toInt()}'),
+                          onChanged: (values) {
+                            setState(() {
+                              _minPrice = values.start;
+                              _maxPrice = values.end;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            )
+          : const SizedBox.shrink(),
+    );
+  }
+
+  Stream<QuerySnapshot> _getFilteredAuctionsStream() {
+    Query query = FirebaseFirestore.instance.collection('auctions');
+    
+    // Apply category filter
+    if (_selectedCategory != 'all') {
+      query = query.where('category', isEqualTo: _selectedCategory);
+    }
+    
+    // Apply price range filter
+    query = query
+        .where('currentBid', isGreaterThanOrEqualTo: _minPrice)
+        .where('currentBid', isLessThanOrEqualTo: _maxPrice);
+    
+    return query.orderBy('currentBid').orderBy('endTime').snapshots();
+  }
+
+  List<QueryDocumentSnapshot> _filterAuctionsByStatus(List<QueryDocumentSnapshot> auctions) {
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    final now = DateTime.now();
+    
+    return auctions.where((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      final endTime = _parseEndTime(data['endTime']);
+      final title = (data['title'] ?? '').toLowerCase();
+      final description = (data['description'] ?? '').toLowerCase();
+      
+      // Apply search filter
+      if (_searchQuery.isNotEmpty) {
+        if (!title.contains(_searchQuery) && !description.contains(_searchQuery)) {
+          return false;
+        }
+      }
+      
+      // Apply status filter
+      switch (_selectedStatus) {
+        case 'live':
+          return endTime.isAfter(now);
+        case 'ended':
+          return endTime.isBefore(now) && data['winningUserId'] != currentUserId;
+        case 'won':
+          return endTime.isBefore(now) && data['winningUserId'] == currentUserId;
+        case 'all':
+        default:
+          return true;
+      }
+    }).toList();
+  }
+
+  Widget _buildAuctionsList() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: _getFilteredAuctionsStream(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+                const SizedBox(height: 16),
+                Text('Error: ${snapshot.error}'),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {}); // Refresh
+                  },
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          );
+        }
+        
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final allAuctions = snapshot.data!.docs;
+        final filteredAuctions = _filterAuctionsByStatus(allAuctions);
+        
+        if (filteredAuctions.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.gavel_outlined, size: 64, color: Colors.grey.shade400),
+                const SizedBox(height: 16),
+                Text(
+                  'No auctions found',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.grey.shade600,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Try adjusting your filters',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade500,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: filteredAuctions.length,
+          itemBuilder: (context, index) {
+            final doc = filteredAuctions[index];
+            final data = doc.data() as Map<String, dynamic>;
+            
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: AuctionItemCard(
+                auctionId: doc.id,
+                imagePath: data['imagePath'] ?? '',
+                title: data['title'] ?? 'Untitled',
+                currentBid: (data['currentBid'] as num?)?.toDouble() ?? 0.0,
+                endTime: _parseEndTime(data['endTime']),
+                minimumIncrement: (data['minimumIncrement'] as num?)?.toDouble() ?? 0.0,
+                paymentStatus: data['paymentStatus'] ?? 'pending',
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   DateTime _parseEndTime(dynamic endTime) {
