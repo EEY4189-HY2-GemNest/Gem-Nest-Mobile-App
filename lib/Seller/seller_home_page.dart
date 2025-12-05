@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,6 +30,13 @@ class _SellerHomePageState extends State<SellerHomePage>
   int _selectedIndex = 0;
   final List<Map<String, dynamic>> _notifications = [];
   String? currentUserId;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  
+  // Real data fields
+  int _activeProductsCount = 0;
+  int _liveAuctionsCount = 0;
+  int _totalOrdersCount = 0;
+  bool _isLoadingStats = true;
 
   @override
   void initState() {
@@ -55,6 +63,47 @@ class _SellerHomePageState extends State<SellerHomePage>
     _controller.forward();
     _cardAnimationController.forward();
     currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    _fetchRealData();
+  }
+
+  Future<void> _fetchRealData() async {
+    if (currentUserId == null) return;
+
+    try {
+      // Fetch active products count
+      final productsSnapshot = await _firestore
+          .collection('products')
+          .where('sellerId', isEqualTo: currentUserId)
+          .get();
+      
+      // Fetch live auctions count
+      final auctionsSnapshot = await _firestore
+          .collection('auctions')
+          .where('sellerId', isEqualTo: currentUserId)
+          .where('endDate', isGreaterThan: Timestamp.now())
+          .get();
+      
+      // Fetch total orders count
+      final ordersSnapshot = await _firestore
+          .collection('orders')
+          .where('sellerId', isEqualTo: currentUserId)
+          .get();
+
+      if (mounted) {
+        setState(() {
+          _activeProductsCount = productsSnapshot.docs.length;
+          _liveAuctionsCount = auctionsSnapshot.docs.length;
+          _totalOrdersCount = ordersSnapshot.docs.length;
+          _isLoadingStats = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingStats = false;
+        });
+      }
+    }
   }
 
   @override
@@ -327,7 +376,7 @@ class _SellerHomePageState extends State<SellerHomePage>
               Expanded(
                 child: _buildStatCard(
                   'Active Products',
-                  '24',
+                  _isLoadingStats ? '...' : _activeProductsCount.toString(),
                   Icons.inventory_2_outlined,
                   Colors.blue,
                   0.ms,
@@ -337,7 +386,7 @@ class _SellerHomePageState extends State<SellerHomePage>
               Expanded(
                 child: _buildStatCard(
                   'Live Auctions',
-                  '8',
+                  _isLoadingStats ? '...' : _liveAuctionsCount.toString(),
                   Icons.gavel_outlined,
                   Colors.orange,
                   200.ms,
@@ -351,20 +400,10 @@ class _SellerHomePageState extends State<SellerHomePage>
               Expanded(
                 child: _buildStatCard(
                   'Total Orders',
-                  '156',
+                  _isLoadingStats ? '...' : _totalOrdersCount.toString(),
                   Icons.shopping_bag_outlined,
                   Colors.green,
                   400.ms,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildStatCard(
-                  'This Month',
-                  '\$2.4K',
-                  Icons.trending_up_outlined,
-                  Colors.purple,
-                  600.ms,
                 ),
               ),
             ],
@@ -566,7 +605,7 @@ class _SellerHomePageState extends State<SellerHomePage>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Recent Activity',
+                'Quick Access',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
@@ -574,9 +613,9 @@ class _SellerHomePageState extends State<SellerHomePage>
                 ),
               ),
               TextButton(
-                onPressed: () => _navigateToAuctionHistory(),
+                onPressed: () => _navigateToOrderHistory(),
                 child: Text(
-                  'View All',
+                  'View Orders',
                   style: TextStyle(
                     color: Colors.blue,
                     fontWeight: FontWeight.w600,
@@ -586,87 +625,82 @@ class _SellerHomePageState extends State<SellerHomePage>
             ],
           ).animate().fadeIn(duration: 600.ms),
           const SizedBox(height: 16),
-          ...List.generate(3, (index) => _buildActivityItem(index))
-              .animate(interval: 100.ms)
-              .fadeIn(duration: 500.ms)
-              .slideX(begin: 0.3),
+          _buildQuickAccessCard(
+            'Manage Your Products',
+            'View and edit your listed products',
+            Icons.inventory_2_outlined,
+            Colors.blue,
+            () => _navigateToListedProducts(),
+          ).animate().fadeIn(duration: 500.ms).slideX(begin: 0.3),
+          const SizedBox(height: 12),
+          _buildQuickAccessCard(
+            'Auction History',
+            'Check your auction performance',
+            Icons.history_outlined,
+            Colors.orange,
+            () => _navigateToAuctionHistory(),
+          ).animate().fadeIn(duration: 500.ms, delay: 100.ms).slideX(begin: 0.3),
           const SizedBox(height: 100),
         ],
       ),
     );
   }
 
-  Widget _buildActivityItem(int index) {
-    final activities = [
-      {
-        'title': 'New order received',
-        'time': '2 hours ago',
-        'icon': Icons.shopping_bag,
-        'color': Colors.green
-      },
-      {
-        'title': 'Auction ended successfully',
-        'time': '5 hours ago',
-        'icon': Icons.gavel,
-        'color': Colors.orange
-      },
-      {
-        'title': 'Product updated',
-        'time': '1 day ago',
-        'icon': Icons.edit,
-        'color': Colors.blue
-      },
-    ];
-
-    final activity = activities[index];
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[900]!.withOpacity(0.6),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[800]!, width: 1),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: (activity['color'] as Color).withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
+  Widget _buildQuickAccessCard(String title, String subtitle, IconData icon, Color color, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.grey[900]!.withOpacity(0.6),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withOpacity(0.3), width: 1),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 24,
+              ),
             ),
-            child: Icon(
-              activity['icon'] as IconData,
-              color: activity['color'] as Color,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  activity['title'] as String,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  activity['time'] as String,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[400],
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[400],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+            Icon(
+              Icons.arrow_forward_ios,
+              color: color,
+              size: 16,
+            ),
+          ],
+        ),
       ),
     );
   }
