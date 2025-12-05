@@ -1,12 +1,13 @@
 import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:gemnest_mobile_app/screen/auth_screens/login_screen.dart';
 import 'package:gemnest_mobile_app/widget/custom_dialog.dart'; // Import the new dialog
+import 'package:image_picker/image_picker.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -48,7 +49,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   // Method to upload file to Firebase Storage
   Future<String?> _uploadFile(File file, String folder, String userId) async {
     try {
-      String fileName = '${userId}_${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
+      String fileName =
+          '${userId}_${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
       Reference storageRef = _storage.ref().child('$folder/$fileName');
       UploadTask uploadTask = storageRef.putFile(file);
       TaskSnapshot snapshot = await uploadTask;
@@ -63,17 +65,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Future<void> _pickBusinessRegistrationFile() async {
     try {
       setState(() => _isUploadingBusinessReg = true);
-      
+
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Select Business Registration'),
-          content: const Text('Choose how you want to add your business registration document:'),
+          content: const Text(
+              'Choose how you want to add your business registration document:'),
           actions: [
             TextButton(
               onPressed: () async {
                 Navigator.pop(context);
-                final XFile? image = await _imagePicker.pickImage(source: ImageSource.camera);
+                final XFile? image =
+                    await _imagePicker.pickImage(source: ImageSource.camera);
                 if (image != null) {
                   setState(() {
                     _businessRegistrationFile = File(image.path);
@@ -86,7 +90,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
             TextButton(
               onPressed: () async {
                 Navigator.pop(context);
-                final XFile? image = await _imagePicker.pickImage(source: ImageSource.gallery);
+                final XFile? image =
+                    await _imagePicker.pickImage(source: ImageSource.gallery);
                 if (image != null) {
                   setState(() {
                     _businessRegistrationFile = File(image.path);
@@ -124,7 +129,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Future<void> _pickNicFile() async {
     try {
       setState(() => _isUploadingNic = true);
-      
+
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -134,7 +139,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
             TextButton(
               onPressed: () async {
                 Navigator.pop(context);
-                final XFile? image = await _imagePicker.pickImage(source: ImageSource.camera);
+                final XFile? image =
+                    await _imagePicker.pickImage(source: ImageSource.camera);
                 if (image != null) {
                   setState(() {
                     _nicFile = File(image.path);
@@ -147,7 +153,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
             TextButton(
               onPressed: () async {
                 Navigator.pop(context);
-                final XFile? image = await _imagePicker.pickImage(source: ImageSource.gallery);
+                final XFile? image =
+                    await _imagePicker.pickImage(source: ImageSource.gallery);
                 if (image != null) {
                   setState(() {
                     _nicFile = File(image.path);
@@ -217,15 +224,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
         // Upload files first
         String? businessRegUrl;
         String? nicUrl;
-        
+
         if (_businessRegistrationFile != null) {
-          businessRegUrl = await _uploadFile(_businessRegistrationFile!, 'business_registrations', userId);
+          businessRegUrl = await _uploadFile(
+              _businessRegistrationFile!, 'business_registrations', userId);
         }
-        
+
         if (_nicFile != null) {
           nicUrl = await _uploadFile(_nicFile!, 'nic_documents', userId);
         }
-        
+
         userData.addAll({
           'displayName': displayNameController.text.trim(),
           'address': addressController.text.trim(),
@@ -326,10 +334,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 if (!isBuyer) _customTextField('Name', displayNameController),
                 if (!isBuyer) _customTextField('Address', addressController),
                 if (!isBuyer) _customTextField('NIC Number', nicController),
-                if (!isBuyer) _customTextField('Business Name', businessNameController),
+                if (!isBuyer)
+                  _customTextField('Business Name', businessNameController),
                 if (!isBuyer) _customTextField('BR Number', brNumberController),
-                if (!isBuyer) _buildFileUploadSection('Business Registration', _businessRegistrationFileName, _isUploadingBusinessReg, _pickBusinessRegistrationFile),
-                if (!isBuyer) _buildFileUploadSection('NIC Document', _nicFileName, _isUploadingNic, _pickNicFile),
+                if (!isBuyer)
+                  _buildFileUploadSection(
+                      'Business Registration',
+                      _businessRegistrationFileName,
+                      _isUploadingBusinessReg,
+                      _pickBusinessRegistrationFile),
+                if (!isBuyer)
+                  _buildFileUploadSection('NIC Document', _nicFileName,
+                      _isUploadingNic, _pickNicFile),
                 _customTextField('Email', emailController),
                 _customTextField('Phone Number', phoneNumberController,
                     keyboardType: TextInputType.phone),
@@ -382,7 +398,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  Widget _buildFileUploadSection(String label, String? fileName, bool isUploading, VoidCallback onTap) {
+  Widget _buildFileUploadSection(
+      String label, String? fileName, bool isUploading, VoidCallback onTap) {
     return Padding(
       padding: const EdgeInsets.only(top: 12),
       child: Column(
@@ -423,7 +440,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   : Row(
                       children: [
                         Icon(
-                          fileName != null ? Icons.check_circle : Icons.upload_file,
+                          fileName != null
+                              ? Icons.check_circle
+                              : Icons.upload_file,
                           color: fileName != null ? Colors.green : Colors.grey,
                         ),
                         const SizedBox(width: 12),
@@ -431,7 +450,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           child: Text(
                             fileName ?? 'Upload $label (PDF/Image)',
                             style: TextStyle(
-                              color: fileName != null ? Colors.green : Colors.grey.shade600,
+                              color: fileName != null
+                                  ? Colors.green
+                                  : Colors.grey.shade600,
                               fontSize: 14,
                             ),
                           ),
