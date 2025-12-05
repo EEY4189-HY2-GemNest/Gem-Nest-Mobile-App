@@ -85,7 +85,8 @@ class CheckoutScreen extends StatefulWidget {
   State<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
-class _CheckoutScreenState extends State<CheckoutScreen> with TickerProviderStateMixin {
+class _CheckoutScreenState extends State<CheckoutScreen>
+    with TickerProviderStateMixin {
   // Form Controllers
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
@@ -93,7 +94,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> with TickerProviderStat
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _stateController = TextEditingController();
   final TextEditingController _pincodeController = TextEditingController();
-  final TextEditingController _specialInstructionsController = TextEditingController();
+  final TextEditingController _specialInstructionsController =
+      TextEditingController();
   final TextEditingController _promoController = TextEditingController();
 
   // Form Keys
@@ -160,15 +162,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> with TickerProviderStat
       duration: const Duration(milliseconds: 400),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
     );
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(1.0, 0.0),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeInOut));
+    ).animate(
+        CurvedAnimation(parent: _slideController, curve: Curves.easeInOut));
 
     _fadeController.forward();
   }
@@ -176,36 +179,40 @@ class _CheckoutScreenState extends State<CheckoutScreen> with TickerProviderStat
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     final addressesJson = prefs.getStringList('saved_addresses') ?? [];
-    
+
     setState(() {
-      _addresses = addressesJson.map((json) => Address.fromMap({
-        'id': json.split('|')[0],
-        'label': json.split('|')[1],
-        'fullName': json.split('|')[2],
-        'mobile': json.split('|')[3],
-        'address': json.split('|')[4],
-        'city': json.split('|')[5],
-        'state': json.split('|')[6],
-        'pincode': json.split('|')[7],
-        'isDefault': json.split('|')[8] == 'true',
-      })).toList();
-      
+      _addresses = addressesJson
+          .map((json) => Address.fromMap({
+                'id': json.split('|')[0],
+                'label': json.split('|')[1],
+                'fullName': json.split('|')[2],
+                'mobile': json.split('|')[3],
+                'address': json.split('|')[4],
+                'city': json.split('|')[5],
+                'state': json.split('|')[6],
+                'pincode': json.split('|')[7],
+                'isDefault': json.split('|')[8] == 'true',
+              }))
+          .toList();
+
       _selectedAddress = _addresses.isNotEmpty ? _addresses.first : null;
-      
+
       // Load form data
       _fullNameController.text = prefs.getString('checkout_name') ?? '';
       _mobileController.text = prefs.getString('checkout_mobile') ?? '';
-      _specialInstructionsController.text = prefs.getString('checkout_instructions') ?? '';
+      _specialInstructionsController.text =
+          prefs.getString('checkout_instructions') ?? '';
     });
   }
 
   Future<void> _saveUserData() async {
     if (!_saveDetails) return;
-    
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('checkout_name', _fullNameController.text);
     await prefs.setString('checkout_mobile', _mobileController.text);
-    await prefs.setString('checkout_instructions', _specialInstructionsController.text);
+    await prefs.setString(
+        'checkout_instructions', _specialInstructionsController.text);
   }
 
   Future<void> _saveAddress() async {
@@ -231,9 +238,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> with TickerProviderStat
 
     // Save to SharedPreferences
     final prefs = await SharedPreferences.getInstance();
-    final addressesJson = _addresses.map((addr) => 
-      '${addr.id}|${addr.label}|${addr.fullName}|${addr.mobile}|${addr.address}|${addr.city}|${addr.state}|${addr.pincode}|${addr.isDefault}'
-    ).toList();
+    final addressesJson = _addresses
+        .map((addr) =>
+            '${addr.id}|${addr.label}|${addr.fullName}|${addr.mobile}|${addr.address}|${addr.city}|${addr.state}|${addr.pincode}|${addr.isDefault}')
+        .toList();
     await prefs.setStringList('saved_addresses', addressesJson);
 
     _showSnackBar('Address saved successfully!', Colors.green);
@@ -446,29 +454,29 @@ class _CheckoutScreenState extends State<CheckoutScreen> with TickerProviderStat
           ),
           const SizedBox(height: 16),
           ...cartProvider.cartItems.map((item) => Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '${item.name} × ${item.quantity}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF4A5568),
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${item.name} × ${item.quantity}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF4A5568),
+                        ),
+                      ),
                     ),
-                  ),
+                    Text(
+                      '₹${(item.finalPrice * item.quantity).toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF2D3748),
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  '₹${(item.finalPrice * item.quantity).toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF2D3748),
-                  ),
-                ),
-              ],
-            ),
-          )),
+              )),
           if (cartProvider.appliedCoupon != null) ...[
             const Divider(),
             Row(
@@ -624,7 +632,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> with TickerProviderStat
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF667eea).withOpacity(0.1) : Colors.grey[50],
+          color: isSelected
+              ? const Color(0xFF667eea).withOpacity(0.1)
+              : Colors.grey[50],
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isSelected ? const Color(0xFF667eea) : Colors.grey[300]!,
@@ -637,7 +647,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> with TickerProviderStat
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
                     color: const Color(0xFF667eea).withOpacity(0.2),
                     borderRadius: BorderRadius.circular(4),
@@ -654,7 +665,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> with TickerProviderStat
                 if (address.isDefault) ...[
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
                       color: const Color(0xFF38A169).withOpacity(0.2),
                       borderRadius: BorderRadius.circular(4),
@@ -922,7 +934,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> with TickerProviderStat
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF667eea).withOpacity(0.1) : Colors.grey[50],
+          color: isSelected
+              ? const Color(0xFF667eea).withOpacity(0.1)
+              : Colors.grey[50],
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isSelected ? const Color(0xFF667eea) : Colors.grey[300]!,
@@ -1113,19 +1127,21 @@ class _CheckoutScreenState extends State<CheckoutScreen> with TickerProviderStat
           const SizedBox(height: 16),
           _buildPriceRow('Subtotal', '₹${subtotal.toStringAsFixed(2)}'),
           if (discount > 0)
-            _buildPriceRow('Discount', '-₹${discount.toStringAsFixed(2)}', 
+            _buildPriceRow('Discount', '-₹${discount.toStringAsFixed(2)}',
                 textColor: const Color(0xFF38A169)),
-          _buildPriceRow('Delivery Charges', '₹${deliveryCharges.toStringAsFixed(2)}'),
+          _buildPriceRow(
+              'Delivery Charges', '₹${deliveryCharges.toStringAsFixed(2)}'),
           _buildPriceRow('Taxes (GST)', '₹${taxes.toStringAsFixed(2)}'),
           const Divider(thickness: 1.5),
-          _buildPriceRow('Total Amount', '₹${total.toStringAsFixed(2)}', 
+          _buildPriceRow('Total Amount', '₹${total.toStringAsFixed(2)}',
               isBold: true, textSize: 18),
         ],
       ),
     );
   }
 
-  Widget _buildPriceRow(String label, String value, {bool isBold = false, double textSize = 14, Color? textColor}) {
+  Widget _buildPriceRow(String label, String value,
+      {bool isBold = false, double textSize = 14, Color? textColor}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -1196,9 +1212,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> with TickerProviderStat
     return Consumer<CartProvider>(
       builder: (context, cartProvider, child) {
         final deliveryCharges = _selectedDelivery?.cost ?? 0.0;
-        final total = cartProvider.totalAmount - cartProvider.discountAmount + 
-                     deliveryCharges + (cartProvider.totalAmount * 0.18);
-        
+        final total = cartProvider.totalAmount -
+            cartProvider.discountAmount +
+            deliveryCharges +
+            (cartProvider.totalAmount * 0.18);
+
         return Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -1279,10 +1297,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> with TickerProviderStat
 
     try {
       await _saveUserData();
-      
+
       final deliveryCharges = _selectedDelivery?.cost ?? 0.0;
-      final total = cartProvider.totalAmount - cartProvider.discountAmount + 
-                   deliveryCharges + (cartProvider.totalAmount * 0.18);
+      final total = cartProvider.totalAmount -
+          cartProvider.discountAmount +
+          deliveryCharges +
+          (cartProvider.totalAmount * 0.18);
 
       // Navigate to payment screen
       if (mounted) {
