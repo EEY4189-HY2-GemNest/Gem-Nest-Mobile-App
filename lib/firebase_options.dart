@@ -41,48 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAFvr4uxFtdGNzZVGNHxVlO7PFis4iYrIQ',
-    appId: '1:808192790957:web:21b799496455d9cb48d124',
-    messagingSenderId: '808192790957',
-    projectId: 'gem-nest-mobileapp',
-    authDomain: 'gem-nest-mobileapp.firebaseapp.com',
-    storageBucket: 'gem-nest-mobileapp.firebasestorage.app',
-    measurementId: 'G-H0T4B201WS',
+    apiKey: 'AIzaSyCCYK0EwQwYttzXxCVSvKFGUBfEnwGt4Xs',
+    appId: '1:67115458375:web:5cb25b772321839aab7662',
+    messagingSenderId: '67115458375',
+    projectId: 'gemhub-mobile-app',
+    authDomain: 'gemhub-mobile-app.firebaseapp.com',
+    storageBucket: 'gemhub-mobile-app.firebasestorage.app',
+    measurementId: 'G-5PP548D9FB',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDRJYfUAP7g4Soqb_04WrSjxe_ue4fDATE',
-    appId: '1:808192790957:android:433d3cd003e9570848d124',
-    messagingSenderId: '808192790957',
-    projectId: 'gem-nest-mobileapp',
-    storageBucket: 'gem-nest-mobileapp.firebasestorage.app',
+    apiKey: 'AIzaSyDdbAzTi4Q7iCizG9cqew26H6hjquPOcBc',
+    appId: '1:67115458375:android:edb59dca792399b9ab7662',
+    messagingSenderId: '67115458375',
+    projectId: 'gemhub-mobile-app',
+    storageBucket: 'gemhub-mobile-app.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyA8qXclS1VoYpDoStCC9fObP-2GHTRRZBc',
-    appId: '1:808192790957:ios:98b9021d2e3e973848d124',
-    messagingSenderId: '808192790957',
-    projectId: 'gem-nest-mobileapp',
-    storageBucket: 'gem-nest-mobileapp.firebasestorage.app',
+    apiKey: 'AIzaSyCflUBocCPXg9oM1-AycyvLe9FQ0DON-mQ',
+    appId: '1:67115458375:ios:71a588173de928b2ab7662',
+    messagingSenderId: '67115458375',
+    projectId: 'gemhub-mobile-app',
+    storageBucket: 'gemhub-mobile-app.firebasestorage.app',
     iosBundleId: 'com.example.gemnestMobileApp',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyA8qXclS1VoYpDoStCC9fObP-2GHTRRZBc',
-    appId: '1:808192790957:ios:98b9021d2e3e973848d124',
-    messagingSenderId: '808192790957',
-    projectId: 'gem-nest-mobileapp',
-    storageBucket: 'gem-nest-mobileapp.firebasestorage.app',
+    apiKey: 'AIzaSyCflUBocCPXg9oM1-AycyvLe9FQ0DON-mQ',
+    appId: '1:67115458375:ios:71a588173de928b2ab7662',
+    messagingSenderId: '67115458375',
+    projectId: 'gemhub-mobile-app',
+    storageBucket: 'gemhub-mobile-app.firebasestorage.app',
     iosBundleId: 'com.example.gemnestMobileApp',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyAFvr4uxFtdGNzZVGNHxVlO7PFis4iYrIQ',
-    appId: '1:808192790957:web:d81756da7757aae648d124',
-    messagingSenderId: '808192790957',
-    projectId: 'gem-nest-mobileapp',
-    authDomain: 'gem-nest-mobileapp.firebaseapp.com',
-    storageBucket: 'gem-nest-mobileapp.firebasestorage.app',
-    measurementId: 'G-B078MGYS3W',
+    apiKey: 'AIzaSyCCYK0EwQwYttzXxCVSvKFGUBfEnwGt4Xs',
+    appId: '1:67115458375:web:c073a886eed9cf91ab7662',
+    messagingSenderId: '67115458375',
+    projectId: 'gemhub-mobile-app',
+    authDomain: 'gemhub-mobile-app.firebaseapp.com',
+    storageBucket: 'gemhub-mobile-app.firebasestorage.app',
+    measurementId: 'G-RXZXLWRL1M',
   );
+
 }
