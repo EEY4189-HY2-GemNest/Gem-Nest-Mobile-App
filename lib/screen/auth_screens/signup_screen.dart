@@ -69,53 +69,96 @@ class _SignUpScreenState extends State<SignUpScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Select Business Registration'),
-          content: const Text(
-              'Choose how you want to add your business registration document:'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.business, color: Colors.blue, size: 24),
+              const SizedBox(width: 8),
+              const Text(
+                'Business Registration',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Please upload your business registration document:',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 16),
+              _buildUploadOption(
+                icon: Icons.camera_alt,
+                title: 'Take Photo',
+                subtitle: 'Use camera to capture document',
+                onTap: () async {
+                  Navigator.pop(context);
+                  final XFile? image =
+                      await _imagePicker.pickImage(source: ImageSource.camera);
+                  if (image != null) {
+                    setState(() {
+                      _businessRegistrationFile = File(image.path);
+                      _businessRegistrationFileName = image.name;
+                    });
+                  }
+                },
+              ),
+              const SizedBox(height: 8),
+              _buildUploadOption(
+                icon: Icons.photo_library,
+                title: 'Choose from Gallery',
+                subtitle: 'Select from your photos',
+                onTap: () async {
+                  Navigator.pop(context);
+                  final XFile? image =
+                      await _imagePicker.pickImage(source: ImageSource.gallery);
+                  if (image != null) {
+                    setState(() {
+                      _businessRegistrationFile = File(image.path);
+                      _businessRegistrationFileName = image.name;
+                    });
+                  }
+                },
+              ),
+              const SizedBox(height: 8),
+              _buildUploadOption(
+                icon: Icons.attach_file,
+                title: 'Choose File',
+                subtitle: 'Select PDF or image file',
+                onTap: () async {
+                  Navigator.pop(context);
+                  final result = await FilePicker.platform.pickFiles(
+                    type: FileType.custom,
+                    allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+                  );
+                  if (result != null && result.files.single.path != null) {
+                    setState(() {
+                      _businessRegistrationFile = File(result.files.single.path!);
+                      _businessRegistrationFileName = result.files.single.name;
+                    });
+                  }
+                },
+              ),
+            ],
+          ),
           actions: [
             TextButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                final XFile? image =
-                    await _imagePicker.pickImage(source: ImageSource.camera);
-                if (image != null) {
-                  setState(() {
-                    _businessRegistrationFile = File(image.path);
-                    _businessRegistrationFileName = image.name;
-                  });
-                }
-              },
-              child: const Text('Take Photo'),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                final XFile? image =
-                    await _imagePicker.pickImage(source: ImageSource.gallery);
-                if (image != null) {
-                  setState(() {
-                    _businessRegistrationFile = File(image.path);
-                    _businessRegistrationFileName = image.name;
-                  });
-                }
-              },
-              child: const Text('Choose from Gallery'),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                final result = await FilePicker.platform.pickFiles(
-                  type: FileType.custom,
-                  allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
-                );
-                if (result != null && result.files.single.path != null) {
-                  setState(() {
-                    _businessRegistrationFile = File(result.files.single.path!);
-                    _businessRegistrationFileName = result.files.single.name;
-                  });
-                }
-              },
-              child: const Text('Choose PDF/Image'),
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.grey),
+              ),
             ),
           ],
         ),
@@ -133,52 +176,96 @@ class _SignUpScreenState extends State<SignUpScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Select NIC Document'),
-          content: const Text('Choose how you want to add your NIC document:'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.credit_card, color: Colors.blue, size: 24),
+              const SizedBox(width: 8),
+              const Text(
+                'NIC Document',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Please upload your National Identity Card:',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 16),
+              _buildUploadOption(
+                icon: Icons.camera_alt,
+                title: 'Take Photo',
+                subtitle: 'Use camera to capture NIC',
+                onTap: () async {
+                  Navigator.pop(context);
+                  final XFile? image =
+                      await _imagePicker.pickImage(source: ImageSource.camera);
+                  if (image != null) {
+                    setState(() {
+                      _nicFile = File(image.path);
+                      _nicFileName = image.name;
+                    });
+                  }
+                },
+              ),
+              const SizedBox(height: 8),
+              _buildUploadOption(
+                icon: Icons.photo_library,
+                title: 'Choose from Gallery',
+                subtitle: 'Select from your photos',
+                onTap: () async {
+                  Navigator.pop(context);
+                  final XFile? image =
+                      await _imagePicker.pickImage(source: ImageSource.gallery);
+                  if (image != null) {
+                    setState(() {
+                      _nicFile = File(image.path);
+                      _nicFileName = image.name;
+                    });
+                  }
+                },
+              ),
+              const SizedBox(height: 8),
+              _buildUploadOption(
+                icon: Icons.attach_file,
+                title: 'Choose File',
+                subtitle: 'Select PDF or image file',
+                onTap: () async {
+                  Navigator.pop(context);
+                  final result = await FilePicker.platform.pickFiles(
+                    type: FileType.custom,
+                    allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+                  );
+                  if (result != null && result.files.single.path != null) {
+                    setState(() {
+                      _nicFile = File(result.files.single.path!);
+                      _nicFileName = result.files.single.name;
+                    });
+                  }
+                },
+              ),
+            ],
+          ),
           actions: [
             TextButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                final XFile? image =
-                    await _imagePicker.pickImage(source: ImageSource.camera);
-                if (image != null) {
-                  setState(() {
-                    _nicFile = File(image.path);
-                    _nicFileName = image.name;
-                  });
-                }
-              },
-              child: const Text('Take Photo'),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                final XFile? image =
-                    await _imagePicker.pickImage(source: ImageSource.gallery);
-                if (image != null) {
-                  setState(() {
-                    _nicFile = File(image.path);
-                    _nicFileName = image.name;
-                  });
-                }
-              },
-              child: const Text('Choose from Gallery'),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                final result = await FilePicker.platform.pickFiles(
-                  type: FileType.custom,
-                  allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
-                );
-                if (result != null && result.files.single.path != null) {
-                  setState(() {
-                    _nicFile = File(result.files.single.path!);
-                    _nicFileName = result.files.single.name;
-                  });
-                }
-              },
-              child: const Text('Choose PDF/Image'),
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.grey),
+              ),
             ),
           ],
         ),
@@ -395,6 +482,69 @@ class _SignUpScreenState extends State<SignUpScreen> {
             padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
             child: Text('Seller')),
       ],
+    );
+  }
+
+  Widget _buildUploadOption({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Icon(
+                icon,
+                color: Colors.blue,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 14,
+              color: Colors.grey.shade400,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
