@@ -1,6 +1,5 @@
 // cart_screen.dart
 import 'package:flutter/material.dart';
-
 import 'package:gemnest_mobile_app/screen/checkout_screen/checkout_screen.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
@@ -18,7 +17,7 @@ class CartScreen extends StatefulWidget {
 class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  bool _isExpanded = false;
+  final bool _isExpanded = false;
 
   @override
   void initState() {
@@ -254,8 +253,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
           children: [
             Checkbox(
               value: item.isSelected,
-              onChanged: (value) =>
-                  cartProvider.toggleItemSelection(item.id),
+              onChanged: (value) => cartProvider.toggleItemSelection(item.id),
               activeColor: const Color(0xFF667eea),
             ),
             ClipRRect(
@@ -318,8 +316,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color:
-                              item.isDiscounted ? Colors.red : Colors.black,
+                          color: item.isDiscounted ? Colors.red : Colors.black,
                         ),
                       ),
                       if (item.isDiscounted)
@@ -355,7 +352,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                           children: [
                             InkWell(
                               onTap: item.quantity > 1
-                                  ? () => cartProvider.decrementQuantity(item.id)
+                                  ? () =>
+                                      cartProvider.decrementQuantity(item.id)
                                   : null,
                               child: Container(
                                 padding: const EdgeInsets.all(6),
@@ -363,7 +361,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 12),
                               child: Text(
                                 '${item.quantity}',
                                 style: const TextStyle(
@@ -374,7 +373,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                             ),
                             InkWell(
                               onTap: item.quantity < item.availableStock
-                                  ? () => cartProvider.incrementQuantity(item.id)
+                                  ? () =>
+                                      cartProvider.incrementQuantity(item.id)
                                   : null,
                               child: Container(
                                 padding: const EdgeInsets.all(6),
