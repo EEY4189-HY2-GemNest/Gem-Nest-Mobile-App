@@ -326,9 +326,9 @@ class _SellerHomePageState extends State<SellerHomePage>
             children: [
               Expanded(
                 child: _buildStatCard(
-                  'Active Products', 
-                  '24', 
-                  Icons.inventory_2_outlined, 
+                  'Active Products',
+                  '24',
+                  Icons.inventory_2_outlined,
                   Colors.blue,
                   0.ms,
                 ),
@@ -336,9 +336,9 @@ class _SellerHomePageState extends State<SellerHomePage>
               const SizedBox(width: 16),
               Expanded(
                 child: _buildStatCard(
-                  'Live Auctions', 
-                  '8', 
-                  Icons.gavel_outlined, 
+                  'Live Auctions',
+                  '8',
+                  Icons.gavel_outlined,
                   Colors.orange,
                   200.ms,
                 ),
@@ -350,9 +350,9 @@ class _SellerHomePageState extends State<SellerHomePage>
             children: [
               Expanded(
                 child: _buildStatCard(
-                  'Total Orders', 
-                  '156', 
-                  Icons.shopping_bag_outlined, 
+                  'Total Orders',
+                  '156',
+                  Icons.shopping_bag_outlined,
                   Colors.green,
                   400.ms,
                 ),
@@ -360,9 +360,9 @@ class _SellerHomePageState extends State<SellerHomePage>
               const SizedBox(width: 16),
               Expanded(
                 child: _buildStatCard(
-                  'This Month', 
-                  '\$2.4K', 
-                  Icons.trending_up_outlined, 
+                  'This Month',
+                  '\$2.4K',
+                  Icons.trending_up_outlined,
                   Colors.purple,
                   600.ms,
                 ),
@@ -375,7 +375,8 @@ class _SellerHomePageState extends State<SellerHomePage>
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color, Duration delay) {
+  Widget _buildStatCard(
+      String title, String value, IconData icon, Color color, Duration delay) {
     return AnimatedBuilder(
       animation: _cardAnimation,
       builder: (context, child) {
@@ -498,7 +499,8 @@ class _SellerHomePageState extends State<SellerHomePage>
     );
   }
 
-  Widget _buildActionCard(String title, IconData icon, Color color, VoidCallback onTap, Duration delay) {
+  Widget _buildActionCard(String title, IconData icon, Color color,
+      VoidCallback onTap, Duration delay) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -547,7 +549,10 @@ class _SellerHomePageState extends State<SellerHomePage>
             ),
           ],
         ),
-      ).animate().fadeIn(duration: 600.ms, delay: delay).scale(begin: const Offset(0.8, 0.8)),
+      )
+          .animate()
+          .fadeIn(duration: 600.ms, delay: delay)
+          .scale(begin: const Offset(0.8, 0.8)),
     );
   }
 
@@ -593,13 +598,28 @@ class _SellerHomePageState extends State<SellerHomePage>
 
   Widget _buildActivityItem(int index) {
     final activities = [
-      {'title': 'New order received', 'time': '2 hours ago', 'icon': Icons.shopping_bag, 'color': Colors.green},
-      {'title': 'Auction ended successfully', 'time': '5 hours ago', 'icon': Icons.gavel, 'color': Colors.orange},
-      {'title': 'Product updated', 'time': '1 day ago', 'icon': Icons.edit, 'color': Colors.blue},
+      {
+        'title': 'New order received',
+        'time': '2 hours ago',
+        'icon': Icons.shopping_bag,
+        'color': Colors.green
+      },
+      {
+        'title': 'Auction ended successfully',
+        'time': '5 hours ago',
+        'icon': Icons.gavel,
+        'color': Colors.orange
+      },
+      {
+        'title': 'Product updated',
+        'time': '1 day ago',
+        'icon': Icons.edit,
+        'color': Colors.blue
+      },
     ];
-    
+
     final activity = activities[index];
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -684,7 +704,8 @@ class _SellerHomePageState extends State<SellerHomePage>
             label: 'Dashboard',
           ),
           BottomNavigationBarItem(
-            icon: _buildNavIcon(Icons.notifications_outlined, Icons.notifications, 1),
+            icon: _buildNavIcon(
+                Icons.notifications_outlined, Icons.notifications, 1),
             label: 'Notifications',
           ),
           BottomNavigationBarItem(
@@ -696,8 +717,10 @@ class _SellerHomePageState extends State<SellerHomePage>
             label: 'Logout',
           ),
         ],
-        selectedLabelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-        unselectedLabelStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+        selectedLabelStyle:
+            const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+        unselectedLabelStyle:
+            const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
       ),
     );
   }
@@ -711,7 +734,9 @@ class _SellerHomePageState extends State<SellerHomePage>
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isSelected ? Colors.blueAccent.withOpacity(0.2) : Colors.transparent,
+            color: isSelected
+                ? Colors.blueAccent.withOpacity(0.2)
+                : Colors.transparent,
           ),
           child: Icon(
             isSelected ? filledIcon : outlineIcon,
@@ -747,13 +772,15 @@ class _SellerHomePageState extends State<SellerHomePage>
     final result = await Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const ProductListing(),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const ProductListing(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return SlideTransition(
             position: Tween<Offset>(
               begin: const Offset(1.0, 0.0),
               end: Offset.zero,
-            ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOutCubic)),
+            ).animate(CurvedAnimation(
+                parent: animation, curve: Curves.easeInOutCubic)),
             child: FadeTransition(opacity: animation, child: child),
           );
         },
@@ -761,7 +788,8 @@ class _SellerHomePageState extends State<SellerHomePage>
       ),
     );
     if (result != null && result is Map<String, dynamic>) {
-      _showNotification(result['title'], result['quantity'], result['imagePath'], 'product');
+      _showNotification(
+          result['title'], result['quantity'], result['imagePath'], 'product');
     }
   }
 
@@ -769,13 +797,15 @@ class _SellerHomePageState extends State<SellerHomePage>
     final result = await Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const AuctionProduct(),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const AuctionProduct(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return SlideTransition(
             position: Tween<Offset>(
               begin: const Offset(1.0, 0.0),
               end: Offset.zero,
-            ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOutCubic)),
+            ).animate(CurvedAnimation(
+                parent: animation, curve: Curves.easeInOutCubic)),
             child: FadeTransition(opacity: animation, child: child),
           );
         },
@@ -783,7 +813,8 @@ class _SellerHomePageState extends State<SellerHomePage>
       ),
     );
     if (result != null && result is Map<String, dynamic>) {
-      _showNotification(result['title'], result['quantity'], result['imagePath'], 'auction');
+      _showNotification(
+          result['title'], result['quantity'], result['imagePath'], 'auction');
     }
   }
 
@@ -791,13 +822,15 @@ class _SellerHomePageState extends State<SellerHomePage>
     Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const ListedProductScreen(),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const ListedProductScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return SlideTransition(
             position: Tween<Offset>(
               begin: const Offset(1.0, 0.0),
               end: Offset.zero,
-            ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOutCubic)),
+            ).animate(CurvedAnimation(
+                parent: animation, curve: Curves.easeInOutCubic)),
             child: FadeTransition(opacity: animation, child: child),
           );
         },
@@ -810,7 +843,8 @@ class _SellerHomePageState extends State<SellerHomePage>
     Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => ListedAuctionScreen(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            ListedAuctionScreen(
           sellerId: currentUserId!,
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -818,7 +852,8 @@ class _SellerHomePageState extends State<SellerHomePage>
             position: Tween<Offset>(
               begin: const Offset(1.0, 0.0),
               end: Offset.zero,
-            ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOutCubic)),
+            ).animate(CurvedAnimation(
+                parent: animation, curve: Curves.easeInOutCubic)),
             child: FadeTransition(opacity: animation, child: child),
           );
         },
@@ -831,13 +866,15 @@ class _SellerHomePageState extends State<SellerHomePage>
     Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const SellerOrderHistoryScreen(),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const SellerOrderHistoryScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return SlideTransition(
             position: Tween<Offset>(
               begin: const Offset(1.0, 0.0),
               end: Offset.zero,
-            ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOutCubic)),
+            ).animate(CurvedAnimation(
+                parent: animation, curve: Curves.easeInOutCubic)),
             child: FadeTransition(opacity: animation, child: child),
           );
         },
@@ -858,18 +895,18 @@ class DashboardPatternPainter extends CustomPainter {
 
     final path = Path();
     const spacing = 60.0;
-    
+
     // Draw diagonal grid pattern
     for (double i = -size.height; i < size.width + size.height; i += spacing) {
       path.moveTo(i, 0);
       path.lineTo(i + size.height, size.height);
     }
-    
+
     for (double i = 0; i < size.height + spacing; i += spacing) {
       path.moveTo(0, i);
       path.lineTo(size.width, i - size.width);
     }
-    
+
     canvas.drawPath(path, paint);
   }
 
