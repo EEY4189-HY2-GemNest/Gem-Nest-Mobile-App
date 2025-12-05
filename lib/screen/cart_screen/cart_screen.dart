@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/checkout_screen/checkout_screen.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
+import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
 import 'package:provider/provider.dart';
 
 import 'cart_provider.dart';
@@ -38,6 +39,11 @@ class CartScreen extends StatelessWidget {
             centerTitle: true,
             leading: const ProfessionalAppBarBackButton(),
           ),
+          floatingActionButton:
+              SharedBottomNavigation.buildFloatingActionButton(context, 1),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerDocked,
+          bottomNavigationBar: const SharedBottomNavigation(currentIndex: 1),
           body: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
