@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
 import 'package:gemnest_mobile_app/screen/payment_screen/payment_screen.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 // Address Model
 class Address {
