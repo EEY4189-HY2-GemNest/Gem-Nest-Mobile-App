@@ -425,29 +425,31 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
   Widget _buildOrderCard(
       Map<String, dynamic> order, String orderId, int index) {
     final status = order['status'] ?? 'Pending';
-    
+
     // Handle orderDate - could be String or Timestamp
     String orderDate = 'N/A';
     if (order['orderDate'] != null) {
       if (order['orderDate'] is String) {
         orderDate = order['orderDate'];
       } else if (order['orderDate'] is Timestamp) {
-        orderDate = DateFormat('MMM dd, yyyy').format((order['orderDate'] as Timestamp).toDate());
+        orderDate = DateFormat('MMM dd, yyyy')
+            .format((order['orderDate'] as Timestamp).toDate());
       }
     }
-    
-    // Handle deliveryDate - could be String or Timestamp  
+
+    // Handle deliveryDate - could be String or Timestamp
     String deliveryDate = 'N/A';
     if (order['deliveryDate'] != null) {
       if (order['deliveryDate'] is String) {
         deliveryDate = order['deliveryDate'];
       } else if (order['deliveryDate'] is Timestamp) {
-        deliveryDate = DateFormat('MMM dd, yyyy').format((order['deliveryDate'] as Timestamp).toDate());
+        deliveryDate = DateFormat('MMM dd, yyyy')
+            .format((order['deliveryDate'] as Timestamp).toDate());
       }
     }
-    
+
     final totalAmount = order['totalAmount'] ?? 0.0;
-    
+
     // Handle address - could be String or Map
     String address = 'N/A';
     if (order['address'] != null) {
@@ -455,11 +457,13 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
         address = order['address'];
       } else if (order['address'] is Map) {
         final addressMap = order['address'] as Map<String, dynamic>;
-        address = '${addressMap['street'] ?? ''} ${addressMap['city'] ?? ''} ${addressMap['postalCode'] ?? ''}'.trim();
+        address =
+            '${addressMap['street'] ?? ''} ${addressMap['city'] ?? ''} ${addressMap['postalCode'] ?? ''}'
+                .trim();
         if (address.isEmpty) address = 'N/A';
       }
     }
-    
+
     // Handle paymentMethod - could be String or Map
     String paymentMethod = 'N/A';
     if (order['paymentMethod'] != null) {
@@ -470,7 +474,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
         paymentMethod = paymentMap['type'] ?? paymentMap['method'] ?? 'N/A';
       }
     }
-    
+
     final items = order['items'] as List<dynamic>? ?? [];
 
     return Container(
@@ -548,9 +552,12 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                         ...items.take(2).map((item) {
                           final itemMap = item as Map<String, dynamic>;
                           final quantity = itemMap['quantity'] ?? 1;
-                          final title = itemMap['title'] ?? itemMap['name'] ?? 'Unknown Item';
-                          final totalPrice = itemMap['totalPrice'] ?? itemMap['price'] ?? 0.0;
-                          
+                          final title = itemMap['title'] ??
+                              itemMap['name'] ??
+                              'Unknown Item';
+                          final totalPrice =
+                              itemMap['totalPrice'] ?? itemMap['price'] ?? 0.0;
+
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 2),
                             child: Row(
@@ -886,9 +893,9 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
         orders.sort((a, b) {
           final aData = a.data() as Map<String, dynamic>;
           final bData = b.data() as Map<String, dynamic>;
-          
+
           DateTime? aDate, bDate;
-          
+
           if (aData['orderDate'] is Timestamp) {
             aDate = (aData['orderDate'] as Timestamp).toDate();
           } else if (aData['orderDate'] is String) {
@@ -900,7 +907,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
           } else {
             aDate = DateTime.now();
           }
-          
+
           if (bData['orderDate'] is Timestamp) {
             bDate = (bData['orderDate'] as Timestamp).toDate();
           } else if (bData['orderDate'] is String) {
@@ -912,7 +919,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
           } else {
             bDate = DateTime.now();
           }
-          
+
           return bDate.compareTo(aDate);
         });
         break;
@@ -920,9 +927,9 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
         orders.sort((a, b) {
           final aData = a.data() as Map<String, dynamic>;
           final bData = b.data() as Map<String, dynamic>;
-          
+
           DateTime? aDate, bDate;
-          
+
           if (aData['orderDate'] is Timestamp) {
             aDate = (aData['orderDate'] as Timestamp).toDate();
           } else if (aData['orderDate'] is String) {
@@ -934,7 +941,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
           } else {
             aDate = DateTime.now();
           }
-          
+
           if (bData['orderDate'] is Timestamp) {
             bDate = (bData['orderDate'] as Timestamp).toDate();
           } else if (bData['orderDate'] is String) {
@@ -946,7 +953,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
           } else {
             bDate = DateTime.now();
           }
-          
+
           return aDate.compareTo(bDate);
         });
         break;
@@ -1022,17 +1029,21 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildDetailSection('Order Information', [
-                        _buildDetailItem('Order Date', _formatDate(order['orderDate'])),
-                        _buildDetailItem('Delivery Date', _formatDate(order['deliveryDate'])),
+                        _buildDetailItem(
+                            'Order Date', _formatDate(order['orderDate'])),
+                        _buildDetailItem('Delivery Date',
+                            _formatDate(order['deliveryDate'])),
                         _buildDetailItem('Status', order['status'] ?? 'N/A'),
-                        _buildDetailItem('Payment Method', _formatPaymentMethod(order['paymentMethod'])),
+                        _buildDetailItem('Payment Method',
+                            _formatPaymentMethod(order['paymentMethod'])),
                       ]),
                       const SizedBox(height: 20),
                       _buildDetailSection('Delivery Information', [
                         _buildDetailItem('Name', order['name'] ?? 'N/A'),
                         _buildDetailItem('Mobile', order['mobile'] ?? 'N/A'),
                         _buildDetailItem('Email', order['email'] ?? 'N/A'),
-                        _buildDetailItem('Address', order['address'] ?? 'N/A'),
+                        _buildDetailItem(
+                            'Address', _formatAddress(order['address'])),
                         _buildDetailItem(
                             'Delivery Note', order['deliveryNote'] ?? 'None'),
                       ]),
@@ -1239,29 +1250,29 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
       ),
     );
   }
-  
+
   String _formatDate(dynamic dateValue) {
     if (dateValue == null) return 'N/A';
-    
+
     if (dateValue is String) {
       return dateValue;
     } else if (dateValue is Timestamp) {
       return DateFormat('MMM dd, yyyy').format(dateValue.toDate());
     }
-    
+
     return 'N/A';
   }
-  
+
   String _formatPaymentMethod(dynamic paymentValue) {
     if (paymentValue == null) return 'N/A';
-    
+
     if (paymentValue is String) {
       return paymentValue;
     } else if (paymentValue is Map) {
       final paymentMap = paymentValue as Map<String, dynamic>;
       return paymentMap['type'] ?? paymentMap['method'] ?? 'N/A';
     }
-    
+
     return 'N/A';
   }
 }
