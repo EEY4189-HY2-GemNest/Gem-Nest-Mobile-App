@@ -6,10 +6,10 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:http/http.dart' as http;
 
 class SellerProfileScreen extends StatefulWidget {
   const SellerProfileScreen({super.key});
@@ -191,6 +191,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
               Text(
                 'Downloading $fileName...',
                 style: const TextStyle(color: Colors.white),
+                textAlign: TextAlign.center,
               ),
             ],
           ),
@@ -199,32 +200,47 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
 
       // Download the file
       final response = await http.get(Uri.parse(url));
-      
+
       if (response.statusCode == 200) {
+        // Determine file extension from URL or content type
+        String fileExtension = '.jpg'; // default
+        if (url.toLowerCase().contains('.pdf')) {
+          fileExtension = '.pdf';
+        } else if (url.toLowerCase().contains('.png')) {
+          fileExtension = '.png';
+        } else if (url.toLowerCase().contains('.jpeg') || url.toLowerCase().contains('.jpg')) {
+          fileExtension = '.jpg';
+        }
+
+        // Create filename with proper extension
+        final cleanFileName = fileName.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
+        final fullFileName = '$cleanFileName$fileExtension';
+
         // Get app directory
         final directory = await getApplicationDocumentsDirectory();
-        final filePath = '${directory.path}/$fileName';
-        
+        final filePath = '${directory.path}/$fullFileName';
+
         // Save file
         final file = File(filePath);
         await file.writeAsBytes(response.bodyBytes);
-        
+
         // Close loading dialog
         if (mounted) Navigator.pop(context);
-        
-        // Share the file
+
+        // Share the file immediately
         await Share.shareXFiles(
           [XFile(filePath)],
-          text: 'Downloaded: $fileName',
+          text: 'Document: $fileName',
         );
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('$fileName downloaded successfully!'),
+              content: Text('$fileName downloaded and shared successfully!'),
               backgroundColor: Colors.green,
+              duration: const Duration(seconds: 3),
               action: SnackBarAction(
-                label: 'Share',
+                label: 'Share Again',
                 textColor: Colors.white,
                 onPressed: () async {
                   await Share.shareXFiles(
@@ -237,17 +253,18 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
           );
         }
       } else {
-        throw Exception('Failed to download file');
+        throw Exception('Failed to download file - Status: ${response.statusCode}');
       }
     } catch (e) {
       // Close loading dialog if open
       if (mounted && Navigator.canPop(context)) Navigator.pop(context);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to download $fileName: $e'),
+            content: Text('Failed to download $fileName\nError: ${e.toString()}'),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
           ),
         );
       }
@@ -769,7 +786,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
               ),
               if (url != null) ...[
                 IconButton(
-                  onPressed: () => _downloadDocument(url, '$label.jpg'),
+                  onPressed: () => _downloadDocument(url, label),
                   icon: Icon(
                     Icons.download_outlined,
                     color: color,
@@ -905,7 +922,8 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
         actions: [
           TextButton(
             onPressed: () => _downloadDocument(url, '$title.jpg'),
-            child: const Text('Download', style: TextStyle(color: Colors.green)),
+            child:
+                const Text('Download', style: TextStyle(color: Colors.green)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
