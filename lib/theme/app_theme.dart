@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   // Primary Colors - Blue Shades
-  static const Color primaryBlue = Color(0xFF667eea);
-  static const Color primaryBlueDark = Color(0xFF764ba2);
-  static const Color primaryBlueLight = Color(0xFF8B9CF5);
-  static const Color primaryBlueAccent = Color(0xFF4F46E5);
+  static const Color primaryBlue = Color.fromARGB(255, 39, 158, 255);
+  static const Color primaryBlueDark = Color.fromARGB(255, 69, 49, 247);
+  static const Color primaryBlueLight = Color.fromARGB(255, 0, 119, 255);
+  static const Color primaryBlueAccent = Color.fromARGB(255, 36, 105, 255);
   
   // Secondary Blues
-  static const Color lightBlue = Color(0xFFE0E7FF);
-  static const Color mediumBlue = Color(0xFFBFDBFE);
+  static const Color lightBlue = Color.fromARGB(255, 157, 200, 255);
+  static const Color mediumBlue = Color.fromARGB(255, 34, 74, 255);
   static const Color darkBlue = Color(0xFF1E40AF);
   static const Color navyBlue = Color(0xFF1E3A8A);
   
