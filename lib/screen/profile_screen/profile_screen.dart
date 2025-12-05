@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/auth_screens/login_screen.dart';
+import 'package:gemnest_mobile_app/theme/app_theme.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
 import 'package:image_picker/image_picker.dart';
@@ -89,7 +90,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     setState(() => isLoading = true);
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) {
-      _showSnackBar('You must be logged in to view your profile.', Colors.red);
+      _showSnackBar('You must be logged in to view your profile.', AppTheme.errorRed);
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const LoginScreen()),
       );
@@ -159,10 +160,10 @@ class _ProfileScreenState extends State<ProfileScreen>
       } else {
         _showSnackBar(
             'No profile data found. Please complete your registration.',
-            Colors.orange);
+            AppTheme.warningOrange);
       }
     } catch (e) {
-      _showSnackBar('Failed to load profile: $e', Colors.red);
+      _showSnackBar('Failed to load profile: $e', AppTheme.errorRed);
     } finally {
       setState(() => isLoading = false);
     }
@@ -199,7 +200,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           _buildBottomSheetTile(
             Icons.camera_alt,
             'Take a Photo',
-            Colors.blueAccent,
+            AppTheme.primaryBlue,
             () async {
               Navigator.of(
                 context,
@@ -209,14 +210,14 @@ class _ProfileScreenState extends State<ProfileScreen>
           _buildBottomSheetTile(
             Icons.photo_library,
             'Choose from Gallery',
-            Colors.green,
+            AppTheme.successGreen,
             () async {
               Navigator.of(
                 context,
               ).pop(await picker.pickImage(source: ImageSource.gallery));
             },
           ),
-          _buildBottomSheetTile(Icons.cancel, 'Cancel', Colors.redAccent, () {
+          _buildBottomSheetTile(Icons.cancel, 'Cancel', AppTheme.errorRed, () {
             Navigator.of(context).pop();
           }),
         ],
@@ -241,7 +242,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     if (imageFile == null) return imageUrl;
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) {
-      _showSnackBar('You must be logged in to upload an image.', Colors.red);
+      _showSnackBar('You must be logged in to upload an image.', AppTheme.errorRed);
       return null;
     }
 
@@ -253,7 +254,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       await ref.putFile(imageFile);
       return await ref.getDownloadURL();
     } catch (e) {
-      _showSnackBar('Failed to upload image: $e', Colors.red);
+      _showSnackBar('Failed to upload image: $e', AppTheme.errorRed);
       return null;
     }
   }
@@ -267,7 +268,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   ) async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) {
-      _showSnackBar('You must be logged in to save your profile.', Colors.red);
+      _showSnackBar('You must be logged in to save your profile.', AppTheme.errorRed);
       return;
     }
 
@@ -305,9 +306,9 @@ class _ProfileScreenState extends State<ProfileScreen>
         }, SetOptions(merge: true));
       }
 
-      _showSnackBar('Profile updated successfully', Colors.green);
+      _showSnackBar('Profile updated successfully', AppTheme.successGreen);
     } catch (e) {
-      _showSnackBar('Failed to save profile: $e', Colors.red);
+      _showSnackBar('Failed to save profile: $e', AppTheme.errorRed);
     }
   }
 
@@ -320,7 +321,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         ),
         title: const Row(
           children: [
-            Icon(Icons.logout, color: Colors.redAccent),
+            Icon(Icons.logout, color: AppTheme.errorRed),
             SizedBox(width: 10),
             Text(
               'Confirm Logout',
@@ -380,7 +381,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         enabled: enabled,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(color: Colors.blueAccent.shade700),
+          labelStyle: TextStyle(color: AppTheme.primaryBlue),
           filled: true,
           fillColor: Colors.white,
           border: OutlineInputBorder(
@@ -389,15 +390,15 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey.shade300),
+            borderSide: BorderSide(color: AppTheme.borderGray),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.blueAccent.shade700, width: 2),
+            borderSide: BorderSide(color: AppTheme.primaryBlue, width: 2),
           ),
           disabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey.shade200),
+            borderSide: BorderSide(color: AppTheme.borderGray),
           ),
         ),
       ),
@@ -424,13 +425,13 @@ class _ProfileScreenState extends State<ProfileScreen>
                   onPressed: () => Navigator.of(context).pop(false),
                   child: const Text(
                     'Cancel',
-                    style: TextStyle(color: Colors.grey),
+                    style: TextStyle(color: AppTheme.lightGray),
                   ),
                 ),
                 ElevatedButton(
                   onPressed: () => Navigator.of(context).pop(true),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent,
+                    backgroundColor: AppTheme.errorRed,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -455,12 +456,8 @@ class _ProfileScreenState extends State<ProfileScreen>
       child: Scaffold(
         appBar: AppBar(
           flexibleSpace: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+            decoration: BoxDecoration(
+              gradient: AppTheme.primaryGradient,
             ),
           ),
           elevation: 0,
@@ -497,13 +494,13 @@ class _ProfileScreenState extends State<ProfileScreen>
               ? const Center(
                   child: CircularProgressIndicator(
                     valueColor:
-                        AlwaysStoppedAnimation<Color>(Color(0xFF667eea)),
+                        AlwaysStoppedAnimation<Color>(AppTheme.primaryBlue),
                     strokeWidth: 3.0,
                   ),
                 )
               : RefreshIndicator(
                   onRefresh: _fetchUserData,
-                  color: const Color(0xFF667eea),
+                  color: AppTheme.primaryBlue,
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     child: Column(
@@ -545,13 +542,13 @@ class _ProfileScreenState extends State<ProfileScreen>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+                        colors: [AppTheme.primaryBlue, AppTheme.primaryBlueDark],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF667eea).withOpacity(0.4),
+                          color: AppTheme.primaryBlue.withOpacity(0.4),
                           blurRadius: 20,
                           spreadRadius: 5,
                           offset: const Offset(0, 8),
@@ -571,7 +568,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               (imageUrl == null || imageUrl!.isEmpty)
                           ? Icon(
                               _isEditing ? Icons.camera_alt : Icons.person,
-                              color: const Color(0xFF667eea),
+                              color: AppTheme.primaryBlue,
                               size: 60,
                             )
                           : null,
@@ -599,8 +596,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: _userRole == 'seller'
-                        ? [Colors.orange.shade400, Colors.deepOrange.shade600]
-                        : [Colors.blue.shade400, Colors.indigo.shade600],
+                        ? [AppTheme.warningOrange, Colors.deepOrange.shade600]
+                        : [AppTheme.primaryBlue, AppTheme.primaryBlueDark],
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                   ),
@@ -608,7 +605,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   boxShadow: [
                     BoxShadow(
                       color:
-                          (_userRole == 'seller' ? Colors.orange : Colors.blue)
+                          (_userRole == 'seller' ? AppTheme.warningOrange : AppTheme.primaryBlue)
                               .withOpacity(0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
@@ -1027,14 +1024,14 @@ class _ProfileScreenState extends State<ProfileScreen>
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: enabled
-              ? const Color(0xFF667eea).withOpacity(0.3)
+              ? AppTheme.primaryBlue.withOpacity(0.3)
               : Colors.grey.shade200,
           width: 1.5,
         ),
         boxShadow: enabled
             ? [
                 BoxShadow(
-                  color: const Color(0xFF667eea).withOpacity(0.1),
+                  color: AppTheme.primaryBlue.withOpacity(0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
