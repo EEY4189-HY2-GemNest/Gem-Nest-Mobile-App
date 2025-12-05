@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -296,10 +297,7 @@ class _ListedProductScreenState extends State<ListedProductScreen> {
               color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        leading: const ProfessionalAppBarBackButton(),
         actions: [
           IconButton(
             icon: const Icon(Icons.date_range, color: Colors.white),
