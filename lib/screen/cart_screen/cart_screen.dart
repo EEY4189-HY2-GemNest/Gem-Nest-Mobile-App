@@ -1,6 +1,7 @@
 // cart_screen.dart
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/checkout_screen/checkout_screen.dart';
+import 'package:gemnest_mobile_app/theme/app_theme.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
 import 'package:provider/provider.dart';
@@ -59,7 +60,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [Color(0xFFF8F9FA), Colors.white],
+                colors: [AppTheme.backgroundColor, Colors.white],
               ),
             ),
             child: cartProvider.cartItems.isEmpty
@@ -81,22 +82,15 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       flexibleSpace: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+        decoration: BoxDecoration(
+          gradient: AppTheme.primaryGradient,
         ),
       ),
       elevation: 0,
-      title: const Text(
+      title: Text(
         'Shopping Cart',
-        style: TextStyle(
+        style: AppTheme.headingLarge.copyWith(
           color: Colors.white,
-          fontSize: 24,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.5,
         ),
       ),
       centerTitle: true,
@@ -157,7 +151,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF667eea),
+                backgroundColor: AppTheme.primaryBlue,
                 foregroundColor: Colors.white,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
@@ -199,7 +193,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
             onChanged: (value) {
               cartProvider.selectAllItems(value ?? false);
             },
-            activeColor: const Color(0xFF667eea),
+            activeColor: AppTheme.primaryBlue,
           ),
           const Text(
             'Select All',
@@ -243,7 +237,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
           ),
         ],
         border: item.isSelected
-            ? Border.all(color: const Color(0xFF667eea), width: 2)
+            ? Border.all(color: AppTheme.primaryBlue, width: 2)
             : null,
       ),
       child: Padding(
@@ -254,7 +248,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
             Checkbox(
               value: item.isSelected,
               onChanged: (value) => cartProvider.toggleItemSelection(item.id),
-              activeColor: const Color(0xFF667eea),
+              activeColor: AppTheme.primaryBlue,
             ),
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
@@ -390,7 +384,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF667eea),
+                          color: AppTheme.primaryBlue,
                         ),
                       ),
                     ],
@@ -485,7 +479,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                       const SizedBox(width: 8),
                       Icon(
                         _isExpanded ? Icons.expand_less : Icons.expand_more,
-                        color: const Color(0xFF667eea),
+                        color: AppTheme.primaryBlue,
                       ),
                     ],
                   ),
@@ -586,7 +580,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                   )
               : null,
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF667eea),
+            backgroundColor: AppTheme.primaryBlue,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape:
