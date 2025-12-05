@@ -45,16 +45,18 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    
-    _fadeAnimation = CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut);
+
+    _fadeAnimation =
+        CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut);
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutBack));
-    
+    ).animate(
+        CurvedAnimation(parent: _slideController, curve: Curves.easeOutBack));
+
     _fetchSellerData();
     _loadProfileImage();
-    
+
     // Start animations
     _fadeController.forward();
     _slideController.forward();
@@ -64,7 +66,8 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
     final userId = _auth.currentUser?.uid;
     if (userId != null) {
       try {
-        DocumentSnapshot doc = await _firestore.collection('sellers').doc(userId).get();
+        DocumentSnapshot doc =
+            await _firestore.collection('sellers').doc(userId).get();
         if (doc.exists) {
           setState(() {
             sellerData = doc.data() as Map<String, dynamic>;
@@ -131,18 +134,18 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
         maxHeight: 512,
         imageQuality: 80,
       );
-      
+
       if (pickedFile != null) {
         final userId = _auth.currentUser?.uid;
         if (userId != null) {
           final ref = _storage.ref().child('profile_images/$userId.jpg');
           await ref.putFile(File(pickedFile.path));
           final url = await ref.getDownloadURL();
-          
+
           setState(() {
             _profileImageUrl = url;
           });
-          
+
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -210,13 +213,15 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
               SafeArea(
                 child: _isLoading
                     ? const Center(
-                        child: CircularProgressIndicator(color: Colors.blueAccent),
+                        child:
+                            CircularProgressIndicator(color: Colors.blueAccent),
                       )
                     : sellerData == null
                         ? const Center(
                             child: Text(
                               'No Data Available',
-                              style: TextStyle(color: Colors.white, fontSize: 18),
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
                             ),
                           )
                         : FadeTransition(
@@ -275,7 +280,8 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
             children: [
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 24),
+                icon: const Icon(Icons.arrow_back_ios,
+                    color: Colors.white, size: 24),
                 style: IconButton.styleFrom(
                   backgroundColor: Colors.grey[800],
                   padding: const EdgeInsets.all(12),
@@ -321,7 +327,8 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
                   radius: 60,
                   backgroundImage: _profileImageUrl != null
                       ? NetworkImage(_profileImageUrl!)
-                      : const AssetImage('assets/images/logo_new.png') as ImageProvider,
+                      : const AssetImage('assets/images/logo_new.png')
+                          as ImageProvider,
                   backgroundColor: Colors.grey[800],
                 ),
               ),
@@ -329,7 +336,9 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
                 bottom: 0,
                 right: 0,
                 child: GestureDetector(
-                  onTap: _isUploadingProfilePic ? null : _pickAndUploadProfileImage,
+                  onTap: _isUploadingProfilePic
+                      ? null
+                      : _pickAndUploadProfileImage,
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
@@ -378,11 +387,15 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: (sellerData!['isActive'] ?? false) ? Colors.green : Colors.orange,
+              color: (sellerData!['isActive'] ?? false)
+                  ? Colors.green
+                  : Colors.orange,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              (sellerData!['isActive'] ?? false) ? 'Verified Seller' : 'Pending Verification',
+              (sellerData!['isActive'] ?? false)
+                  ? 'Verified Seller'
+                  : 'Pending Verification',
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 14,
@@ -401,11 +414,16 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
       icon: Icons.person_outline,
       delay: 0.ms,
       children: [
-        _buildInfoCard('Full Name', sellerData!['displayName'] ?? 'N/A', Icons.badge_outlined),
-        _buildInfoCard('Email Address', sellerData!['email'] ?? 'N/A', Icons.email_outlined),
-        _buildInfoCard('Phone Number', sellerData!['phoneNumber'] ?? 'N/A', Icons.phone_outlined),
-        _buildInfoCard('NIC Number', sellerData!['nicNumber'] ?? 'N/A', Icons.credit_card_outlined),
-        _buildInfoCard('Address', sellerData!['address'] ?? 'N/A', Icons.location_on_outlined),
+        _buildInfoCard('Full Name', sellerData!['displayName'] ?? 'N/A',
+            Icons.badge_outlined),
+        _buildInfoCard('Email Address', sellerData!['email'] ?? 'N/A',
+            Icons.email_outlined),
+        _buildInfoCard('Phone Number', sellerData!['phoneNumber'] ?? 'N/A',
+            Icons.phone_outlined),
+        _buildInfoCard('NIC Number', sellerData!['nicNumber'] ?? 'N/A',
+            Icons.credit_card_outlined),
+        _buildInfoCard('Address', sellerData!['address'] ?? 'N/A',
+            Icons.location_on_outlined),
       ],
     );
   }
@@ -416,8 +434,10 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
       icon: Icons.business_outlined,
       delay: 200.ms,
       children: [
-        _buildInfoCard('Business Name', sellerData!['businessName'] ?? 'N/A', Icons.business_center_outlined),
-        _buildInfoCard('BR Number', sellerData!['brNumber'] ?? 'N/A', Icons.numbers_outlined),
+        _buildInfoCard('Business Name', sellerData!['businessName'] ?? 'N/A',
+            Icons.business_center_outlined),
+        _buildInfoCard('BR Number', sellerData!['brNumber'] ?? 'N/A',
+            Icons.numbers_outlined),
       ],
     );
   }
@@ -609,7 +629,8 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
     );
   }
 
-  Widget _buildDocumentCard(String label, String? url, IconData icon, Color color) {
+  Widget _buildDocumentCard(
+      String label, String? url, IconData icon, Color color) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: GestureDetector(
@@ -653,7 +674,9 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      url != null ? 'Tap to view document' : 'Document not available',
+                      url != null
+                          ? 'Tap to view document'
+                          : 'Document not available',
                       style: TextStyle(
                         fontSize: 14,
                         color: url != null ? Colors.blue : Colors.grey[400],
@@ -727,8 +750,10 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
             label: 'Logout',
           ),
         ],
-        selectedLabelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-        unselectedLabelStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+        selectedLabelStyle:
+            const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+        unselectedLabelStyle:
+            const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
       ),
     );
   }
@@ -803,17 +828,17 @@ class DashboardPatternPainter extends CustomPainter {
 
     final path = Path();
     const spacing = 60.0;
-    
+
     for (double i = -size.height; i < size.width + size.height; i += spacing) {
       path.moveTo(i, 0);
       path.lineTo(i + size.height, size.height);
     }
-    
+
     for (double i = 0; i < size.height + spacing; i += spacing) {
       path.moveTo(0, i);
       path.lineTo(size.width, i - size.width);
     }
-    
+
     canvas.drawPath(path, paint);
   }
 
