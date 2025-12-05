@@ -5,6 +5,7 @@ import 'package:gemnest_mobile_app/screen/checkout_screen/checkout_screen.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
 import 'package:provider/provider.dart';
+
 import 'cart_provider.dart';
 
 class CartScreen extends StatefulWidget {
@@ -50,7 +51,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      floatingActionButton: SharedBottomNavigation.buildFloatingActionButton(context, 1),
+      floatingActionButton:
+          SharedBottomNavigation.buildFloatingActionButton(context, 1),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const SharedBottomNavigation(currentIndex: 1),
       body: Consumer<CartProvider>(
@@ -108,7 +110,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
         Consumer<CartProvider>(
           builder: (context, cartProvider, child) {
             return IconButton(
-              icon: const Icon(Icons.delete_sweep, color: Colors.white, size: 26),
+              icon:
+                  const Icon(Icons.delete_sweep, color: Colors.white, size: 26),
               onPressed: cartProvider.cartItems.isEmpty
                   ? null
                   : () => _showClearCartDialog(cartProvider),
@@ -161,8 +164,10 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF667eea),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30)),
                 elevation: 4,
               ),
               child: const Text(
@@ -203,7 +208,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
               color: Colors.white,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.local_shipping, color: Color(0xFF4CAF50), size: 20),
+            child: const Icon(Icons.local_shipping,
+                color: Color(0xFF4CAF50), size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -251,7 +257,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
       child: Row(
         children: [
           Checkbox(
-            value: cartProvider.selectedCartItems.length == cartProvider.cartItems.length,
+            value: cartProvider.selectedCartItems.length ==
+                cartProvider.cartItems.length,
             onChanged: (value) {
               cartProvider.selectAllItems(value ?? false);
             },
@@ -329,7 +336,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                 children: [
                   Checkbox(
                     value: item.isSelected,
-                    onChanged: (value) => cartProvider.toggleItemSelection(item.id),
+                    onChanged: (value) =>
+                        cartProvider.toggleItemSelection(item.id),
                     activeColor: const Color(0xFF667eea),
                   ),
                   ClipRRect(
@@ -391,13 +399,16 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
-                                color: item.isDiscounted ? Colors.red : Colors.black,
+                                color: item.isDiscounted
+                                    ? Colors.red
+                                    : Colors.black,
                               ),
                             ),
                             if (item.isDiscounted)
                               Container(
                                 margin: const EdgeInsets.only(left: 8),
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
                                   color: Colors.red,
                                   borderRadius: BorderRadius.circular(4),
@@ -416,7 +427,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                         if (!item.isInStock)
                           Container(
                             margin: const EdgeInsets.only(top: 4),
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
                               color: Colors.red.shade100,
                               borderRadius: BorderRadius.circular(4),
@@ -433,7 +445,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                         if (item.isInStock && item.availableStock < 10)
                           Container(
                             margin: const EdgeInsets.only(top: 4),
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
                               color: Colors.orange.shade100,
                               borderRadius: BorderRadius.circular(4),
@@ -554,7 +567,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.check_circle, color: Colors.green.shade600, size: 20),
+                  Icon(Icons.check_circle,
+                      color: Colors.green.shade600, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Column(
@@ -578,7 +592,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.close, color: Colors.green.shade600, size: 20),
+                    icon: Icon(Icons.close,
+                        color: Colors.green.shade600, size: 20),
                     onPressed: () => cartProvider.removeCoupon(),
                   ),
                 ],
@@ -600,19 +615,24 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                         borderRadius: BorderRadius.circular(8),
                         borderSide: const BorderSide(color: Color(0xFF667eea)),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
                     ),
                     textCapitalization: TextCapitalization.characters,
                   ),
                 ),
                 const SizedBox(width: 12),
                 ElevatedButton(
-                  onPressed: _isLoadingCoupon ? null : () => _applyCoupon(cartProvider),
+                  onPressed: _isLoadingCoupon
+                      ? null
+                      : () => _applyCoupon(cartProvider),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF667eea),
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 16),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
                   ),
                   child: _isLoadingCoupon
                       ? const SizedBox(
@@ -659,7 +679,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
             ),
           ),
           const SizedBox(height: 16),
-          _buildPriceRow('Subtotal', 'Rs. ${cartProvider.subtotal.toStringAsFixed(2)}'),
+          _buildPriceRow(
+              'Subtotal', 'Rs. ${cartProvider.subtotal.toStringAsFixed(2)}'),
           if (cartProvider.originalSubtotal != cartProvider.subtotal)
             _buildPriceRow(
               'Item Discount',
@@ -672,9 +693,11 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
               '-Rs. ${cartProvider.couponDiscount.toStringAsFixed(2)}',
               color: Colors.green,
             ),
-          _buildPriceRow('Tax', 'Rs. ${cartProvider.taxAmount.toStringAsFixed(2)}'),
+          _buildPriceRow(
+              'Tax', 'Rs. ${cartProvider.taxAmount.toStringAsFixed(2)}'),
           if (cartProvider.shippingCost > 0)
-            _buildPriceRow('Shipping', 'Rs. ${cartProvider.shippingCost.toStringAsFixed(2)}')
+            _buildPriceRow('Shipping',
+                'Rs. ${cartProvider.shippingCost.toStringAsFixed(2)}')
           else
             _buildPriceRow('Shipping', 'FREE', color: Colors.green),
           const Divider(height: 24),
@@ -750,7 +773,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
   Widget _buildCheckoutButton(CartProvider cartProvider) {
     final selectedItems = cartProvider.selectedCartItems;
     final hasSelectedItems = selectedItems.isNotEmpty;
-    final hasInStockItems = selectedItems.every((item) => item.isInStock && item.isQuantityAvailable);
+    final hasInStockItems = selectedItems
+        .every((item) => item.isInStock && item.isQuantityAvailable);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -769,7 +793,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
             backgroundColor: const Color(0xFF667eea),
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             elevation: 4,
           ),
           child: Text(
@@ -793,7 +818,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
     setState(() => _isLoadingCoupon = true);
 
     final success = await cartProvider.applyCoupon(couponCode);
-    
+
     setState(() => _isLoadingCoupon = false);
 
     if (success) {
@@ -820,7 +845,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Clear Cart'),
-        content: const Text('Are you sure you want to remove all items from your cart?'),
+        content: const Text(
+            'Are you sure you want to remove all items from your cart?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
