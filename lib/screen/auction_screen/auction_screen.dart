@@ -15,8 +15,7 @@ class AuctionScreen extends StatefulWidget {
   State<AuctionScreen> createState() => _AuctionScreenState();
 }
 
-class _AuctionScreenState extends State<AuctionScreen>
-    with TickerProviderStateMixin {
+class _AuctionScreenState extends State<AuctionScreen> {
   // Filter Controllers
   final TextEditingController _filterController = TextEditingController();
 
