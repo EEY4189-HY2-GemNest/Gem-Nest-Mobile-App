@@ -314,8 +314,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
           children: [
             Checkbox(
               value: item.isSelected,
-              onChanged: (value) =>
-                  cartProvider.toggleItemSelection(item.id),
+              onChanged: (value) => cartProvider.toggleItemSelection(item.id),
               activeColor: const Color(0xFF667eea),
             ),
             ClipRRect(
@@ -378,8 +377,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color:
-                              item.isDiscounted ? Colors.red : Colors.black,
+                          color: item.isDiscounted ? Colors.red : Colors.black,
                         ),
                       ),
                       if (item.isDiscounted)
@@ -415,7 +413,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                           children: [
                             InkWell(
                               onTap: item.quantity > 1
-                                  ? () => cartProvider.decrementQuantity(item.id)
+                                  ? () =>
+                                      cartProvider.decrementQuantity(item.id)
                                   : null,
                               child: Container(
                                 padding: const EdgeInsets.all(6),
@@ -423,7 +422,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 12),
                               child: Text(
                                 '${item.quantity}',
                                 style: const TextStyle(
@@ -434,7 +434,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                             ),
                             InkWell(
                               onTap: item.quantity < item.availableStock
-                                  ? () => cartProvider.incrementQuantity(item.id)
+                                  ? () =>
+                                      cartProvider.incrementQuantity(item.id)
                                   : null,
                               child: Container(
                                 padding: const EdgeInsets.all(6),
