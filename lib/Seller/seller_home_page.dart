@@ -1,4 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart'; // Added Firebase Auth
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -20,37 +20,52 @@ class SellerHomePage extends StatefulWidget {
 }
 
 class _SellerHomePageState extends State<SellerHomePage>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
+  late AnimationController _cardAnimationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  late Animation<double> _cardAnimation;
   bool _isHovered = false;
   int _selectedIndex = 0;
   final List<Map<String, dynamic>> _notifications = [];
-  String? currentUserId; // Added to store current user ID
+  String? currentUserId;
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 1200),
     );
-    _fadeAnimation =
-        CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
+    _cardAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    
+    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.2),
+      begin: const Offset(0, 0.3),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
+    
+    _cardAnimation = CurvedAnimation(
+      parent: _cardAnimationController, 
+      curve: Curves.easeInOutCubic
+    );
+    
     _controller.forward();
-
-    // Get current user ID
+    _cardAnimationController.forward();
     currentUserId = FirebaseAuth.instance.currentUser?.uid;
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _cardAnimationController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
