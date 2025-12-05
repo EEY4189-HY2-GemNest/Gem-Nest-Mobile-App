@@ -200,7 +200,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Image.asset('assets/images/logo_new.png', height: 35),
                 const SizedBox(width: 8),
                 const Text(
-                  'gemnest_mobile_app',
+                  'GemNest Mobile App',
                   style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.w600,
