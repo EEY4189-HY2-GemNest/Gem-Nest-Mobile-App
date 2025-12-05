@@ -96,108 +96,108 @@ class _AuctionScreenState extends State<AuctionScreen> {
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Search Filter
-                  TextField(
-                    controller: _filterController,
-                    decoration: const InputDecoration(
-                      labelText: 'Search auctions...',
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(),
+                  children: [
+                    // Search Filter
+                    TextField(
+                      controller: _filterController,
+                      decoration: const InputDecoration(
+                        labelText: 'Search auctions...',
+                        prefixIcon: Icon(Icons.search),
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value.toLowerCase();
+                        });
+                      },
                     ),
-                    onChanged: (value) {
-                      setState(() {
-                        _searchQuery = value.toLowerCase();
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                  // Status Filter
-                  Row(
-                    children: [
-                      const Text('Status: ',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Expanded(
-                        child: Wrap(
-                          spacing: 8,
-                          children:
-                              ['all', 'live', 'ended', 'won'].map((status) {
-                            final isSelected = _selectedStatus == status;
-                            return FilterChip(
-                              label: Text(status.toUpperCase()),
-                              selected: isSelected,
-                              onSelected: (selected) {
-                                setState(() {
-                                  _selectedStatus = status;
-                                });
-                              },
-                              selectedColor: Colors.blue.shade100,
-                            );
-                          }).toList(),
+                    // Status Filter
+                    Row(
+                      children: [
+                        const Text('Status: ',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Expanded(
+                          child: Wrap(
+                            spacing: 8,
+                            children:
+                                ['all', 'live', 'ended', 'won'].map((status) {
+                              final isSelected = _selectedStatus == status;
+                              return FilterChip(
+                                label: Text(status.toUpperCase()),
+                                selected: isSelected,
+                                onSelected: (selected) {
+                                  setState(() {
+                                    _selectedStatus = status;
+                                  });
+                                },
+                                selectedColor: Colors.blue.shade100,
+                              );
+                            }).toList(),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
 
-                  // Category Filter
-                  Row(
-                    children: [
-                      const Text('Category: ',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Expanded(
-                        child: DropdownButton<String>(
-                          value: _selectedCategory,
-                          isExpanded: true,
-                          items: [
-                            'all',
-                            'electronics',
-                            'jewelry',
-                            'art',
-                            'collectibles',
-                            'antiques',
-                            'other'
-                          ]
-                              .map((category) => DropdownMenuItem(
-                                    value: category,
-                                    child: Text(category.toUpperCase()),
-                                  ))
-                              .toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedCategory = value!;
-                            });
-                          },
+                    // Category Filter
+                    Row(
+                      children: [
+                        const Text('Category: ',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Expanded(
+                          child: DropdownButton<String>(
+                            value: _selectedCategory,
+                            isExpanded: true,
+                            items: [
+                              'all',
+                              'electronics',
+                              'jewelry',
+                              'art',
+                              'collectibles',
+                              'antiques',
+                              'other'
+                            ]
+                                .map((category) => DropdownMenuItem(
+                                      value: category,
+                                      child: Text(category.toUpperCase()),
+                                    ))
+                                .toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedCategory = value!;
+                              });
+                            },
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
 
-                  // Price Range Filter
-                  Row(
-                    children: [
-                      const Text('Price Range: ',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Expanded(
-                        child: RangeSlider(
-                          values: RangeValues(_minPrice, _maxPrice),
-                          min: 0,
-                          max: 10000,
-                          divisions: 100,
-                          labels: RangeLabels(
-                              '₹${_minPrice.toInt()}', '₹${_maxPrice.toInt()}'),
-                          onChanged: (values) {
-                            setState(() {
-                              _minPrice = values.start;
-                              _maxPrice = values.end;
-                            });
-                          },
+                    // Price Range Filter
+                    Row(
+                      children: [
+                        const Text('Price Range: ',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Expanded(
+                          child: RangeSlider(
+                            values: RangeValues(_minPrice, _maxPrice),
+                            min: 0,
+                            max: 10000,
+                            divisions: 100,
+                            labels: RangeLabels('₹${_minPrice.toInt()}',
+                                '₹${_maxPrice.toInt()}'),
+                            onChanged: (values) {
+                              setState(() {
+                                _minPrice = values.start;
+                                _maxPrice = values.end;
+                              });
+                            },
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
                 ),
               ),
             )
