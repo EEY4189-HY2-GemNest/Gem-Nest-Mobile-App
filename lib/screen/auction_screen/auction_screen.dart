@@ -185,8 +185,8 @@ class _AuctionScreenState extends State<AuctionScreen> {
                             min: 0,
                             max: 10000,
                             divisions: 100,
-                            labels: RangeLabels('₹${_minPrice.toInt()}',
-                                '₹${_maxPrice.toInt()}'),
+                            labels: RangeLabels('Rs.${_minPrice.toInt()}',
+                                'Rs.${_maxPrice.toInt()}'),
                             onChanged: (values) {
                               setState(() {
                                 _minPrice = values.start;

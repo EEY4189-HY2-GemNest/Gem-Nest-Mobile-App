@@ -1,13 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
 import 'package:gemnest_mobile_app/screen/checkout_screen/checkout_screen.dart';
 import 'package:gemnest_mobile_app/screen/order_history_screen/oreder_history_screen.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 
 // Payment Method Model
 class PaymentMethod {
@@ -61,7 +60,8 @@ class PaymentScreen extends StatefulWidget {
   State<PaymentScreen> createState() => _PaymentScreenState();
 }
 
-class _PaymentScreenState extends State<PaymentScreen> with TickerProviderStateMixin {
+class _PaymentScreenState extends State<PaymentScreen>
+    with TickerProviderStateMixin {
   // Form Controllers
   final TextEditingController _cardNumberController = TextEditingController();
   final TextEditingController _expiryController = TextEditingController();
@@ -92,7 +92,7 @@ class _PaymentScreenState extends State<PaymentScreen> with TickerProviderStateM
       name: 'Credit/Debit Card',
       description: 'Pay securely with your card',
       icon: '💳',
-      processingFee: 2.0,
+      processingFee: 200.0,
     ),
     PaymentMethod(
       id: 'upi',
@@ -117,7 +117,7 @@ class _PaymentScreenState extends State<PaymentScreen> with TickerProviderStateM
       name: 'Cash on Delivery',
       description: 'Pay when you receive your order',
       icon: '💵',
-      processingFee: 25.0,
+      processingFee: 250.0,
     ),
   ];
 
@@ -138,15 +138,16 @@ class _PaymentScreenState extends State<PaymentScreen> with TickerProviderStateM
       duration: const Duration(milliseconds: 400),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
     );
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0.0, 1.0),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeInOut));
+    ).animate(
+        CurvedAnimation(parent: _slideController, curve: Curves.easeInOut));
 
     _fadeController.forward();
   }
@@ -194,7 +195,8 @@ class _PaymentScreenState extends State<PaymentScreen> with TickerProviderStateM
                       const SizedBox(height: 24),
                       _buildPaymentMethodsSection(),
                       const SizedBox(height: 24),
-                      if (_selectedPaymentMethod?.id == 'card') _buildCardDetailsForm(),
+                      if (_selectedPaymentMethod?.id == 'card')
+                        _buildCardDetailsForm(),
                       if (_selectedPaymentMethod?.id == 'upi') _buildUPIForm(),
                       if (_selectedPaymentMethod?.id == 'cod') _buildCODInfo(),
                       const SizedBox(height: 24),
@@ -403,14 +405,18 @@ class _PaymentScreenState extends State<PaymentScreen> with TickerProviderStateM
             ),
           ),
           const SizedBox(height: 16),
-          _buildPriceRow('Subtotal', '₹${(widget.totalAmount - widget.deliveryOption.cost - (widget.totalAmount * 0.18)).toStringAsFixed(2)}'),
-          _buildPriceRow('Delivery Charges', '₹${widget.deliveryOption.cost.toStringAsFixed(2)}'),
-          _buildPriceRow('Taxes (GST)', '₹${(widget.totalAmount * 0.18).toStringAsFixed(2)}'),
+          _buildPriceRow('Subtotal',
+              'Rs.${(widget.totalAmount - widget.deliveryOption.cost - (widget.totalAmount * 0.18)).toStringAsFixed(2)}'),
+          _buildPriceRow('Delivery Charges',
+              'Rs.${widget.deliveryOption.cost.toStringAsFixed(2)}'),
+          _buildPriceRow('Taxes (GST)',
+              'Rs.${(widget.totalAmount * 0.18).toStringAsFixed(2)}'),
           if (processingFee > 0)
-            _buildPriceRow('Processing Fee', '₹${processingFee.toStringAsFixed(2)}', 
+            _buildPriceRow(
+                'Processing Fee', 'Rs.${processingFee.toStringAsFixed(2)}',
                 textColor: const Color(0xFFE53E3E)),
           const Divider(thickness: 1.5),
-          _buildPriceRow('Total Amount', '₹${finalTotal.toStringAsFixed(2)}', 
+          _buildPriceRow('Total Amount', 'Rs.${finalTotal.toStringAsFixed(2)}',
               isBold: true, textSize: 18, textColor: const Color(0xFF667eea)),
         ],
       ),
@@ -478,7 +484,9 @@ class _PaymentScreenState extends State<PaymentScreen> with TickerProviderStateM
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF667eea).withOpacity(0.1) : Colors.grey[50],
+          color: isSelected
+              ? const Color(0xFF667eea).withOpacity(0.1)
+              : Colors.grey[50],
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isSelected ? const Color(0xFF667eea) : Colors.grey[300]!,
@@ -506,16 +514,18 @@ class _PaymentScreenState extends State<PaymentScreen> with TickerProviderStateM
                           color: Color(0xFF2D3748),
                         ),
                       ),
-                      if (method.processingFee != null && method.processingFee! > 0) ...[
+                      if (method.processingFee != null &&
+                          method.processingFee! > 0) ...[
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                             color: const Color(0xFFE53E3E).withOpacity(0.1),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
-                            '+₹${method.processingFee!.toStringAsFixed(0)}',
+                            '+Rs.${method.processingFee!.toStringAsFixed(0)}',
                             style: const TextStyle(
                               fontSize: 10,
                               color: Color(0xFFE53E3E),
@@ -825,7 +835,7 @@ class _PaymentScreenState extends State<PaymentScreen> with TickerProviderStateM
                 ),
                 SizedBox(height: 8),
                 Text(
-                  '• Additional ₹25 processing fee applies\n'
+                  '• Additional Rs.25 processing fee applies\n'
                   '• Please keep exact change ready\n'
                   '• Payment due upon delivery\n'
                   '• Cash/UPI accepted at doorstep',
@@ -914,7 +924,8 @@ class _PaymentScreenState extends State<PaymentScreen> with TickerProviderStateM
     );
   }
 
-  Widget _buildPriceRow(String label, String value, {bool isBold = false, double textSize = 14, Color? textColor}) {
+  Widget _buildPriceRow(String label, String value,
+      {bool isBold = false, double textSize = 14, Color? textColor}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -1011,7 +1022,7 @@ class _PaymentScreenState extends State<PaymentScreen> with TickerProviderStateM
                   ),
                 ),
                 Text(
-                  '₹${finalTotal.toStringAsFixed(2)}',
+                  'Rs.${finalTotal.toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -1042,7 +1053,8 @@ class _PaymentScreenState extends State<PaymentScreen> with TickerProviderStateM
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
                               strokeWidth: 2,
                             ),
                           ),
@@ -1058,7 +1070,7 @@ class _PaymentScreenState extends State<PaymentScreen> with TickerProviderStateM
                         ],
                       )
                     : Text(
-                        _selectedPaymentMethod?.id == 'cod' 
+                        _selectedPaymentMethod?.id == 'cod'
                             ? 'Place Order'
                             : 'Pay Now',
                         style: const TextStyle(
@@ -1108,13 +1120,15 @@ class _PaymentScreenState extends State<PaymentScreen> with TickerProviderStateM
       final orderData = {
         'orderId': _orderId,
         'userId': user.uid,
-        'items': cartProvider.cartItems.map((item) => {
-          'id': item.id,
-          'name': item.name,
-          'price': item.finalPrice,
-          'quantity': item.quantity,
-          'image': item.image,
-        }).toList(),
+        'items': cartProvider.cartItems
+            .map((item) => {
+                  'id': item.id,
+                  'name': item.name,
+                  'price': item.finalPrice,
+                  'quantity': item.quantity,
+                  'image': item.image,
+                })
+            .toList(),
         'deliveryAddress': widget.deliveryAddress.toMap(),
         'deliveryOption': {
           'id': widget.deliveryOption.id,
@@ -1131,7 +1145,8 @@ class _PaymentScreenState extends State<PaymentScreen> with TickerProviderStateM
         'totalAmount': finalTotal,
         'status': 'confirmed',
         'orderDate': FieldValue.serverTimestamp(),
-        'estimatedDelivery': DateTime.now().add(Duration(days: widget.deliveryOption.estimatedDays)),
+        'estimatedDelivery': DateTime.now()
+            .add(Duration(days: widget.deliveryOption.estimatedDays)),
       };
 
       await FirebaseFirestore.instance
@@ -1144,7 +1159,7 @@ class _PaymentScreenState extends State<PaymentScreen> with TickerProviderStateM
 
       // Show success and navigate
       _showSnackBar('Order placed successfully!', Colors.green);
-      
+
       if (mounted) {
         Navigator.pushAndRemoveUntil(
           context,
@@ -1178,7 +1193,8 @@ class _PaymentScreenState extends State<PaymentScreen> with TickerProviderStateM
 // Card Number Formatter
 class _CardNumberFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
     var text = newValue.text;
     if (newValue.selection.baseOffset == 0) {
       return newValue;
@@ -1202,7 +1218,8 @@ class _CardNumberFormatter extends TextInputFormatter {
 // Expiry Date Formatter
 class _ExpiryDateFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
     var text = newValue.text;
     if (newValue.selection.baseOffset == 0) {
       return newValue;

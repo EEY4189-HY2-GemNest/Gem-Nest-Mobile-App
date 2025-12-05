@@ -123,7 +123,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
       id: 'standard',
       name: 'Standard Delivery',
       description: 'Delivered in 3-5 business days',
-      cost: 50.0,
+      cost: 500.0,
       estimatedDays: 5,
       icon: '🚚',
     ),
@@ -131,7 +131,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
       id: 'express',
       name: 'Express Delivery',
       description: 'Delivered within 24-48 hours',
-      cost: 150.0,
+      cost: 1500.0,
       estimatedDays: 2,
       icon: '⚡',
     ),
@@ -139,7 +139,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
       id: 'same_day',
       name: 'Same Day Delivery',
       description: 'Order before 2 PM for same day delivery',
-      cost: 250.0,
+      cost: 2500.0,
       estimatedDays: 0,
       icon: '🏃',
     ),
@@ -467,7 +467,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                       ),
                     ),
                     Text(
-                      '₹${(item.finalPrice * item.quantity).toStringAsFixed(2)}',
+                      'Rs.${(item.finalPrice * item.quantity).toStringAsFixed(2)}',
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -491,7 +491,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                   ),
                 ),
                 Text(
-                  '-₹${cartProvider.discountAmount.toStringAsFixed(2)}',
+                  '-Rs.${cartProvider.discountAmount.toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -978,7 +978,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  '₹${option.cost.toStringAsFixed(0)}',
+                  'Rs.${option.cost.toStringAsFixed(0)}',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -1125,15 +1125,15 @@ class _CheckoutScreenState extends State<CheckoutScreen>
             ],
           ),
           const SizedBox(height: 16),
-          _buildPriceRow('Subtotal', '₹${subtotal.toStringAsFixed(2)}'),
+          _buildPriceRow('Subtotal', 'Rs.${subtotal.toStringAsFixed(2)}'),
           if (discount > 0)
-            _buildPriceRow('Discount', '-₹${discount.toStringAsFixed(2)}',
+            _buildPriceRow('Discount', '-Rs.${discount.toStringAsFixed(2)}',
                 textColor: const Color(0xFF38A169)),
           _buildPriceRow(
-              'Delivery Charges', '₹${deliveryCharges.toStringAsFixed(2)}'),
-          _buildPriceRow('Taxes (GST)', '₹${taxes.toStringAsFixed(2)}'),
+              'Delivery Charges', 'Rs.${deliveryCharges.toStringAsFixed(2)}'),
+          _buildPriceRow('Taxes (GST)', 'Rs.${taxes.toStringAsFixed(2)}'),
           const Divider(thickness: 1.5),
-          _buildPriceRow('Total Amount', '₹${total.toStringAsFixed(2)}',
+          _buildPriceRow('Total Amount', 'Rs.${total.toStringAsFixed(2)}',
               isBold: true, textSize: 18),
         ],
       ),
@@ -1245,7 +1245,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                       ),
                     ),
                     Text(
-                      '₹${total.toStringAsFixed(2)}',
+                      'Rs.${total.toStringAsFixed(2)}',
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
