@@ -19,7 +19,7 @@ class _AuctionScreenState extends State<AuctionScreen>
     with TickerProviderStateMixin {
   // Filter Controllers
   final TextEditingController _filterController = TextEditingController();
-  
+
   // Filter State Variables
   bool _isFilterExpanded = false;
   String _searchQuery = '';
