@@ -199,13 +199,27 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Colors.black,
-        leading: const ProfessionalBackButton(),
-        title: const Text('Order History',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blueAccent, Colors.lightBlue],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        elevation: 4,
+        shadowColor: Colors.black26,
+        title: const Text(
+          'Order History',
+          style: TextStyle(
+              color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        leading: const ProfessionalAppBarBackButton(),
         actions: [
           PopupMenuButton<String>(
-            icon: const Icon(Icons.filter_list, color: Colors.blueAccent),
+            icon: const Icon(Icons.filter_list, color: Colors.white),
             onSelected: (value) {
               setState(() {
                 _selectedStatus = value;
@@ -233,7 +247,7 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
                 .toList(),
           ),
           PopupMenuButton<String>(
-            icon: const Icon(Icons.sort, color: Colors.blueAccent),
+            icon: const Icon(Icons.sort, color: Colors.white),
             onSelected: (value) {
               setState(() {
                 if (_sortBy == value) {
@@ -266,7 +280,7 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
                 .toList(),
           ),
           IconButton(
-            icon: const Icon(Icons.date_range, color: Colors.blueAccent),
+            icon: const Icon(Icons.date_range, color: Colors.white),
             onPressed: () => _pickDateRange(context),
           ),
         ],
