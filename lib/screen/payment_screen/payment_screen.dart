@@ -771,60 +771,60 @@ class _PaymentScreenState extends State<PaymentScreen>
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF38A169).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.security_outlined,
-                  color: Color(0xFF38A169),
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'Secure Payment',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3748),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          const Row(
-            children: [
-              Icon(Icons.lock_outlined, color: Color(0xFF38A169), size: 16),
-              SizedBox(width: 8),
-              Text('256-bit SSL encryption', style: TextStyle(fontSize: 14)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          const Row(
-            children: [
-              Icon(Icons.verified_outlined, color: Color(0xFF38A169), size: 16),
-              SizedBox(width: 8),
-              Text('PCI DSS compliant', style: TextStyle(fontSize: 14)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          const Row(
-            children: [
-              Icon(Icons.shield_outlined, color: Color(0xFF38A169), size: 16),
-              SizedBox(width: 8),
-              Text('100% secure transactions', style: TextStyle(fontSize: 14)),
-            ],
-          ),
-        ],
-      ),
+      // child: Column(
+      //   crossAxisAlignment: CrossAxisAlignment.start,
+      //   children: [
+      //     Row(
+      //       children: [
+      //         Container(
+      //           padding: const EdgeInsets.all(8),
+      //           decoration: BoxDecoration(
+      //             color: const Color(0xFF38A169).withOpacity(0.1),
+      //             borderRadius: BorderRadius.circular(8),
+      //           ),
+      //           child: const Icon(
+      //             Icons.security_outlined,
+      //             color: Color(0xFF38A169),
+      //             size: 20,
+      //           ),
+      //         ),
+      //         const SizedBox(width: 12),
+      //         const Text(
+      //           'Secure Payment',
+      //           style: TextStyle(
+      //             fontSize: 18,
+      //             fontWeight: FontWeight.bold,
+      //             color: Color(0xFF2D3748),
+      //           ),
+      //         ),
+      //       ],
+      //     ),
+      //     const SizedBox(height: 16),
+      //     const Row(
+      //       children: [
+      //         Icon(Icons.lock_outlined, color: Color(0xFF38A169), size: 16),
+      //         SizedBox(width: 8),
+      //         Text('256-bit SSL encryption', style: TextStyle(fontSize: 14)),
+      //       ],
+      //     ),
+      //     const SizedBox(height: 8),
+      //     const Row(
+      //       children: [
+      //         Icon(Icons.verified_outlined, color: Color(0xFF38A169), size: 16),
+      //         SizedBox(width: 8),
+      //         Text('PCI DSS compliant', style: TextStyle(fontSize: 14)),
+      //       ],
+      //     ),
+      //     const SizedBox(height: 8),
+      //     const Row(
+      //       children: [
+      //         Icon(Icons.shield_outlined, color: Color(0xFF38A169), size: 16),
+      //         SizedBox(width: 8),
+      //         Text('100% secure transactions', style: TextStyle(fontSize: 14)),
+      //       ],
+      //     ),
+      //   ],
+      // ),
     );
   }
 
