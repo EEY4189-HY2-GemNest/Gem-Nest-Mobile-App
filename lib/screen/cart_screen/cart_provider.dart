@@ -84,7 +84,7 @@ class CartProvider with ChangeNotifier {
   String? _appliedCouponCode;
   double _couponDiscount = 0.0;
   double _shippingCost = 0.0;
-  double _taxRate = 0.1; // 10% tax
+  final double _taxRate = 0.1; // 10% tax
   bool _isLoading = false;
 
   // Getters
@@ -419,4 +419,4 @@ class CartProvider with ChangeNotifier {
       notifyListeners();
     }
   }
-}
+}final 
