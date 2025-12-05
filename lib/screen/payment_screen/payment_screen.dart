@@ -580,8 +580,12 @@ class _PaymentScreenState extends State<PaymentScreen>
                   if (value?.isEmpty ?? true) {
                     return 'Please enter card number';
                   }
-                  if (value!.replaceAll(' ', '').length < 16) {
+                  final cleanValue = value!.replaceAll(' ', '');
+                  if (cleanValue.length < 13 || cleanValue.length > 19) {
                     return 'Please enter valid card number';
+                  }
+                  if (!_validateCardNumber(cleanValue)) {
+                    return 'Invalid card number';
                   }
                   return null;
                 },
@@ -619,6 +623,9 @@ class _PaymentScreenState extends State<PaymentScreen>
                         if (value!.length != 5) {
                           return 'Please enter valid expiry';
                         }
+                        if (!_validateExpiryDate(value)) {
+                          return 'Card has expired';
+                        }
                         return null;
                       },
                     ),
@@ -632,13 +639,13 @@ class _PaymentScreenState extends State<PaymentScreen>
                       keyboardType: TextInputType.number,
                       inputFormatters: [
                         FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(3),
+                        LengthLimitingTextInputFormatter(4),
                       ],
                       validator: (value) {
                         if (value?.isEmpty ?? true) {
                           return 'Please enter CVV';
                         }
-                        if (value!.length != 3) {
+                        if (value!.length < 3 || value.length > 4) {
                           return 'Please enter valid CVV';
                         }
                         return null;
@@ -1008,8 +1015,13 @@ class _PaymentScreenState extends State<PaymentScreen>
       final processingFee = _selectedPaymentMethod?.processingFee ?? 0.0;
       final finalTotal = widget.totalAmount + processingFee;
 
-      // Simulate payment processing
-      await Future.delayed(const Duration(seconds: 3));
+      // Simulate card payment processing
+      if (_selectedPaymentMethod?.id == 'card') {
+        await _processCardPayment();
+      } else {
+        // For COD, just simulate order processing
+        await Future.delayed(const Duration(seconds: 2));
+      }
 
       // Create order in Firestore
       final orderData = {
@@ -1082,6 +1094,68 @@ class _PaymentScreenState extends State<PaymentScreen>
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
+  }
+
+  // Luhn algorithm for card validation
+  bool _validateCardNumber(String cardNumber) {
+    int sum = 0;
+    bool isEven = false;
+    
+    for (int i = cardNumber.length - 1; i >= 0; i--) {
+      int digit = int.parse(cardNumber[i]);
+      
+      if (isEven) {
+        digit *= 2;
+        if (digit > 9) {
+          digit = digit % 10 + digit ~/ 10;
+        }
+      }
+      
+      sum += digit;
+      isEven = !isEven;
+    }
+    
+    return sum % 10 == 0;
+  }
+
+  // Validate expiry date (MM/YY format)
+  bool _validateExpiryDate(String expiryDate) {
+    if (expiryDate.length != 5) return false;
+    
+    final parts = expiryDate.split('/');
+    if (parts.length != 2) return false;
+    
+    final month = int.tryParse(parts[0]);
+    final year = int.tryParse(parts[1]);
+    
+    if (month == null || year == null) return false;
+    if (month < 1 || month > 12) return false;
+    
+    final now = DateTime.now();
+    final currentYear = now.year % 100; // Get last 2 digits
+    final currentMonth = now.month;
+    
+    if (year < currentYear) return false;
+    if (year == currentYear && month < currentMonth) return false;
+    
+    return true;
+  }
+
+  // Simulate card payment processing
+  Future<void> _processCardPayment() async {
+    // Step 1: Validate card details
+    await Future.delayed(const Duration(milliseconds: 800));
+    
+    // Step 2: Contact bank
+    await Future.delayed(const Duration(milliseconds: 1000));
+    
+    // Step 3: Authorize payment
+    await Future.delayed(const Duration(milliseconds: 1200));
+    
+    // Simulate 95% success rate
+    if (DateTime.now().millisecond % 20 == 0) {
+      throw Exception('Payment declined by bank');
+    }
   }
 }
 
