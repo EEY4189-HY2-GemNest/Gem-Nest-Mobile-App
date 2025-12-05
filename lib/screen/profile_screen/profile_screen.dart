@@ -90,7 +90,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     setState(() => isLoading = true);
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) {
-      _showSnackBar('You must be logged in to view your profile.', AppTheme.errorRed);
+      _showSnackBar(
+          'You must be logged in to view your profile.', AppTheme.errorRed);
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const LoginScreen()),
       );
@@ -242,7 +243,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     if (imageFile == null) return imageUrl;
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) {
-      _showSnackBar('You must be logged in to upload an image.', AppTheme.errorRed);
+      _showSnackBar(
+          'You must be logged in to upload an image.', AppTheme.errorRed);
       return null;
     }
 
@@ -268,7 +270,8 @@ class _ProfileScreenState extends State<ProfileScreen>
   ) async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) {
-      _showSnackBar('You must be logged in to save your profile.', AppTheme.errorRed);
+      _showSnackBar(
+          'You must be logged in to save your profile.', AppTheme.errorRed);
       return;
     }
 
@@ -542,7 +545,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: const LinearGradient(
-                        colors: [AppTheme.primaryBlue, AppTheme.primaryBlueDark],
+                        colors: [
+                          AppTheme.primaryBlue,
+                          AppTheme.primaryBlueDark
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -604,9 +610,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color:
-                          (_userRole == 'seller' ? AppTheme.warningOrange : AppTheme.primaryBlue)
-                              .withOpacity(0.3),
+                      color: (_userRole == 'seller'
+                              ? AppTheme.warningOrange
+                              : AppTheme.primaryBlue)
+                          .withOpacity(0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
