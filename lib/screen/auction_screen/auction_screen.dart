@@ -2,15 +2,11 @@
 
 import 'dart:async';
 
-import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gemnest_mobile_app/home_screen.dart';
 import 'package:gemnest_mobile_app/screen/auction_screen/auction_payment_screen.dart';
-import 'package:gemnest_mobile_app/screen/cart_screen/cart_screen.dart';
-import 'package:gemnest_mobile_app/screen/order_history_screen/oreder_history_screen.dart';
-import 'package:gemnest_mobile_app/screen/profile_screen/profile_screen.dart';
+import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
 
 class AuctionScreen extends StatelessWidget {
   const AuctionScreen({super.key});
@@ -212,52 +208,7 @@ class AuctionScreen extends StatelessWidget {
           );
         },
       ),
-      bottomNavigationBar: AnimatedBottomNavigationBar(
-        icons: const [
-          Icons.home,
-          Icons.shopping_cart,
-          Icons.receipt,
-          Icons.person
-        ],
-        activeIndex: -1, // No active index since auction is the floating button
-        gapLocation: GapLocation.center,
-        notchSmoothness: NotchSmoothness.smoothEdge,
-        onTap: (index) {
-          Widget targetScreen;
-          switch (index) {
-            case 0:
-              targetScreen = const HomeScreen();
-              break;
-            case 1:
-              targetScreen = const CartScreen();
-              break;
-            case 2:
-              targetScreen = const OrderHistoryScreen();
-              break;
-            case 3:
-              targetScreen = const ProfileScreen();
-              break;
-            default:
-              return;
-          }
-          Navigator.pushReplacement(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  targetScreen,
-              transitionDuration: const Duration(milliseconds: 300),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                return FadeTransition(opacity: animation, child: child);
-              },
-            ),
-          );
-        },
-        backgroundColor: const Color.fromARGB(255, 173, 216, 230),
-        activeColor: const Color.fromARGB(255, 0, 0, 139),
-        leftCornerRadius: 32,
-        rightCornerRadius: 32,
-      ),
+      bottomNavigationBar: const SharedBottomNavigation(currentIndex: 4),
     );
   }
 }

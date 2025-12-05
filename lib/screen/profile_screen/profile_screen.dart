@@ -4,10 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:gemnest_mobile_app/screen/auction_screen/auction_screen.dart';
 import 'package:gemnest_mobile_app/screen/auth_screens/login_screen.dart';
-import 'package:gemnest_mobile_app/widget/bottom_navigation_widget.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
+import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -516,21 +515,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const AuctionScreen()),
-            );
-          },
-          backgroundColor: const Color.fromARGB(255, 173, 216, 230),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          elevation: 8,
-          child: const Icon(Icons.gavel),
-        ),
+        floatingActionButton: SharedBottomNavigation.buildFloatingActionButton(context, 3),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        bottomNavigationBar: const BottomNavigationWidget(currentIndex: 3),
+        bottomNavigationBar: const SharedBottomNavigation(currentIndex: 3),
       ),
     );
   }
