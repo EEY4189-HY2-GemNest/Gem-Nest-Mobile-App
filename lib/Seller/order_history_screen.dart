@@ -19,8 +19,15 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
   String _sortBy = 'Date';
   bool _isAscending = false;
   DateTimeRange? _selectedDateRange;
-  
-  final List<String> _statusOptions = ['All', 'Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+
+  final List<String> _statusOptions = [
+    'All',
+    'Pending',
+    'Processing',
+    'Shipped',
+    'Delivered',
+    'Cancelled'
+  ];
   final List<String> _sortOptions = ['Date', 'Amount', 'Status'];
 
   // Helper method to check if order is overdue (NULL SAFE - FIXED)
@@ -44,23 +51,27 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
   }
 
   // Apply filters to orders
-  List<QueryDocumentSnapshot> _applyFilters(List<QueryDocumentSnapshot> orders) {
+  List<QueryDocumentSnapshot> _applyFilters(
+      List<QueryDocumentSnapshot> orders) {
     return orders.where((order) {
       final data = order.data() as Map<String, dynamic>;
-      
+
       // Date range filter
       if (_selectedDateRange != null) {
         try {
-          final orderDate = DateTime.parse(data['deliveryDate']?.toString() ?? '');
-          if (!(orderDate.isAfter(_selectedDateRange!.start.subtract(const Duration(days: 1))) &&
-                orderDate.isBefore(_selectedDateRange!.end.add(const Duration(days: 1))))) {
+          final orderDate =
+              DateTime.parse(data['deliveryDate']?.toString() ?? '');
+          if (!(orderDate.isAfter(_selectedDateRange!.start
+                  .subtract(const Duration(days: 1))) &&
+              orderDate.isBefore(
+                  _selectedDateRange!.end.add(const Duration(days: 1))))) {
             return false;
           }
         } catch (e) {
           return false;
         }
       }
-      
+
       // Status filter
       if (_selectedStatus != 'All') {
         final status = data['status']?.toString() ?? '';
@@ -68,24 +79,27 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
           return false;
         }
       }
-      
+
       return true;
     }).toList();
   }
 
   // Apply sorting to orders
-  List<QueryDocumentSnapshot> _applySorting(List<QueryDocumentSnapshot> orders) {
+  List<QueryDocumentSnapshot> _applySorting(
+      List<QueryDocumentSnapshot> orders) {
     orders.sort((a, b) {
       final dataA = a.data() as Map<String, dynamic>;
       final dataB = b.data() as Map<String, dynamic>;
-      
+
       int comparison = 0;
-      
+
       switch (_sortBy) {
         case 'Date':
           try {
-            final dateA = DateTime.parse(dataA['deliveryDate']?.toString() ?? '');
-            final dateB = DateTime.parse(dataB['deliveryDate']?.toString() ?? '');
+            final dateA =
+                DateTime.parse(dataA['deliveryDate']?.toString() ?? '');
+            final dateB =
+                DateTime.parse(dataB['deliveryDate']?.toString() ?? '');
             comparison = dateA.compareTo(dateB);
           } catch (e) {
             comparison = 0;
@@ -102,10 +116,10 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
           comparison = statusA.compareTo(statusB);
           break;
       }
-      
+
       return _isAscending ? comparison : -comparison;
     });
-    
+
     return orders;
   }
 
@@ -113,7 +127,8 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
     List<String> filters = [];
     if (_selectedDateRange != null) {
       final formatter = DateFormat('MMM dd, yyyy');
-      filters.add('Date: ${formatter.format(_selectedDateRange!.start)} - ${formatter.format(_selectedDateRange!.end)}');
+      filters.add(
+          'Date: ${formatter.format(_selectedDateRange!.start)} - ${formatter.format(_selectedDateRange!.end)}');
     }
     if (_selectedStatus != 'All') {
       filters.add('Status: $_selectedStatus');
@@ -196,22 +211,26 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
                 _selectedStatus = value;
               });
             },
-            itemBuilder: (context) => _statusOptions.map((status) => 
-              PopupMenuItem(
-                value: status,
-                child: Row(
-                  children: [
-                    Icon(
-                      _selectedStatus == status ? Icons.check : Icons.circle_outlined,
-                      color: _selectedStatus == status ? Colors.blue : Colors.grey,
-                      size: 16,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(status),
-                  ],
-                ),
-              )
-            ).toList(),
+            itemBuilder: (context) => _statusOptions
+                .map((status) => PopupMenuItem(
+                      value: status,
+                      child: Row(
+                        children: [
+                          Icon(
+                            _selectedStatus == status
+                                ? Icons.check
+                                : Icons.circle_outlined,
+                            color: _selectedStatus == status
+                                ? Colors.blue
+                                : Colors.grey,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(status),
+                        ],
+                      ),
+                    ))
+                .toList(),
           ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.sort, color: Colors.blueAccent),
@@ -225,24 +244,26 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
                 }
               });
             },
-            itemBuilder: (context) => _sortOptions.map((sort) => 
-              PopupMenuItem(
-                value: sort,
-                child: Row(
-                  children: [
-                    Icon(
-                      _sortBy == sort 
-                        ? (_isAscending ? Icons.arrow_upward : Icons.arrow_downward)
-                        : Icons.sort,
-                      color: _sortBy == sort ? Colors.blue : Colors.grey,
-                      size: 16,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(sort),
-                  ],
-                ),
-              )
-            ).toList(),
+            itemBuilder: (context) => _sortOptions
+                .map((sort) => PopupMenuItem(
+                      value: sort,
+                      child: Row(
+                        children: [
+                          Icon(
+                            _sortBy == sort
+                                ? (_isAscending
+                                    ? Icons.arrow_upward
+                                    : Icons.arrow_downward)
+                                : Icons.sort,
+                            color: _sortBy == sort ? Colors.blue : Colors.grey,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(sort),
+                        ],
+                      ),
+                    ))
+                .toList(),
           ),
           IconButton(
             icon: const Icon(Icons.date_range, color: Colors.blueAccent),
@@ -260,12 +281,12 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
         ),
         child: StreamBuilder<QuerySnapshot>(
           // SELLER-SPECIFIC FILTERING - Only show current seller's orders
-          stream: _auth.currentUser?.uid != null 
-            ? FirebaseFirestore.instance
-                .collection('orders')
-                .where('sellerId', isEqualTo: _auth.currentUser!.uid)
-                .snapshots()
-            : const Stream.empty(),
+          stream: _auth.currentUser?.uid != null
+              ? FirebaseFirestore.instance
+                  .collection('orders')
+                  .where('sellerId', isEqualTo: _auth.currentUser!.uid)
+                  .snapshots()
+              : const Stream.empty(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return const Center(
@@ -278,10 +299,10 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
             }
 
             var orders = snapshot.data!.docs;
-            
+
             // Apply filters
             orders = _applyFilters(orders);
-            
+
             // Apply sorting
             orders = _applySorting(orders);
 
@@ -293,17 +314,20 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
                     padding: const EdgeInsets.all(16),
                     child: Row(
                       children: [
-                        const Icon(Icons.info_outline, color: Colors.blue, size: 16),
+                        const Icon(Icons.info_outline,
+                            color: Colors.blue, size: 16),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             _getFilterStatusText(),
-                            style: const TextStyle(color: Colors.white70, fontSize: 12),
+                            style: const TextStyle(
+                                color: Colors.white70, fontSize: 12),
                           ),
                         ),
                         TextButton(
                           onPressed: _clearFilters,
-                          child: const Text('Clear', style: TextStyle(color: Colors.blue)),
+                          child: const Text('Clear',
+                              style: TextStyle(color: Colors.blue)),
                         ),
                       ],
                     ),
@@ -311,151 +335,183 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
                 // Orders list
                 Expanded(
                   child: orders.isEmpty
-                    ? const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.inbox_outlined, size: 80, color: Colors.white54),
-                            SizedBox(height: 16),
-                            Text('No orders found',
-                                style: TextStyle(color: Colors.white70, fontSize: 18)),
-                            Text('Orders will appear here when customers place them',
-                                style: TextStyle(color: Colors.white54, fontSize: 14)),
-                          ],
-                        ),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: orders.length,
-                        itemBuilder: (context, index) {
-                final order = orders[index].data() as Map<String, dynamic>;
-                final orderId = orders[index].id;
-                final isOverdue = isOrderOverdue(order);
-
-                return Card(
-                  elevation: 4,
-                  color: Colors.transparent,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: isOverdue
-                            ? [Colors.red[800]!, Colors.red[900]!]
-                            : [Colors.grey[850]!, Colors.grey[900]!],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: (isOverdue ? Colors.red : Colors.blue).withOpacity(0.2),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.all(16),
-                      leading: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: (isOverdue ? Colors.red : Colors.blue).withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          isOverdue ? Icons.warning : Icons.shopping_bag,
-                          color: isOverdue ? Colors.red : Colors.blue,
-                          size: 24,
-                        ),
-                      ),
-                      title: Text(
-                        'Order #${orderId.substring(0, 8)}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 8),
-                          Text(
-                            'Customer: ${order['customerName'] ?? 'N/A'}',
-                            style: const TextStyle(color: Colors.white70, fontSize: 14),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Amount: Rs. ${(order['totalAmount'] ?? 0).toStringAsFixed(2)}',
-                            style: const TextStyle(color: Colors.white70, fontSize: 14),
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
+                      ? const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: _getStatusColor(order['status']),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  order['status'] ?? 'N/A',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                              if (isOverdue) ...[
-                                const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.red,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: const Text(
-                                    'OVERDUE',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              Icon(Icons.inbox_outlined,
+                                  size: 80, color: Colors.white54),
+                              SizedBox(height: 16),
+                              Text('No orders found',
+                                  style: TextStyle(
+                                      color: Colors.white70, fontSize: 18)),
+                              Text(
+                                  'Orders will appear here when customers place them',
+                                  style: TextStyle(
+                                      color: Colors.white54, fontSize: 14)),
                             ],
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Delivery: ${order['deliveryDate'] ?? 'N/A'}',
-                            style: TextStyle(
-                              color: isOverdue ? Colors.red[300] : Colors.white70,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                      trailing: const Icon(
-                        Icons.arrow_forward_ios,
-                        color: Colors.white54,
-                        size: 16,
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => OrderDetailsScreen(orderId: orderId),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                );
-              },
-            ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: orders.length,
+                          itemBuilder: (context, index) {
+                            final order =
+                                orders[index].data() as Map<String, dynamic>;
+                            final orderId = orders[index].id;
+                            final isOverdue = isOrderOverdue(order);
+
+                            return Card(
+                              elevation: 4,
+                              color: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20)),
+                              margin: const EdgeInsets.only(bottom: 12),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: isOverdue
+                                        ? [Colors.red[800]!, Colors.red[900]!]
+                                        : [
+                                            Colors.grey[850]!,
+                                            Colors.grey[900]!
+                                          ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color:
+                                          (isOverdue ? Colors.red : Colors.blue)
+                                              .withOpacity(0.2),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.all(16),
+                                  leading: Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          (isOverdue ? Colors.red : Colors.blue)
+                                              .withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Icon(
+                                      isOverdue
+                                          ? Icons.warning
+                                          : Icons.shopping_bag,
+                                      color:
+                                          isOverdue ? Colors.red : Colors.blue,
+                                      size: 24,
+                                    ),
+                                  ),
+                                  title: Text(
+                                    'Order #${orderId.substring(0, 8)}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  subtitle: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Customer: ${order['customerName'] ?? 'N/A'}',
+                                        style: const TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 14),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Amount: Rs. ${(order['totalAmount'] ?? 0).toStringAsFixed(2)}',
+                                        style: const TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 14),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 8, vertical: 4),
+                                            decoration: BoxDecoration(
+                                              color: _getStatusColor(
+                                                  order['status']),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: Text(
+                                              order['status'] ?? 'N/A',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                          if (isOverdue) ...[
+                                            const SizedBox(width: 8),
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 4),
+                                              decoration: BoxDecoration(
+                                                color: Colors.red,
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: const Text(
+                                                'OVERDUE',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Delivery: ${order['deliveryDate'] ?? 'N/A'}',
+                                        style: TextStyle(
+                                          color: isOverdue
+                                              ? Colors.red[300]
+                                              : Colors.white70,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  trailing: const Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: Colors.white54,
+                                    size: 16,
+                                  ),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            OrderDetailsScreen(
+                                                orderId: orderId),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                 ),
               ],
             );
