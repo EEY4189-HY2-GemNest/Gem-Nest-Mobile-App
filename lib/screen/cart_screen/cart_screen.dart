@@ -35,10 +35,7 @@ class CartScreen extends StatelessWidget {
                   fontWeight: FontWeight.bold),
             ),
             centerTitle: true,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
+            leading: const ProfessionalAppBarBackButton(),
           ),
           body: Container(
             decoration: BoxDecoration(
