@@ -7,6 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:http/http.dart' as http;
 
 class SellerProfileScreen extends StatefulWidget {
   const SellerProfileScreen({super.key});
@@ -169,6 +172,85 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
       setState(() {
         _isUploadingProfilePic = false;
       });
+    }
+  }
+
+  Future<void> _downloadDocument(String url, String fileName) async {
+    try {
+      // Show loading dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          backgroundColor: Colors.grey[900],
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(color: Colors.blue),
+              const SizedBox(height: 16),
+              Text(
+                'Downloading $fileName...',
+                style: const TextStyle(color: Colors.white),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      // Download the file
+      final response = await http.get(Uri.parse(url));
+      
+      if (response.statusCode == 200) {
+        // Get app directory
+        final directory = await getApplicationDocumentsDirectory();
+        final filePath = '${directory.path}/$fileName';
+        
+        // Save file
+        final file = File(filePath);
+        await file.writeAsBytes(response.bodyBytes);
+        
+        // Close loading dialog
+        if (mounted) Navigator.pop(context);
+        
+        // Share the file
+        await Share.shareXFiles(
+          [XFile(filePath)],
+          text: 'Downloaded: $fileName',
+        );
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('$fileName downloaded successfully!'),
+              backgroundColor: Colors.green,
+              action: SnackBarAction(
+                label: 'Share',
+                textColor: Colors.white,
+                onPressed: () async {
+                  await Share.shareXFiles(
+                    [XFile(filePath)],
+                    text: 'Document: $fileName',
+                  );
+                },
+              ),
+            ),
+          );
+        }
+      } else {
+        throw Exception('Failed to download file');
+      }
+    } catch (e) {
+      // Close loading dialog if open
+      if (mounted && Navigator.canPop(context)) Navigator.pop(context);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to download $fileName: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -685,12 +767,26 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
                   ],
                 ),
               ),
-              if (url != null)
+              if (url != null) ...[
+                IconButton(
+                  onPressed: () => _downloadDocument(url, '$label.jpg'),
+                  icon: Icon(
+                    Icons.download_outlined,
+                    color: color,
+                    size: 20,
+                  ),
+                  style: IconButton.styleFrom(
+                    backgroundColor: color.withOpacity(0.1),
+                    padding: const EdgeInsets.all(8),
+                  ),
+                ),
+                const SizedBox(width: 8),
                 Icon(
                   Icons.arrow_forward_ios,
                   color: color,
                   size: 16,
                 ),
+              ]
             ],
           ),
         ),
@@ -807,6 +903,10 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
           ],
         ),
         actions: [
+          TextButton(
+            onPressed: () => _downloadDocument(url, '$title.jpg'),
+            child: const Text('Download', style: TextStyle(color: Colors.green)),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Close', style: TextStyle(color: Colors.blue)),
