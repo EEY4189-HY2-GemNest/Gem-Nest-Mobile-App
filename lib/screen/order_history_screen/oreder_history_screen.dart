@@ -2,7 +2,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/home_screen.dart';
+import 'package:gemnest_mobile_app/screen/auction_screen/auction_screen.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
+import 'package:gemnest_mobile_app/widget/bottom_navigation_widget.dart';
 
 class OrderHistoryScreen extends StatelessWidget {
   const OrderHistoryScreen({super.key});
@@ -115,6 +117,20 @@ class OrderHistoryScreen extends StatelessWidget {
           },
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AuctionScreen()),
+          );
+        },
+        backgroundColor: const Color.fromARGB(255, 173, 216, 230),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        elevation: 8,
+        child: const Icon(Icons.gavel),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: const BottomNavigationWidget(currentIndex: 2),
     );
   }
 
