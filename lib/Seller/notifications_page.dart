@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart'; // Add this package for animations
+import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 
 class NotificationsPage extends StatefulWidget {
   final List<Map<String, dynamic>> notifications;
@@ -78,10 +79,7 @@ class _NotificationsPageState extends State<NotificationsPage>
         appBar: AppBar(
           backgroundColor: Colors.black,
           elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
-          ),
+          leading: const ProfessionalAppBarBackButton(),
           title: const Text(
             'Notifications',
             style: TextStyle(
