@@ -440,8 +440,6 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
     );
   }
 
-
-
   Widget _buildPriceBreakdown(CartProvider cartProvider) {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
@@ -501,16 +499,16 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
               child: Column(
                 children: [
-                  _buildPriceRow(
-                      'Subtotal', 'LKR ${cartProvider.subtotal.toStringAsFixed(2)}'),
+                  _buildPriceRow('Subtotal',
+                      'LKR ${cartProvider.subtotal.toStringAsFixed(2)}'),
                   if (cartProvider.couponDiscount > 0)
                     _buildPriceRow(
                       'Coupon Discount',
                       '-LKR ${cartProvider.couponDiscount.toStringAsFixed(2)}',
                       color: Colors.green,
                     ),
-                  _buildPriceRow(
-                      'Tax', 'LKR ${cartProvider.taxAmount.toStringAsFixed(2)}'),
+                  _buildPriceRow('Tax',
+                      'LKR ${cartProvider.taxAmount.toStringAsFixed(2)}'),
                   const SizedBox(height: 8),
                   const Divider(height: 16),
                   Row(
@@ -608,8 +606,6 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
       ),
     );
   }
-
-
 
   void _showClearCartDialog(CartProvider cartProvider) {
     showDialog(
