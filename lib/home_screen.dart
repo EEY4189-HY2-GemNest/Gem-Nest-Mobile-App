@@ -199,9 +199,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   'GemNest Mobile App',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
               ],
             ),
