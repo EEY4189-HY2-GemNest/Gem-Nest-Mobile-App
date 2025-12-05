@@ -54,7 +54,9 @@ class SharedBottomNavigation extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedBottomNavigationBar(
       icons: iconList,
-      activeIndex: currentIndex == 4 ? -1 : currentIndex, // No active index for auction screen
+      activeIndex: currentIndex == 4
+          ? -1
+          : currentIndex, // No active index for auction screen
       gapLocation: GapLocation.center,
       notchSmoothness: NotchSmoothness.smoothEdge,
       onTap: (index) => _onItemTapped(context, index),
@@ -65,11 +67,12 @@ class SharedBottomNavigation extends StatelessWidget {
     );
   }
 
-  static FloatingActionButton buildFloatingActionButton(BuildContext context, int currentIndex) {
+  static FloatingActionButton buildFloatingActionButton(
+      BuildContext context, int currentIndex) {
     return FloatingActionButton(
       onPressed: () {
         if (currentIndex == 4) return; // Already on auction screen
-        
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const AuctionScreen()),

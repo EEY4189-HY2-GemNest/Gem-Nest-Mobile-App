@@ -515,7 +515,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
         ),
-        floatingActionButton: SharedBottomNavigation.buildFloatingActionButton(context, 3),
+        floatingActionButton:
+            SharedBottomNavigation.buildFloatingActionButton(context, 3),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         bottomNavigationBar: const SharedBottomNavigation(currentIndex: 3),
       ),

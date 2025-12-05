@@ -39,8 +39,10 @@ class CartScreen extends StatelessWidget {
             centerTitle: true,
             leading: const ProfessionalAppBarBackButton(),
           ),
-          floatingActionButton: SharedBottomNavigation.buildFloatingActionButton(context, 1),
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+          floatingActionButton:
+              SharedBottomNavigation.buildFloatingActionButton(context, 1),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerDocked,
           bottomNavigationBar: const SharedBottomNavigation(currentIndex: 1),
           body: Container(
             decoration: BoxDecoration(

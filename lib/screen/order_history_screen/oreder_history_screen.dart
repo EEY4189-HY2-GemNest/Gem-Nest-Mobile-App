@@ -116,7 +116,8 @@ class OrderHistoryScreen extends StatelessWidget {
           },
         ),
       ),
-      floatingActionButton: SharedBottomNavigation.buildFloatingActionButton(context, 2),
+      floatingActionButton:
+          SharedBottomNavigation.buildFloatingActionButton(context, 2),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const SharedBottomNavigation(currentIndex: 2),
     );
