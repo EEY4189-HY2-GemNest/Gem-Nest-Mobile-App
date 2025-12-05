@@ -27,8 +27,7 @@ class OrderHistoryScreen extends StatelessWidget {
               color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+        leading: ProfessionalAppBarBackButton(
           onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const HomeScreen()),
