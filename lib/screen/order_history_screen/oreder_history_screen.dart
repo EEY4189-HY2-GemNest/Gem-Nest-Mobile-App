@@ -1265,14 +1265,33 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
 
   String _formatPaymentMethod(dynamic paymentValue) {
     if (paymentValue == null) return 'N/A';
-
+    
     if (paymentValue is String) {
       return paymentValue;
     } else if (paymentValue is Map) {
       final paymentMap = paymentValue as Map<String, dynamic>;
       return paymentMap['type'] ?? paymentMap['method'] ?? 'N/A';
     }
-
+    
+    return 'N/A';
+  }
+  
+  String _formatAddress(dynamic addressValue) {
+    if (addressValue == null) return 'N/A';
+    
+    if (addressValue is String) {
+      return addressValue;
+    } else if (addressValue is Map) {
+      final addressMap = addressValue as Map<String, dynamic>;
+      final street = addressMap['street'] ?? '';
+      final city = addressMap['city'] ?? '';
+      final postalCode = addressMap['postalCode'] ?? '';
+      final state = addressMap['state'] ?? '';
+      
+      final parts = [street, city, state, postalCode].where((part) => part.toString().isNotEmpty).toList();
+      return parts.isNotEmpty ? parts.join(', ') : 'N/A';
+    }
+    
     return 'N/A';
   }
 }
