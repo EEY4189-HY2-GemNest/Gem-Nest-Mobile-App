@@ -68,7 +68,6 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                 ? _buildEmptyCart()
                 : Column(
                     children: [
-                      _buildPromotionalBanner(),
                       _buildCartHeader(cartProvider),
                       Expanded(child: _buildCartItems(cartProvider)),
                       _buildCouponSection(cartProvider),
@@ -561,7 +560,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                           ),
                         ),
                         Text(
-                          'You saved Rs. ${cartProvider.couponDiscount.toStringAsFixed(2)}',
+                          'You saved LKR ${cartProvider.couponDiscount.toStringAsFixed(2)}',
                           style: TextStyle(
                             color: Colors.green.shade600,
                             fontSize: 12,
@@ -659,41 +658,30 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
           ),
           const SizedBox(height: 16),
           _buildPriceRow(
-              'Subtotal', 'Rs. ${cartProvider.subtotal.toStringAsFixed(2)}'),
-          if (cartProvider.originalSubtotal != cartProvider.subtotal)
-            _buildPriceRow(
-              'Item Discount',
-              '-Rs. ${(cartProvider.originalSubtotal - cartProvider.subtotal).toStringAsFixed(2)}',
-              color: Colors.green,
-            ),
+              'Subtotal', 'LKR ${cartProvider.subtotal.toStringAsFixed(2)}'),
           if (cartProvider.couponDiscount > 0)
             _buildPriceRow(
               'Coupon Discount',
-              '-Rs. ${cartProvider.couponDiscount.toStringAsFixed(2)}',
+              '-LKR ${cartProvider.couponDiscount.toStringAsFixed(2)}',
               color: Colors.green,
             ),
           _buildPriceRow(
-              'Tax', 'Rs. ${cartProvider.taxAmount.toStringAsFixed(2)}'),
-          if (cartProvider.shippingCost > 0)
-            _buildPriceRow('Shipping',
-                'Rs. ${cartProvider.shippingCost.toStringAsFixed(2)}')
-          else
-            _buildPriceRow('Shipping', 'FREE', color: Colors.green),
-          const Divider(height: 24),
+              'Tax', 'LKR ${cartProvider.taxAmount.toStringAsFixed(2)}'),
+          const Divider(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 'Total Amount',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
-                'Rs. ${cartProvider.totalAmount.toStringAsFixed(2)}',
+                'LKR ${cartProvider.totalAmount.toStringAsFixed(2)}',
                 style: const TextStyle(
-                  fontSize: 20,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF667eea),
                 ),
