@@ -1,5 +1,6 @@
 // cart_screen.dart
 import 'package:flutter/material.dart';
+
 import 'package:gemnest_mobile_app/screen/checkout_screen/checkout_screen.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
@@ -18,7 +19,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
   final TextEditingController _couponController = TextEditingController();
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  final bool _isLoadingCoupon = false;
+  bool _isLoadingCoupon = false;
 
   @override
   void initState() {
@@ -181,64 +182,6 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
 
   Widget _buildCartHeader(CartProvider cartProvider) {
     return Container(
-      margin = const EdgeInsets.all(16),
-      padding = const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      decoration = BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF4CAF50), Color(0xFF45a049)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.green.withOpacity(0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child = Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.local_shipping,
-                color: Color(0xFF4CAF50), size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Free Delivery',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(
-                  'On orders above Rs. 2,500',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCartHeader(CartProvider cartProvider) {
-    return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -314,7 +257,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
           children: [
             Checkbox(
               value: item.isSelected,
-              onChanged: (value) => cartProvider.toggleItemSelection(item.id),
+              onChanged: (value) =>
+                  cartProvider.toggleItemSelection(item.id),
               activeColor: const Color(0xFF667eea),
             ),
             ClipRRect(
@@ -377,7 +321,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: item.isDiscounted ? Colors.red : Colors.black,
+                          color:
+                              item.isDiscounted ? Colors.red : Colors.black,
                         ),
                       ),
                       if (item.isDiscounted)
@@ -413,8 +358,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                           children: [
                             InkWell(
                               onTap: item.quantity > 1
-                                  ? () =>
-                                      cartProvider.decrementQuantity(item.id)
+                                  ? () => cartProvider.decrementQuantity(item.id)
                                   : null,
                               child: Container(
                                 padding: const EdgeInsets.all(6),
@@ -422,8 +366,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                               ),
                             ),
                             Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 12),
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
                               child: Text(
                                 '${item.quantity}',
                                 style: const TextStyle(
@@ -434,8 +377,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                             ),
                             InkWell(
                               onTap: item.quantity < item.availableStock
-                                  ? () =>
-                                      cartProvider.incrementQuantity(item.id)
+                                  ? () => cartProvider.incrementQuantity(item.id)
                                   : null,
                               child: Container(
                                 padding: const EdgeInsets.all(6),
@@ -686,24 +628,6 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
               ),
             ],
           ),
-          if (cartProvider.totalSavings > 0) ...[
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.green.shade50,
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                'You saved Rs. ${cartProvider.totalSavings.toStringAsFixed(2)}',
-                style: TextStyle(
-                  color: Colors.green.shade700,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ],
         ],
       ),
     );
