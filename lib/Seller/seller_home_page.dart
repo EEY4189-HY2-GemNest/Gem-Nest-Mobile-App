@@ -31,7 +31,7 @@ class _SellerHomePageState extends State<SellerHomePage>
   final List<Map<String, dynamic>> _notifications = [];
   String? currentUserId;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
+
   // Real data fields
   int _activeProductsCount = 0;
   int _liveAuctionsCount = 0;
@@ -75,14 +75,14 @@ class _SellerHomePageState extends State<SellerHomePage>
           .collection('products')
           .where('sellerId', isEqualTo: currentUserId)
           .get();
-      
+
       // Fetch live auctions count
       final auctionsSnapshot = await _firestore
           .collection('auctions')
           .where('sellerId', isEqualTo: currentUserId)
           .where('endDate', isGreaterThan: Timestamp.now())
           .get();
-      
+
       // Fetch total orders count
       final ordersSnapshot = await _firestore
           .collection('orders')
@@ -259,25 +259,30 @@ class _SellerHomePageState extends State<SellerHomePage>
                   opacity: _fadeAnimation,
                   child: SlideTransition(
                     position: _slideAnimation,
-                    child: CustomScrollView(
-                      slivers: [
-                        // Modern App Bar
-                        SliverToBoxAdapter(
-                          child: _buildModernHeader(),
-                        ),
-                        // Dashboard Stats Cards
-                        SliverToBoxAdapter(
-                          child: _buildStatsSection(),
-                        ),
-                        // Quick Actions Grid
-                        SliverToBoxAdapter(
-                          child: _buildQuickActionsGrid(),
-                        ),
-                        // Recent Activity Section
-                        SliverToBoxAdapter(
-                          child: _buildRecentActivitySection(),
-                        ),
-                      ],
+                    child: RefreshIndicator(
+                      onRefresh: _fetchRealData,
+                      color: Colors.blue,
+                      backgroundColor: Colors.grey[900],
+                      child: CustomScrollView(
+                        slivers: [
+                          // Modern App Bar
+                          SliverToBoxAdapter(
+                            child: _buildModernHeader(),
+                          ),
+                          // Dashboard Stats Cards
+                          SliverToBoxAdapter(
+                            child: _buildStatsSection(),
+                          ),
+                          // Quick Actions Grid
+                          SliverToBoxAdapter(
+                            child: _buildQuickActionsGrid(),
+                          ),
+                          // Recent Activity Section
+                          SliverToBoxAdapter(
+                            child: _buildRecentActivitySection(),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -639,14 +644,18 @@ class _SellerHomePageState extends State<SellerHomePage>
             Icons.history_outlined,
             Colors.orange,
             () => _navigateToAuctionHistory(),
-          ).animate().fadeIn(duration: 500.ms, delay: 100.ms).slideX(begin: 0.3),
+          )
+              .animate()
+              .fadeIn(duration: 500.ms, delay: 100.ms)
+              .slideX(begin: 0.3),
           const SizedBox(height: 100),
         ],
       ),
     );
   }
 
-  Widget _buildQuickAccessCard(String title, String subtitle, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildQuickAccessCard(String title, String subtitle, IconData icon,
+      Color color, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
