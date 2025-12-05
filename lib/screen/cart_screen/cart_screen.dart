@@ -1,6 +1,5 @@
 // cart_screen.dart
 import 'package:flutter/material.dart';
-
 import 'package:gemnest_mobile_app/screen/checkout_screen/checkout_screen.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
@@ -381,9 +380,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: item.isDiscounted
-                                  ? Colors.red
-                                  : Colors.black,
+                              color:
+                                  item.isDiscounted ? Colors.red : Colors.black,
                             ),
                           ),
                           if (item.isDiscounted)
