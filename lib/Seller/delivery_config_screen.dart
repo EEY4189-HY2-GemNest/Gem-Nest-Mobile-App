@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 
@@ -91,10 +90,8 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
       final userId = _auth.currentUser?.uid;
       if (userId == null) return;
 
-      final doc = await _firestore
-          .collection('delivery_configs')
-          .doc(userId)
-          .get();
+      final doc =
+          await _firestore.collection('delivery_configs').doc(userId).get();
 
       if (doc.exists) {
         final data = doc.data()!;
@@ -186,11 +183,13 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+              child:
+                  const Text('Cancel', style: TextStyle(color: Colors.white70)),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Apply', style: TextStyle(color: Colors.blueAccent)),
+              child: const Text('Apply',
+                  style: TextStyle(color: Colors.blueAccent)),
             ),
           ],
         ),
@@ -255,11 +254,13 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+              child:
+                  const Text('Cancel', style: TextStyle(color: Colors.white70)),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Apply', style: TextStyle(color: Colors.blueAccent)),
+              child: const Text('Apply',
+                  style: TextStyle(color: Colors.blueAccent)),
             ),
           ],
         ),
@@ -385,14 +386,14 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      
+
                       // Delivery Methods
                       ..._deliveryMethods.values.map((method) {
                         return _buildDeliveryMethodCard(method);
                       }),
-                      
+
                       const SizedBox(height: 24),
-                      
+
                       // Bulk Actions
                       const Text(
                         'Bulk Actions',
@@ -403,7 +404,7 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      
+
                       _buildBulkActionButton(
                         icon: Icons.shopping_bag,
                         title: 'Apply to All Products',
@@ -411,7 +412,7 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
                         onTap: _applyToAllProducts,
                       ),
                       const SizedBox(height: 12),
-                      
+
                       _buildBulkActionButton(
                         icon: Icons.gavel,
                         title: 'Apply to All Auctions',
@@ -439,7 +440,9 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: method.enabled ? Colors.blueAccent.withOpacity(0.3) : Colors.transparent,
+          color: method.enabled
+              ? Colors.blueAccent.withOpacity(0.3)
+              : Colors.transparent,
           width: 2,
         ),
       ),
@@ -481,11 +484,13 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
               child: TextFormField(
                 initialValue: method.price.toStringAsFixed(2),
                 style: const TextStyle(color: Colors.white),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
                   labelText: 'Price (LKR)',
                   labelStyle: const TextStyle(color: Colors.white70),
-                  prefixIcon: const Icon(Icons.attach_money, color: Colors.white70),
+                  prefixIcon:
+                      const Icon(Icons.attach_money, color: Colors.white70),
                   filled: true,
                   fillColor: Colors.grey[800],
                   border: OutlineInputBorder(
@@ -498,7 +503,8 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.blueAccent, width: 2),
+                    borderSide:
+                        const BorderSide(color: Colors.blueAccent, width: 2),
                   ),
                 ),
                 onChanged: (value) {
@@ -563,7 +569,8 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios, color: Colors.white54, size: 16),
+            const Icon(Icons.arrow_forward_ios,
+                color: Colors.white54, size: 16),
           ],
         ),
       ),
