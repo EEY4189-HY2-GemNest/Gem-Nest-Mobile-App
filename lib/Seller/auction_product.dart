@@ -34,7 +34,7 @@ class _AuctionProductState extends State<AuctionProduct>
 
   // Delivery methods state
   Map<String, Map<String, dynamic>> _availableDeliveryMethods = {};
-  Set<String> _selectedDeliveryMethods = {};
+  final Set<String> _selectedDeliveryMethods = {};
   bool _isLoadingDeliveryConfig = false;
 
   @override
@@ -174,11 +174,12 @@ class _AuctionProductState extends State<AuctionProduct>
 
   void _showConfirmationDialog() {
     // Validate delivery methods selection
-    if (_selectedDeliveryMethods.isEmpty && _availableDeliveryMethods.isNotEmpty) {
+    if (_selectedDeliveryMethods.isEmpty &&
+        _availableDeliveryMethods.isNotEmpty) {
       _showErrorDialog('Please select at least one delivery method.');
       return;
     }
-    
+
     if (_formKey.currentState!.validate() &&
         _image != null &&
         _selectedEndTime != null) {
@@ -566,7 +567,8 @@ class _AuctionProductState extends State<AuctionProduct>
       children: [
         const Text(
           'Available Delivery Methods',
-          style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 10),
         Container(
@@ -581,7 +583,7 @@ class _AuctionProductState extends State<AuctionProduct>
               final methodId = entry.key;
               final methodData = entry.value;
               final isSelected = _selectedDeliveryMethods.contains(methodId);
-              
+
               return CheckboxListTile(
                 title: Text(
                   methodData['name'] ?? methodId,
