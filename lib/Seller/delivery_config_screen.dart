@@ -35,7 +35,7 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
   bool _isLoading = true;
   bool _isSaving = false;
   bool _hasUnsavedChanges = false;
-  
+
   // Store initial state for comparison
   final Map<String, Map<String, dynamic>> _initialState = {};
 
@@ -235,7 +235,7 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
           'price': method.price,
         };
       }
-      
+
       setState(() {
         _hasUnsavedChanges = false;
       });
@@ -402,152 +402,154 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: _onWillPop,
-      child: Scaffold(
-        backgroundColor: Colors.black,
-        appBar: AppBar(
-          flexibleSpace: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.blueAccent, Colors.lightBlue],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-          ),
-          elevation: 4,
-          shadowColor: Colors.black26,
-          title: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Flexible(
-                child: Text(
-                  'Delivery Configuration',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+        onWillPop: _onWillPop,
+        child: Scaffold(
+          backgroundColor: Colors.black,
+          appBar: AppBar(
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.blueAccent, Colors.lightBlue],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
               ),
-              if (_hasUnsavedChanges) ...[
-                const SizedBox(width: 8),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Colors.orangeAccent,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Text(
-                    'Unsaved',
+            ),
+            elevation: 4,
+            shadowColor: Colors.black26,
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Flexible(
+                  child: Text(
+                    'Delivery Configuration',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 10,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-              ],
-            ],
-          ),
-          centerTitle: false,
-          leading: const ProfessionalAppBarBackButton(),
-          actions: [
-            if (!_isLoading)
-              IconButton(
-                icon: _isSaving
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Icon(Icons.save, color: Colors.white),
-                onPressed: _isSaving ? null : _saveDeliveryConfig,
-              ),
-          ],
-        ),
-        body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Colors.blueAccent),
-            )
-          : Column(
-              children: [
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      // Info Card
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Colors.blue[900]!, Colors.blue[700]!],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Row(
-                          children: [
-                            Icon(Icons.info_outline, color: Colors.white),
-                            SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                'Configure delivery methods and prices for your products. Enable/disable methods and set custom prices.',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                if (_hasUnsavedChanges) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.orangeAccent,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Text(
+                      'Unsaved',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(height: 24),
-
-                      // Delivery Methods
-                      ..._deliveryMethods.values.map((method) {
-                        return _buildDeliveryMethodCard(method);
-                      }),
-
-                      const SizedBox(height: 24),
-
-                      // Bulk Actions
-                      const Text(
-                        'Bulk Actions',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-
-                      _buildBulkActionButton(
-                        icon: Icons.shopping_bag,
-                        title: 'Apply to All Products',
-                        description: 'Update all products with current config',
-                        onTap: _applyToAllProducts,
-                      ),
-                      const SizedBox(height: 12),
-
-                      _buildBulkActionButton(
-                        icon: Icons.gavel,
-                        title: 'Apply to All Auctions',
-                        description: 'Update all auctions with current config',
-                        onTap: _applyToAllAuctions,
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
-    ));
+            centerTitle: false,
+            leading: const ProfessionalAppBarBackButton(),
+            actions: [
+              if (!_isLoading)
+                IconButton(
+                  icon: _isSaving
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.save, color: Colors.white),
+                  onPressed: _isSaving ? null : _saveDeliveryConfig,
+                ),
+            ],
+          ),
+          body: _isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(color: Colors.blueAccent),
+                )
+              : Column(
+                  children: [
+                    Expanded(
+                      child: ListView(
+                        padding: const EdgeInsets.all(16),
+                        children: [
+                          // Info Card
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.blue[900]!, Colors.blue[700]!],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Row(
+                              children: [
+                                Icon(Icons.info_outline, color: Colors.white),
+                                SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Configure delivery methods and prices for your products. Enable/disable methods and set custom prices.',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Delivery Methods
+                          ..._deliveryMethods.values.map((method) {
+                            return _buildDeliveryMethodCard(method);
+                          }),
+
+                          const SizedBox(height: 24),
+
+                          // Bulk Actions
+                          const Text(
+                            'Bulk Actions',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+
+                          _buildBulkActionButton(
+                            icon: Icons.shopping_bag,
+                            title: 'Apply to All Products',
+                            description:
+                                'Update all products with current config',
+                            onTap: _applyToAllProducts,
+                          ),
+                          const SizedBox(height: 12),
+
+                          _buildBulkActionButton(
+                            icon: Icons.gavel,
+                            title: 'Apply to All Auctions',
+                            description:
+                                'Update all auctions with current config',
+                            onTap: _applyToAllAuctions,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+        ));
   }
 
   Widget _buildDeliveryMethodCard(DeliveryMethodConfig method) {
