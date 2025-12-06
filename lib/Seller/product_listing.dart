@@ -295,9 +295,9 @@ class _ProductListingState extends State<ProductListing>
       StringBuffer errorMessages = StringBuffer();
       for (int i = 1; i < csvData.length; i++) {
         final row = csvData[i];
-        if (row.length != 7) {
+        if (row.length != 8) {
           errorMessages.writeln(
-              'Row ${i + 1}: Invalid number of columns. Expected 7, found ${row.length}');
+              'Row ${i + 1}: Invalid number of columns. Expected 8, found ${row.length}');
           continue;
         }
 
@@ -306,8 +306,19 @@ class _ProductListingState extends State<ProductListing>
         String pricingStr = row[2].toString().trim();
         String quantityStr = row[3].toString().trim();
         String unit = row[4].toString().trim();
-        String description = row[5].toString().trim();
-        String imageUrl = row[6].toString().trim();
+        String deliveryMethodsStr = row[5].toString().trim();
+        String description = row[6].toString().trim();
+        String imageUrl = row[7].toString().trim();
+
+        // Parse delivery methods (comma-separated)
+        List<String> deliveryMethods = [];
+        if (deliveryMethodsStr.isNotEmpty) {
+          deliveryMethods = deliveryMethodsStr
+              .split(',')
+              .map((e) => e.trim())
+              .where((e) => e.isNotEmpty)
+              .toList();
+        }
 
         // Validate each field
         bool hasErrors = false;
@@ -344,10 +355,12 @@ class _ProductListingState extends State<ProductListing>
             'pricing': pricing!,
             'quantity': quantity!,
             'unit': unit,
+            'deliveryMethods': deliveryMethods,
             'description': description,
             'imageUrl': imageUrl,
             'timestamp': FieldValue.serverTimestamp(),
             'userId': _auth.currentUser!.uid,
+            'sellerId': _auth.currentUser!.uid,
           });
         }
       }
