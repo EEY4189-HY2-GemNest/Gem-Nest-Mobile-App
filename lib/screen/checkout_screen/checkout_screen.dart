@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
 import 'package:gemnest_mobile_app/screen/payment_screen/payment_screen.dart';
 import 'package:gemnest_mobile_app/theme/app_theme.dart';
@@ -99,6 +100,13 @@ class _CheckoutScreenState extends State<CheckoutScreen>
       TextEditingController();
   final TextEditingController _promoController = TextEditingController();
 
+  // Firestore instance
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // State Variables
+  bool _isLoadingDeliveryMethods = true;
+  String? _deliveryLoadError;
+
   // Form Keys
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _addressFormKey = GlobalKey<FormState>();
@@ -118,40 +126,15 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  // Delivery Options
-  final List<DeliveryOption> _deliveryOptions = [
-    DeliveryOption(
-      id: 'standard',
-      name: 'Standard Delivery',
-      description: 'Delivered in 3-5 business days',
-      cost: 500.0,
-      estimatedDays: 5,
-      icon: '🚚',
-    ),
-    DeliveryOption(
-      id: 'express',
-      name: 'Express Delivery',
-      description: 'Delivered within 24-48 hours',
-      cost: 1500.0,
-      estimatedDays: 2,
-      icon: '⚡',
-    ),
-    DeliveryOption(
-      id: 'same_day',
-      name: 'Same Day Delivery',
-      description: 'Order before 2 PM for same day delivery',
-      cost: 2500.0,
-      estimatedDays: 0,
-      icon: '🏃',
-    ),
-  ];
+  // Delivery Options - loaded dynamically from Firebase
+  List<DeliveryOption> _deliveryOptions = [];
 
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
     _loadUserData();
-    _selectedDelivery = _deliveryOptions.first;
+    _loadDeliveryMethods();
   }
 
   void _initializeAnimations() {
@@ -204,6 +187,111 @@ class _CheckoutScreenState extends State<CheckoutScreen>
       _specialInstructionsController.text =
           prefs.getString('checkout_instructions') ?? '';
     });
+  }
+
+  Future<void> _loadDeliveryMethods() async {
+    setState(() {
+      _isLoadingDeliveryMethods = true;
+      _deliveryLoadError = null;
+    });
+
+    try {
+      // Get cart provider to access cart items
+      final cartProvider = Provider.of<CartProvider>(context, listen: false);
+      
+      if (cartProvider.cartItems.isEmpty) {
+        setState(() {
+          _isLoadingDeliveryMethods = false;
+          _deliveryLoadError = 'Cart is empty';
+        });
+        return;
+      }
+
+      // Get unique seller IDs from cart items
+      final sellerIds = cartProvider.cartItems
+          .map((item) => item.sellerId)
+          .where((id) => id.isNotEmpty)
+          .toSet();
+
+      if (sellerIds.isEmpty) {
+        setState(() {
+          _isLoadingDeliveryMethods = false;
+          _deliveryLoadError = 'No seller information found';
+        });
+        return;
+      }
+
+      // For simplicity, use the first seller's delivery config
+      // In a multi-seller cart, you might need different logic
+      final sellerId = sellerIds.first;
+
+      // Fetch delivery config from Firebase
+      final doc = await _firestore
+          .collection('delivery_configs')
+          .doc(sellerId)
+          .get();
+
+      if (!doc.exists) {
+        setState(() {
+          _isLoadingDeliveryMethods = false;
+          _deliveryLoadError = 'Seller has not configured delivery methods';
+        });
+        return;
+      }
+
+      final data = doc.data()!;
+      final deliveryOptions = <DeliveryOption>[];
+
+      // Map delivery method IDs to emoji icons
+      const iconMap = {
+        'pickup': '🏪',
+        'standard': '🚚',
+        'express': '⚡',
+        'fast': '🏃',
+        'overseas': '✈️',
+      };
+
+      // Map delivery method IDs to estimated days
+      const estimatedDaysMap = {
+        'pickup': 0,
+        'standard': 5,
+        'express': 2,
+        'fast': 1,
+        'overseas': 14,
+      };
+
+      data.forEach((key, value) {
+        if (key != 'sellerId' && key != 'updatedAt') {
+          final methodData = value as Map<String, dynamic>;
+          if (methodData['enabled'] == true) {
+            deliveryOptions.add(
+              DeliveryOption(
+                id: key,
+                name: methodData['name'] ?? key,
+                description: methodData['description'] ?? '',
+                cost: (methodData['price'] ?? 0.0).toDouble(),
+                estimatedDays: estimatedDaysMap[key] ?? 3,
+                icon: iconMap[key] ?? '📦',
+              ),
+            );
+          }
+        }
+      });
+
+      setState(() {
+        _deliveryOptions = deliveryOptions;
+        if (_deliveryOptions.isNotEmpty) {
+          _selectedDelivery = _deliveryOptions.first;
+        }
+        _isLoadingDeliveryMethods = false;
+      });
+    } catch (e) {
+      print('Error loading delivery methods: $e');
+      setState(() {
+        _isLoadingDeliveryMethods = false;
+        _deliveryLoadError = 'Failed to load delivery methods';
+      });
+    }
   }
 
   Future<void> _saveUserData() async {
@@ -912,7 +1000,57 @@ class _CheckoutScreenState extends State<CheckoutScreen>
             ],
           ),
           const SizedBox(height: 16),
-          ..._deliveryOptions.map((option) => _buildDeliveryOption(option)),
+          if (_isLoadingDeliveryMethods)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: CircularProgressIndicator(),
+              ),
+            )
+          else if (_deliveryLoadError != null)
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.orange),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.warning_amber, color: Colors.orange),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _deliveryLoadError!,
+                      style: const TextStyle(color: Colors.orange),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else if (_deliveryOptions.isEmpty)
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.red),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.error_outline, color: Colors.red),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'No delivery methods available',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            ..._deliveryOptions.map((option) => _buildDeliveryOption(option)),
         ],
       ),
     );
