@@ -36,7 +36,7 @@ class _ProductListingState extends State<ProductListing>
   
   // Delivery methods
   Map<String, Map<String, dynamic>> _availableDeliveryMethods = {};
-  Set<String> _selectedDeliveryMethods = {};
+  final Set<String> _selectedDeliveryMethods = {};
   bool _isLoadingDeliveryConfig = true;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -255,6 +255,7 @@ class _ProductListingState extends State<ProductListing>
         'pricing',
         'quantity',
         'unit',
+        'deliveryMethods',
         'description',
         'imageUrl'
       ];
