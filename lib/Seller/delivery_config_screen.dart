@@ -577,21 +577,3 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
     );
   }
 }
-
-class DeliveryMethodConfig {
-  final String id;
-  final String name;
-  final IconData icon;
-  final String description;
-  bool enabled;
-  double price;
-
-  DeliveryMethodConfig({
-    required this.id,
-    required this.name,
-    required this.icon,
-    required this.description,
-    required this.enabled,
-    required this.price,
-  });
-}
