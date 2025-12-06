@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 
@@ -35,6 +34,10 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   bool _isLoading = true;
   bool _isSaving = false;
+  bool _hasUnsavedChanges = false;
+
+  // Store initial state for comparison
+  final Map<String, Map<String, dynamic>> _initialState = {};
 
   // Delivery methods configuration
   final Map<String, DeliveryMethodConfig> _deliveryMethods = {
@@ -91,10 +94,8 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
       final userId = _auth.currentUser?.uid;
       if (userId == null) return;
 
-      final doc = await _firestore
-          .collection('delivery_configs')
-          .doc(userId)
-          .get();
+      final doc =
+          await _firestore.collection('delivery_configs').doc(userId).get();
 
       if (doc.exists) {
         final data = doc.data()!;
@@ -105,14 +106,150 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
               method.enabled = methodData['enabled'] ?? false;
               method.price = (methodData['price'] ?? 0.0).toDouble();
             }
+            // Store initial state
+            _initialState[method.id] = {
+              'enabled': method.enabled,
+              'price': method.price,
+            };
           }
         });
+      } else {
+        // No existing config, save current defaults as initial state
+        for (var method in _deliveryMethods.values) {
+          _initialState[method.id] = {
+            'enabled': method.enabled,
+            'price': method.price,
+          };
+        }
       }
     } catch (e) {
       print('Error loading delivery config: $e');
     } finally {
       setState(() => _isLoading = false);
     }
+  }
+
+  void _checkForChanges() {
+    bool hasChanges = false;
+    for (var method in _deliveryMethods.values) {
+      final initial = _initialState[method.id];
+      if (initial != null) {
+        if (method.enabled != initial['enabled'] ||
+            method.price != initial['price']) {
+          hasChanges = true;
+          break;
+        }
+      }
+    }
+    print('_checkForChanges: hasChanges=$hasChanges');
+    setState(() {
+      _hasUnsavedChanges = hasChanges;
+    });
+  }
+
+  Future<bool> _onWillPop() async {
+    print('_onWillPop called, _hasUnsavedChanges: $_hasUnsavedChanges');
+
+    if (!_hasUnsavedChanges) return true;
+
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF212121),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: Colors.orangeAccent, width: 2),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.orangeAccent.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.warning_amber_rounded,
+                color: Colors.orangeAccent,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text(
+                'Unsaved Changes',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          'You have unsaved changes. Do you want to save before leaving?',
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 16,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
+            child: const Text(
+              'Discard',
+              style: TextStyle(
+                color: Colors.redAccent,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 16,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context, false);
+              await _saveDeliveryConfig();
+              if (mounted) Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blueAccent,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'Save & Exit',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    return result ?? false;
   }
 
   Future<void> _saveDeliveryConfig() async {
@@ -148,6 +285,18 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
           .collection('delivery_configs')
           .doc(userId)
           .set(configData, SetOptions(merge: true));
+
+      // Update initial state after save
+      for (var method in _deliveryMethods.values) {
+        _initialState[method.id] = {
+          'enabled': method.enabled,
+          'price': method.price,
+        };
+      }
+
+      setState(() {
+        _hasUnsavedChanges = false;
+      });
 
       Fluttertoast.showToast(
         msg: 'Delivery configuration saved successfully',
@@ -186,11 +335,13 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+              child:
+                  const Text('Cancel', style: TextStyle(color: Colors.white70)),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Apply', style: TextStyle(color: Colors.blueAccent)),
+              child: const Text('Apply',
+                  style: TextStyle(color: Colors.blueAccent)),
             ),
           ],
         ),
@@ -255,11 +406,13 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+              child:
+                  const Text('Cancel', style: TextStyle(color: Colors.white70)),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Apply', style: TextStyle(color: Colors.blueAccent)),
+              child: const Text('Apply',
+                  style: TextStyle(color: Colors.blueAccent)),
             ),
           ],
         ),
@@ -306,144 +459,173 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.blueAccent, Colors.lightBlue],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+    return WillPopScope(
+        onWillPop: _onWillPop,
+        child: Scaffold(
+          backgroundColor: Colors.black,
+          appBar: AppBar(
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.blueAccent, Colors.lightBlue],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
             ),
-          ),
-        ),
-        elevation: 4,
-        shadowColor: Colors.black26,
-        title: const Text(
-          'Delivery Configuration',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
-        leading: const ProfessionalAppBarBackButton(),
-        actions: [
-          if (!_isLoading)
-            IconButton(
-              icon: _isSaving
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Icon(Icons.save, color: Colors.white),
-              onPressed: _isSaving ? null : _saveDeliveryConfig,
-            ),
-        ],
-      ),
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Colors.blueAccent),
-            )
-          : Column(
+            elevation: 4,
+            shadowColor: Colors.black26,
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      // Info Card
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Colors.blue[900]!, Colors.blue[700]!],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Row(
-                          children: [
-                            Icon(Icons.info_outline, color: Colors.white),
-                            SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                'Configure delivery methods and prices for your products. Enable/disable methods and set custom prices.',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      
-                      // Delivery Methods
-                      ..._deliveryMethods.values.map((method) {
-                        return _buildDeliveryMethodCard(method);
-                      }),
-                      
-                      const SizedBox(height: 24),
-                      
-                      // Bulk Actions
-                      const Text(
-                        'Bulk Actions',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      
-                      _buildBulkActionButton(
-                        icon: Icons.shopping_bag,
-                        title: 'Apply to All Products',
-                        description: 'Update all products with current config',
-                        onTap: _applyToAllProducts,
-                      ),
-                      const SizedBox(height: 12),
-                      
-                      _buildBulkActionButton(
-                        icon: Icons.gavel,
-                        title: 'Apply to All Auctions',
-                        description: 'Update all auctions with current config',
-                        onTap: _applyToAllAuctions,
-                      ),
-                    ],
+                const Flexible(
+                  child: Text(
+                    'Delivery Configuration',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                if (_hasUnsavedChanges) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.orangeAccent,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Text(
+                      'Unsaved',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
-    );
+            centerTitle: false,
+            leading: const ProfessionalAppBarBackButton(),
+            actions: [
+              if (!_isLoading)
+                IconButton(
+                  icon: _isSaving
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.save, color: Colors.white),
+                  onPressed: _isSaving ? null : _saveDeliveryConfig,
+                ),
+            ],
+          ),
+          body: _isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(color: Colors.blueAccent),
+                )
+              : Column(
+                  children: [
+                    Expanded(
+                      child: ListView(
+                        padding: const EdgeInsets.all(16),
+                        children: [
+                          // Info Card
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.blue[900]!, Colors.blue[700]!],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Row(
+                              children: [
+                                Icon(Icons.info_outline, color: Colors.white),
+                                SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Configure delivery methods and prices for your products. Enable/disable methods and set custom prices.',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Delivery Methods
+                          ..._deliveryMethods.values.map((method) {
+                            return _buildDeliveryMethodCard(method);
+                          }),
+
+                          const SizedBox(height: 24),
+
+                          // Bulk Actions
+                          const Text(
+                            'Bulk Actions',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+
+                          _buildBulkActionButton(
+                            icon: Icons.shopping_bag,
+                            title: 'Apply to All Products',
+                            description:
+                                'Update all products with current config',
+                            onTap: _applyToAllProducts,
+                          ),
+                          const SizedBox(height: 12),
+
+                          _buildBulkActionButton(
+                            icon: Icons.gavel,
+                            title: 'Apply to All Auctions',
+                            description:
+                                'Update all auctions with current config',
+                            onTap: _applyToAllAuctions,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+        ));
   }
 
   Widget _buildDeliveryMethodCard(DeliveryMethodConfig method) {
-    final priceController = TextEditingController(
-      text: method.price.toStringAsFixed(2),
-    );
-
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: method.enabled
-              ? [Colors.grey[850]!, Colors.grey[900]!]
-              : [Colors.grey[900]!, Colors.grey[950]!],
+              ? [const Color(0xFF303030), const Color(0xFF212121)]
+              : [const Color(0xFF212121), const Color(0xFF121212)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: method.enabled ? Colors.blueAccent.withOpacity(0.3) : Colors.transparent,
+          color: method.enabled
+              ? Colors.blueAccent.withOpacity(0.3)
+              : Colors.transparent,
           width: 2,
         ),
       ),
@@ -455,6 +637,7 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
               setState(() {
                 method.enabled = value;
               });
+              _checkForChanges();
             },
             title: Row(
               children: [
@@ -482,34 +665,35 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
           if (method.enabled)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: TextField(
-                controller: priceController,
+              child: TextFormField(
+                initialValue: method.price.toStringAsFixed(2),
                 style: const TextStyle(color: Colors.white),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
-                ],
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
                   labelText: 'Price (LKR)',
                   labelStyle: const TextStyle(color: Colors.white70),
-                  prefixIcon: const Icon(Icons.attach_money, color: Colors.white70),
+                  prefixIcon:
+                      const Icon(Icons.attach_money, color: Colors.white70),
                   filled: true,
-                  fillColor: Colors.grey[800],
+                  fillColor: const Color(0xFF424242),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Colors.grey[700]!),
+                    borderSide: const BorderSide(color: Color(0xFF616161)),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.blueAccent, width: 2),
+                    borderSide:
+                        const BorderSide(color: Colors.blueAccent, width: 2),
                   ),
                 ),
                 onChanged: (value) {
-                  method.price = double.tryParse(value) ?? 0.0;
+                  method.price = double.tryParse(value) ?? method.price;
+                  _checkForChanges();
                 },
               ),
             ),
@@ -530,7 +714,7 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.grey[850]!, Colors.grey[900]!],
+            colors: const [Color(0xFF303030), Color(0xFF212121)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -570,28 +754,11 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios, color: Colors.white54, size: 16),
+            const Icon(Icons.arrow_forward_ios,
+                color: Colors.white54, size: 16),
           ],
         ),
       ),
     );
   }
-}
-
-class DeliveryMethodConfig {
-  final String id;
-  final String name;
-  final IconData icon;
-  final String description;
-  bool enabled;
-  double price;
-
-  DeliveryMethodConfig({
-    required this.id,
-    required this.name,
-    required this.icon,
-    required this.description,
-    required this.enabled,
-    required this.price,
-  });
 }
