@@ -449,25 +449,25 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
             ],
           ),
           centerTitle: false,
-        leading: const ProfessionalAppBarBackButton(),
-        actions: [
-          if (!_isLoading)
-            IconButton(
-              icon: _isSaving
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Icon(Icons.save, color: Colors.white),
-              onPressed: _isSaving ? null : _saveDeliveryConfig,
-            ),
-        ],
-      ),
-      body: _isLoading
+          leading: const ProfessionalAppBarBackButton(),
+          actions: [
+            if (!_isLoading)
+              IconButton(
+                icon: _isSaving
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(Icons.save, color: Colors.white),
+                onPressed: _isSaving ? null : _saveDeliveryConfig,
+              ),
+          ],
+        ),
+        body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(color: Colors.blueAccent),
             )
