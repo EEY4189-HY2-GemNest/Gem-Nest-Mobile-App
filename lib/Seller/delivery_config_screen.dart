@@ -34,6 +34,10 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   bool _isLoading = true;
   bool _isSaving = false;
+  bool _hasUnsavedChanges = false;
+  
+  // Store initial state for comparison
+  final Map<String, Map<String, dynamic>> _initialState = {};
 
   // Delivery methods configuration
   final Map<String, DeliveryMethodConfig> _deliveryMethods = {
@@ -102,14 +106,92 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
               method.enabled = methodData['enabled'] ?? false;
               method.price = (methodData['price'] ?? 0.0).toDouble();
             }
+            // Store initial state
+            _initialState[method.id] = {
+              'enabled': method.enabled,
+              'price': method.price,
+            };
           }
         });
+      } else {
+        // No existing config, save current defaults as initial state
+        for (var method in _deliveryMethods.values) {
+          _initialState[method.id] = {
+            'enabled': method.enabled,
+            'price': method.price,
+          };
+        }
       }
     } catch (e) {
       print('Error loading delivery config: $e');
     } finally {
       setState(() => _isLoading = false);
     }
+  }
+
+  void _checkForChanges() {
+    bool hasChanges = false;
+    for (var method in _deliveryMethods.values) {
+      final initial = _initialState[method.id];
+      if (initial != null) {
+        if (method.enabled != initial['enabled'] ||
+            method.price != initial['price']) {
+          hasChanges = true;
+          break;
+        }
+      }
+    }
+    setState(() {
+      _hasUnsavedChanges = hasChanges;
+    });
+  }
+
+  Future<bool> _onWillPop() async {
+    if (!_hasUnsavedChanges) return true;
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF212121),
+        title: const Text(
+          'Unsaved Changes',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: const Text(
+          'You have unsaved changes. Do you want to save before leaving?',
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Discard',
+              style: TextStyle(color: Colors.redAccent),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white70),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context, false);
+              await _saveDeliveryConfig();
+              if (mounted) Navigator.pop(context);
+            },
+            child: const Text(
+              'Save',
+              style: TextStyle(color: Colors.blueAccent),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    return result ?? false;
   }
 
   Future<void> _saveDeliveryConfig() async {
@@ -145,6 +227,18 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
           .collection('delivery_configs')
           .doc(userId)
           .set(configData, SetOptions(merge: true));
+
+      // Update initial state after save
+      for (var method in _deliveryMethods.values) {
+        _initialState[method.id] = {
+          'enabled': method.enabled,
+          'price': method.price,
+        };
+      }
+      
+      setState(() {
+        _hasUnsavedChanges = false;
+      });
 
       Fluttertoast.showToast(
         msg: 'Delivery configuration saved successfully',
@@ -307,29 +401,54 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.blueAccent, Colors.lightBlue],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.blueAccent, Colors.lightBlue],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
             ),
           ),
-        ),
-        elevation: 4,
-        shadowColor: Colors.black26,
-        title: const Text(
-          'Delivery Configuration',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
+          elevation: 4,
+          shadowColor: Colors.black26,
+          title: Row(
+            children: [
+              const Text(
+                'Delivery Configuration',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              if (_hasUnsavedChanges) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.orangeAccent,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Text(
+                    'Unsaved',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
-        ),
-        centerTitle: true,
+          centerTitle: false,
         leading: const ProfessionalAppBarBackButton(),
         actions: [
           if (!_isLoading)
@@ -454,6 +573,7 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
               setState(() {
                 method.enabled = value;
               });
+              _checkForChanges();
             },
             title: Row(
               children: [
@@ -509,6 +629,7 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
                 ),
                 onChanged: (value) {
                   method.price = double.tryParse(value) ?? method.price;
+                  _checkForChanges();
                 },
               ),
             ),
