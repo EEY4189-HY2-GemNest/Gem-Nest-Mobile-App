@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
@@ -18,6 +19,7 @@ class ListedProductScreen extends StatefulWidget {
 }
 
 class _ListedProductScreenState extends State<ListedProductScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   DateTimeRange? _selectedDateRange;
 
   // Method to pick date range
@@ -72,18 +74,23 @@ class _ListedProductScreenState extends State<ListedProductScreen> {
       totalValueInRange += pricing * quantity;
     }
 
-    // Fetch all products for all-time total value
-    final allProductsSnapshot =
-        await FirebaseFirestore.instance.collection('products').get();
-    for (var product in allProductsSnapshot.docs) {
-      final data = product.data();
-      final pricing = data['pricing'] is int
-          ? (data['pricing'] as int).toDouble()
-          : data['pricing'] as double;
-      final quantity = data['quantity'] is int
-          ? (data['quantity'] as int).toDouble()
-          : data['quantity'] as double;
-      allTimeTotalValue += pricing * quantity;
+    // Fetch all products for all-time total value (seller specific)
+    String? currentSellerId = _auth.currentUser?.uid;
+    if (currentSellerId != null) {
+      final allProductsSnapshot = await FirebaseFirestore.instance
+          .collection('products')
+          .where('sellerId', isEqualTo: currentSellerId)
+          .get();
+      for (var product in allProductsSnapshot.docs) {
+        final data = product.data();
+        final pricing = data['pricing'] is int
+            ? (data['pricing'] as int).toDouble()
+            : data['pricing'] as double;
+        final quantity = data['quantity'] is int
+            ? (data['quantity'] as int).toDouble()
+            : data['quantity'] as double;
+        allTimeTotalValue += pricing * quantity;
+      }
     }
 
     pdf.addPage(
@@ -306,9 +313,12 @@ class _ListedProductScreenState extends State<ListedProductScreen> {
           IconButton(
             icon: const Icon(Icons.download, color: Colors.white),
             onPressed: () async {
+              final currentUserId = _auth.currentUser?.uid;
+              if (currentUserId == null) return;
+
               final snapshot = await FirebaseFirestore.instance
                   .collection('products')
-                  .orderBy('timestamp', descending: true)
+                  .where('sellerId', isEqualTo: currentUserId)
                   .get();
               var filteredProducts = snapshot.docs;
               if (_selectedDateRange != null) {
@@ -327,10 +337,12 @@ class _ListedProductScreenState extends State<ListedProductScreen> {
       ),
       body: SafeArea(
         child: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('products')
-              .orderBy('timestamp', descending: true)
-              .snapshots(),
+          stream: _auth.currentUser?.uid != null
+              ? FirebaseFirestore.instance
+                  .collection('products')
+                  .where('sellerId', isEqualTo: _auth.currentUser!.uid)
+                  .snapshots()
+              : const Stream.empty(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
