@@ -433,8 +433,8 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: method.enabled
-              ? [Colors.grey[850]!, Colors.grey[900]!]
-              : [Colors.grey[900]!, Colors.grey[950]!],
+              ? [const Color(0xFF303030), const Color(0xFF212121)]
+              : [const Color(0xFF212121), const Color(0xFF121212)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -492,14 +492,14 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
                   prefixIcon:
                       const Icon(Icons.attach_money, color: Colors.white70),
                   filled: true,
-                  fillColor: Colors.grey[800],
+                  fillColor: const Color(0xFF424242),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Colors.grey[700]!),
+                    borderSide: const BorderSide(color: Color(0xFF616161)),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -529,7 +529,7 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.grey[850]!, Colors.grey[900]!],
+            colors: const [Color(0xFF303030), Color(0xFF212121)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
