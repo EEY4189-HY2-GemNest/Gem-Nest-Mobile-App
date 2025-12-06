@@ -543,7 +543,7 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
                 ),
               ],
             ),
-    );
+    ));
   }
 
   Widget _buildDeliveryMethodCard(DeliveryMethodConfig method) {
