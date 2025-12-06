@@ -1,6 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
 import 'package:gemnest_mobile_app/screen/payment_screen/payment_screen.dart';
 import 'package:gemnest_mobile_app/theme/app_theme.dart';
@@ -198,7 +198,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
     try {
       // Get cart provider to access cart items
       final cartProvider = Provider.of<CartProvider>(context, listen: false);
-      
+
       if (cartProvider.cartItems.isEmpty) {
         setState(() {
           _isLoadingDeliveryMethods = false;
@@ -226,10 +226,8 @@ class _CheckoutScreenState extends State<CheckoutScreen>
       final sellerId = sellerIds.first;
 
       // Fetch delivery config from Firebase
-      final doc = await _firestore
-          .collection('delivery_configs')
-          .doc(sellerId)
-          .get();
+      final doc =
+          await _firestore.collection('delivery_configs').doc(sellerId).get();
 
       if (!doc.exists) {
         setState(() {
