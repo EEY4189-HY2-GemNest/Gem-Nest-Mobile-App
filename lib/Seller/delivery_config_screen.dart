@@ -149,7 +149,7 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
 
   Future<bool> _onWillPop() async {
     print('_onWillPop called, _hasUnsavedChanges: $_hasUnsavedChanges');
-    
+
     if (!_hasUnsavedChanges) return true;
 
     final result = await showDialog<bool>(
