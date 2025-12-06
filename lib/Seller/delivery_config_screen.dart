@@ -427,10 +427,6 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
   }
 
   Widget _buildDeliveryMethodCard(DeliveryMethodConfig method) {
-    final priceController = TextEditingController(
-      text: method.price.toStringAsFixed(2),
-    );
-
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -482,13 +478,10 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
           if (method.enabled)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: TextField(
-                controller: priceController,
+              child: TextFormField(
+                initialValue: method.price.toStringAsFixed(2),
                 style: const TextStyle(color: Colors.white),
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
-                ],
                 decoration: InputDecoration(
                   labelText: 'Price (LKR)',
                   labelStyle: const TextStyle(color: Colors.white70),
@@ -509,7 +502,7 @@ class _DeliveryConfigScreenState extends State<DeliveryConfigScreen> {
                   ),
                 ),
                 onChanged: (value) {
-                  method.price = double.tryParse(value) ?? 0.0;
+                  method.price = double.tryParse(value) ?? method.price;
                 },
               ),
             ),
