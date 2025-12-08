@@ -36,6 +36,7 @@ class _AuctionProductState extends State<AuctionProduct>
   Map<String, Map<String, dynamic>> _availableDeliveryMethods = {};
   final Set<String> _selectedDeliveryMethods = {};
   bool _isLoadingDeliveryConfig = false;
+  bool _isDeliveryExpanded = false;
 
   // Payment methods state
   Map<String, Map<String, dynamic>> _availablePaymentMethods = {};
@@ -616,51 +617,109 @@ class _AuctionProductState extends State<AuctionProduct>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Available Delivery Methods',
+          'Accepted Delivery Methods',
           style: TextStyle(
               color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 10),
         Container(
-          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: const Color(0xFF212121),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(color: Colors.blue.withOpacity(0.3), width: 1),
           ),
           child: Column(
-            children: _availableDeliveryMethods.entries.map((entry) {
-              final methodId = entry.key;
-              final methodData = entry.value;
-              final isSelected = _selectedDeliveryMethods.contains(methodId);
-
-              return CheckboxListTile(
-                title: Text(
-                  methodData['name'] ?? methodId,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
-                ),
-                subtitle: Text(
-                  'LKR ${(methodData['price'] ?? 0.0).toStringAsFixed(2)}',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
-                    fontSize: 12,
-                  ),
-                ),
-                value: isSelected,
-                onChanged: (bool? value) {
+            children: [
+              GestureDetector(
+                onTap: () {
                   setState(() {
-                    if (value == true) {
-                      _selectedDeliveryMethods.add(methodId);
-                    } else {
-                      _selectedDeliveryMethods.remove(methodId);
-                    }
+                    _isDeliveryExpanded = !_isDeliveryExpanded;
                   });
                 },
-                activeColor: Colors.blue,
-                checkColor: Colors.white,
-                contentPadding: EdgeInsets.zero,
-              );
-            }).toList(),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Select Delivery Methods',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (_selectedDeliveryMethods.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: Text(
+                                  '${_selectedDeliveryMethods.length} method${_selectedDeliveryMethods.length > 1 ? 's' : ''} selected',
+                                  style: TextStyle(
+                                    color: Colors.blueAccent.withOpacity(0.8),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        _isDeliveryExpanded
+                            ? Icons.expand_less
+                            : Icons.expand_more,
+                        color: Colors.white70,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if (_isDeliveryExpanded) ...[
+                const Divider(color: Colors.white24, height: 0),
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    children: _availableDeliveryMethods.entries.map((entry) {
+                      final methodId = entry.key;
+                      final methodData = entry.value;
+                      final isSelected =
+                          _selectedDeliveryMethods.contains(methodId);
+
+                      return CheckboxListTile(
+                        title: Text(
+                          methodData['name'] ?? methodId,
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 14),
+                        ),
+                        subtitle: Text(
+                          'LKR ${(methodData['price'] ?? 0.0).toStringAsFixed(2)}',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.6),
+                            fontSize: 12,
+                          ),
+                        ),
+                        value: isSelected,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            if (value == true) {
+                              _selectedDeliveryMethods.add(methodId);
+                            } else {
+                              _selectedDeliveryMethods.remove(methodId);
+                            }
+                          });
+                        },
+                        activeColor: Colors.blue,
+                        checkColor: Colors.white,
+                        contentPadding: EdgeInsets.zero,
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ],
           ),
         ),
         if (_selectedDeliveryMethods.isEmpty)
