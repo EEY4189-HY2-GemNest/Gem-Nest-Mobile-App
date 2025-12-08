@@ -437,6 +437,13 @@ class _ProductListingState extends State<ProductListing>
       return;
     }
 
+    // Validate payment methods selection
+    if (_selectedPaymentMethods.isEmpty &&
+        _availablePaymentMethods.isNotEmpty) {
+      _showErrorDialog('Please select at least one payment method.');
+      return;
+    }
+
     if (_formKey.currentState!.validate() &&
         _images.any((image) => image != null)) {
       showDialog(
