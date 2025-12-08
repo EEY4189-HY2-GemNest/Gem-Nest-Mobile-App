@@ -43,7 +43,7 @@ class _ProductListingState extends State<ProductListing>
   Map<String, Map<String, dynamic>> _availablePaymentMethods = {};
   final Set<String> _selectedPaymentMethods = {};
   bool _isLoadingPaymentConfig = true;
-  final bool _isPaymentExpanded = false;
+  bool _isPaymentExpanded = false;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
