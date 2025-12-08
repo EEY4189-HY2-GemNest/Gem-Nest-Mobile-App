@@ -33,17 +33,17 @@ class _ProductListingState extends State<ProductListing>
   String? _selectedCategory;
   bool _isBulkUploading = false;
   bool _isDownloadingTemplate = false;
-  
+
   // Delivery methods
   Map<String, Map<String, dynamic>> _availableDeliveryMethods = {};
   final Set<String> _selectedDeliveryMethods = {};
   bool _isLoadingDeliveryConfig = true;
-  
+
   // Payment methods
-  Map<String, Map<String, dynamic>> _availablePaymentMethods = {};
+  final Map<String, Map<String, dynamic>> _availablePaymentMethods = {};
   final Set<String> _selectedPaymentMethods = {};
-  bool _isLoadingPaymentConfig = true;
-  bool _isPaymentExpanded = false;
+  final bool _isLoadingPaymentConfig = true;
+  final bool _isPaymentExpanded = false;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -67,10 +67,8 @@ class _ProductListingState extends State<ProductListing>
       final userId = _auth.currentUser?.uid;
       if (userId == null) return;
 
-      final doc = await _firestore
-          .collection('delivery_configs')
-          .doc(userId)
-          .get();
+      final doc =
+          await _firestore.collection('delivery_configs').doc(userId).get();
 
       if (doc.exists) {
         final data = doc.data()!;
@@ -403,11 +401,12 @@ class _ProductListingState extends State<ProductListing>
 
   void _showConfirmationDialog() {
     // Validate delivery methods selection
-    if (_selectedDeliveryMethods.isEmpty && _availableDeliveryMethods.isNotEmpty) {
+    if (_selectedDeliveryMethods.isEmpty &&
+        _availableDeliveryMethods.isNotEmpty) {
       _showErrorDialog('Please select at least one delivery method.');
       return;
     }
-    
+
     if (_formKey.currentState!.validate() &&
         _images.any((image) => image != null)) {
       showDialog(
@@ -938,7 +937,8 @@ class _ProductListingState extends State<ProductListing>
       children: [
         const Text(
           'Available Delivery Methods',
-          style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 10),
         Container(
@@ -953,7 +953,7 @@ class _ProductListingState extends State<ProductListing>
               final methodId = entry.key;
               final methodData = entry.value;
               final isSelected = _selectedDeliveryMethods.contains(methodId);
-              
+
               return CheckboxListTile(
                 title: Text(
                   methodData['name'] ?? methodId,
