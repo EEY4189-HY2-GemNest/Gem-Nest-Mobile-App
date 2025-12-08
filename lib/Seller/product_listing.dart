@@ -203,6 +203,7 @@ class _ProductListingState extends State<ProductListing>
         'sellerId': _auth.currentUser?.uid,
         'userId': _auth.currentUser?.uid,
         'deliveryMethods': _selectedDeliveryMethods.toList(),
+        'paymentMethods': _selectedPaymentMethods.toList(),
       });
     } catch (e) {
       _showErrorDialog('Error saving product: $e');
