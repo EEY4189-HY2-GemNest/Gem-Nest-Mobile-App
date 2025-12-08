@@ -97,6 +97,8 @@ class _PaymentScreenState extends State<PaymentScreen>
     _loadPaymentMethods();
   }
 
+ 
+
   void _initializeAnimations() {
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 300),
