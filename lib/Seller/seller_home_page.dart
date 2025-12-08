@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gemnest_mobile_app/Seller/delivery_config_screen.dart';
-import 'package:gemnest_mobile_app/Seller/payment_config_screen.dart';
 import 'package:gemnest_mobile_app/Seller/listed_auction_screen.dart';
 import 'package:gemnest_mobile_app/Seller/listed_product_screen.dart';
 import 'package:gemnest_mobile_app/Seller/order_history_screen.dart';
+import 'package:gemnest_mobile_app/Seller/payment_config_screen.dart';
 import 'package:gemnest_mobile_app/Seller/seller_profile_screen.dart';
 import 'package:gemnest_mobile_app/screen/auth_screens/login_screen.dart';
 
