@@ -71,40 +71,30 @@ class _PaymentScreenState extends State<PaymentScreen>
 
   // Form Keys
   final GlobalKey<FormState> _cardFormKey = GlobalKey<FormState>();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // State Variables
   PaymentMethod? _selectedPaymentMethod;
   bool _isProcessing = false;
   bool _saveCard = false;
   String? _orderId;
+  bool _isLoadingPaymentMethods = true;
+  String? _paymentLoadError;
 
   // Animation Controllers
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
-  // Payment Methods
-  final List<PaymentMethod> _paymentMethods = [
-    PaymentMethod(
-      id: 'card',
-      name: 'Credit/Debit Card',
-      description: 'Pay securely with your card',
-      icon: '💳',
-    ),
-    PaymentMethod(
-      id: 'cod',
-      name: 'Cash on Delivery',
-      description: 'Pay when you receive your order',
-      icon: '💵',
-      processingFee: 50.0,
-    ),
-  ];
+  // Payment Methods - loaded dynamically from Firebase
+  List<PaymentMethod> _paymentMethods = [];
 
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
-    _selectedPaymentMethod = _paymentMethods.first;
     _generateOrderId();
+    _loadPaymentMethods();
   }
 
   void _initializeAnimations() {
