@@ -91,6 +91,35 @@ class _ProductListingState extends State<ProductListing>
     }
   }
 
+  Future<void> _loadPaymentConfig() async {
+    try {
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) return;
+
+      final doc =
+          await _firestore.collection('payment_configs').doc(userId).get();
+
+      if (doc.exists) {
+        final data = doc.data()!;
+        setState(() {
+          _availablePaymentMethods = {};
+          data.forEach((key, value) {
+            if (key != 'sellerId' && key != 'updatedAt' && value is Map) {
+              final methodData = value as Map<String, dynamic>;
+              if (methodData['enabled'] == true) {
+                _availablePaymentMethods[key] = methodData;
+              }
+            }
+          });
+        });
+      }
+    } catch (e) {
+      print('Error loading payment config: $e');
+    } finally {
+      setState(() => _isLoadingPaymentConfig = false);
+    }
+  }
+
   @override
   void dispose() {
     _controller.dispose();
