@@ -41,7 +41,7 @@ class _AuctionProductState extends State<AuctionProduct>
   Map<String, Map<String, dynamic>> _availablePaymentMethods = {};
   final Set<String> _selectedPaymentMethods = {};
   bool _isLoadingPaymentConfig = false;
-  final bool _isPaymentExpanded = false;
+  bool _isPaymentExpanded = false;
 
   @override
   void initState() {
@@ -724,7 +724,8 @@ class _AuctionProductState extends State<AuctionProduct>
       children: [
         const Text(
           'Accepted Payment Methods',
-          style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 10),
         Container(
