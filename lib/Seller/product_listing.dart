@@ -33,11 +33,17 @@ class _ProductListingState extends State<ProductListing>
   String? _selectedCategory;
   bool _isBulkUploading = false;
   bool _isDownloadingTemplate = false;
-  
+
   // Delivery methods
   Map<String, Map<String, dynamic>> _availableDeliveryMethods = {};
   final Set<String> _selectedDeliveryMethods = {};
   bool _isLoadingDeliveryConfig = true;
+
+  // Payment methods
+  Map<String, Map<String, dynamic>> _availablePaymentMethods = {};
+  final Set<String> _selectedPaymentMethods = {};
+  bool _isLoadingPaymentConfig = true;
+  final bool _isPaymentExpanded = false;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -53,6 +59,7 @@ class _ProductListingState extends State<ProductListing>
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
     _controller.forward();
     _loadDeliveryConfig();
+    _loadPaymentConfig();
   }
 
   Future<void> _loadDeliveryConfig() async {
@@ -60,10 +67,8 @@ class _ProductListingState extends State<ProductListing>
       final userId = _auth.currentUser?.uid;
       if (userId == null) return;
 
-      final doc = await _firestore
-          .collection('delivery_configs')
-          .doc(userId)
-          .get();
+      final doc =
+          await _firestore.collection('delivery_configs').doc(userId).get();
 
       if (doc.exists) {
         final data = doc.data()!;
@@ -83,6 +88,35 @@ class _ProductListingState extends State<ProductListing>
       print('Error loading delivery config: $e');
     } finally {
       setState(() => _isLoadingDeliveryConfig = false);
+    }
+  }
+
+  Future<void> _loadPaymentConfig() async {
+    try {
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) return;
+
+      final doc =
+          await _firestore.collection('payment_configs').doc(userId).get();
+
+      if (doc.exists) {
+        final data = doc.data()!;
+        setState(() {
+          _availablePaymentMethods = {};
+          data.forEach((key, value) {
+            if (key != 'sellerId' && key != 'updatedAt' && value is Map) {
+              final methodData = value as Map<String, dynamic>;
+              if (methodData['enabled'] == true) {
+                _availablePaymentMethods[key] = methodData;
+              }
+            }
+          });
+        });
+      }
+    } catch (e) {
+      print('Error loading payment config: $e');
+    } finally {
+      setState(() => _isLoadingPaymentConfig = false);
     }
   }
 
@@ -169,6 +203,7 @@ class _ProductListingState extends State<ProductListing>
         'sellerId': _auth.currentUser?.uid,
         'userId': _auth.currentUser?.uid,
         'deliveryMethods': _selectedDeliveryMethods.toList(),
+        'paymentMethods': _selectedPaymentMethods.toList(),
       });
     } catch (e) {
       _showErrorDialog('Error saving product: $e');
@@ -396,11 +431,12 @@ class _ProductListingState extends State<ProductListing>
 
   void _showConfirmationDialog() {
     // Validate delivery methods selection
-    if (_selectedDeliveryMethods.isEmpty && _availableDeliveryMethods.isNotEmpty) {
+    if (_selectedDeliveryMethods.isEmpty &&
+        _availableDeliveryMethods.isNotEmpty) {
       _showErrorDialog('Please select at least one delivery method.');
       return;
     }
-    
+
     if (_formKey.currentState!.validate() &&
         _images.any((image) => image != null)) {
       showDialog(
@@ -665,6 +701,8 @@ class _ProductListingState extends State<ProductListing>
                   ),
                   const SizedBox(height: 20),
                   _buildDeliveryMethodsSection(),
+                  const SizedBox(height: 20),
+                  _buildPaymentMethodsSection(),
                   const SizedBox(height: 32),
                   Center(
                     child: SizedBox(
@@ -931,7 +969,8 @@ class _ProductListingState extends State<ProductListing>
       children: [
         const Text(
           'Available Delivery Methods',
-          style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 10),
         Container(
@@ -946,7 +985,7 @@ class _ProductListingState extends State<ProductListing>
               final methodId = entry.key;
               final methodData = entry.value;
               final isSelected = _selectedDeliveryMethods.contains(methodId);
-              
+
               return CheckboxListTile(
                 title: Text(
                   methodData['name'] ?? methodId,
@@ -981,6 +1020,173 @@ class _ProductListingState extends State<ProductListing>
             padding: const EdgeInsets.only(top: 8),
             child: Text(
               'Please select at least one delivery method',
+              style: TextStyle(
+                color: Colors.red.withOpacity(0.8),
+                fontSize: 12,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildPaymentMethodsSection() {
+    if (_availablePaymentMethods.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.orange.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.orange, width: 1),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.warning_amber, color: Colors.orange, size: 24),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'No Payment Methods Configured',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Go to Payment Config to set up payment methods',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.7),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Accepted Payment Methods',
+          style: TextStyle(
+              color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 10),
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF212121),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Colors.blue.withOpacity(0.3), width: 1),
+          ),
+          child: Column(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _isPaymentExpanded = !_isPaymentExpanded;
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Select Payment Methods',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (_selectedPaymentMethods.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: Text(
+                                  '${_selectedPaymentMethods.length} method${_selectedPaymentMethods.length > 1 ? 's' : ''} selected',
+                                  style: TextStyle(
+                                    color: Colors.blueAccent.withOpacity(0.8),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        _isPaymentExpanded
+                            ? Icons.expand_less
+                            : Icons.expand_more,
+                        color: Colors.white70,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if (_isPaymentExpanded) ...[
+                const Divider(color: Colors.white24, height: 0),
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    children: _availablePaymentMethods.entries.map((entry) {
+                      final methodId = entry.key;
+                      final methodData = entry.value;
+                      final isSelected =
+                          _selectedPaymentMethods.contains(methodId);
+
+                      return CheckboxListTile(
+                        title: Text(
+                          methodData['name'] ?? methodId,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                        ),
+                        subtitle: Text(
+                          methodData['description'] ?? '',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.6),
+                            fontSize: 12,
+                          ),
+                        ),
+                        value: isSelected,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            if (value == true) {
+                              _selectedPaymentMethods.add(methodId);
+                            } else {
+                              _selectedPaymentMethods.remove(methodId);
+                            }
+                          });
+                        },
+                        activeColor: Colors.blueAccent,
+                        checkColor: Colors.white,
+                        contentPadding: EdgeInsets.zero,
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        if (_selectedPaymentMethods.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              'Please select at least one payment method',
               style: TextStyle(
                 color: Colors.red.withOpacity(0.8),
                 fontSize: 12,
