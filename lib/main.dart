@@ -1,11 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:gemnest_mobile_app/buyer/screens/auth/splash_screen.dart';
-import 'package:gemnest_mobile_app/buyer/screens/cart/cart_provider.dart';
-import 'package:gemnest_mobile_app/common/services/firebase_options.dart';
-import 'package:gemnest_mobile_app/common/theme/app_theme.dart';
-
+import 'package:gemnest_mobile_app/firebase_options.dart';
+import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
+import 'package:gemnest_mobile_app/splash_screen.dart';
+import 'package:gemnest_mobile_app/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
