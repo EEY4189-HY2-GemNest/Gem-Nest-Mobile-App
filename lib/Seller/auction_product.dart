@@ -41,7 +41,7 @@ class _AuctionProductState extends State<AuctionProduct>
   Map<String, Map<String, dynamic>> _availablePaymentMethods = {};
   final Set<String> _selectedPaymentMethods = {};
   bool _isLoadingPaymentConfig = false;
-  bool _isPaymentExpanded = false;
+  final bool _isPaymentExpanded = false;
 
   @override
   void initState() {
