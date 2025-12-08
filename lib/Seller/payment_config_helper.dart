@@ -28,11 +28,11 @@ class PaymentConfigHelper {
       if (config == null) return ['card', 'cod'];
 
       final enabledMethods = <String>[];
-      ['card', 'cod', 'bank_transfer'].forEach((method) {
+      for (var method in ['card', 'cod', 'bank_transfer']) {
         if (config[method]?['enabled'] == true) {
           enabledMethods.add(method);
         }
-      });
+      }
 
       return enabledMethods.isEmpty ? ['card', 'cod'] : enabledMethods;
     } catch (e) {
