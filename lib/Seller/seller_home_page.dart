@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gemnest_mobile_app/Seller/delivery_config_screen.dart';
+import 'package:gemnest_mobile_app/Seller/payment_config_screen.dart';
 import 'package:gemnest_mobile_app/Seller/listed_auction_screen.dart';
 import 'package:gemnest_mobile_app/Seller/listed_product_screen.dart';
 import 'package:gemnest_mobile_app/Seller/order_history_screen.dart';
@@ -543,6 +544,13 @@ class _SellerHomePageState extends State<SellerHomePage>
                 () => _navigateToDeliveryConfig(),
                 800.ms,
               ),
+              _buildActionCard(
+                'Payment Config',
+                Icons.payment_outlined,
+                Colors.purple,
+                () => _navigateToPaymentConfig(),
+                1000.ms,
+              ),
             ],
           ),
           const SizedBox(height: 32),
@@ -871,6 +879,27 @@ class _SellerHomePageState extends State<SellerHomePage>
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
             const DeliveryConfigScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(1.0, 0.0),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+                parent: animation, curve: Curves.easeInOutCubic)),
+            child: FadeTransition(opacity: animation, child: child),
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 500),
+      ),
+    );
+  }
+
+  void _navigateToPaymentConfig() {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const PaymentConfigScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return SlideTransition(
             position: Tween<Offset>(
