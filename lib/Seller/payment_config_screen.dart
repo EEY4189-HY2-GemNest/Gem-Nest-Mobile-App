@@ -393,7 +393,8 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen> {
               if (_hasUnsavedChanges) ...[
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: Colors.orangeAccent,
                     borderRadius: BorderRadius.circular(10),
@@ -431,8 +432,7 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen> {
         ),
         body: _isLoading
             ? const Center(
-                child:
-                    CircularProgressIndicator(color: Colors.purpleAccent),
+                child: CircularProgressIndicator(color: Colors.purpleAccent),
               )
             : Column(
                 children: [
