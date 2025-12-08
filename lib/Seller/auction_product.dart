@@ -685,12 +685,14 @@ class _AuctionProductState extends State<AuctionProduct>
                     children: _availableDeliveryMethods.entries.map((entry) {
                       final methodId = entry.key;
                       final methodData = entry.value;
-                      final isSelected = _selectedDeliveryMethods.contains(methodId);
+                      final isSelected =
+                          _selectedDeliveryMethods.contains(methodId);
 
                       return CheckboxListTile(
                         title: Text(
                           methodData['name'] ?? methodId,
-                          style: const TextStyle(color: Colors.white, fontSize: 14),
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 14),
                         ),
                         subtitle: Text(
                           'LKR ${(methodData['price'] ?? 0.0).toStringAsFixed(2)}',
