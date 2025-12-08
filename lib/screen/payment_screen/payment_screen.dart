@@ -71,41 +71,33 @@ class _PaymentScreenState extends State<PaymentScreen>
 
   // Form Keys
   final GlobalKey<FormState> _cardFormKey = GlobalKey<FormState>();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // State Variables
   PaymentMethod? _selectedPaymentMethod;
   bool _isProcessing = false;
   bool _saveCard = false;
   String? _orderId;
+  bool _isLoadingPaymentMethods = true;
+  String? _paymentLoadError;
 
   // Animation Controllers
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
-  // Payment Methods
-  final List<PaymentMethod> _paymentMethods = [
-    PaymentMethod(
-      id: 'card',
-      name: 'Credit/Debit Card',
-      description: 'Pay securely with your card',
-      icon: '💳',
-    ),
-    PaymentMethod(
-      id: 'cod',
-      name: 'Cash on Delivery',
-      description: 'Pay when you receive your order',
-      icon: '💵',
-      processingFee: 50.0,
-    ),
-  ];
+  // Payment Methods - loaded dynamically from Firebase
+  List<PaymentMethod> _paymentMethods = [];
 
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
-    _selectedPaymentMethod = _paymentMethods.first;
     _generateOrderId();
+    _loadPaymentMethods();
   }
+
+ 
 
   void _initializeAnimations() {
     _fadeController = AnimationController(
@@ -122,6 +114,135 @@ class _PaymentScreenState extends State<PaymentScreen>
 
   void _generateOrderId() {
     _orderId = 'GN${DateTime.now().millisecondsSinceEpoch}';
+  }
+
+  Future<void> _loadPaymentMethods() async {
+    setState(() {
+      _isLoadingPaymentMethods = true;
+      _paymentLoadError = null;
+    });
+
+    try {
+      // Get cart provider to access cart items
+      final cartProvider = Provider.of<CartProvider>(context, listen: false);
+
+      if (cartProvider.cartItems.isEmpty) {
+        setState(() {
+          _isLoadingPaymentMethods = false;
+          _paymentLoadError = 'Cart is empty';
+        });
+        return;
+      }
+
+      // Get unique seller IDs from cart items
+      final sellerIds = cartProvider.cartItems
+          .map((item) => item.sellerId)
+          .where((id) => id.isNotEmpty)
+          .toSet();
+
+      if (sellerIds.isEmpty) {
+        setState(() {
+          _isLoadingPaymentMethods = false;
+          _paymentLoadError = 'No seller information found';
+        });
+        return;
+      }
+
+      // For simplicity, use the first seller's payment config
+      final sellerId = sellerIds.first;
+
+      // Fetch payment config from Firebase
+      final doc = await _firestore
+          .collection('payment_configs')
+          .doc(sellerId)
+          .get();
+
+      if (!doc.exists) {
+        // Fallback to default payment methods if no config exists
+        setState(() {
+          _paymentMethods = [
+            PaymentMethod(
+              id: 'card',
+              name: 'Credit/Debit Card',
+              description: 'Pay securely with your card',
+              icon: '💳',
+            ),
+            PaymentMethod(
+              id: 'cod',
+              name: 'Cash on Delivery',
+              description: 'Pay when you receive your order',
+              icon: '💵',
+              processingFee: 50.0,
+            ),
+          ];
+          if (_paymentMethods.isNotEmpty) {
+            _selectedPaymentMethod = _paymentMethods.first;
+          }
+          _isLoadingPaymentMethods = false;
+        });
+        return;
+      }
+
+      final data = doc.data()!;
+      final paymentOptions = <PaymentMethod>[];
+
+      // Map payment method IDs to emoji icons
+      const iconMap = {
+        'card': '💳',
+        'cod': '💵',
+        'bank_transfer': '🏦',
+      };
+
+      data.forEach((key, value) {
+        if (key != 'sellerId' && key != 'updatedAt') {
+          final methodData = value as Map<String, dynamic>;
+          if (methodData['enabled'] == true) {
+            paymentOptions.add(
+              PaymentMethod(
+                id: key,
+                name: methodData['name'] ?? key,
+                description: methodData['description'] ?? '',
+                icon: iconMap[key] ?? '💳',
+                processingFee: key == 'cod' ? 50.0 : null,
+              ),
+            );
+          }
+        }
+      });
+
+      setState(() {
+        _paymentMethods = paymentOptions;
+        if (_paymentMethods.isNotEmpty) {
+          _selectedPaymentMethod = _paymentMethods.first;
+        }
+        _isLoadingPaymentMethods = false;
+      });
+    } catch (e) {
+      print('Error loading payment methods: $e');
+      setState(() {
+        _isLoadingPaymentMethods = false;
+        _paymentLoadError = 'Failed to load payment methods';
+        // Fallback to default methods
+        _paymentMethods = [
+          PaymentMethod(
+            id: 'card',
+            name: 'Credit/Debit Card',
+            description: 'Pay securely with your card',
+            icon: '💳',
+          ),
+          PaymentMethod(
+            id: 'cod',
+            name: 'Cash on Delivery',
+            description: 'Pay when you receive your order',
+            icon: '💵',
+            processingFee: 50.0,
+          ),
+        ];
+        if (_paymentMethods.isNotEmpty) {
+          _selectedPaymentMethod = _paymentMethods.first;
+        }
+      });
+    }
   }
 
   @override
