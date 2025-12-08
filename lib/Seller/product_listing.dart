@@ -1075,7 +1075,8 @@ class _ProductListingState extends State<ProductListing>
       children: [
         const Text(
           'Accepted Payment Methods',
-          style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 10),
         Container(
