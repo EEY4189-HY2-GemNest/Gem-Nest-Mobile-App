@@ -38,6 +38,12 @@ class _ProductListingState extends State<ProductListing>
   Map<String, Map<String, dynamic>> _availableDeliveryMethods = {};
   final Set<String> _selectedDeliveryMethods = {};
   bool _isLoadingDeliveryConfig = true;
+  
+  // Payment methods
+  Map<String, Map<String, dynamic>> _availablePaymentMethods = {};
+  final Set<String> _selectedPaymentMethods = {};
+  bool _isLoadingPaymentConfig = true;
+  bool _isPaymentExpanded = false;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -53,6 +59,7 @@ class _ProductListingState extends State<ProductListing>
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
     _controller.forward();
     _loadDeliveryConfig();
+    _loadPaymentConfig();
   }
 
   Future<void> _loadDeliveryConfig() async {
