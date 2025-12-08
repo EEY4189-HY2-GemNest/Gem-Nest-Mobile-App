@@ -37,6 +37,12 @@ class _AuctionProductState extends State<AuctionProduct>
   final Set<String> _selectedDeliveryMethods = {};
   bool _isLoadingDeliveryConfig = false;
 
+  // Payment methods state
+  Map<String, Map<String, dynamic>> _availablePaymentMethods = {};
+  final Set<String> _selectedPaymentMethods = {};
+  bool _isLoadingPaymentConfig = false;
+  bool _isPaymentExpanded = false;
+
   @override
   void initState() {
     super.initState();
@@ -47,6 +53,7 @@ class _AuctionProductState extends State<AuctionProduct>
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
     _controller.forward();
     _loadDeliveryConfig();
+    _loadPaymentConfig();
   }
 
   @override
@@ -110,6 +117,39 @@ class _AuctionProductState extends State<AuctionProduct>
       print('Error loading delivery config: $e');
     } finally {
       setState(() => _isLoadingDeliveryConfig = false);
+    }
+  }
+
+  Future<void> _loadPaymentConfig() async {
+    setState(() => _isLoadingPaymentConfig = true);
+    try {
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) return;
+
+      final doc =
+          await _firestore.collection('payment_configs').doc(userId).get();
+
+      if (doc.exists) {
+        final data = doc.data()!;
+        final enabledMethods = <String, Map<String, dynamic>>{};
+
+        data.forEach((key, value) {
+          if (key != 'sellerId' && key != 'updatedAt') {
+            final methodData = value as Map<String, dynamic>;
+            if (methodData['enabled'] == true) {
+              enabledMethods[key] = methodData;
+            }
+          }
+        });
+
+        setState(() {
+          _availablePaymentMethods = enabledMethods;
+        });
+      }
+    } catch (e) {
+      print('Error loading payment config: $e');
+    } finally {
+      setState(() => _isLoadingPaymentConfig = false);
     }
   }
 
@@ -438,6 +478,8 @@ class _AuctionProductState extends State<AuctionProduct>
                   ),
                   const SizedBox(height: 20),
                   _buildDeliveryMethodsSection(),
+                  const SizedBox(height: 20),
+                  _buildPaymentMethodsSection(),
                   const SizedBox(height: 32),
                   Center(
                     child: SizedBox(
