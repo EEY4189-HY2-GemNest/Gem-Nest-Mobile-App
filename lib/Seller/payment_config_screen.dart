@@ -368,7 +368,7 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen> {
           flexibleSpace: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.purpleAccent, Colors.deepPurple],
+                colors: [Colors.blueAccent, Colors.lightBlue],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
