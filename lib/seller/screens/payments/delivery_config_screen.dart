@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gemnest_mobile_app/widgets/common/professional_back_button.dart';
 
-
 class DeliveryMethodConfig {
   final String id;
   final String name;
