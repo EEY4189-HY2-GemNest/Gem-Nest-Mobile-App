@@ -15,7 +15,7 @@
 
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY || "sk_test_placeholder");
 const cors = require("cors")({ origin: true });
 const express = require("express");
 
