@@ -1,12 +1,13 @@
 /// Stripe Configuration
-/// 
+///
 /// This file contains Stripe API keys for payment processing.
-/// 
+///
 /// TO SET UP:
 /// 1. Go to https://dashboard.stripe.com/apikeys
 /// 2. Copy your keys from the "Publishable key" and "Secret key" sections
 /// 3. Ensure you're using TEST mode keys (they start with pk_test_ and sk_test_)
 /// 4. Replace the placeholders below with your actual keys
+library;
 
 class StripeConfig {
   /// Test mode publishable key
