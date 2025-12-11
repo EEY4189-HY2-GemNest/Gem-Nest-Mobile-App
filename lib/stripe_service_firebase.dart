@@ -1,7 +1,8 @@
-import 'package:flutter_stripe/flutter_stripe.dart';
+import 'dart:developer' as developer;
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:developer' as developer;
+import 'package:flutter_stripe/flutter_stripe.dart';
 
 class StripeService {
   // Stripe Publishable Key - Get from https://dashboard.stripe.com/apikeys
