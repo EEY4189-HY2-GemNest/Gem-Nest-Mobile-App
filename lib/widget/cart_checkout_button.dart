@@ -3,7 +3,7 @@ import 'package:gemnest_mobile_app/checkout_service.dart';
 
 /// Example Cart Checkout Button
 /// This shows how to integrate the Stripe payment into your cart screen
-/// 
+///
 /// Add this to your cart_screen.dart or cart checkout widget
 
 class CartCheckoutButton extends StatefulWidget {
@@ -13,12 +13,12 @@ class CartCheckoutButton extends StatefulWidget {
   final Function()? onPaymentSuccess;
 
   const CartCheckoutButton({
-    Key? key,
+    super.key,
     required this.totalAmount,
     required this.cartItems,
     required this.userId,
     this.onPaymentSuccess,
-  }) : super(key: key);
+  });
 
   @override
   State<CartCheckoutButton> createState() => _CartCheckoutButtonState();
