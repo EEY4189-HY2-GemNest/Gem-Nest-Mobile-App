@@ -1,6 +1,7 @@
-import 'package:flutter_stripe/flutter_stripe.dart';
-import 'package:dio/dio.dart';
 import 'dart:developer' as developer;
+
+import 'package:dio/dio.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 
 class StripeService {
   // Stripe keys - Replace with your actual keys
@@ -147,7 +148,7 @@ class StripeService {
     // Mastercard: 5555 5555 5555 4444
     // Expiry: Any future date
     // CVC: Any 3 digits
-    
+
     try {
       final dio = Dio();
       final response = await dio.post(
