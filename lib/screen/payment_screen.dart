@@ -1,7 +1,8 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:gemnest_mobile_app/stripe_service.dart';
-import 'dart:developer' as developer;
 
 class PaymentScreen extends StatefulWidget {
   final double amount;
@@ -11,13 +12,13 @@ class PaymentScreen extends StatefulWidget {
   final Function(bool) onPaymentComplete;
 
   const PaymentScreen({
-    Key? key,
+    super.key,
     required this.amount,
     required this.orderId,
     required this.customerId,
     required this.description,
     required this.onPaymentComplete,
-  }) : super(key: key);
+  });
 
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
@@ -235,7 +236,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
             Row(
               children: [
                 Expanded(
-                  child: _buildPaymentMethodCard('💳 Visa', Colors.blue.shade600),
+                  child:
+                      _buildPaymentMethodCard('💳 Visa', Colors.blue.shade600),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
