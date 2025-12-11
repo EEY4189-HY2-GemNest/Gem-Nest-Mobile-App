@@ -15,10 +15,10 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    
+
     // Initialize Stripe
     await StripeService.initialize();
-    
+
     runApp(
       MultiProvider(
         providers: [
