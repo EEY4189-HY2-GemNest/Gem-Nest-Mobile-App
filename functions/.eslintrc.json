@@ -1,0 +1,22 @@
+{
+  "env": {
+    "node": true,
+    "es2021": true
+  },
+  "extends": [
+    "eslint:recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2021,
+    "sourceType": "module"
+  },
+  "rules": {
+    "indent": "off",
+    "no-trailing-spaces": "off",
+    "object-curly-spacing": "off",
+    "comma-dangle": "off",
+    "no-unused-vars": "off",
+    "max-len": "off",
+    "no-case-declarations": "off"
+  }
+}
