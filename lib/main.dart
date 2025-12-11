@@ -5,14 +5,20 @@ import 'package:gemnest_mobile_app/firebase_options.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
 import 'package:gemnest_mobile_app/splash_screen.dart';
 import 'package:gemnest_mobile_app/theme/app_theme.dart';
+import 'package:gemnest_mobile_app/stripe_service.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
+    // Initialize Firebase
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    
+    // Initialize Stripe
+    await StripeService.initialize();
+    
     runApp(
       MultiProvider(
         providers: [
