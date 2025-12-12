@@ -91,6 +91,15 @@ class CartProvider with ChangeNotifier {
   final double _taxRate = 0.1; // 10% tax
   bool _isLoading = false;
 
+  // Constructor - automatically load from local storage
+  CartProvider() {
+    _initializeCart();
+  }
+
+  Future<void> _initializeCart() async {
+    await loadCartFromLocal();
+  }
+
   // Getters
   List<CartItem> get cartItems => _cartItems;
   List<CartItem> get wishlistItems => _wishlistItems;
