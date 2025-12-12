@@ -46,7 +46,8 @@ class StripeService {
       if (user == null) {
         developer.log('User not authenticated, signing in anonymously...');
         try {
-          final userCredential = await FirebaseAuth.instance.signInAnonymously();
+          final userCredential =
+              await FirebaseAuth.instance.signInAnonymously();
           user = userCredential.user;
           developer.log('Signed in anonymously: ${user?.uid}');
         } catch (authError) {
@@ -54,7 +55,7 @@ class StripeService {
           throw Exception('Authentication failed: ${authError.toString()}');
         }
       }
-      
+
       if (user == null) {
         throw Exception('Unable to authenticate user');
       }
@@ -139,17 +140,21 @@ class StripeService {
       // Ensure user is authenticated
       User? user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-        developer.log('User not authenticated for payment confirmation, signing in anonymously...');
+        developer.log(
+            'User not authenticated for payment confirmation, signing in anonymously...');
         try {
-          final userCredential = await FirebaseAuth.instance.signInAnonymously();
+          final userCredential =
+              await FirebaseAuth.instance.signInAnonymously();
           user = userCredential.user;
-          developer.log('Signed in anonymously for payment confirmation: ${user?.uid}');
+          developer.log(
+              'Signed in anonymously for payment confirmation: ${user?.uid}');
         } catch (authError) {
-          developer.log('Failed to authenticate for payment confirmation: $authError');
+          developer.log(
+              'Failed to authenticate for payment confirmation: $authError');
           throw Exception('Authentication failed: ${authError.toString()}');
         }
       }
-      
+
       if (user == null) {
         throw Exception('Unable to authenticate user for payment confirmation');
       }
