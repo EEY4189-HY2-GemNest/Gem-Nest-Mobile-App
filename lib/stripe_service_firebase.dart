@@ -1,8 +1,8 @@
 import 'dart:developer' as developer;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart' as cf;
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_functions/firebase_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
@@ -53,7 +53,7 @@ class StripeService {
 
       // Call Firebase Cloud Function
       final callable =
-          FirebaseFunctions.instance.httpsCallable('createPaymentIntent');
+          cf.FirebaseFunctions.instance.httpsCallable('createPaymentIntent');
 
       final response = await callable.call({
         'amount': amount,
@@ -135,7 +135,7 @@ class StripeService {
 
       // Call Firebase Cloud Function to confirm payment
       final callable =
-          FirebaseFunctions.instance.httpsCallable('confirmPayment');
+          cf.FirebaseFunctions.instance.httpsCallable('confirmPayment');
 
       final response = await callable.call({
         'intentId': intentId,
@@ -224,7 +224,7 @@ class StripeService {
 
       // Call Firebase Cloud Function to process refund
       final callable =
-          FirebaseFunctions.instance.httpsCallable('processRefund');
+          cf.FirebaseFunctions.instance.httpsCallable('processRefund');
 
       final response = await callable.call({
         'orderId': orderId,
