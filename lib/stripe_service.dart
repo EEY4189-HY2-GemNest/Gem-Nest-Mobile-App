@@ -1,17 +1,36 @@
 import 'dart:developer' as developer;
 
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 
 class StripeService {
-  // Stripe keys - Replace with your actual keys
-  static const String publishableKey =
-      'pk_test_YOUR_PUBLISHABLE_KEY'; // Get from Stripe Dashboard
-  static const String secretKey =
-      'sk_test_YOUR_SECRET_KEY'; // Get from Stripe Dashboard
+  // Stripe keys - Get from environment variables
+  static String get publishableKey {
+    final key = dotenv.env['STRIPE_PUBLISHABLE_KEY'];
+    if (key == null || key.isEmpty) {
+      throw Exception('STRIPE_PUBLISHABLE_KEY not found in environment variables');
+    }
+    return key;
+  }
+
+  static String get secretKey {
+    final key = dotenv.env['STRIPE_SECRET_KEY'];
+    if (key == null || key.isEmpty) {
+      throw Exception('STRIPE_SECRET_KEY not found in environment variables');
+    }
+    return key;
+  }
+
   static const String merchantDisplayName = 'GemNest';
-  static const String backendUrl =
-      'https://YOUR_BACKEND_URL'; // Backend to handle payment intent
+
+  static String get backendUrl {
+    final url = dotenv.env['BACKEND_URL'];
+    if (url == null || url.isEmpty) {
+      throw Exception('BACKEND_URL not found in environment variables');
+    }
+    return url;
+  }
 
   static final StripeService _instance = StripeService._internal();
 
