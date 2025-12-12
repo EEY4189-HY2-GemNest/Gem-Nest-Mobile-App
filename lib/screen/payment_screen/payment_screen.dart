@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
-import 'package:gemnest_mobile_app/screen/checkout_screen/checkout_screen.dart' as checkout;
+import 'package:gemnest_mobile_app/screen/checkout_screen/checkout_screen.dart'
+    as checkout;
 import 'package:gemnest_mobile_app/screen/order_history_screen/oreder_history_screen.dart';
 import 'package:gemnest_mobile_app/stripe_service_direct.dart';
 import 'package:gemnest_mobile_app/stripe_service_firebase.dart';
@@ -104,7 +105,6 @@ class _PaymentScreenState extends State<PaymentScreen>
   final GlobalKey<FormState> _cardFormKey = GlobalKey<FormState>();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-
   // State Variables
   PaymentMethod? _selectedPaymentMethod;
   bool _isProcessing = false;
@@ -113,13 +113,12 @@ class _PaymentScreenState extends State<PaymentScreen>
   bool _isLoadingPaymentMethods = true;
   String? _paymentLoadError;
 
-  
   // Stripe Integration
   final StripeService _stripeService = StripeService();
   final StripeServiceDirect _stripeServiceDirect = StripeServiceDirect();
   String? _paymentIntentClientSecret;
   String? _stripePaymentIntentId;
-  bool _useDirectStripe = true; // Use direct Stripe for development
+  final bool _useDirectStripe = true; // Use direct Stripe for development
 
   // Animation Controllers
   late AnimationController _fadeController;
@@ -134,7 +133,7 @@ class _PaymentScreenState extends State<PaymentScreen>
     _initializeAnimations();
     _generateOrderId();
     _loadPaymentMethods();
-    
+
     // Pre-select card payment method for test mode
     _selectedPaymentMethod = PaymentMethod(
       id: 'card',
@@ -142,10 +141,9 @@ class _PaymentScreenState extends State<PaymentScreen>
       description: 'Pay securely with your card',
       icon: '💳',
     );
-    print('PaymentScreen: Card method pre-selected: ${_selectedPaymentMethod?.id}');
+    print(
+        'PaymentScreen: Card method pre-selected: ${_selectedPaymentMethod?.id}');
   }
-
- 
 
   void _initializeAnimations() {
     _fadeController = AnimationController(
@@ -200,10 +198,8 @@ class _PaymentScreenState extends State<PaymentScreen>
       final sellerId = sellerIds.first;
 
       // Fetch payment config from Firebase
-      final doc = await _firestore
-          .collection('payment_configs')
-          .doc(sellerId)
-          .get();
+      final doc =
+          await _firestore.collection('payment_configs').doc(sellerId).get();
 
       if (!doc.exists) {
         // Fallback to default payment methods if no config exists
@@ -1306,7 +1302,8 @@ class _PaymentScreenState extends State<PaymentScreen>
       if (user == null) {
         print('No user authenticated, attempting anonymous sign-in...');
         try {
-          final userCredential = await FirebaseAuth.instance.signInAnonymously();
+          final userCredential =
+              await FirebaseAuth.instance.signInAnonymously();
           user = userCredential.user;
           print('Successfully signed in anonymously: ${user?.uid}');
         } catch (e) {
@@ -1314,16 +1311,17 @@ class _PaymentScreenState extends State<PaymentScreen>
           throw Exception('Authentication failed. Please try again.');
         }
       }
-      
+
       if (user == null) {
         throw Exception('Unable to authenticate. Please try again.');
       }
 
       final processingFee = _selectedPaymentMethod?.processingFee ?? 0.0;
       final finalTotal = widget.totalAmount + processingFee;
-      
-      print('Starting payment process - Using direct Stripe service (no Firebase Functions)');
-      
+
+      print(
+          'Starting payment process - Using direct Stripe service (no Firebase Functions)');
+
       // Use direct Stripe service (bypasses Firebase authentication issues)
       if (_useDirectStripe) {
         // Show loading dialog for simulated payment
@@ -1343,7 +1341,7 @@ class _PaymentScreenState extends State<PaymentScreen>
             );
           },
         );
-        
+
         // Direct Stripe payment flow (for development/testing)
         final paymentResult = await _stripeServiceDirect.processTestPayment(
           amount: finalTotal,
@@ -1360,8 +1358,8 @@ class _PaymentScreenState extends State<PaymentScreen>
         }
 
         _stripePaymentIntentId = paymentResult['payment_intent_id'];
-        print('Direct Stripe payment completed successfully: $_stripePaymentIntentId');
-        
+        print(
+            'Direct Stripe payment completed successfully: $_stripePaymentIntentId');
       } else {
         // Original Firebase Functions flow (when authentication is fixed)
         final paymentIntentResult = await _stripeService.createPaymentIntent(
@@ -1386,7 +1384,7 @@ class _PaymentScreenState extends State<PaymentScreen>
 
         // Step 3: Present payment sheet
         final paymentSuccess = await _stripeService.displayPaymentSheet();
-        
+
         if (!paymentSuccess) {
           throw Exception('Payment was cancelled or failed');
         }
@@ -1397,13 +1395,13 @@ class _PaymentScreenState extends State<PaymentScreen>
             intentId: _stripePaymentIntentId!,
             orderId: _orderId!,
           );
-          
+
           if (confirmResult?['success'] != true) {
-            throw Exception(confirmResult?['message'] ?? 'Payment confirmation failed');
+            throw Exception(
+                confirmResult?['message'] ?? 'Payment confirmation failed');
           }
         }
       }
-
     } catch (e) {
       // Handle Stripe-specific errors
       if (e is StripeException) {
