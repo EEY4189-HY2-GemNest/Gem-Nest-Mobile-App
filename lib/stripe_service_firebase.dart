@@ -2,6 +2,8 @@ import 'dart:developer' as developer;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_functions/firebase_functions.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 
@@ -10,7 +12,8 @@ class StripeService {
   static String get publishableKey {
     final key = dotenv.env['STRIPE_PUBLISHABLE_KEY'];
     if (key == null || key.isEmpty) {
-      throw Exception('STRIPE_PUBLISHABLE_KEY not found in environment variables. Make sure .env file is loaded.');
+      throw Exception(
+          'STRIPE_PUBLISHABLE_KEY not found in environment variables. Make sure .env file is loaded.');
     }
     return key;
   }
@@ -85,13 +88,17 @@ class StripeService {
           merchantDisplayName: merchantDisplayName,
           customerId: customerID,
           customerEphemeralKeySecret: ephemeralKeySecret,
-          style: ThemeMode.light,
+          appearance: PaymentSheetAppearance(
+            colors: PaymentSheetAppearanceColors(
+              primary: Colors.blue.shade600,
+            ),
+          ),
           googlePay: const PaymentSheetGooglePay(
-            enabled: true,
             currencyCode: 'USD',
+            merchantCountryCode: 'US',
           ),
           applePay: const PaymentSheetApplePay(
-            enabled: true,
+            merchantCountryCode: 'US',
           ),
         ),
       );
