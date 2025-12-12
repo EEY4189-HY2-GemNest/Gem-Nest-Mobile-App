@@ -1,6 +1,7 @@
 import 'dart:developer' as developer;
 
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 
@@ -9,7 +10,8 @@ class StripeService {
   static String get publishableKey {
     final key = dotenv.env['STRIPE_PUBLISHABLE_KEY'];
     if (key == null || key.isEmpty) {
-      throw Exception('STRIPE_PUBLISHABLE_KEY not found in environment variables');
+      throw Exception(
+          'STRIPE_PUBLISHABLE_KEY not found in environment variables');
     }
     return key;
   }
@@ -98,13 +100,17 @@ class StripeService {
           merchantDisplayName: merchantDisplayName,
           customerId: customerID,
           customerEphemeralKeySecret: ephemeralKeySecret,
-          style: ThemeMode.light,
+          appearance: PaymentSheetAppearance(
+            colors: PaymentSheetAppearanceColors(
+              primary: Colors.blue.shade600,
+            ),
+          ),
           googlePay: const PaymentSheetGooglePay(
-            enabled: true,
             currencyCode: 'USD',
+            merchantCountryCode: 'US',
           ),
           applePay: const PaymentSheetApplePay(
-            enabled: true,
+            merchantCountryCode: 'US',
           ),
         ),
       );
@@ -134,7 +140,7 @@ class StripeService {
     required CardFieldInputDetails cardDetails,
   }) async {
     try {
-      final result = await Stripe.instance.confirmPaymentSheetPayment();
+      await Stripe.instance.confirmPaymentSheetPayment();
       return {
         'success': true,
         'message': 'Payment successful',
