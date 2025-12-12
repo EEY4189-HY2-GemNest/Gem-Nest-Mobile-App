@@ -29,11 +29,7 @@ class StripeService {
   StripeService._internal();
 
   static Future<void> initialize() async {
-    await Stripe.instance.initialize(
-      publishableKey,
-      merchantDisplayName: merchantDisplayName,
-      stripeAccountId: null,
-    );
+    Stripe.publishableKey = publishableKey;
   }
 
   /// Create a payment intent using Firebase Cloud Function
