@@ -32,9 +32,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
     );
     _animationController.forward();
 
-    // Load cart from local storage
+    // Load cart from local storage - handled by CartProvider constructor now
     Future.microtask(() {
-      context.read<CartProvider>().loadCartFromLocal();
       context.read<CartProvider>().validateCartStock();
     });
   }

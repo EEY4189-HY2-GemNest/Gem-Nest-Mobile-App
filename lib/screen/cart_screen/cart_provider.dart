@@ -91,6 +91,15 @@ class CartProvider with ChangeNotifier {
   final double _taxRate = 0.1; // 10% tax
   bool _isLoading = false;
 
+  // Constructor - automatically load from local storage
+  CartProvider() {
+    _initializeCart();
+  }
+
+  Future<void> _initializeCart() async {
+    await loadCartFromLocal();
+  }
+
   // Getters
   List<CartItem> get cartItems => _cartItems;
   List<CartItem> get wishlistItems => _wishlistItems;
@@ -392,9 +401,15 @@ class CartProvider with ChangeNotifier {
 
   // Stock validation
   Future<void> validateCartStock() async {
+    // Early return if cart is empty
+    if (_cartItems.isEmpty) return;
+
     bool hasChanges = false;
 
     for (int i = _cartItems.length - 1; i >= 0; i--) {
+      // Check if index is still valid (list might have been modified)
+      if (i >= _cartItems.length || i < 0) continue;
+
       final item = _cartItems[i];
       try {
         final productDoc = await FirebaseFirestore.instance
@@ -412,31 +427,41 @@ class CartProvider with ChangeNotifier {
         if (currentStock == 0) {
           _cartItems.removeAt(i);
           hasChanges = true;
-        } else if (item.quantity > currentStock) {
-          item.quantity = currentStock;
-          hasChanges = true;
+          continue; // Skip updating since item was removed
         }
 
-        // Update available stock
-        _cartItems[i] = CartItem(
-          id: item.id,
-          imagePath: item.imagePath,
-          title: item.title,
-          price: item.price,
-          originalPrice: item.originalPrice,
-          category: item.category,
-          sellerId: item.sellerId,
-          availableStock: currentStock,
-          productData: item.productData,
-          quantity: item.quantity,
-          isSelected: item.isSelected,
-          isDiscounted: item.isDiscounted,
-          discountPercentage: item.discountPercentage,
-        );
+        // Only update item if it wasn't removed
+        bool itemUpdated = false;
+        if (item.quantity > currentStock) {
+          item.quantity = currentStock;
+          itemUpdated = true;
+        }
+
+        // Update available stock (only if item still exists in cart)
+        if (i < _cartItems.length) {
+          _cartItems[i] = CartItem(
+            id: item.id,
+            imagePath: item.imagePath,
+            title: item.title,
+            price: item.price,
+            originalPrice: item.originalPrice,
+            category: item.category,
+            sellerId: item.sellerId,
+            availableStock: currentStock,
+            productData: item.productData,
+            quantity: item.quantity,
+            isSelected: item.isSelected,
+            isDiscounted: item.isDiscounted,
+            discountPercentage: item.discountPercentage,
+          );
+          if (itemUpdated) hasChanges = true;
+        }
       } catch (e) {
-        // If error, remove item
-        _cartItems.removeAt(i);
-        hasChanges = true;
+        // If error, remove item (with bounds check)
+        if (i < _cartItems.length) {
+          _cartItems.removeAt(i);
+          hasChanges = true;
+        }
       }
     }
 
