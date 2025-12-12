@@ -2,12 +2,18 @@ import 'dart:developer' as developer;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 
 class StripeService {
-  // Stripe Publishable Key - Get from https://dashboard.stripe.com/apikeys
-  static const String publishableKey =
-      'pk_test_YOUR_PUBLISHABLE_KEY_HERE'; // Replace with your key
+  // Stripe Publishable Key - Get from environment variables
+  static String get publishableKey {
+    final key = dotenv.env['STRIPE_PUBLISHABLE_KEY'];
+    if (key == null || key.isEmpty) {
+      throw Exception('STRIPE_PUBLISHABLE_KEY not found in environment variables. Make sure .env file is loaded.');
+    }
+    return key;
+  }
 
   static const String merchantDisplayName = 'GemNest';
 
