@@ -1,18 +1,43 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gemnest_mobile_app/firebase_options.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
 import 'package:gemnest_mobile_app/splash_screen.dart';
+import 'package:gemnest_mobile_app/stripe_service.dart';
+import 'package:gemnest_mobile_app/stripe_service_direct.dart';
 import 'package:gemnest_mobile_app/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables from .env file
+  await dotenv.load(fileName: ".env");
+
   try {
+    // Initialize Firebase
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+
+    // For development: Sign in anonymously to avoid authentication issues
+    if (kDebugMode) {
+      try {
+        await FirebaseAuth.instance.signInAnonymously();
+        debugPrint('Development mode: Signed in anonymously');
+      } catch (e) {
+        debugPrint('Development mode: Anonymous sign-in failed: $e');
+        // Continue anyway, will be handled in Stripe service
+      }
+    }
+
+    // Initialize Stripe services
+    await StripeService.initialize();
+    await StripeServiceDirect.initialize();
+
     runApp(
       MultiProvider(
         providers: [
