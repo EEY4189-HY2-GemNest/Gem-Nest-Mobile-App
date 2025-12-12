@@ -43,11 +43,7 @@ class StripeService {
   StripeService._internal();
 
   static Future<void> initialize() async {
-    await Stripe.instance.initialize(
-      publishableKey,
-      merchantDisplayName: merchantDisplayName,
-      stripeAccountId: null, // Use if you have a Stripe Connect account
-    );
+    Stripe.publishableKey = publishableKey;
   }
 
   /// Create a payment intent on the backend
