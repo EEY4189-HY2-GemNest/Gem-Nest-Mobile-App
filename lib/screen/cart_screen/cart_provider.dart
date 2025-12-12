@@ -394,13 +394,13 @@ class CartProvider with ChangeNotifier {
   Future<void> validateCartStock() async {
     // Early return if cart is empty
     if (_cartItems.isEmpty) return;
-    
+
     bool hasChanges = false;
 
     for (int i = _cartItems.length - 1; i >= 0; i--) {
       // Check if index is still valid (list might have been modified)
       if (i >= _cartItems.length || i < 0) continue;
-      
+
       final item = _cartItems[i];
       try {
         final productDoc = await FirebaseFirestore.instance
