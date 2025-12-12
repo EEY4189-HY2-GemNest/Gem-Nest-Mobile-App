@@ -26,14 +26,14 @@ const db = admin.firestore();
 // Initialize Stripe lazily (only when needed)
 let stripeInstance = null;
 function getStripeInstance() {
-  if (!stripeInstance) {
-    const secretKey = process.env.STRIPE_SECRET_KEY;
-    if (!secretKey) {
-      throw new Error("STRIPE_SECRET_KEY environment variable is not set");
+    if (!stripeInstance) {
+        const secretKey = process.env.STRIPE_SECRET_KEY;
+        if (!secretKey) {
+            throw new Error("STRIPE_SECRET_KEY environment variable is not set");
+        }
+        stripeInstance = stripe(secretKey);
     }
-    stripeInstance = stripe(secretKey);
-  }
-  return stripeInstance;
+    return stripeInstance;
 }
 
 // Create Express app for HTTP functions
@@ -420,7 +420,7 @@ exports.processRefund = functions.https.onCall(async (data, context) => {
         }
 
         // Process refund with Stripe
-        const refund = await stripe.refunds.create({
+        const refund = await getStripeInstance().refunds.create({
             payment_intent: order.paymentIntentId,
             amount: amount ? Math.round(amount * 100) : undefined,
         });
