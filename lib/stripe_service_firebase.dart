@@ -41,10 +41,22 @@ class StripeService {
     String? description,
   }) async {
     try {
-      // Verify user is authenticated
-      final user = FirebaseAuth.instance.currentUser;
+      // Ensure user is authenticated (sign in anonymously if needed)
+      User? user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-        throw Exception('User not authenticated');
+        developer.log('User not authenticated, signing in anonymously...');
+        try {
+          final userCredential = await FirebaseAuth.instance.signInAnonymously();
+          user = userCredential.user;
+          developer.log('Signed in anonymously: ${user?.uid}');
+        } catch (authError) {
+          developer.log('Failed to authenticate: $authError');
+          throw Exception('Authentication failed: ${authError.toString()}');
+        }
+      }
+      
+      if (user == null) {
+        throw Exception('Unable to authenticate user');
       }
 
       // Call Firebase Cloud Function
@@ -124,9 +136,22 @@ class StripeService {
     required String orderId,
   }) async {
     try {
-      final user = FirebaseAuth.instance.currentUser;
+      // Ensure user is authenticated
+      User? user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-        throw Exception('User not authenticated');
+        developer.log('User not authenticated for payment confirmation, signing in anonymously...');
+        try {
+          final userCredential = await FirebaseAuth.instance.signInAnonymously();
+          user = userCredential.user;
+          developer.log('Signed in anonymously for payment confirmation: ${user?.uid}');
+        } catch (authError) {
+          developer.log('Failed to authenticate for payment confirmation: $authError');
+          throw Exception('Authentication failed: ${authError.toString()}');
+        }
+      }
+      
+      if (user == null) {
+        throw Exception('Unable to authenticate user for payment confirmation');
       }
 
       // Call Firebase Cloud Function to confirm payment
