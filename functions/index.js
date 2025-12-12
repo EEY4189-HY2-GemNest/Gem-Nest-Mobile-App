@@ -15,13 +15,26 @@
 
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY || "sk_test_placeholder");
+const stripe = require("stripe");
 const cors = require("cors")({ origin: true });
 const express = require("express");
 
 // Initialize Firebase Admin
 admin.initializeApp();
 const db = admin.firestore();
+
+// Initialize Stripe lazily (only when needed)
+let stripeInstance = null;
+function getStripeInstance() {
+  if (!stripeInstance) {
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    if (!secretKey) {
+      throw new Error("STRIPE_SECRET_KEY environment variable is not set");
+    }
+    stripeInstance = stripe(secretKey);
+  }
+  return stripeInstance;
+}
 
 // Create Express app for HTTP functions
 const app = express();
@@ -61,7 +74,7 @@ exports.createPaymentIntent = functions.https.onCall(async (data, context) => {
         const customerId = context.auth.uid;
 
         // Create payment intent with Stripe
-        const paymentIntent = await stripe.paymentIntents.create({
+        const paymentIntent = await getStripeInstance().paymentIntents.create({
             amount: Math.round(amount * 100), // Convert to cents
             currency: currency.toLowerCase(),
             customer: customerId,
@@ -117,7 +130,7 @@ exports.createEphemeralKey = functions.https.onCall(async (data, context) => {
 
         const customerId = context.auth.uid;
 
-        const ephemeralKey = await stripe.ephemeralKeys.create(
+        const ephemeralKey = await getStripeInstance().ephemeralKeys.create(
             { customer: customerId },
             { apiVersion: "2024-04-10" }
         );
@@ -155,7 +168,7 @@ exports.confirmPayment = functions.https.onCall(async (data, context) => {
         }
 
         // Retrieve payment intent from Stripe
-        const paymentIntent = await stripe.paymentIntents.retrieve(intentId);
+        const paymentIntent = await getStripeInstance().paymentIntents.retrieve(intentId);
 
         // Verify payment was successful
         if (paymentIntent.status === "succeeded") {
@@ -231,7 +244,7 @@ exports.stripeWebhook = functions.https.onRequest((req, res) => {
         let event;
 
         try {
-            event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret);
+            event = getStripeInstance().webhooks.constructEvent(req.rawBody, sig, endpointSecret);
         } catch (error) {
             console.error("Webhook signature verification failed:", error);
             return res.status(400).send(`Webhook Error: ${error.message}`);
