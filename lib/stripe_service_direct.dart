@@ -1,4 +1,5 @@
 import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
@@ -26,7 +27,8 @@ class StripeServiceDirect {
 
   static Future<void> initialize() async {
     Stripe.publishableKey = publishableKey;
-    developer.log('Stripe initialized with publishable key: ${publishableKey.substring(0, 20)}...');
+    developer.log(
+        'Stripe initialized with publishable key: ${publishableKey.substring(0, 20)}...');
   }
 
   /// Simulate a successful payment for development/testing
@@ -37,13 +39,12 @@ class StripeServiceDirect {
   }) async {
     try {
       developer.log('Simulating test payment for amount: $amount $currency');
-      
+
       // Show a simple dialog to simulate payment processing
       await Future.delayed(const Duration(seconds: 2));
-      
+
       developer.log('Test payment simulation completed successfully');
       return true;
-      
     } catch (e) {
       developer.log('Error in test payment simulation: $e');
       return false;
@@ -57,7 +58,7 @@ class StripeServiceDirect {
   }) async {
     try {
       developer.log('Initializing test payment sheet...');
-      
+
       // For development: Use a simplified payment sheet setup
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
@@ -72,7 +73,7 @@ class StripeServiceDirect {
           ),
         ),
       );
-      
+
       developer.log('Test payment sheet initialized successfully');
     } catch (e) {
       developer.log('Error initializing test payment sheet: $e');
@@ -84,15 +85,15 @@ class StripeServiceDirect {
   Future<bool> displayTestPaymentSheet() async {
     try {
       developer.log('Presenting test payment sheet...');
-      
+
       await Stripe.instance.presentPaymentSheet();
-      
+
       developer.log('Test payment completed successfully');
       return true;
-      
     } on StripeException catch (e) {
-      developer.log('Stripe error during test payment: ${e.error.localizedMessage}');
-      
+      developer
+          .log('Stripe error during test payment: ${e.error.localizedMessage}');
+
       // Handle specific error codes
       switch (e.error.code) {
         case FailureCode.Canceled:
@@ -120,17 +121,18 @@ class StripeServiceDirect {
   }) async {
     try {
       developer.log('Starting simulated test payment flow for order: $orderId');
-      
+
       // For development: Simulate successful payment without requiring backend
       final success = await simulateTestPayment(
         amount: amount,
         currency: currency,
       );
-      
+
       if (success) {
         return {
           'success': true,
-          'payment_intent_id': 'pi_test_${DateTime.now().millisecondsSinceEpoch}',
+          'payment_intent_id':
+              'pi_test_${DateTime.now().millisecondsSinceEpoch}',
           'amount': amount,
           'currency': currency,
           'order_id': orderId,
@@ -143,7 +145,6 @@ class StripeServiceDirect {
           'order_id': orderId,
         };
       }
-      
     } catch (e) {
       developer.log('Test payment flow error: $e');
       return {
@@ -160,11 +161,12 @@ class StripeServiceDirect {
     required String orderId,
   }) async {
     try {
-      developer.log('Confirming test payment: $paymentIntentId for order: $orderId');
-      
+      developer
+          .log('Confirming test payment: $paymentIntentId for order: $orderId');
+
       // Simulate backend payment confirmation
       await Future.delayed(const Duration(seconds: 1));
-      
+
       return {
         'success': true,
         'payment_intent_id': paymentIntentId,
@@ -172,7 +174,6 @@ class StripeServiceDirect {
         'status': 'succeeded',
         'message': 'Test payment confirmed successfully'
       };
-      
     } catch (e) {
       developer.log('Test payment confirmation error: $e');
       return {
