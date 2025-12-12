@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gemnest_mobile_app/screen/checkout_screen/checkout_screen.dart' as checkout;
+import 'package:gemnest_mobile_app/screen/checkout_screen/checkout_screen.dart'
+    as checkout;
 import 'package:gemnest_mobile_app/screen/payment_screen/payment_screen.dart';
 
 class PaymentTestScreen extends StatelessWidget {
@@ -38,7 +39,8 @@ class PaymentTestScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    const Icon(Icons.credit_card, color: Colors.white, size: 40),
+                    const Icon(Icons.credit_card,
+                        color: Colors.white, size: 40),
                     const SizedBox(height: 10),
                     const Text(
                       'Test Card Payment Form',
@@ -59,14 +61,16 @@ class PaymentTestScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => PaymentScreen.test(totalAmount: 149.99),
+                            builder: (context) =>
+                                PaymentScreen.test(totalAmount: 149.99),
                           ),
                         );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: Colors.green.shade600,
-                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 30, vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25),
                         ),
@@ -123,7 +127,8 @@ class PaymentTestScreen extends StatelessWidget {
                                 label: 'Test Address',
                                 fullName: 'John Doe',
                                 mobile: '+91 9876543210',
-                                address: '456 Test Street, Test Area, Test District',
+                                address:
+                                    '456 Test Street, Test Area, Test District',
                                 city: 'Delhi',
                                 state: 'Delhi',
                                 pincode: '110001',
@@ -136,7 +141,8 @@ class PaymentTestScreen extends StatelessWidget {
                                 estimatedDays: 2,
                                 icon: 'assets/icons/express.png',
                               ),
-                              specialInstructions: 'Handle with care - test item',
+                              specialInstructions:
+                                  'Handle with care - test item',
                             ),
                           ),
                         );
@@ -144,7 +150,8 @@ class PaymentTestScreen extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: Colors.purple.shade600,
-                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 30, vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25),
                         ),
@@ -174,7 +181,8 @@ class PaymentTestScreen extends StatelessWidget {
                         const SizedBox(width: 8),
                         const Text(
                           'Test Instructions',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
