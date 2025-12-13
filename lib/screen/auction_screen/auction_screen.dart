@@ -370,8 +370,8 @@ class _AuctionItemCardState extends State<AuctionItemCard>
   @override
   void initState() {
     super.initState();
-    _currentBid = widget.currentBid;
-    _remainingTime = widget.endTime.difference(DateTime.now());
+    _currentBid = widget.auction.currentBid;
+    _remainingTime = widget.auction.timeRemaining;
     _timer = Timer.periodic(const Duration(seconds: 1), _updateTime);
 
     _animationController = AnimationController(
@@ -388,14 +388,14 @@ class _AuctionItemCardState extends State<AuctionItemCard>
   void _setupRealtimeListener() {
     _auctionSubscription = FirebaseFirestore.instance
         .collection('auctions')
-        .doc(widget.auctionId)
+        .doc(widget.auction.id)
         .snapshots()
         .listen((snapshot) {
       if (snapshot.exists) {
         final data = snapshot.data() as Map<String, dynamic>;
         setState(() {
           _currentBid =
-              (data['currentBid'] as num?)?.toDouble() ?? widget.currentBid;
+              (data['currentBid'] as num?)?.toDouble() ?? widget.auction.currentBid;
           _winningUserId = data['winningUserId'];
         });
         if (data['currentBid'] > widget.currentBid) {
