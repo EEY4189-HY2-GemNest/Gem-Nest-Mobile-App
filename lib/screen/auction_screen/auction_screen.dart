@@ -727,8 +727,8 @@ class _AuctionItemCardState extends State<AuctionItemCard>
             child: Stack(
               children: [
                 Image.network(
-                  widget.imagePath.isNotEmpty
-                      ? widget.imagePath
+                  widget.auction.imageUrl.isNotEmpty
+                      ? widget.auction.imageUrl
                       : 'assets/placeholder.jpg',
                   fit: BoxFit.cover,
                   width: double.infinity,
@@ -778,7 +778,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
                   children: [
                     Expanded(
                       child: Text(
-                        widget.title,
+                        widget.auction.title,
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w700,
