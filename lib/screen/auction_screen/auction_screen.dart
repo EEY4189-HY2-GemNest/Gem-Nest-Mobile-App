@@ -237,7 +237,7 @@ class _AuctionScreenState extends State<AuctionScreen> {
           auction.description.toLowerCase().contains(query);
     }).toList();
   }
-      switch (_selectedStatus) {
+      switch (selectedStatus) {
         case 'live':
           return endTime.isAfter(now);
         case 'ended':
@@ -265,7 +265,7 @@ class _AuctionScreenState extends State<AuctionScreen> {
   }
 
   Widget _buildAuctionsList() {
-    return StreamBuilder<QuerySnapshot>(
+    return StreamBuilder<List<Auction>>(
       stream: _getFilteredAuctionsStream(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -282,6 +282,54 @@ class _AuctionScreenState extends State<AuctionScreen> {
                     setState(() {}); // Refresh
                   },
                   child: const Text('Retry'),
+                ),
+              ],
+            ),
+          );
+        }
+
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final auctions = snapshot.data ?? [];
+
+        if (auctions.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.shopping_cart_outlined,
+                    size: 64, color: Colors.grey.shade400),
+                const SizedBox(height: 16),
+                Text('No auctions found',
+                    style: TextStyle(
+                        fontSize: 18, color: Colors.grey.shade600)),
+                const SizedBox(height: 8),
+                Text('Try adjusting your filters',
+                    style: TextStyle(color: Colors.grey.shade500)),
+              ],
+            ),
+          );
+        }
+
+        return ListView.builder(
+          itemCount: auctions.length,
+          itemBuilder: (context, index) {
+            final auction = auctions[index];
+            return AuctionItemCard(
+              auction: auction,
+              auctionRepository: _auctionRepository,
+            );
+          },
+        );
+      },
+    );
+  }
+                  onPressed: () {
+                    setState(() {}); // Refresh
+                  },
+                  child: Text('Retry'),
                 ),
               ],
             ),
@@ -325,9 +373,9 @@ class _AuctionScreenState extends State<AuctionScreen> {
         }
 
         return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: filteredAuctions.length,
-          itemBuilder: (context, index) {
+          padding = const EdgeInsets.all(16),
+          itemCount = filteredAuctions.length,
+          itemBuilder = (context, index) {
             final doc = filteredAuctions[index];
             final data = doc.data() as Map<String, dynamic>;
 
