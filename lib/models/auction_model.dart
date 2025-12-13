@@ -32,7 +32,7 @@ class Auction {
   /// Get highest bidder using efficient algorithm
   Bid? getHighestBid() {
     if (bidHistory.isEmpty) return null;
-    
+
     // Single pass O(n) to find max
     Bid maxBid = bidHistory[0];
     for (int i = 1; i < bidHistory.length; i++) {
