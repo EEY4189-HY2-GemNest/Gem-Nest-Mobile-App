@@ -942,21 +942,9 @@ class _AuctionItemCardState extends State<AuctionItemCard>
                         : Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              if (!isAuctionActive &&
-                                  isCurrentUserWinner &&
-                                  !isPaymentCompleted)
+                              if (!isAuctionActive && isCurrentUserWinner)
                                 const Icon(Icons.payment, size: 20),
-                              if (!isAuctionActive &&
-                                  isCurrentUserWinner &&
-                                  !isPaymentCompleted)
-                                const SizedBox(width: 8),
-                              if (!isAuctionActive &&
-                                  isCurrentUserWinner &&
-                                  isPaymentCompleted)
-                                const Icon(Icons.check_circle, size: 20),
-                              if (!isAuctionActive &&
-                                  isCurrentUserWinner &&
-                                  isPaymentCompleted)
+                              if (!isAuctionActive && isCurrentUserWinner)
                                 const SizedBox(width: 8),
                               Text(
                                 _getButtonText(),
