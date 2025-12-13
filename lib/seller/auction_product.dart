@@ -379,7 +379,113 @@ class _AuctionProductState extends State<AuctionProduct>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Content will be added in next commits
+                  // Add to build method Column children
+  const Text(
+    'Photo (First image will be displayed)',
+    style: TextStyle(color: Colors.white70, fontSize: 16),
+  ),
+  const SizedBox(height: 16),
+  GestureDetector(
+    onTap: _pickImage,
+    child: Container(
+      width: 120,
+      height: 120,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.grey[900]!, Colors.grey[800]!],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.blue, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: _image != null
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: Image.file(_image!, fit: BoxFit.cover),
+            )
+          : const Center(
+              child: Icon(Icons.camera_alt,
+                  color: Colors.white, size: 40),
+            ),
+    ),
+  ),
+  const SizedBox(height: 32),
+  _buildInputField(
+    label: 'Title',
+    hint: 'Enter auction title',
+    controller: _titleController,
+    validator: (value) =>
+        value!.isEmpty ? 'Title is required' : null,
+  ),
+  const SizedBox(height: 20),
+  _buildInputField(
+    label: 'Current Bid',
+    hint: 'Enter current bid',
+    controller: _currentBidController,
+    validator: (value) =>
+        value!.isEmpty ? 'Current bid is required' : null,
+    keyboardType: TextInputType.number,
+  ),
+  const SizedBox(height: 20),
+  _buildInputField(
+    label: 'Minimum Increment',
+    hint: 'Enter minimum increment',
+    controller: _minimumIncrementController,
+    validator: (value) =>
+        value!.isEmpty ? 'Minimum increment is required' : null,
+    keyboardType: TextInputType.number,
+  ),
+  const SizedBox(height: 20),
+
+  Widget _buildInputField({
+    required String label,
+    required String hint,
+    required TextEditingController controller,
+    required String? Function(String?) validator,
+    int maxLines = 1,
+    TextInputType? keyboardType,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(color: Colors.white70, fontSize: 16),
+        ),
+        const SizedBox(height: 10),
+        TextFormField(
+          controller: controller,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.grey[900],
+            hintText: hint,
+            hintStyle: const TextStyle(color: Colors.white54, fontSize: 14),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: Colors.blue, width: 2),
+            ),
+            errorStyle: const TextStyle(color: Colors.red, fontSize: 12),
+          ),
+          maxLines: maxLines,
+          keyboardType: keyboardType,
+          style: const TextStyle(color: Colors.white, fontSize: 16),
+          validator: validator,
+        ),
+      ],
+    );
+  }
                 ],
               ),
             ),
