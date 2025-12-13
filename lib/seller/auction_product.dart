@@ -32,56 +32,61 @@ class _AuctionProductState extends State<AuctionProduct>
   final FirebaseAuth _auth = FirebaseAuth.instance;
   DateTime? _selectedEndTime;
 
-  // Add to state variables
+  // Delivery methods state
   Map<String, Map<String, dynamic>> _availableDeliveryMethods = {};
   final Set<String> _selectedDeliveryMethods = {};
   bool _isLoadingDeliveryConfig = false;
   bool _isDeliveryExpanded = false;
 
-  // Add to state variables
+  // Payment methods state
   Map<String, Map<String, dynamic>> _availablePaymentMethods = {};
   final Set<String> _selectedPaymentMethods = {};
   bool _isLoadingPaymentConfig = false;
   bool _isPaymentExpanded = false;
 
-  // Add to initState
-  _loadPaymentConfig();
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
+    _controller.forward();
+    _loadDeliveryConfig();
+    _loadPaymentConfig();
+  }
 
-  Future<void> _loadPaymentConfig() async {
-    setState(() => _isLoadingPaymentConfig = true);
-    try {
-      final userId = _auth.currentUser?.uid;
-      if (userId == null) return;
+  @override
+  void dispose() {
+    _controller.dispose();
+    _titleController.dispose();
+    _currentBidController.dispose();
+    _minimumIncrementController.dispose();
+    _endTimeController.dispose();
+    super.dispose();
+  }
 
-      final doc =
-          await _firestore.collection('payment_configs').doc(userId).get();
-
-      if (doc.exists) {
-        final data = doc.data()!;
-        final enabledMethods = <String, Map<String, dynamic>>{};
-
-        data.forEach((key, value) {
-          if (key != 'sellerId' && key != 'updatedAt') {
-            final methodData = value as Map<String, dynamic>;
-            if (methodData['enabled'] == true) {
-              enabledMethods[key] = methodData;
-            }
-          }
-        });
-
-        setState(() {
-          _availablePaymentMethods = enabledMethods;
-        });
-      }
-    } catch (e) {
-      print('Error loading payment config: $e');
-    } finally {
-      setState(() => _isLoadingPaymentConfig = false);
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
     }
   }
 
-  // Add to initState
-  _loadDeliveryConfig();
+  Future<String?> _uploadImage() async {
+    if (_image != null) {
+      String fileName =
+          'auction_images/${DateTime.now().millisecondsSinceEpoch}_${_image!.path.split('/').last}';
+      UploadTask uploadTask = _storage.ref(fileName).putFile(_image!);
+      TaskSnapshot snapshot = await uploadTask;
+      return await snapshot.ref.getDownloadURL();
+    }
+    return null;
+  }
 
   Future<void> _loadDeliveryConfig() async {
     setState(() => _isLoadingDeliveryConfig = true);
@@ -116,46 +121,37 @@ class _AuctionProductState extends State<AuctionProduct>
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 500),
-    );
-    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
-    _controller.forward();
-  }
+  Future<void> _loadPaymentConfig() async {
+    setState(() => _isLoadingPaymentConfig = true);
+    try {
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) return;
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    _titleController.dispose();
-    _currentBidController.dispose();
-    _minimumIncrementController.dispose();
-    _endTimeController.dispose();
-    super.dispose();
-  }
+      final doc =
+          await _firestore.collection('payment_configs').doc(userId).get();
 
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
+      if (doc.exists) {
+        final data = doc.data()!;
+        final enabledMethods = <String, Map<String, dynamic>>{};
+
+        data.forEach((key, value) {
+          if (key != 'sellerId' && key != 'updatedAt') {
+            final methodData = value as Map<String, dynamic>;
+            if (methodData['enabled'] == true) {
+              enabledMethods[key] = methodData;
+            }
+          }
+        });
+
+        setState(() {
+          _availablePaymentMethods = enabledMethods;
+        });
+      }
+    } catch (e) {
+      print('Error loading payment config: $e');
+    } finally {
+      setState(() => _isLoadingPaymentConfig = false);
     }
-  }
-
-  Future<String?> _uploadImage() async {
-    if (_image != null) {
-      String fileName =
-          'auction_images/${DateTime.now().millisecondsSinceEpoch}_${_image!.path.split('/').last}';
-      UploadTask uploadTask = _storage.ref(fileName).putFile(_image!);
-      TaskSnapshot snapshot = await uploadTask;
-      return await snapshot.ref.getDownloadURL();
-    }
-    return null;
   }
 
   Future<void> _selectDateTime(BuildContext context) async {
@@ -181,6 +177,7 @@ class _AuctionProductState extends State<AuctionProduct>
             pickedTime.hour,
             pickedTime.minute,
           );
+          // Format for display
           _endTimeController.text =
               DateFormat('yyyy-MM-dd HH:mm').format(_selectedEndTime!);
         });
@@ -190,6 +187,7 @@ class _AuctionProductState extends State<AuctionProduct>
 
   Future<void> _saveAuctionToFirestore(String? imageUrl) async {
     try {
+      // Convert to ISO 8601 format for Firebase
       String endTimeIso = _selectedEndTime != null
           ? _selectedEndTime!.toUtc().toIso8601String()
           : DateTime.now().toUtc().toIso8601String();
@@ -217,12 +215,14 @@ class _AuctionProductState extends State<AuctionProduct>
   }
 
   void _showConfirmationDialog() {
+    // Validate delivery methods selection
     if (_selectedDeliveryMethods.isEmpty &&
         _availableDeliveryMethods.isNotEmpty) {
       _showErrorDialog('Please select at least one delivery method.');
       return;
     }
 
+    // Validate payment methods selection
     if (_selectedPaymentMethods.isEmpty &&
         _availablePaymentMethods.isNotEmpty) {
       _showErrorDialog('Please select at least one payment method.');
@@ -379,71 +379,156 @@ class _AuctionProductState extends State<AuctionProduct>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Add to build method Column children
-  const Text(
-    'Photo (First image will be displayed)',
-    style: TextStyle(color: Colors.white70, fontSize: 16),
-  ),
-  const SizedBox(height: 16),
-  GestureDetector(
-    onTap: _pickImage,
-    child: Container(
-      width: 120,
-      height: 120,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.grey[900]!, Colors.grey[800]!],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.blue, width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.blue.withOpacity(0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: _image != null
-          ? ClipRRect(
-              borderRadius: BorderRadius.circular(14),
-              child: Image.file(_image!, fit: BoxFit.cover),
-            )
-          : const Center(
-              child: Icon(Icons.camera_alt,
-                  color: Colors.white, size: 40),
+                  const Text(
+                    'Photo (First image will be displayed)',
+                    style: TextStyle(color: Colors.white70, fontSize: 16),
+                  ),
+                  const SizedBox(height: 16),
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.grey[900]!, Colors.grey[800]!],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.blue, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.blue.withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: _image != null
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(14),
+                              child: Image.file(_image!, fit: BoxFit.cover),
+                            )
+                          : const Center(
+                              child: Icon(Icons.camera_alt,
+                                  color: Colors.white, size: 40),
+                            ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  _buildInputField(
+                    label: 'Title',
+                    hint: 'Enter auction title',
+                    controller: _titleController,
+                    validator: (value) =>
+                        value!.isEmpty ? 'Title is required' : null,
+                  ),
+                  const SizedBox(height: 20),
+                  _buildInputField(
+                    label: 'Current Bid',
+                    hint: 'Enter current bid',
+                    controller: _currentBidController,
+                    validator: (value) =>
+                        value!.isEmpty ? 'Current bid is required' : null,
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 20),
+                  _buildInputField(
+                    label: 'Minimum Increment',
+                    hint: 'Enter minimum increment',
+                    controller: _minimumIncrementController,
+                    validator: (value) =>
+                        value!.isEmpty ? 'Minimum increment is required' : null,
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 20),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'End Time',
+                        style: TextStyle(color: Colors.white70, fontSize: 16),
+                      ),
+                      const SizedBox(height: 10),
+                      GestureDetector(
+                        onTap: () => _selectDateTime(context),
+                        child: AbsorbPointer(
+                          child: TextFormField(
+                            controller: _endTimeController,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.grey[900],
+                              hintText: 'Select date and time',
+                              hintStyle: const TextStyle(
+                                  color: Colors.white54, fontSize: 14),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: const BorderSide(
+                                    color: Colors.blue, width: 2),
+                              ),
+                              errorStyle: const TextStyle(
+                                  color: Colors.red, fontSize: 12),
+                              suffixIcon: const Icon(Icons.calendar_today,
+                                  color: Colors.blue),
+                            ),
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 16),
+                            validator: (value) =>
+                                value!.isEmpty ? 'End time is required' : null,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  _buildDeliveryMethodsSection(),
+                  const SizedBox(height: 20),
+                  _buildPaymentMethodsSection(),
+                  const SizedBox(height: 32),
+                  Center(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.85,
+                      child: ElevatedButton(
+                        onPressed: _showConfirmationDialog,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 6,
+                          shadowColor: Colors.blue.withOpacity(0.5),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'ALL DONE',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(width: 8),
+                            Icon(Icons.check_circle,
+                                size: 20, color: Colors.white),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-    ),
-  ),
-  const SizedBox(height: 32),
-  _buildInputField(
-    label: 'Title',
-    hint: 'Enter auction title',
-    controller: _titleController,
-    validator: (value) =>
-        value!.isEmpty ? 'Title is required' : null,
-  ),
-  const SizedBox(height: 20),
-  _buildInputField(
-    label: 'Current Bid',
-    hint: 'Enter current bid',
-    controller: _currentBidController,
-    validator: (value) =>
-        value!.isEmpty ? 'Current bid is required' : null,
-    keyboardType: TextInputType.number,
-  ),
-  const SizedBox(height: 20),
-  _buildInputField(
-    label: 'Minimum Increment',
-    hint: 'Enter minimum increment',
-    controller: _minimumIncrementController,
-    validator: (value) =>
-        value!.isEmpty ? 'Minimum increment is required' : null,
-    keyboardType: TextInputType.number,
-  ),
-  const SizedBox(height: 20),
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _buildInputField({
     required String label,
@@ -486,95 +571,6 @@ class _AuctionProductState extends State<AuctionProduct>
       ],
     );
   }
-
-// Add after minimum increment field
-  Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const Text(
-        'End Time',
-        style: TextStyle(color: Colors.white70, fontSize: 16),
-      ),
-      const SizedBox(height: 10),
-      GestureDetector(
-        onTap: () => _selectDateTime(context),
-        child: AbsorbPointer(
-          child: TextFormField(
-            controller: _endTimeController,
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: Colors.grey[900],
-              hintText: 'Select date and time',
-              hintStyle: const TextStyle(
-                  color: Colors.white54, fontSize: 14),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(
-                    color: Colors.blue, width: 2),
-              ),
-              errorStyle: const TextStyle(
-                  color: Colors.red, fontSize: 12),
-              suffixIcon: const Icon(Icons.calendar_today,
-                  color: Colors.blue),
-            ),
-            style: const TextStyle(
-                color: Colors.white, fontSize: 16),
-            validator: (value) =>
-                value!.isEmpty ? 'End time is required' : null,
-          ),
-        ),
-      ),
-    ],
-  ),
-
-
-  // Add after minimum increment field
-  Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const Text(
-        'End Time',
-        style: TextStyle(color: Colors.white70, fontSize: 16),
-      ),
-      const SizedBox(height: 10),
-      GestureDetector(
-        onTap: () => _selectDateTime(context),
-        child: AbsorbPointer(
-          child: TextFormField(
-            controller: _endTimeController,
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: Colors.grey[900],
-              hintText: 'Select date and time',
-              hintStyle: const TextStyle(
-                  color: Colors.white54, fontSize: 14),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(
-                    color: Colors.blue, width: 2),
-              ),
-              errorStyle: const TextStyle(
-                  color: Colors.red, fontSize: 12),
-              suffixIcon: const Icon(Icons.calendar_today,
-                  color: Colors.blue),
-            ),
-            style: const TextStyle(
-                color: Colors.white, fontSize: 16),
-            validator: (value) =>
-                value!.isEmpty ? 'End time is required' : null,
-          ),
-        ),
-      ),
-    ],
-  ),
 
   Widget _buildDeliveryMethodsSection() {
     if (_availableDeliveryMethods.isEmpty) {
@@ -907,14 +903,5 @@ class _AuctionProductState extends State<AuctionProduct>
       ],
     );
   }
-
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
 }
+
