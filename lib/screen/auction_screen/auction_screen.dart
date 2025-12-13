@@ -448,13 +448,13 @@ class _AuctionItemCardState extends State<AuctionItemCard>
 
     if ((enteredBid - _currentBid) < widget.auction.minimumNextBid) {
       _showSnackBar(
-          'Minimum increment: ${_formatCurrency(widget.minimumIncrement)}');
+          'Minimum increment: ${_formatCurrency(widget.auction.minimumNextBid)}');
       return;
     }
 
     final docSnapshot = await FirebaseFirestore.instance
         .collection('auctions')
-        .doc(widget.auctionId)
+        .doc(widget.auction.id)
         .get();
     if (!docSnapshot.exists) {
       _showSnackBar('Auction not found');
