@@ -63,8 +63,7 @@ class AuctionRepository {
     try {
       final doc = await _auctionsCollection.doc(auctionId).get();
       if (doc.exists) {
-        final auction =
-            Auction.fromMap(doc.data() as Map<String, dynamic>);
+        final auction = Auction.fromMap(doc.data() as Map<String, dynamic>);
         _cache.add(auction);
         return auction;
       }
@@ -82,10 +81,9 @@ class AuctionRepository {
       final results = snapshot.docs
           .map((doc) => Auction.fromMap(doc.data() as Map<String, dynamic>))
           .where((auction) {
-            return auction.title.toLowerCase().contains(lowerQuery) ||
-                auction.description.toLowerCase().contains(lowerQuery);
-          })
-          .toList();
+        return auction.title.toLowerCase().contains(lowerQuery) ||
+            auction.description.toLowerCase().contains(lowerQuery);
+      }).toList();
 
       // Sort by relevance (title match first) - O(n log n)
       results.sort((a, b) {
@@ -109,8 +107,7 @@ class AuctionRepository {
           .toList();
 
       // Sort by time remaining (soonest ending first)
-      auctions.sort(
-          (a, b) => a.timeRemaining.compareTo(b.timeRemaining));
+      auctions.sort((a, b) => a.timeRemaining.compareTo(b.timeRemaining));
 
       return auctions;
     });
@@ -125,10 +122,8 @@ class AuctionRepository {
       final auctions = snapshot.docs
           .map((doc) => Auction.fromMap(doc.data() as Map<String, dynamic>))
           .where((auction) {
-            return auction.isActive &&
-                auction.endTime.isBefore(deadline);
-          })
-          .toList();
+        return auction.isActive && auction.endTime.isBefore(deadline);
+      }).toList();
 
       // Sort by endTime ascending (soonest first)
       auctions.sort((a, b) => a.endTime.compareTo(b.endTime));
