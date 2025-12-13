@@ -83,7 +83,7 @@ class _SellerHomePageState extends State<SellerHomePage>
           .collection('auctions')
           .where('sellerId', isEqualTo: currentUserId)
           .get();
-      
+
       // Filter for active auctions in code
       final now = Timestamp.now();
       final activeAuctions = auctionsSnapshot.docs.where((doc) {
