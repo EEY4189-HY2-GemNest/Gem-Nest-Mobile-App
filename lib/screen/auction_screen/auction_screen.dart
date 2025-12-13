@@ -349,6 +349,8 @@ class AuctionItemCard extends StatefulWidget {
   final Auction auction;
   final AuctionRepository auctionRepository;
 
+  const AuctionItemCard({super.key});
+
   @override
   _AuctionItemCardState createState() => _AuctionItemCardState();
 }
