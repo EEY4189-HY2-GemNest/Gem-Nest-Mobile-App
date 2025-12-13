@@ -32,6 +32,7 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     // Start the animation
+    _animationController.forward();
 
     // Navigate to the LoginScreen after 1 second
     Future.delayed(const Duration(seconds: 2), () {
