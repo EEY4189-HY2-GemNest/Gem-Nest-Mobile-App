@@ -52,4 +52,25 @@ class _AuctionProductState extends State<AuctionProduct>
     _endTimeController.dispose();
     super.dispose();
   }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<String?> _uploadImage() async {
+    if (_image != null) {
+      String fileName =
+          'auction_images/${DateTime.now().millisecondsSinceEpoch}_${_image!.path.split('/').last}';
+      UploadTask uploadTask = _storage.ref(fileName).putFile(_image!);
+      TaskSnapshot snapshot = await uploadTask;
+      return await snapshot.ref.getDownloadURL();
+    }
+    return null;
+  }
 }
