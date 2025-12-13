@@ -32,6 +32,48 @@ class _AuctionProductState extends State<AuctionProduct>
   final FirebaseAuth _auth = FirebaseAuth.instance;
   DateTime? _selectedEndTime;
 
+  // Add to state variables
+  Map<String, Map<String, dynamic>> _availableDeliveryMethods = {};
+  final Set<String> _selectedDeliveryMethods = {};
+  bool _isLoadingDeliveryConfig = false;
+  bool _isDeliveryExpanded = false;
+
+  // Add to initState
+  _loadDeliveryConfig();
+
+  Future<void> _loadDeliveryConfig() async {
+    setState(() => _isLoadingDeliveryConfig = true);
+    try {
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) return;
+
+      final doc =
+          await _firestore.collection('delivery_configs').doc(userId).get();
+
+      if (doc.exists) {
+        final data = doc.data()!;
+        final enabledMethods = <String, Map<String, dynamic>>{};
+
+        data.forEach((key, value) {
+          if (key != 'sellerId' && key != 'updatedAt') {
+            final methodData = value as Map<String, dynamic>;
+            if (methodData['enabled'] == true) {
+              enabledMethods[key] = methodData;
+            }
+          }
+        });
+
+        setState(() {
+          _availableDeliveryMethods = enabledMethods;
+        });
+      }
+    } catch (e) {
+      print('Error loading delivery config: $e');
+    } finally {
+      setState(() => _isLoadingDeliveryConfig = false);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
