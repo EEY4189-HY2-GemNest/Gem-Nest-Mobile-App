@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -33,6 +34,18 @@ class _ProductListingState extends State<ProductListing>
   bool _isBulkUploading = false;
   bool _isDownloadingTemplate = false;
 
+  // Delivery methods
+  Map<String, Map<String, dynamic>> _availableDeliveryMethods = {};
+  final Set<String> _selectedDeliveryMethods = {};
+  bool _isLoadingDeliveryConfig = true;
+  bool _isDeliveryExpanded = false;
+
+  // Payment methods
+  Map<String, Map<String, dynamic>> _availablePaymentMethods = {};
+  final Set<String> _selectedPaymentMethods = {};
+  bool _isLoadingPaymentConfig = true;
+  bool _isPaymentExpanded = false;
+
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -46,6 +59,66 @@ class _ProductListingState extends State<ProductListing>
     );
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
     _controller.forward();
+    _loadDeliveryConfig();
+    _loadPaymentConfig();
+  }
+
+  Future<void> _loadDeliveryConfig() async {
+    try {
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) return;
+
+      final doc =
+          await _firestore.collection('delivery_configs').doc(userId).get();
+
+      if (doc.exists) {
+        final data = doc.data()!;
+        setState(() {
+          _availableDeliveryMethods = {};
+          data.forEach((key, value) {
+            if (key != 'sellerId' && key != 'updatedAt' && value is Map) {
+              final methodData = value as Map<String, dynamic>;
+              if (methodData['enabled'] == true) {
+                _availableDeliveryMethods[key] = methodData;
+              }
+            }
+          });
+        });
+      }
+    } catch (e) {
+      print('Error loading delivery config: $e');
+    } finally {
+      setState(() => _isLoadingDeliveryConfig = false);
+    }
+  }
+
+  Future<void> _loadPaymentConfig() async {
+    try {
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) return;
+
+      final doc =
+          await _firestore.collection('payment_configs').doc(userId).get();
+
+      if (doc.exists) {
+        final data = doc.data()!;
+        setState(() {
+          _availablePaymentMethods = {};
+          data.forEach((key, value) {
+            if (key != 'sellerId' && key != 'updatedAt' && value is Map) {
+              final methodData = value as Map<String, dynamic>;
+              if (methodData['enabled'] == true) {
+                _availablePaymentMethods[key] = methodData;
+              }
+            }
+          });
+        });
+      }
+    } catch (e) {
+      print('Error loading payment config: $e');
+    } finally {
+      setState(() => _isLoadingPaymentConfig = false);
+    }
   }
 
   @override
@@ -128,7 +201,10 @@ class _ProductListingState extends State<ProductListing>
         'description': _descriptionController.text,
         'imageUrl': imageUrl,
         'timestamp': FieldValue.serverTimestamp(),
+        'sellerId': _auth.currentUser?.uid,
         'userId': _auth.currentUser?.uid,
+        'deliveryMethods': _selectedDeliveryMethods.toList(),
+        'paymentMethods': _selectedPaymentMethods.toList(),
       });
     } catch (e) {
       _showErrorDialog('Error saving product: $e');
@@ -147,6 +223,7 @@ class _ProductListingState extends State<ProductListing>
           'pricing',
           'quantity',
           'unit',
+          'deliveryMethods',
           'description',
           'imageUrl'
         ],
@@ -214,6 +291,7 @@ class _ProductListingState extends State<ProductListing>
         'pricing',
         'quantity',
         'unit',
+        'deliveryMethods',
         'description',
         'imageUrl'
       ];
@@ -253,9 +331,9 @@ class _ProductListingState extends State<ProductListing>
       StringBuffer errorMessages = StringBuffer();
       for (int i = 1; i < csvData.length; i++) {
         final row = csvData[i];
-        if (row.length != 7) {
+        if (row.length != 8) {
           errorMessages.writeln(
-              'Row ${i + 1}: Invalid number of columns. Expected 7, found ${row.length}');
+              'Row ${i + 1}: Invalid number of columns. Expected 8, found ${row.length}');
           continue;
         }
 
@@ -264,8 +342,19 @@ class _ProductListingState extends State<ProductListing>
         String pricingStr = row[2].toString().trim();
         String quantityStr = row[3].toString().trim();
         String unit = row[4].toString().trim();
-        String description = row[5].toString().trim();
-        String imageUrl = row[6].toString().trim();
+        String deliveryMethodsStr = row[5].toString().trim();
+        String description = row[6].toString().trim();
+        String imageUrl = row[7].toString().trim();
+
+        // Parse delivery methods (comma-separated)
+        List<String> deliveryMethods = [];
+        if (deliveryMethodsStr.isNotEmpty) {
+          deliveryMethods = deliveryMethodsStr
+              .split(',')
+              .map((e) => e.trim())
+              .where((e) => e.isNotEmpty)
+              .toList();
+        }
 
         // Validate each field
         bool hasErrors = false;
@@ -302,10 +391,12 @@ class _ProductListingState extends State<ProductListing>
             'pricing': pricing!,
             'quantity': quantity!,
             'unit': unit,
+            'deliveryMethods': deliveryMethods,
             'description': description,
             'imageUrl': imageUrl,
             'timestamp': FieldValue.serverTimestamp(),
             'userId': _auth.currentUser!.uid,
+            'sellerId': _auth.currentUser!.uid,
           });
         }
       }
@@ -340,6 +431,20 @@ class _ProductListingState extends State<ProductListing>
   }
 
   void _showConfirmationDialog() {
+    // Validate delivery methods selection
+    if (_selectedDeliveryMethods.isEmpty &&
+        _availableDeliveryMethods.isNotEmpty) {
+      _showErrorDialog('Please select at least one delivery method.');
+      return;
+    }
+
+    // Validate payment methods selection
+    if (_selectedPaymentMethods.isEmpty &&
+        _availablePaymentMethods.isNotEmpty) {
+      _showErrorDialog('Please select at least one payment method.');
+      return;
+    }
+
     if (_formKey.currentState!.validate() &&
         _images.any((image) => image != null)) {
       showDialog(
@@ -490,10 +595,7 @@ class _ProductListingState extends State<ProductListing>
               color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        leading: const ProfessionalAppBarBackButton(),
       ),
       body: SafeArea(
         child: FadeTransition(
@@ -605,6 +707,10 @@ class _ProductListingState extends State<ProductListing>
                         value!.isEmpty ? 'Description is required' : null,
                     maxLines: 5,
                   ),
+                  const SizedBox(height: 20),
+                  _buildDeliveryMethodsSection(),
+                  const SizedBox(height: 20),
+                  _buildPaymentMethodsSection(),
                   const SizedBox(height: 32),
                   Center(
                     child: SizedBox(
@@ -821,6 +927,338 @@ class _ProductListingState extends State<ProductListing>
           onChanged: onChanged,
           validator: validator,
         ),
+      ],
+    );
+  }
+
+  Widget _buildDeliveryMethodsSection() {
+    if (_availableDeliveryMethods.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.orange.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.orange, width: 1),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.warning_amber, color: Colors.orange, size: 24),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'No Delivery Methods Configured',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Go to Delivery Config to set up delivery methods',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.7),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Accepted Delivery Methods',
+          style: TextStyle(
+              color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 10),
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF212121),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Colors.blue.withOpacity(0.3), width: 1),
+          ),
+          child: Column(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _isDeliveryExpanded = !_isDeliveryExpanded;
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Select Delivery Methods',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (_selectedDeliveryMethods.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: Text(
+                                  '${_selectedDeliveryMethods.length} method${_selectedDeliveryMethods.length > 1 ? 's' : ''} selected',
+                                  style: TextStyle(
+                                    color: Colors.blueAccent.withOpacity(0.8),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        _isDeliveryExpanded
+                            ? Icons.expand_less
+                            : Icons.expand_more,
+                        color: Colors.white70,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if (_isDeliveryExpanded) ...[
+                const Divider(color: Colors.white24, height: 0),
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    children: _availableDeliveryMethods.entries.map((entry) {
+                      final methodId = entry.key;
+                      final methodData = entry.value;
+                      final isSelected =
+                          _selectedDeliveryMethods.contains(methodId);
+
+                      return CheckboxListTile(
+                        title: Text(
+                          methodData['name'] ?? methodId,
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 14),
+                        ),
+                        subtitle: Text(
+                          'LKR ${(methodData['price'] ?? 0.0).toStringAsFixed(2)}',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.6),
+                            fontSize: 12,
+                          ),
+                        ),
+                        value: isSelected,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            if (value == true) {
+                              _selectedDeliveryMethods.add(methodId);
+                            } else {
+                              _selectedDeliveryMethods.remove(methodId);
+                            }
+                          });
+                        },
+                        activeColor: Colors.blue,
+                        checkColor: Colors.white,
+                        contentPadding: EdgeInsets.zero,
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        if (_selectedDeliveryMethods.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              'Please select at least one delivery method',
+              style: TextStyle(
+                color: Colors.red.withOpacity(0.8),
+                fontSize: 12,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildPaymentMethodsSection() {
+    if (_availablePaymentMethods.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.orange.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.orange, width: 1),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.warning_amber, color: Colors.orange, size: 24),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'No Payment Methods Configured',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Go to Payment Config to set up payment methods',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.7),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Accepted Payment Methods',
+          style: TextStyle(
+              color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 10),
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF212121),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Colors.blue.withOpacity(0.3), width: 1),
+          ),
+          child: Column(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _isPaymentExpanded = !_isPaymentExpanded;
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Select Payment Methods',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (_selectedPaymentMethods.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: Text(
+                                  '${_selectedPaymentMethods.length} method${_selectedPaymentMethods.length > 1 ? 's' : ''} selected',
+                                  style: TextStyle(
+                                    color: Colors.blueAccent.withOpacity(0.8),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        _isPaymentExpanded
+                            ? Icons.expand_less
+                            : Icons.expand_more,
+                        color: Colors.white70,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if (_isPaymentExpanded) ...[
+                const Divider(color: Colors.white24, height: 0),
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    children: _availablePaymentMethods.entries.map((entry) {
+                      final methodId = entry.key;
+                      final methodData = entry.value;
+                      final isSelected =
+                          _selectedPaymentMethods.contains(methodId);
+
+                      return CheckboxListTile(
+                        title: Text(
+                          methodData['name'] ?? methodId,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                        ),
+                        subtitle: Text(
+                          methodData['description'] ?? '',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.6),
+                            fontSize: 12,
+                          ),
+                        ),
+                        value: isSelected,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            if (value == true) {
+                              _selectedPaymentMethods.add(methodId);
+                            } else {
+                              _selectedPaymentMethods.remove(methodId);
+                            }
+                          });
+                        },
+                        activeColor: Colors.blueAccent,
+                        checkColor: Colors.white,
+                        contentPadding: EdgeInsets.zero,
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        if (_selectedPaymentMethods.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              'Please select at least one payment method',
+              style: TextStyle(
+                color: Colors.red.withOpacity(0.8),
+                fontSize: 12,
+              ),
+            ),
+          ),
       ],
     );
   }
