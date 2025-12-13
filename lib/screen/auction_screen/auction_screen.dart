@@ -574,24 +574,29 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     if (confirm ?? false) {
       setState(() => _isLoading = true);
       try {
-        print(
-            "Updating Firestore with: {currentBid: $enteredBid, winningUserId: ${currentUser.uid}}");
-        await FirebaseFirestore.instance
-            .collection('auctions')
-            .doc(widget.auctionId)
-            .update({
-          'currentBid': enteredBid,
-          'winningUserId': currentUser.uid,
-          'lastBidTime': FieldValue.serverTimestamp(),
-        });
-        print("Bid update successful");
-        setState(() {
-          _currentBid = enteredBid;
-          _winningUserId = currentUser.uid;
-          _isLoading = false;
-        });
-        _bidController.clear();
-        _showSnackBar('Bid placed successfully!');
+        final currentUser = FirebaseAuth.instance.currentUser;
+        if (currentUser != null) {
+          // Use optimized repository method
+          final success = await widget.auctionRepository.placeBid(
+            widget.auction.id,
+            currentUser.uid,
+            currentUser.displayName ?? 'Anonymous',
+            enteredBid,
+          );
+
+          if (success) {
+            setState(() {
+              _currentBid = enteredBid;
+              _winningUserId = currentUser.uid;
+              _isLoading = false;
+            });
+            _bidController.clear();
+            _showSnackBar('Bid placed successfully!');
+          } else {
+            setState(() => _isLoading = false);
+            _showSnackBar('Bid placement failed. Try again.');
+          }
+        }
       } catch (e) {
         print("Bid placement error: $e");
         setState(() => _isLoading = false);
