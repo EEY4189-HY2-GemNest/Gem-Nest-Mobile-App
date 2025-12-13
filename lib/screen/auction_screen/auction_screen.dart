@@ -794,7 +794,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        'Lot #${widget.title.hashCode.toString().substring(0, 4)}',
+                        'Lot #${widget.auction.title.hashCode.toString().substring(0, 4)}',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.blue[800],
@@ -852,7 +852,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
                         color: Colors.grey[600], size: 22),
                     const SizedBox(width: 8),
                     Text(
-                      'Min. Inc: ${_formatCurrency(widget.minimumIncrement)}',
+                      'Min. Inc: ${_formatCurrency(widget.auction.minimumNextBid)}',
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.grey[600],
