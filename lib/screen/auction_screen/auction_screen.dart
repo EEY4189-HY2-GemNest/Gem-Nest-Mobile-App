@@ -982,7 +982,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     if (_remainingTime.inSeconds > 0) {
       return 'Place Bid';
     } else if (_winningUserId == FirebaseAuth.instance.currentUser?.uid) {
-      return widget.paymentStatus == 'completed' ? 'Paid' : 'Pay Now';
+      return 'Pay Now';
     } else {
       return 'Auction Ended';
     }
@@ -992,9 +992,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     if (_remainingTime.inSeconds > 0) {
       return Colors.blue[700]!; // Active auction - blue for bidding
     } else if (_winningUserId == FirebaseAuth.instance.currentUser?.uid) {
-      return widget.paymentStatus == 'completed'
-          ? Colors.green[600]!
-          : Colors.blue[700]!; // Paid - green, Pay Now - blue
+      return Colors.blue[700]!; // Pay Now - blue
     } else {
       return Colors.grey[600]!; // Ended auction - grey
     }
