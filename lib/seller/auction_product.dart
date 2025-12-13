@@ -187,4 +187,33 @@ class _AuctionProductState extends State<AuctionProduct>
       }
     }
   }
+
+  Future<void> _saveAuctionToFirestore(String? imageUrl) async {
+    try {
+      String endTimeIso = _selectedEndTime != null
+          ? _selectedEndTime!.toUtc().toIso8601String()
+          : DateTime.now().toUtc().toIso8601String();
+
+      final userId = _auth.currentUser?.uid;
+      await _firestore.collection('auctions').add({
+        'title': _titleController.text,
+        'currentBid': double.tryParse(_currentBidController.text) ?? 0.0,
+        'endTime': endTimeIso,
+        'imagePath': imageUrl,
+        'lastBidTime': FieldValue.serverTimestamp(),
+        'minimumIncrement':
+            double.tryParse(_minimumIncrementController.text) ?? 0.0,
+        'paymentInitiatedAt': null,
+        'paymentStatus': 'pending',
+        'winningUserId': null,
+        'deliveryMethods': _selectedDeliveryMethods.toList(),
+        'paymentMethods': _selectedPaymentMethods.toList(),
+        'sellerId': userId,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      _showErrorDialog('Error saving auction: $e');
+    }
+  }
+
 }
