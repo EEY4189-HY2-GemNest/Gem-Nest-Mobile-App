@@ -587,7 +587,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     final currentUser = FirebaseAuth.instance.currentUser;
 
     print("Current user UID: ${currentUser?.uid ?? 'Not authenticated'}");
-    print("Auction ID: ${widget.auctionId}");
+    print("Auction ID: ${widget.auction.id}");
 
     if (currentUser == null) {
       _showSnackBar('Please log in to pay');
