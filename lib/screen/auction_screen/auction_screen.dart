@@ -277,8 +277,8 @@ class _AuctionScreenState extends State<AuctionScreen> {
                     size: 64, color: Colors.grey.shade400),
                 const SizedBox(height: 16),
                 Text('No auctions found',
-                    style: TextStyle(
-                        fontSize: 18, color: Colors.grey.shade600)),
+                    style:
+                        TextStyle(fontSize: 18, color: Colors.grey.shade600)),
                 const SizedBox(height: 8),
                 Text('Try adjusting your filters',
                     style: TextStyle(color: Colors.grey.shade500)),
@@ -372,8 +372,8 @@ class _AuctionItemCardState extends State<AuctionItemCard>
       if (snapshot.exists) {
         final data = snapshot.data() as Map<String, dynamic>;
         setState(() {
-          _currentBid =
-              (data['currentBid'] as num?)?.toDouble() ?? widget.auction.currentBid;
+          _currentBid = (data['currentBid'] as num?)?.toDouble() ??
+              widget.auction.currentBid;
           _winningUserId = data['winningUserId'];
         });
         if (data['currentBid'] > widget.auction.currentBid) {
