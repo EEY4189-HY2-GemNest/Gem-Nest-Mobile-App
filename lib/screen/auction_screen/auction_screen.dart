@@ -326,90 +326,6 @@ class _AuctionScreenState extends State<AuctionScreen> {
       },
     );
   }
-                  onPressed: () {
-                    setState(() {}); // Refresh
-                  },
-                  child: Text('Retry'),
-                ),
-              ],
-            ),
-          );
-        }
-
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        final allAuctions = snapshot.data!.docs;
-        final filteredAuctions = _filterAuctionsByStatus(allAuctions);
-
-        if (filteredAuctions.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.gavel_outlined,
-                    size: 64, color: Colors.grey.shade400),
-                const SizedBox(height: 16),
-                Text(
-                  'No auctions found',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.grey.shade600,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Try adjusting your filters',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade500,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-
-        return ListView.builder(
-          padding = const EdgeInsets.all(16),
-          itemCount = filteredAuctions.length,
-          itemBuilder = (context, index) {
-            final doc = filteredAuctions[index];
-            final data = doc.data() as Map<String, dynamic>;
-
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: AuctionItemCard(
-                auctionId: doc.id,
-                imagePath: data['imagePath'] ?? '',
-                title: data['title'] ?? 'Untitled',
-                currentBid: (data['currentBid'] as num?)?.toDouble() ?? 0.0,
-                endTime: _parseEndTime(data['endTime']),
-                minimumIncrement:
-                    (data['minimumIncrement'] as num?)?.toDouble() ?? 0.0,
-                paymentStatus: data['paymentStatus'] ?? 'pending',
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  DateTime _parseEndTime(dynamic endTime) {
-    if (endTime is Timestamp) {
-      return endTime.toDate();
-    } else if (endTime is String) {
-      try {
-        return DateTime.parse(endTime);
-      } catch (e) {
-        return DateTime.now();
-      }
-    }
-    return DateTime.now();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -430,24 +346,8 @@ class _AuctionScreenState extends State<AuctionScreen> {
 }
 
 class AuctionItemCard extends StatefulWidget {
-  final String auctionId;
-  final String imagePath;
-  final String title;
-  final double currentBid;
-  final DateTime endTime;
-  final double minimumIncrement;
-  final String paymentStatus; // Add paymentStatus field
-
-  const AuctionItemCard({
-    super.key,
-    required this.auctionId,
-    required this.imagePath,
-    required this.title,
-    required this.currentBid,
-    required this.endTime,
-    required this.minimumIncrement,
-    required this.paymentStatus,
-  });
+  final Auction auction;
+  final AuctionRepository auctionRepository;
 
   @override
   _AuctionItemCardState createState() => _AuctionItemCardState();
