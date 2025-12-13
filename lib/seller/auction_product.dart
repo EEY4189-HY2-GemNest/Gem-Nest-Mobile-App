@@ -38,6 +38,48 @@ class _AuctionProductState extends State<AuctionProduct>
   bool _isLoadingDeliveryConfig = false;
   bool _isDeliveryExpanded = false;
 
+  // Add to state variables
+  Map<String, Map<String, dynamic>> _availablePaymentMethods = {};
+  final Set<String> _selectedPaymentMethods = {};
+  bool _isLoadingPaymentConfig = false;
+  bool _isPaymentExpanded = false;
+
+  // Add to initState
+  _loadPaymentConfig();
+
+  Future<void> _loadPaymentConfig() async {
+    setState(() => _isLoadingPaymentConfig = true);
+    try {
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) return;
+
+      final doc =
+          await _firestore.collection('payment_configs').doc(userId).get();
+
+      if (doc.exists) {
+        final data = doc.data()!;
+        final enabledMethods = <String, Map<String, dynamic>>{};
+
+        data.forEach((key, value) {
+          if (key != 'sellerId' && key != 'updatedAt') {
+            final methodData = value as Map<String, dynamic>;
+            if (methodData['enabled'] == true) {
+              enabledMethods[key] = methodData;
+            }
+          }
+        });
+
+        setState(() {
+          _availablePaymentMethods = enabledMethods;
+        });
+      }
+    } catch (e) {
+      print('Error loading payment config: $e');
+    } finally {
+      setState(() => _isLoadingPaymentConfig = false);
+    }
+  }
+
   // Add to initState
   _loadDeliveryConfig();
 
