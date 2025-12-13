@@ -237,32 +237,6 @@ class _AuctionScreenState extends State<AuctionScreen> {
           auction.description.toLowerCase().contains(query);
     }).toList();
   }
-      switch (selectedStatus) {
-        case 'live':
-          return endTime.isAfter(now);
-        case 'ended':
-          return endTime.isBefore(now) &&
-              data['winningUserId'] != currentUserId;
-        case 'won':
-          return endTime.isBefore(now) &&
-              data['winningUserId'] == currentUserId;
-        case 'all':
-        default:
-          return true;
-      }
-    }).toList();
-
-    // Sort by endTime (soonest ending first) for better UX
-    filteredList.sort((a, b) {
-      final dataA = a.data() as Map<String, dynamic>;
-      final dataB = b.data() as Map<String, dynamic>;
-      final endTimeA = _parseEndTime(dataA['endTime']);
-      final endTimeB = _parseEndTime(dataB['endTime']);
-      return endTimeA.compareTo(endTimeB);
-    });
-
-    return filteredList;
-  }
 
   Widget _buildAuctionsList() {
     return StreamBuilder<List<Auction>>(
@@ -349,7 +323,11 @@ class AuctionItemCard extends StatefulWidget {
   final Auction auction;
   final AuctionRepository auctionRepository;
 
-  const AuctionItemCard({super.key});
+  const AuctionItemCard({
+    super.key,
+    required this.auction,
+    required this.auctionRepository,
+  });
 
   @override
   _AuctionItemCardState createState() => _AuctionItemCardState();
@@ -621,13 +599,8 @@ class _AuctionItemCardState extends State<AuctionItemCard>
       return;
     }
 
-    if (widget.endTime.isAfter(DateTime.now())) {
+    if (widget.auction.endTime.isAfter(DateTime.now())) {
       _showSnackBar('Auction is still active');
-      return;
-    }
-
-    if (widget.paymentStatus == 'completed') {
-      _showSnackBar('Payment already completed');
       return;
     }
 
@@ -635,10 +608,10 @@ class _AuctionItemCardState extends State<AuctionItemCard>
       context,
       MaterialPageRoute(
         builder: (context) => AuctionPaymentScreen(
-          auctionId: widget.auctionId,
+          auctionId: widget.auction.id,
           itemPrice: _currentBid,
-          title: widget.title,
-          imagePath: widget.imagePath,
+          title: widget.auction.title,
+          imagePath: widget.auction.imageUrl,
         ),
       ),
     );
