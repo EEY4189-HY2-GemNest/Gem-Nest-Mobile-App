@@ -1002,11 +1002,10 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     if (_remainingTime.inSeconds > 0 && !_isLoading) {
       return _placeBid;
     } else if (_winningUserId == FirebaseAuth.instance.currentUser?.uid &&
-        !_isLoading &&
-        widget.paymentStatus != 'completed') {
+        !_isLoading) {
       return _handlePayment;
     } else {
-      return null; // Disable button if payment is completed or user is not the winner
+      return null; // Disable button if user is not the winner
     }
   }
 }
