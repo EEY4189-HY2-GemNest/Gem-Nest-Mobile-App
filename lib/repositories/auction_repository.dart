@@ -45,19 +45,21 @@ class AuctionRepository {
           doc.id,
           doc.data() as Map<String, dynamic>,
         );
-        
+
         // Cache it
         _auctionCache[auction.id] = auction;
-        
+
         // Apply status filter in-memory (more efficient than Firestore query)
-        if (status == null || status == 'all' || _matchesStatus(auction, status)) {
+        if (status == null ||
+            status == 'all' ||
+            _matchesStatus(auction, status)) {
           auctions.add(auction);
         }
       }
 
       // Sort by endTime (soonest ending first) - O(n log n)
       auctions.sort((a, b) => a.endTime.compareTo(b.endTime));
-      
+
       return auctions;
     });
   }
@@ -188,7 +190,7 @@ class AuctionRepository {
             auction.endTime.isBefore(threshold) &&
             auction.endTime.isAfter(now))
         .toList()
-        ..sort((a, b) => a.endTime.compareTo(b.endTime));
+      ..sort((a, b) => a.endTime.compareTo(b.endTime));
   }
 
   /// Clear cache
