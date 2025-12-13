@@ -398,7 +398,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
               (data['currentBid'] as num?)?.toDouble() ?? widget.auction.currentBid;
           _winningUserId = data['winningUserId'];
         });
-        if (data['currentBid'] > widget.currentBid) {
+        if (data['currentBid'] > widget.auction.currentBid) {
           _animationController.forward(from: 0.0);
         }
       }
@@ -409,9 +409,9 @@ class _AuctionItemCardState extends State<AuctionItemCard>
 
   void _updateTime(Timer timer) {
     final now = DateTime.now();
-    if (widget.endTime.isAfter(now)) {
+    if (widget.auction.endTime.isAfter(now)) {
       setState(() {
-        _remainingTime = widget.endTime.difference(now);
+        _remainingTime = widget.auction.endTime.difference(now);
       });
     } else {
       _timer.cancel();
@@ -423,7 +423,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     final currentUser = FirebaseAuth.instance.currentUser;
 
     print("Current user UID: ${currentUser?.uid ?? 'Not authenticated'}");
-    print("Auction ID: ${widget.auctionId}");
+    print("Auction ID: ${widget.auction.id}");
     print("Attempting bid: $enteredBid, Current bid: $_currentBid");
 
     if (currentUser == null) {
@@ -436,7 +436,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
       return;
     }
 
-    if (widget.endTime.isBefore(DateTime.now())) {
+    if (widget.auction.endTime.isBefore(DateTime.now())) {
       _showSnackBar('Auction has ended');
       return;
     }
@@ -446,7 +446,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
       return;
     }
 
-    if ((enteredBid - _currentBid) < widget.minimumIncrement) {
+    if ((enteredBid - _currentBid) < widget.auction.minimumNextBid) {
       _showSnackBar(
           'Minimum increment: ${_formatCurrency(widget.minimumIncrement)}');
       return;
