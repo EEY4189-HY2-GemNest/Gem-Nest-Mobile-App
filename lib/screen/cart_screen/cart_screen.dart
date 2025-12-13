@@ -261,8 +261,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                     width: 70,
                     height: 70,
                     color: Colors.grey.shade200,
-                    child: Icon(Icons.image_not_supported, 
-                      color: Colors.grey.shade400),
+                    child: Icon(Icons.image_not_supported,
+                        color: Colors.grey.shade400),
                   );
                 },
               ),
