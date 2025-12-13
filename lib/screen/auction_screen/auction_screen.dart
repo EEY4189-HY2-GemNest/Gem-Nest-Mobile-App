@@ -669,7 +669,6 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     bool isAuctionActive = _remainingTime.inSeconds > 0;
     bool isCurrentUserWinner =
         _winningUserId == FirebaseAuth.instance.currentUser?.uid;
-    bool isPaymentCompleted = widget.paymentStatus == 'completed';
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
