@@ -216,4 +216,133 @@ class _AuctionProductState extends State<AuctionProduct>
     }
   }
 
+  void _showConfirmationDialog() {
+    if (_selectedDeliveryMethods.isEmpty &&
+        _availableDeliveryMethods.isNotEmpty) {
+      _showErrorDialog('Please select at least one delivery method.');
+      return;
+    }
+
+    if (_selectedPaymentMethods.isEmpty &&
+        _availablePaymentMethods.isNotEmpty) {
+      _showErrorDialog('Please select at least one payment method.');
+      return;
+    }
+
+    if (_formKey.currentState!.validate() &&
+        _image != null &&
+        _selectedEndTime != null) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: Colors.grey[900],
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text(
+            'Confirm Auction',
+            style: TextStyle(
+                color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          content: const Text(
+            'Are you sure you want to start this auction?',
+            style: TextStyle(color: Colors.white70, fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                String? imageUrl = await _uploadImage();
+                await _saveAuctionToFirestore(imageUrl);
+                _showSuccessDialog();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text('Confirm'),
+            ),
+          ],
+        ),
+      );
+    } else {
+      _showErrorDialog(
+          'Please fill all fields, upload an image, and select an end time.');
+    }
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Success!',
+          style: TextStyle(
+              color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        content: const Text(
+          'Your auction has been created successfully!',
+          style: TextStyle(color: Colors.white70, fontSize: 16),
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pop(context, {
+                'title': _titleController.text,
+                'imagePath': _image?.path,
+                'type': 'auction',
+              });
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Error',
+          style: TextStyle(
+              color: Colors.red, fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          message,
+          style: const TextStyle(color: Colors.white70, fontSize: 16),
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
 }
