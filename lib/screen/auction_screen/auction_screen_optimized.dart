@@ -517,8 +517,8 @@ class _OptimizedAuctionItemCardState extends State<OptimizedAuctionItemCard>
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
                   style: TextButton.styleFrom(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
                     backgroundColor: Colors.grey[200],
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -536,8 +536,8 @@ class _OptimizedAuctionItemCardState extends State<OptimizedAuctionItemCard>
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context, true),
                   style: ElevatedButton.styleFrom(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
                     backgroundColor: Colors.blue[700],
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
