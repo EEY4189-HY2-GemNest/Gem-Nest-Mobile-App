@@ -5,6 +5,8 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gemnest_mobile_app/models/auction_model.dart';
+import 'package:gemnest_mobile_app/repositories/auction_repository.dart';
 import 'package:gemnest_mobile_app/screen/auction_screen/auction_payment_screen.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
@@ -17,6 +19,9 @@ class AuctionScreen extends StatefulWidget {
 }
 
 class _AuctionScreenState extends State<AuctionScreen> {
+  // Repository with optimized data structures
+  final AuctionRepository _auctionRepository = AuctionRepository();
+
   // Filter Controllers
   final TextEditingController _filterController = TextEditingController();
 
@@ -205,73 +210,36 @@ class _AuctionScreenState extends State<AuctionScreen> {
     );
   }
 
-  Stream<QuerySnapshot> _getFilteredAuctionsStream() {
-    Query query = FirebaseFirestore.instance.collection('auctions');
-
-    // Apply category filter
-    if (_selectedCategory != 'all') {
-      query = query.where('category', isEqualTo: _selectedCategory);
+  Stream<List<Auction>> _getFilteredAuctionsStream() {
+    // Use optimized repository with efficient filtering
+    if (_searchQuery.isNotEmpty) {
+      return _auctionRepository.searchAuctions(_searchQuery);
     }
 
-    // Apply price range filter
-    query = query
-        .where('currentBid', isGreaterThanOrEqualTo: _minPrice)
-        .where('currentBid', isLessThanOrEqualTo: _maxPrice);
-
-    // Only order by currentBid to avoid composite index requirement
-    return query.orderBy('currentBid').snapshots();
+    return _auctionRepository.getAuctionsStream(
+      category: _selectedCategory,
+      status: _selectedStatus,
+      minPrice: _minPrice,
+      maxPrice: _maxPrice,
+    );
   }
 
-  List<QueryDocumentSnapshot> _filterAuctionsByStatus(
-      List<QueryDocumentSnapshot> auctions) {
-    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
-    final now = DateTime.now();
+  List<Auction> _filterAuctionsByStatus(List<Auction> auctions) {
+    // Auctions are already filtered by repository
+    // Apply additional client-side search filter if needed
+    if (_searchQuery.isEmpty) {
+      return auctions;
+    }
 
-    // First filter by criteria
-    final filteredList = auctions.where((doc) {
-      final data = doc.data() as Map<String, dynamic>;
-      final endTime = _parseEndTime(data['endTime']);
-      final title = (data['title'] ?? '').toLowerCase();
-      final description = (data['description'] ?? '').toLowerCase();
-
-      // Apply search filter
-      if (_searchQuery.isNotEmpty) {
-        if (!title.contains(_searchQuery) &&
-            !description.contains(_searchQuery)) {
-          return false;
-        }
-      }
-
-      // Apply status filter
-      switch (_selectedStatus) {
-        case 'live':
-          return endTime.isAfter(now);
-        case 'ended':
-          return endTime.isBefore(now) &&
-              data['winningUserId'] != currentUserId;
-        case 'won':
-          return endTime.isBefore(now) &&
-              data['winningUserId'] == currentUserId;
-        case 'all':
-        default:
-          return true;
-      }
+    final query = _searchQuery.toLowerCase();
+    return auctions.where((auction) {
+      return auction.title.toLowerCase().contains(query) ||
+          auction.description.toLowerCase().contains(query);
     }).toList();
-
-    // Sort by endTime (soonest ending first) for better UX
-    filteredList.sort((a, b) {
-      final dataA = a.data() as Map<String, dynamic>;
-      final dataB = b.data() as Map<String, dynamic>;
-      final endTimeA = _parseEndTime(dataA['endTime']);
-      final endTimeB = _parseEndTime(dataB['endTime']);
-      return endTimeA.compareTo(endTimeB);
-    });
-
-    return filteredList;
   }
 
   Widget _buildAuctionsList() {
-    return StreamBuilder<QuerySnapshot>(
+    return StreamBuilder<List<Auction>>(
       stream: _getFilteredAuctionsStream(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -298,75 +266,39 @@ class _AuctionScreenState extends State<AuctionScreen> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        final allAuctions = snapshot.data!.docs;
-        final filteredAuctions = _filterAuctionsByStatus(allAuctions);
+        final auctions = snapshot.data ?? [];
 
-        if (filteredAuctions.isEmpty) {
+        if (auctions.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.gavel_outlined,
+                Icon(Icons.shopping_cart_outlined,
                     size: 64, color: Colors.grey.shade400),
                 const SizedBox(height: 16),
-                Text(
-                  'No auctions found',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.grey.shade600,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                Text('No auctions found',
+                    style:
+                        TextStyle(fontSize: 18, color: Colors.grey.shade600)),
                 const SizedBox(height: 8),
-                Text(
-                  'Try adjusting your filters',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade500,
-                  ),
-                ),
+                Text('Try adjusting your filters',
+                    style: TextStyle(color: Colors.grey.shade500)),
               ],
             ),
           );
         }
 
         return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: filteredAuctions.length,
+          itemCount: auctions.length,
           itemBuilder: (context, index) {
-            final doc = filteredAuctions[index];
-            final data = doc.data() as Map<String, dynamic>;
-
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: AuctionItemCard(
-                auctionId: doc.id,
-                imagePath: data['imagePath'] ?? '',
-                title: data['title'] ?? 'Untitled',
-                currentBid: (data['currentBid'] as num?)?.toDouble() ?? 0.0,
-                endTime: _parseEndTime(data['endTime']),
-                minimumIncrement:
-                    (data['minimumIncrement'] as num?)?.toDouble() ?? 0.0,
-                paymentStatus: data['paymentStatus'] ?? 'pending',
-              ),
+            final auction = auctions[index];
+            return AuctionItemCard(
+              auction: auction,
+              auctionRepository: _auctionRepository,
             );
           },
         );
       },
     );
-  }
-
-  DateTime _parseEndTime(dynamic endTime) {
-    if (endTime is Timestamp) {
-      return endTime.toDate();
-    } else if (endTime is String) {
-      try {
-        return DateTime.parse(endTime);
-      } catch (e) {
-        return DateTime.now();
-      }
-    }
-    return DateTime.now();
   }
 
   @override
@@ -388,23 +320,13 @@ class _AuctionScreenState extends State<AuctionScreen> {
 }
 
 class AuctionItemCard extends StatefulWidget {
-  final String auctionId;
-  final String imagePath;
-  final String title;
-  final double currentBid;
-  final DateTime endTime;
-  final double minimumIncrement;
-  final String paymentStatus; // Add paymentStatus field
+  final Auction auction;
+  final AuctionRepository auctionRepository;
 
   const AuctionItemCard({
     super.key,
-    required this.auctionId,
-    required this.imagePath,
-    required this.title,
-    required this.currentBid,
-    required this.endTime,
-    required this.minimumIncrement,
-    required this.paymentStatus,
+    required this.auction,
+    required this.auctionRepository,
   });
 
   @override
@@ -426,8 +348,8 @@ class _AuctionItemCardState extends State<AuctionItemCard>
   @override
   void initState() {
     super.initState();
-    _currentBid = widget.currentBid;
-    _remainingTime = widget.endTime.difference(DateTime.now());
+    _currentBid = widget.auction.currentBid;
+    _remainingTime = widget.auction.timeRemaining;
     _timer = Timer.periodic(const Duration(seconds: 1), _updateTime);
 
     _animationController = AnimationController(
@@ -444,17 +366,17 @@ class _AuctionItemCardState extends State<AuctionItemCard>
   void _setupRealtimeListener() {
     _auctionSubscription = FirebaseFirestore.instance
         .collection('auctions')
-        .doc(widget.auctionId)
+        .doc(widget.auction.id)
         .snapshots()
         .listen((snapshot) {
       if (snapshot.exists) {
         final data = snapshot.data() as Map<String, dynamic>;
         setState(() {
-          _currentBid =
-              (data['currentBid'] as num?)?.toDouble() ?? widget.currentBid;
+          _currentBid = (data['currentBid'] as num?)?.toDouble() ??
+              widget.auction.currentBid;
           _winningUserId = data['winningUserId'];
         });
-        if (data['currentBid'] > widget.currentBid) {
+        if (data['currentBid'] > widget.auction.currentBid) {
           _animationController.forward(from: 0.0);
         }
       }
@@ -465,9 +387,9 @@ class _AuctionItemCardState extends State<AuctionItemCard>
 
   void _updateTime(Timer timer) {
     final now = DateTime.now();
-    if (widget.endTime.isAfter(now)) {
+    if (widget.auction.endTime.isAfter(now)) {
       setState(() {
-        _remainingTime = widget.endTime.difference(now);
+        _remainingTime = widget.auction.endTime.difference(now);
       });
     } else {
       _timer.cancel();
@@ -479,7 +401,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     final currentUser = FirebaseAuth.instance.currentUser;
 
     print("Current user UID: ${currentUser?.uid ?? 'Not authenticated'}");
-    print("Auction ID: ${widget.auctionId}");
+    print("Auction ID: ${widget.auction.id}");
     print("Attempting bid: $enteredBid, Current bid: $_currentBid");
 
     if (currentUser == null) {
@@ -492,7 +414,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
       return;
     }
 
-    if (widget.endTime.isBefore(DateTime.now())) {
+    if (widget.auction.endTime.isBefore(DateTime.now())) {
       _showSnackBar('Auction has ended');
       return;
     }
@@ -502,15 +424,15 @@ class _AuctionItemCardState extends State<AuctionItemCard>
       return;
     }
 
-    if ((enteredBid - _currentBid) < widget.minimumIncrement) {
+    if ((enteredBid - _currentBid) < widget.auction.minimumNextBid) {
       _showSnackBar(
-          'Minimum increment: ${_formatCurrency(widget.minimumIncrement)}');
+          'Minimum increment: ${_formatCurrency(widget.auction.minimumNextBid)}');
       return;
     }
 
     final docSnapshot = await FirebaseFirestore.instance
         .collection('auctions')
-        .doc(widget.auctionId)
+        .doc(widget.auction.id)
         .get();
     if (!docSnapshot.exists) {
       _showSnackBar('Auction not found');
@@ -630,24 +552,29 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     if (confirm ?? false) {
       setState(() => _isLoading = true);
       try {
-        print(
-            "Updating Firestore with: {currentBid: $enteredBid, winningUserId: ${currentUser.uid}}");
-        await FirebaseFirestore.instance
-            .collection('auctions')
-            .doc(widget.auctionId)
-            .update({
-          'currentBid': enteredBid,
-          'winningUserId': currentUser.uid,
-          'lastBidTime': FieldValue.serverTimestamp(),
-        });
-        print("Bid update successful");
-        setState(() {
-          _currentBid = enteredBid;
-          _winningUserId = currentUser.uid;
-          _isLoading = false;
-        });
-        _bidController.clear();
-        _showSnackBar('Bid placed successfully!');
+        final currentUser = FirebaseAuth.instance.currentUser;
+        if (currentUser != null) {
+          // Use optimized repository method
+          final success = await widget.auctionRepository.placeBid(
+            widget.auction.id,
+            currentUser.uid,
+            currentUser.displayName ?? 'Anonymous',
+            enteredBid,
+          );
+
+          if (success) {
+            setState(() {
+              _currentBid = enteredBid;
+              _winningUserId = currentUser.uid;
+              _isLoading = false;
+            });
+            _bidController.clear();
+            _showSnackBar('Bid placed successfully!');
+          } else {
+            setState(() => _isLoading = false);
+            _showSnackBar('Bid placement failed. Try again.');
+          }
+        }
       } catch (e) {
         print("Bid placement error: $e");
         setState(() => _isLoading = false);
@@ -660,7 +587,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     final currentUser = FirebaseAuth.instance.currentUser;
 
     print("Current user UID: ${currentUser?.uid ?? 'Not authenticated'}");
-    print("Auction ID: ${widget.auctionId}");
+    print("Auction ID: ${widget.auction.id}");
 
     if (currentUser == null) {
       _showSnackBar('Please log in to pay');
@@ -672,13 +599,8 @@ class _AuctionItemCardState extends State<AuctionItemCard>
       return;
     }
 
-    if (widget.endTime.isAfter(DateTime.now())) {
+    if (widget.auction.endTime.isAfter(DateTime.now())) {
       _showSnackBar('Auction is still active');
-      return;
-    }
-
-    if (widget.paymentStatus == 'completed') {
-      _showSnackBar('Payment already completed');
       return;
     }
 
@@ -686,10 +608,10 @@ class _AuctionItemCardState extends State<AuctionItemCard>
       context,
       MaterialPageRoute(
         builder: (context) => AuctionPaymentScreen(
-          auctionId: widget.auctionId,
+          auctionId: widget.auction.id,
           itemPrice: _currentBid,
-          title: widget.title,
-          imagePath: widget.imagePath,
+          title: widget.auction.title,
+          imagePath: widget.auction.imageUrl,
         ),
       ),
     );
@@ -747,7 +669,6 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     bool isAuctionActive = _remainingTime.inSeconds > 0;
     bool isCurrentUserWinner =
         _winningUserId == FirebaseAuth.instance.currentUser?.uid;
-    bool isPaymentCompleted = widget.paymentStatus == 'completed';
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -778,8 +699,8 @@ class _AuctionItemCardState extends State<AuctionItemCard>
             child: Stack(
               children: [
                 Image.network(
-                  widget.imagePath.isNotEmpty
-                      ? widget.imagePath
+                  widget.auction.imageUrl.isNotEmpty
+                      ? widget.auction.imageUrl
                       : 'assets/placeholder.jpg',
                   fit: BoxFit.cover,
                   width: double.infinity,
@@ -829,7 +750,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
                   children: [
                     Expanded(
                       child: Text(
-                        widget.title,
+                        widget.auction.title,
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w700,
@@ -845,7 +766,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        'Lot #${widget.title.hashCode.toString().substring(0, 4)}',
+                        'Lot #${widget.auction.title.hashCode.toString().substring(0, 4)}',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.blue[800],
@@ -903,7 +824,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
                         color: Colors.grey[600], size: 22),
                     const SizedBox(width: 8),
                     Text(
-                      'Min. Inc: ${_formatCurrency(widget.minimumIncrement)}',
+                      'Min. Inc: ${_formatCurrency(widget.auction.minimumNextBid)}',
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.grey[600],
@@ -1021,21 +942,9 @@ class _AuctionItemCardState extends State<AuctionItemCard>
                         : Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              if (!isAuctionActive &&
-                                  isCurrentUserWinner &&
-                                  !isPaymentCompleted)
+                              if (!isAuctionActive && isCurrentUserWinner)
                                 const Icon(Icons.payment, size: 20),
-                              if (!isAuctionActive &&
-                                  isCurrentUserWinner &&
-                                  !isPaymentCompleted)
-                                const SizedBox(width: 8),
-                              if (!isAuctionActive &&
-                                  isCurrentUserWinner &&
-                                  isPaymentCompleted)
-                                const Icon(Icons.check_circle, size: 20),
-                              if (!isAuctionActive &&
-                                  isCurrentUserWinner &&
-                                  isPaymentCompleted)
+                              if (!isAuctionActive && isCurrentUserWinner)
                                 const SizedBox(width: 8),
                               Text(
                                 _getButtonText(),
@@ -1061,7 +970,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     if (_remainingTime.inSeconds > 0) {
       return 'Place Bid';
     } else if (_winningUserId == FirebaseAuth.instance.currentUser?.uid) {
-      return widget.paymentStatus == 'completed' ? 'Paid' : 'Pay Now';
+      return 'Pay Now';
     } else {
       return 'Auction Ended';
     }
@@ -1071,9 +980,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     if (_remainingTime.inSeconds > 0) {
       return Colors.blue[700]!; // Active auction - blue for bidding
     } else if (_winningUserId == FirebaseAuth.instance.currentUser?.uid) {
-      return widget.paymentStatus == 'completed'
-          ? Colors.green[600]!
-          : Colors.blue[700]!; // Paid - green, Pay Now - blue
+      return Colors.blue[700]!; // Pay Now - blue
     } else {
       return Colors.grey[600]!; // Ended auction - grey
     }
@@ -1083,11 +990,10 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     if (_remainingTime.inSeconds > 0 && !_isLoading) {
       return _placeBid;
     } else if (_winningUserId == FirebaseAuth.instance.currentUser?.uid &&
-        !_isLoading &&
-        widget.paymentStatus != 'completed') {
+        !_isLoading) {
       return _handlePayment;
     } else {
-      return null; // Disable button if payment is completed or user is not the winner
+      return null; // Disable button if user is not the winner
     }
   }
 }
