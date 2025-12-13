@@ -5,6 +5,8 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gemnest_mobile_app/models/auction_model.dart';
+import 'package:gemnest_mobile_app/repositories/auction_repository.dart';
 import 'package:gemnest_mobile_app/screen/auction_screen/auction_payment_screen.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
@@ -17,6 +19,9 @@ class AuctionScreen extends StatefulWidget {
 }
 
 class _AuctionScreenState extends State<AuctionScreen> {
+  // Repository with optimized data structures
+  final AuctionRepository _auctionRepository = AuctionRepository();
+
   // Filter Controllers
   final TextEditingController _filterController = TextEditingController();
 
@@ -205,44 +210,33 @@ class _AuctionScreenState extends State<AuctionScreen> {
     );
   }
 
-  Stream<QuerySnapshot> _getFilteredAuctionsStream() {
-    Query query = FirebaseFirestore.instance.collection('auctions');
-
-    // Apply category filter
-    if (_selectedCategory != 'all') {
-      query = query.where('category', isEqualTo: _selectedCategory);
+  Stream<List<Auction>> _getFilteredAuctionsStream() {
+    // Use optimized repository with efficient filtering
+    if (_searchQuery.isNotEmpty) {
+      return _auctionRepository.searchAuctions(_searchQuery);
     }
 
-    // Apply price range filter
-    query = query
-        .where('currentBid', isGreaterThanOrEqualTo: _minPrice)
-        .where('currentBid', isLessThanOrEqualTo: _maxPrice);
-
-    // Only order by currentBid to avoid composite index requirement
-    return query.orderBy('currentBid').snapshots();
+    return _auctionRepository.getAuctionsStream(
+      category: _selectedCategory,
+      status: _selectedStatus,
+      minPrice: _minPrice,
+      maxPrice: _maxPrice,
+    );
   }
 
-  List<QueryDocumentSnapshot> _filterAuctionsByStatus(
-      List<QueryDocumentSnapshot> auctions) {
-    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
-    final now = DateTime.now();
+  List<Auction> _filterAuctionsByStatus(List<Auction> auctions) {
+    // Auctions are already filtered by repository
+    // Apply additional client-side search filter if needed
+    if (_searchQuery.isEmpty) {
+      return auctions;
+    }
 
-    // First filter by criteria
-    final filteredList = auctions.where((doc) {
-      final data = doc.data() as Map<String, dynamic>;
-      final endTime = _parseEndTime(data['endTime']);
-      final title = (data['title'] ?? '').toLowerCase();
-      final description = (data['description'] ?? '').toLowerCase();
-
-      // Apply search filter
-      if (_searchQuery.isNotEmpty) {
-        if (!title.contains(_searchQuery) &&
-            !description.contains(_searchQuery)) {
-          return false;
-        }
-      }
-
-      // Apply status filter
+    final query = _searchQuery.toLowerCase();
+    return auctions.where((auction) {
+      return auction.title.toLowerCase().contains(query) ||
+          auction.description.toLowerCase().contains(query);
+    }).toList();
+  }
       switch (_selectedStatus) {
         case 'live':
           return endTime.isAfter(now);
