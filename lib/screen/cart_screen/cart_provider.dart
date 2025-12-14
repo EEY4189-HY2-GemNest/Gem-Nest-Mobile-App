@@ -257,3 +257,42 @@ class CartProvider with ChangeNotifier {
     _saveCartToLocal();
     notifyListeners();
   }
+
+  // Wishlist operations
+  void addToWishlist(Map<String, dynamic> product) {
+    final existingIndex =
+        _wishlistItems.indexWhere((item) => item.id == product['id']);
+    if (existingIndex == -1) {
+      _wishlistItems.add(CartItem(
+        id: product['id'],
+        imagePath: product['imageUrl'] ?? '',
+        title: product['title'] ?? 'Untitled',
+        price: (product['pricing'] as num? ?? 0).toDouble(),
+        originalPrice: ((product['originalPrice'] as num?) ??
+                (product['pricing'] as num? ?? 0))
+            .toDouble(),
+        category: product['category'] ?? '',
+        sellerId: product['userId'] ?? '',
+        availableStock: ((product['quantity'] as num?) ?? 0).toInt(),
+        productData: product,
+        quantity: 0, // Wishlist items don't have quantity
+      ));
+      _saveWishlistToLocal();
+      notifyListeners();
+    }
+  }
+
+  void removeFromWishlist(String id) {
+    _wishlistItems.removeWhere((item) => item.id == id);
+    _saveWishlistToLocal();
+    notifyListeners();
+  }
+
+  Future<bool> moveWishlistToCart(String id) async {
+    final wishlistItem = _wishlistItems.firstWhere((item) => item.id == id);
+    final success = await addToCart(wishlistItem.productData);
+    if (success) {
+      removeFromWishlist(id);
+    }
+    return success;
+  }
