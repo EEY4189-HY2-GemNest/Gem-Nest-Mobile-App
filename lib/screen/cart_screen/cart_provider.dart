@@ -296,3 +296,47 @@ class CartProvider with ChangeNotifier {
     }
     return success;
   }
+
+  // Coupon operations
+  Future<bool> applyCoupon(String couponCode) async {
+    try {
+      final couponDoc = await FirebaseFirestore.instance
+          .collection('coupons')
+          .doc(couponCode.toUpperCase())
+          .get();
+
+      if (couponDoc.exists) {
+        final couponData = couponDoc.data()!;
+        final isActive = couponData['isActive'] ?? false;
+        final minAmount = couponData['minAmount']?.toDouble() ?? 0.0;
+        final discountType = couponData['discountType'] ?? 'percentage';
+        final discountValue = couponData['discountValue']?.toDouble() ?? 0.0;
+        final expiryDate = couponData['expiryDate']?.toDate();
+
+        if (!isActive ||
+            (expiryDate != null && expiryDate.isBefore(DateTime.now()))) {
+          return false; // Coupon expired or inactive
+        }
+
+        if (subtotal < minAmount) {
+          return false; // Minimum amount not met
+        }
+
+        _appliedCouponCode = couponCode.toUpperCase();
+        if (discountType == 'percentage') {
+          _couponDiscount = (subtotal * discountValue / 100)
+              .clamp(
+                  0.0, couponData['maxDiscount']?.toDouble() ?? double.infinity)
+              .toDouble();
+        } else {
+          _couponDiscount = discountValue.clamp(0, subtotal);
+        }
+
+        notifyListeners();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
