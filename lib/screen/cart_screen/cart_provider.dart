@@ -436,3 +436,38 @@ class CartProvider with ChangeNotifier {
           item.quantity = currentStock;
           itemUpdated = true;
         }
+
+        // Update available stock (only if item still exists in cart)
+        if (i < _cartItems.length) {
+          _cartItems[i] = CartItem(
+            id: item.id,
+            imagePath: item.imagePath,
+            title: item.title,
+            price: item.price,
+            originalPrice: item.originalPrice,
+            category: item.category,
+            sellerId: item.sellerId,
+            availableStock: currentStock,
+            productData: item.productData,
+            quantity: item.quantity,
+            isSelected: item.isSelected,
+            isDiscounted: item.isDiscounted,
+            discountPercentage: item.discountPercentage,
+          );
+          if (itemUpdated) hasChanges = true;
+        }
+      } catch (e) {
+        // If error, remove item (with bounds check)
+        if (i < _cartItems.length) {
+          _cartItems.removeAt(i);
+          hasChanges = true;
+        }
+      }
+    }
+
+    if (hasChanges) {
+      await _saveCartToLocal();
+      notifyListeners();
+    }
+  }
+}
