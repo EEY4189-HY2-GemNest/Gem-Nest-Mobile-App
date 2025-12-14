@@ -14,6 +14,7 @@ class CartScreen extends StatefulWidget {
   @override
   State<CartScreen> createState() => _CartScreenState();
 }
+
 class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -37,7 +38,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
     });
   }
 
-@override
+  @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
@@ -74,5 +75,37 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
           );
         },
       ),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      flexibleSpace: Container(
+        decoration: BoxDecoration(
+          gradient: AppTheme.primaryGradient,
+        ),
+      ),
+      elevation: 0,
+      title: Text(
+        'Shopping Cart',
+        style: AppTheme.headingLarge.copyWith(
+          color: Colors.white,
+        ),
+      ),
+      centerTitle: true,
+      leading: const ProfessionalAppBarBackButton(),
+      actions: [
+        Consumer<CartProvider>(
+          builder: (context, cartProvider, child) {
+            return IconButton(
+              icon:
+                  const Icon(Icons.delete_sweep, color: Colors.white, size: 26),
+              onPressed: cartProvider.cartItems.isEmpty
+                  ? null
+                  : () => _showClearCartDialog(cartProvider),
+            );
+          },
+        ),
+      ],
     );
   }
