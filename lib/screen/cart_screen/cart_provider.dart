@@ -187,3 +187,26 @@ class CartProvider with ChangeNotifier {
           return false; // Out of stock
         }
       }
+
+      await _saveCartToLocal();
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  void incrementQuantity(String id) {
+    final itemIndex = _cartItems.indexWhere((item) => item.id == id);
+    if (itemIndex != -1) {
+      final item = _cartItems[itemIndex];
+      if (item.quantity < item.availableStock) {
+        item.quantity++;
+        _saveCartToLocal();
+        notifyListeners();
+      }
+    }
+  }
