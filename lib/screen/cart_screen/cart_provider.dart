@@ -352,3 +352,24 @@ class CartProvider with ChangeNotifier {
     _shippingCost = cost;
     notifyListeners();
   }
+
+  // Local storage operations
+  Future<void> _saveCartToLocal() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final cartJson = _cartItems.map((item) => item.toJson()).toList();
+      await prefs.setString('cart_items', jsonEncode(cartJson));
+    } catch (e) {
+      // Handle error silently
+    }
+  }
+
+  Future<void> _saveWishlistToLocal() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final wishlistJson = _wishlistItems.map((item) => item.toJson()).toList();
+      await prefs.setString('wishlist_items', jsonEncode(wishlistJson));
+    } catch (e) {
+      // Handle error silently
+    }
+  }
