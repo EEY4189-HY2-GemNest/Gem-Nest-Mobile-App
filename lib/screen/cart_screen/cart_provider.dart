@@ -114,3 +114,18 @@ class CartProvider with ChangeNotifier {
   int get cartItemCount => _cartItems.fold(
       0, (total, item) => total + (item.isSelected ? item.quantity : 0));
   int get wishlistItemCount => _wishlistItems.length;
+
+  // Price calculations
+  double get subtotal =>
+      selectedCartItems.fold(0.0, (total, item) => total + item.totalPrice);
+  double get originalSubtotal => selectedCartItems.fold(
+      0.0, (total, item) => total + item.originalTotalPrice);
+  double get totalSavings => originalSubtotal - subtotal + _couponDiscount;
+  double get taxAmount => (subtotal - _couponDiscount) * _taxRate;
+  double get totalAmount =>
+      subtotal - _couponDiscount + _shippingCost + taxAmount;
+
+  // Additional computed properties
+  double get savings => _couponDiscount;
+  String? get appliedCoupon => _appliedCouponCode;
+  double get discountAmount => _couponDiscount;  
