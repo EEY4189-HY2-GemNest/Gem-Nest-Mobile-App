@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gemnest_mobile_app/screens/auth_screens/login_screen.dart';
+import 'package:gemnest_mobile_app/screen/auth_screens/login_screen.dart';
+import 'package:gemnest_mobile_app/theme/app_theme.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -51,20 +52,25 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            FadeTransition(
-              opacity: _animation,
-              child: Image.asset("assets/images/logo.png"),
-            ),
-            const SizedBox(height: 20),
-            const CupertinoActivityIndicator(
-              color: Colors.black,
-            ),
-          ],
+      backgroundColor: AppTheme.backgroundColor,
+      body: Container(
+        // decoration: BoxDecoration(
+        //   gradient: AppTheme.primaryGradient,
+        // ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FadeTransition(
+                opacity: _animation,
+                child: Image.asset("assets/images/logo.png"),
+              ),
+              const SizedBox(height: 20),
+              const CupertinoActivityIndicator(
+                color: Colors.white,
+              ),
+            ],
+          ),
         ),
       ),
     );

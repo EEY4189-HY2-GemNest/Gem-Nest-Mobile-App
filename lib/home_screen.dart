@@ -4,13 +4,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/providers/banner_provider.dart';
-import 'package:gemnest_mobile_app/screens/auction_screen/auction_screen.dart';
-import 'package:gemnest_mobile_app/screens/auth_screens/login_screen.dart';
-import 'package:gemnest_mobile_app/screens/cart_screen/cart_screen.dart';
-import 'package:gemnest_mobile_app/screens/category_screen/category_card.dart';
-import 'package:gemnest_mobile_app/screens/order_history_screen/oreder_history_screen.dart';
-import 'package:gemnest_mobile_app/screens/product_screen/product_card.dart';
-import 'package:gemnest_mobile_app/screens/profile_screen/profile_screen.dart';
+import 'package:gemnest_mobile_app/screen/auction_screen/auction_screen.dart';
+import 'package:gemnest_mobile_app/screen/auth_screens/login_screen.dart';
+import 'package:gemnest_mobile_app/screen/cart_screen/cart_screen.dart';
+import 'package:gemnest_mobile_app/screen/category_screen/category_card.dart';
+import 'package:gemnest_mobile_app/screen/order_history_screen/oreder_history_screen.dart';
+import 'package:gemnest_mobile_app/screen/product_screen/product_card.dart';
+import 'package:gemnest_mobile_app/screen/profile_screen/profile_screen.dart';
+import 'package:gemnest_mobile_app/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -84,27 +85,48 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    // Only update selected index for home (index 0)
+    if (index == 0) {
+      setState(() {
+        _selectedIndex = 0;
+      });
+      return;
+    }
+
+    // For other screens, navigate but reset index when returning
     switch (index) {
       case 1:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const CartScreen()),
-        );
+        ).then((_) {
+          // Reset to home index when returning
+          setState(() {
+            _selectedIndex = 0;
+          });
+        });
         break;
       case 2:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const OrderHistoryScreen()),
-        );
+        ).then((_) {
+          // Reset to home index when returning
+          setState(() {
+            _selectedIndex = 0;
+          });
+        });
         break;
       case 3:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const ProfileScreen()),
-        );
+        ).then((_) {
+          // Reset to home index when returning
+          setState(() {
+            _selectedIndex = 0;
+          });
+        });
         break;
     }
   }
@@ -141,7 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
+                  backgroundColor: AppTheme.errorRed,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
                 ),
@@ -162,14 +184,10 @@ class _HomeScreenState extends State<HomeScreen> {
         onWillPop: _onWillPop,
         child: Scaffold(
           appBar: AppBar(
-            automaticallyImplyLeading: false, // Removes the back button
+            automaticallyImplyLeading: false,
             flexibleSpace: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF0072ff), Color(0xFF00c6ff)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+              decoration: BoxDecoration(
+                gradient: AppTheme.primaryGradient,
               ),
             ),
             elevation: 4,
@@ -178,13 +196,12 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Image.asset('assets/images/logo_new.png', height: 35),
                 const SizedBox(width: 8),
-                const Text(
-                  'gemnest_mobile_app',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 24,
-                  ),
+                Text(
+                  'GemNest Mobile App',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
               ],
             ),
@@ -384,9 +401,14 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const AuctionScreen()),
-              );
+              ).then((_) {
+                // Reset to home index when returning from auction
+                setState(() {
+                  _selectedIndex = 0;
+                });
+              });
             },
-            backgroundColor: const Color.fromARGB(255, 173, 216, 230),
+            backgroundColor: AppTheme.mediumBlue,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             elevation: 8,
@@ -400,8 +422,8 @@ class _HomeScreenState extends State<HomeScreen> {
             gapLocation: GapLocation.center,
             notchSmoothness: NotchSmoothness.smoothEdge,
             onTap: _onItemTapped,
-            backgroundColor: const Color.fromARGB(255, 173, 216, 230),
-            activeColor: const Color.fromARGB(255, 0, 0, 139),
+            backgroundColor: AppTheme.lightBlue,
+            activeColor: AppTheme.primaryBlue,
             leftCornerRadius: 32,
             rightCornerRadius: 32,
           ),
