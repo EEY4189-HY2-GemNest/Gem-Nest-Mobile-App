@@ -340,3 +340,15 @@ class CartProvider with ChangeNotifier {
       return false;
     }
   }
+
+  void removeCoupon() {
+    _appliedCouponCode = null;
+    _couponDiscount = 0.0;
+    notifyListeners();
+  }
+
+  // Shipping calculation
+  void updateShippingCost(double cost) {
+    _shippingCost = cost;
+    notifyListeners();
+  }
