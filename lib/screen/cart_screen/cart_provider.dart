@@ -62,3 +62,22 @@ class CartItem {
       'productData': productData,
     };
   }
+
+  factory CartItem.fromJson(Map<String, dynamic> json) {
+    return CartItem(
+      id: json['id'],
+      imagePath: json['imagePath'],
+      title: json['title'],
+      price: json['price'].toDouble(),
+      originalPrice: json['originalPrice'].toDouble(),
+      category: json['category'],
+      sellerId: json['sellerId'],
+      availableStock: json['availableStock'],
+      quantity: json['quantity'],
+      isSelected: json['isSelected'] ?? true,
+      isDiscounted: json['isDiscounted'] ?? false,
+      discountPercentage: json['discountPercentage']?.toDouble() ?? 0.0,
+      productData: json['productData'] ?? {},
+    );
+  }
+}
