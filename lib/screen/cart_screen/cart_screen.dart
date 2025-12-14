@@ -37,3 +37,42 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
     });
   }
 
+@override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: _buildAppBar(),
+      floatingActionButton:
+          SharedBottomNavigation.buildFloatingActionButton(context, 1),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: const SharedBottomNavigation(currentIndex: 1),
+      body: Consumer<CartProvider>(
+        builder: (context, cartProvider, child) {
+          return Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [AppTheme.backgroundColor, Colors.white],
+              ),
+            ),
+            child: cartProvider.cartItems.isEmpty
+                ? _buildEmptyCart()
+                : Column(
+                    children: [
+                      _buildCartHeader(cartProvider),
+                      Expanded(child: _buildCartItems(cartProvider)),
+                      _buildPriceBreakdown(cartProvider),
+                      _buildCheckoutButton(cartProvider),
+                    ],
+                  ),
+          );
+        },
+      ),
+    );
+  }
