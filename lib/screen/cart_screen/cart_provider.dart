@@ -128,4 +128,62 @@ class CartProvider with ChangeNotifier {
   // Additional computed properties
   double get savings => _couponDiscount;
   String? get appliedCoupon => _appliedCouponCode;
-  double get discountAmount => _couponDiscount;  
+  double get discountAmount => _couponDiscount;
+
+  // Cart operations
+  Future<bool> addToCart(Map<String, dynamic> product) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      // Check stock availability
+      final productDoc = await FirebaseFirestore.instance
+          .collection('products')
+          .doc(product['id'])
+          .get();
+
+      if (!productDoc.exists) {
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+
+      final stockData = productDoc.data()!;
+      final availableStock = stockData['quantity'] ?? 0;
+
+      final existingItemIndex =
+          _cartItems.indexWhere((item) => item.id == product['id']);
+
+      if (existingItemIndex != -1) {
+        final currentItem = _cartItems[existingItemIndex];
+        if (currentItem.quantity < availableStock) {
+          currentItem.quantity++;
+        } else {
+          _isLoading = false;
+          notifyListeners();
+          return false; // Out of stock
+        }
+      } else {
+        if (availableStock > 0) {
+          _cartItems.add(CartItem(
+            id: product['id'],
+            imagePath: product['imageUrl'] ?? '',
+            title: product['title'] ?? 'Untitled',
+            price: (product['pricing'] as num? ?? 0).toDouble(),
+            originalPrice: ((product['originalPrice'] as num?) ??
+                    (product['pricing'] as num? ?? 0))
+                .toDouble(),
+            category: product['category'] ?? '',
+            sellerId: product['userId'] ?? '',
+            availableStock: (availableStock as num).toInt(),
+            productData: product,
+            isDiscounted: product['isDiscounted'] ?? false,
+            discountPercentage:
+                (product['discountPercentage'] as num?)?.toDouble() ?? 0.0,
+          ));
+        } else {
+          _isLoading = false;
+          notifyListeners();
+          return false; // Out of stock
+        }
+      }
