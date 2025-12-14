@@ -168,4 +168,45 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
       ),
     );
   }
-  
+
+  Widget _buildCartHeader(CartProvider cartProvider) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Checkbox(
+            value: cartProvider.selectedCartItems.length ==
+                cartProvider.cartItems.length,
+            onChanged: (value) {
+              cartProvider.selectAllItems(value ?? false);
+            },
+            activeColor: AppTheme.primaryBlue,
+          ),
+          const Text(
+            'Select All',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
+          const Spacer(),
+          Text(
+            '${cartProvider.selectedCartItems.length} of ${cartProvider.cartItems.length} selected',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }  
