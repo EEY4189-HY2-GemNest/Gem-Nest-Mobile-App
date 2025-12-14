@@ -209,4 +209,15 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
         ],
       ),
     );
-  }  
+  }
+
+  Widget _buildCartItems(CartProvider cartProvider) {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      itemCount: cartProvider.cartItems.length,
+      itemBuilder: (context, index) {
+        final item = cartProvider.cartItems[index];
+        return _buildCartItemCard(item, cartProvider);
+      },
+    );
+  }
