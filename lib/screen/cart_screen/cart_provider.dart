@@ -210,3 +210,50 @@ class CartProvider with ChangeNotifier {
       }
     }
   }
+
+  void decrementQuantity(String id) {
+    final itemIndex = _cartItems.indexWhere((item) => item.id == id);
+    if (itemIndex != -1) {
+      final item = _cartItems[itemIndex];
+      if (item.quantity > 1) {
+        item.quantity--;
+      } else {
+        _cartItems.removeAt(itemIndex);
+      }
+      _saveCartToLocal();
+      notifyListeners();
+    }
+  }
+
+  void removeItem(String id) {
+    _cartItems.removeWhere((item) => item.id == id);
+    _saveCartToLocal();
+    notifyListeners();
+  }
+
+  void toggleItemSelection(String id) {
+    final item = _cartItems.firstWhere((item) => item.id == id);
+    item.isSelected = !item.isSelected;
+    _saveCartToLocal();
+    notifyListeners();
+  }
+
+  void selectAllItems(bool selected) {
+    for (var item in _cartItems) {
+      item.isSelected = selected;
+    }
+    _saveCartToLocal();
+    notifyListeners();
+  }
+
+  void clearSelectedItems() {
+    _cartItems.removeWhere((item) => item.isSelected);
+    _saveCartToLocal();
+    notifyListeners();
+  }
+
+  void clearCart() {
+    _cartItems.clear();
+    _saveCartToLocal();
+    notifyListeners();
+  }
