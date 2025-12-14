@@ -99,3 +99,18 @@ class CartProvider with ChangeNotifier {
   Future<void> _initializeCart() async {
     await loadCartFromLocal();
   }
+
+  // Getters
+  List<CartItem> get cartItems => _cartItems;
+  List<CartItem> get wishlistItems => _wishlistItems;
+  List<CartItem> get selectedCartItems =>
+      _cartItems.where((item) => item.isSelected).toList();
+  String? get appliedCouponCode => _appliedCouponCode;
+  double get couponDiscount => _couponDiscount;
+  double get shippingCost => _shippingCost;
+  double get taxRate => _taxRate;
+  bool get isLoading => _isLoading;
+
+  int get cartItemCount => _cartItems.fold(
+      0, (total, item) => total + (item.isSelected ? item.quantity : 0));
+  int get wishlistItemCount => _wishlistItems.length;
