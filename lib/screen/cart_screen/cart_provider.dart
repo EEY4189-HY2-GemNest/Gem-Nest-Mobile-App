@@ -373,3 +373,28 @@ class CartProvider with ChangeNotifier {
       // Handle error silently
     }
   }
+
+  Future<void> loadCartFromLocal() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final cartString = prefs.getString('cart_items');
+      final wishlistString = prefs.getString('wishlist_items');
+
+      if (cartString != null) {
+        final cartJson = jsonDecode(cartString) as List;
+        _cartItems.clear();
+        _cartItems.addAll(cartJson.map((item) => CartItem.fromJson(item)));
+      }
+
+      if (wishlistString != null) {
+        final wishlistJson = jsonDecode(wishlistString) as List;
+        _wishlistItems.clear();
+        _wishlistItems
+            .addAll(wishlistJson.map((item) => CartItem.fromJson(item)));
+      }
+
+      notifyListeners();
+    } catch (e) {
+      // Handle error silently
+    }
+  }
