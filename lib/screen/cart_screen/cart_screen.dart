@@ -559,3 +559,44 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
       ),
     );
   }
+
+  Widget _buildCheckoutButton(CartProvider cartProvider) {
+    final selectedItems = cartProvider.selectedCartItems;
+    final hasSelectedItems = selectedItems.isNotEmpty;
+    final hasInStockItems = selectedItems
+        .every((item) => item.isInStock && item.isQuantityAvailable);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: hasSelectedItems && hasInStockItems
+              ? () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CheckoutScreen(),
+                    ),
+                  )
+              : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppTheme.primaryBlue,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            elevation: 4,
+          ),
+          child: Text(
+            hasSelectedItems
+                ? 'Checkout (${selectedItems.length} items)'
+                : 'Select items to checkout',
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
