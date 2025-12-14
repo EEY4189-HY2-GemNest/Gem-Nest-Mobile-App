@@ -81,3 +81,21 @@ class CartItem {
     );
   }
 }
+
+class CartProvider with ChangeNotifier {
+  final List<CartItem> _cartItems = [];
+  final List<CartItem> _wishlistItems = [];
+  String? _appliedCouponCode;
+  double _couponDiscount = 0.0;
+  double _shippingCost = 0.0;
+  final double _taxRate = 0.1; // 10% tax
+  bool _isLoading = false;
+
+  // Constructor - automatically load from local storage
+  CartProvider() {
+    _initializeCart();
+  }
+
+  Future<void> _initializeCart() async {
+    await loadCartFromLocal();
+  }
