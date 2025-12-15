@@ -46,3 +46,17 @@ class CardDetails {
     required this.holderName,
   });
 }
+
+class PaymentScreen extends StatefulWidget {
+  final double totalAmount;
+  final checkout.Address deliveryAddress;
+  final checkout.DeliveryOption deliveryOption;
+  final String specialInstructions;
+
+  const PaymentScreen({
+    super.key,
+    required this.totalAmount,
+    required this.deliveryAddress,
+    required this.deliveryOption,
+    required this.specialInstructions,
+  });
