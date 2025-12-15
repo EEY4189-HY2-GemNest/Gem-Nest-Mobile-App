@@ -611,3 +611,16 @@ class _PaymentScreenState extends State<PaymentScreen>
           _selectedPaymentMethod = method;
         });
       },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? const Color(0xFF667eea).withOpacity(0.1)
+              : Colors.grey[50],
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? AppTheme.primaryBlue : Colors.grey[300]!,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
