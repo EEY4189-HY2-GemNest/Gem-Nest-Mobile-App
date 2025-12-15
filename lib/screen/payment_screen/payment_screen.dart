@@ -678,3 +678,15 @@ class _PaymentScreenState extends State<PaymentScreen>
                 ],
               ),
             ),
+            const SizedBox(width: 12),
+            if (isSelected)
+              const Icon(
+                Icons.check_circle,
+                color: Color(0xFF667eea),
+                size: 20,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
