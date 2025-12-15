@@ -88,3 +88,7 @@ class PaymentScreen extends StatefulWidget {
       specialInstructions: 'Test order for Stripe integration',
     );
   }
+
+  @override
+  State<PaymentScreen> createState() => _PaymentScreenState();
+}
