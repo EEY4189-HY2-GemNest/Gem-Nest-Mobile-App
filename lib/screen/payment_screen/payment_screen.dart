@@ -1270,3 +1270,26 @@ class _PaymentScreenState extends State<PaymentScreen>
 
     return sum % 10 == 0;
   }
+
+  // Validate expiry date (MM/YY format)
+  bool _validateExpiryDate(String expiryDate) {
+    if (expiryDate.length != 5) return false;
+
+    final parts = expiryDate.split('/');
+    if (parts.length != 2) return false;
+
+    final month = int.tryParse(parts[0]);
+    final year = int.tryParse(parts[1]);
+
+    if (month == null || year == null) return false;
+    if (month < 1 || month > 12) return false;
+
+    final now = DateTime.now();
+    final currentYear = now.year % 100; // Get last 2 digits
+    final currentMonth = now.month;
+
+    if (year < currentYear) return false;
+    if (year == currentYear && month < currentMonth) return false;
+
+    return true;
+  }
