@@ -1208,3 +1208,32 @@ class _PaymentScreenState extends State<PaymentScreen>
         'estimatedDelivery': DateTime.now()
             .add(Duration(days: widget.deliveryOption.estimatedDays)),
       };
+
+      await FirebaseFirestore.instance
+          .collection('orders')
+          .doc(_orderId)
+          .set(orderData);
+
+      // Clear cart
+      cartProvider.clearCart();
+
+      // Show success and navigate
+      _showSnackBar('Order placed successfully!', Colors.green);
+
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const OrderHistoryScreen(),
+          ),
+          (route) => route.isFirst,
+        );
+      }
+    } catch (e) {
+      _showSnackBar('Payment failed: $e', Colors.red);
+    } finally {
+      setState(() {
+        _isProcessing = false;
+      });
+    }
+  }
