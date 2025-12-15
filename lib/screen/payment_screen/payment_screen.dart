@@ -144,3 +144,16 @@ class _PaymentScreenState extends State<PaymentScreen>
     print(
         'PaymentScreen: Card method pre-selected: ${_selectedPaymentMethod?.id}');
   }
+
+  void _initializeAnimations() {
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
+
+    _fadeController.forward();
+  }
