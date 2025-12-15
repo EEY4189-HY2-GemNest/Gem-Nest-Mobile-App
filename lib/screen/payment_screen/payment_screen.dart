@@ -388,3 +388,37 @@ class _PaymentScreenState extends State<PaymentScreen>
       ),
     );
   }
+
+  Widget _buildProgressStep(String title, int step, bool isActive) {
+    return Column(
+      children: [
+        Container(
+          width: 30,
+          height: 30,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isActive ? AppTheme.primaryBlue : Colors.grey[300],
+          ),
+          child: Center(
+            child: Text(
+              '${step + 1}',
+              style: TextStyle(
+                color: isActive ? Colors.white : Colors.grey[600],
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 10,
+            color: isActive ? AppTheme.primaryBlue : Colors.grey[600],
+            fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+          ),
+        ),
+      ],
+    );
+  }
