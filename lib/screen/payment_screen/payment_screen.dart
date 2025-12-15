@@ -349,3 +349,25 @@ class _PaymentScreenState extends State<PaymentScreen>
       bottomSheet: _buildBottomSheet(),
     );
   }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      flexibleSpace: Container(
+        decoration: BoxDecoration(
+          gradient: AppTheme.primaryGradient,
+        ),
+      ),
+      elevation: 0,
+      leading: const ProfessionalAppBarBackButton(),
+      title: const Text(
+        'Payment',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 24,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.5,
+        ),
+      ),
+      centerTitle: true,
+    );
+  }
