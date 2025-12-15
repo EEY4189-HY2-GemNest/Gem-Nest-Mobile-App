@@ -743,3 +743,15 @@ class _PaymentScreenState extends State<PaymentScreen>
                 return null;
               },
             ),
+            const SizedBox(height: 16),
+            _buildTextField(
+              _holderNameController,
+              'Cardholder Name',
+              Icons.person_outline,
+              validator: (value) {
+                if (value?.isEmpty ?? true) {
+                  return 'Please enter cardholder name';
+                }
+                return null;
+              },
+            ),
