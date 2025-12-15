@@ -1293,3 +1293,51 @@ class _PaymentScreenState extends State<PaymentScreen>
 
     return true;
   }
+
+  // Stripe card payment processing
+  Future<void> _processCardPayment() async {
+    try {
+      // Ensure user is authenticated (will auto sign-in anonymously if needed)
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        print('No user authenticated, attempting anonymous sign-in...');
+        try {
+          final userCredential =
+              await FirebaseAuth.instance.signInAnonymously();
+          user = userCredential.user;
+          print('Successfully signed in anonymously: ${user?.uid}');
+        } catch (e) {
+          print('Failed to authenticate: $e');
+          throw Exception('Authentication failed. Please try again.');
+        }
+      }
+
+      if (user == null) {
+        throw Exception('Unable to authenticate. Please try again.');
+      }
+
+      final processingFee = _selectedPaymentMethod?.processingFee ?? 0.0;
+      final finalTotal = widget.totalAmount + processingFee;
+
+      print(
+          'Starting payment process - Using direct Stripe service (no Firebase Functions)');
+
+      // Use direct Stripe service (bypasses Firebase authentication issues)
+      if (_useDirectStripe) {
+        // Show loading dialog for simulated payment
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(color: AppTheme.primaryBlue),
+                  const SizedBox(height: 16),
+                  const Text('Processing test payment...'),
+                ],
+              ),
+            );
+          },
+        );
