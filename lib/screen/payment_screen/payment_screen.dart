@@ -783,3 +783,27 @@ class _PaymentScreenState extends State<PaymentScreen>
                     },
                   ),
                 ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildTextField(
+                    _cvvController,
+                    'CVV',
+                    Icons.security_outlined,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(4),
+                    ],
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) {
+                        return 'Please enter CVV';
+                      }
+                      if (value!.length < 3 || value.length > 4) {
+                        return 'Please enter valid CVV';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+              ],
+            ),
