@@ -119,3 +119,7 @@ class _PaymentScreenState extends State<PaymentScreen>
   String? _paymentIntentClientSecret;
   String? _stripePaymentIntentId;
   final bool _useDirectStripe = true; // Use direct Stripe for development
+
+  // Animation Controllers
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
