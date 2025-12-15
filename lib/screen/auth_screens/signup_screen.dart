@@ -164,7 +164,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     } finally {
       setState(() => _isUploadingBusinessReg = false);
     }
-  }
+}
 
   // Method to pick NIC document
   Future<void> _pickNicFile() async {
