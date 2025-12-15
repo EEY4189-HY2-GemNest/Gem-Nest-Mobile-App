@@ -718,3 +718,28 @@ class _PaymentScreenState extends State<PaymentScreen>
                 color: Color(0xFF2D3748),
               ),
             ),
+            const SizedBox(height: 16),
+            _buildTextField(
+              _cardNumberController,
+              'Card Number',
+              Icons.credit_card_outlined,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                _CardNumberFormatter(),
+                LengthLimitingTextInputFormatter(19),
+              ],
+              validator: (value) {
+                if (value?.isEmpty ?? true) {
+                  return 'Please enter card number';
+                }
+                final cleanValue = value!.replaceAll(' ', '');
+                if (cleanValue.length < 13 || cleanValue.length > 19) {
+                  return 'Please enter valid card number';
+                }
+                if (!_validateCardNumber(cleanValue)) {
+                  return 'Invalid card number';
+                }
+                return null;
+              },
+            ),
