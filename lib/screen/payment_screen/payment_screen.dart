@@ -422,3 +422,13 @@ class _PaymentScreenState extends State<PaymentScreen>
       ],
     );
   }
+
+  Widget _buildProgressLine(bool isActive) {
+    return Expanded(
+      child: Container(
+        height: 2,
+        margin: const EdgeInsets.only(bottom: 20),
+        color: isActive ? AppTheme.primaryBlue : Colors.grey[300],
+      ),
+    );
+  }
