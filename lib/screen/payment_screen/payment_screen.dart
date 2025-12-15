@@ -60,3 +60,20 @@ class PaymentScreen extends StatefulWidget {
     required this.deliveryOption,
     required this.specialInstructions,
   });
+
+  // Factory constructor for testing Stripe integration
+  factory PaymentScreen.test({
+    double? totalAmount,
+  }) {
+    return PaymentScreen(
+      totalAmount: totalAmount ?? 100.0,
+      deliveryAddress: checkout.Address(
+        id: 'test-address-1',
+        label: 'Home',
+        fullName: 'Test User',
+        mobile: '+91 9876543210',
+        address: '123 Test Street, Test Area',
+        city: 'Mumbai',
+        state: 'Maharashtra',
+        pincode: '400001',
+      ),
