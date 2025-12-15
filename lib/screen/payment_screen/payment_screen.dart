@@ -31,3 +31,18 @@ class PaymentMethod {
     this.processingFee,
   });
 }
+
+// Card Details Model
+class CardDetails {
+  final String cardNumber;
+  final String expiryDate;
+  final String cvv;
+  final String holderName;
+
+  CardDetails({
+    required this.cardNumber,
+    required this.expiryDate,
+    required this.cvv,
+    required this.holderName,
+  });
+}
