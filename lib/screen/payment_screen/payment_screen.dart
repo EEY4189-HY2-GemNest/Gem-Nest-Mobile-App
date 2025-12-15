@@ -253,3 +253,44 @@ class _PaymentScreenState extends State<PaymentScreen>
           }
         }
       });
+
+      setState(() {
+        _paymentMethods = paymentOptions;
+        if (_paymentMethods.isNotEmpty) {
+          // Always select the card method first
+          _selectedPaymentMethod = _paymentMethods.firstWhere(
+            (method) => method.id == 'card',
+            orElse: () => _paymentMethods.first,
+          );
+        }
+        _isLoadingPaymentMethods = false;
+      });
+    } catch (e) {
+      print('Error loading payment methods: $e');
+      setState(() {
+        _isLoadingPaymentMethods = false;
+        _paymentLoadError = 'Failed to load payment methods';
+        // Fallback to default methods
+        _paymentMethods = [
+          PaymentMethod(
+            id: 'card',
+            name: 'Credit/Debit Card',
+            description: 'Pay securely with your card',
+            icon: '💳',
+          ),
+          PaymentMethod(
+            id: 'cod',
+            name: 'Cash on Delivery',
+            description: 'Pay when you receive your order',
+            icon: '💵',
+            processingFee: 50.0,
+          ),
+        ];
+        // Ensure card is always selected first
+        _selectedPaymentMethod = _paymentMethods.firstWhere(
+          (method) => method.id == 'card',
+          orElse: () => _paymentMethods.first,
+        );
+      });
+    }
+  }
