@@ -1248,3 +1248,25 @@ class _PaymentScreenState extends State<PaymentScreen>
       ),
     );
   }
+
+  // Luhn algorithm for card validation
+  bool _validateCardNumber(String cardNumber) {
+    int sum = 0;
+    bool isEven = false;
+
+    for (int i = cardNumber.length - 1; i >= 0; i--) {
+      int digit = int.parse(cardNumber[i]);
+
+      if (isEven) {
+        digit *= 2;
+        if (digit > 9) {
+          digit = digit % 10 + digit ~/ 10;
+        }
+      }
+
+      sum += digit;
+      isEven = !isEven;
+    }
+
+    return sum % 10 == 0;
+  }
