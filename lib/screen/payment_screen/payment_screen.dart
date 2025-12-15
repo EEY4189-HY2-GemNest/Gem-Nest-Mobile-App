@@ -432,3 +432,124 @@ class _PaymentScreenState extends State<PaymentScreen>
       ),
     );
   }
+
+  Widget _buildOrderSummaryCard() {
+    final processingFee = _selectedPaymentMethod?.processingFee ?? 0.0;
+    final finalTotal = widget.totalAmount + processingFee;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF667eea).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.receipt_long_outlined,
+                  color: Color(0xFF667eea),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Order Summary',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2D3748),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.confirmation_number_outlined, size: 16),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Order ID: $_orderId',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF4A5568),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(Icons.location_on_outlined, size: 16),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '${widget.deliveryAddress.fullName}, ${widget.deliveryAddress.city}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF4A5568),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(Icons.local_shipping_outlined, size: 16),
+                    const SizedBox(width: 8),
+                    Text(
+                      widget.deliveryOption.name,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF4A5568),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildPriceRow('Subtotal',
+              'Rs.${(widget.totalAmount - widget.deliveryOption.cost - (widget.totalAmount * 0.18)).toStringAsFixed(2)}'),
+          _buildPriceRow('Delivery Charges',
+              'Rs.${widget.deliveryOption.cost.toStringAsFixed(2)}'),
+          _buildPriceRow('Taxes (GST)',
+              'Rs.${(widget.totalAmount * 0.18).toStringAsFixed(2)}'),
+          if (processingFee > 0)
+            _buildPriceRow(
+                'Processing Fee', 'Rs.${processingFee.toStringAsFixed(2)}',
+                textColor: AppTheme.errorRed),
+          const Divider(thickness: 1.5),
+          _buildPriceRow('Total Amount', 'Rs.${finalTotal.toStringAsFixed(2)}',
+              isBold: true, textSize: 18, textColor: AppTheme.primaryBlue),
+        ],
+      ),
+    );
+  }
