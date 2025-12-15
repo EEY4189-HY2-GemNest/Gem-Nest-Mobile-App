@@ -200,3 +200,29 @@ class _PaymentScreenState extends State<PaymentScreen>
       // Fetch payment config from Firebase
       final doc =
           await _firestore.collection('payment_configs').doc(sellerId).get();
+
+      if (!doc.exists) {
+        // Fallback to default payment methods if no config exists
+        setState(() {
+          _paymentMethods = [
+            PaymentMethod(
+              id: 'card',
+              name: 'Credit/Debit Card',
+              description: 'Pay securely with your card',
+              icon: '💳',
+            ),
+            PaymentMethod(
+              id: 'cod',
+              name: 'Cash on Delivery',
+              description: 'Pay when you receive your order',
+              icon: '💵',
+              processingFee: 50.0,
+            ),
+          ];
+          if (_paymentMethods.isNotEmpty) {
+            _selectedPaymentMethod = _paymentMethods.first;
+          }
+          _isLoadingPaymentMethods = false;
+        });
+        return;
+      }
