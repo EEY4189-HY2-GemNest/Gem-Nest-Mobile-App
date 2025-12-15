@@ -265,7 +265,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       );
     } finally {
-      setState(() => _isUploadingNic = false);
+      setState (() => _isUploadingNic = false);
     }
   }
 
