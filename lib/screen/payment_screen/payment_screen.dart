@@ -755,3 +755,31 @@ class _PaymentScreenState extends State<PaymentScreen>
                 return null;
               },
             ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildTextField(
+                    _expiryController,
+                    'MM/YY',
+                    Icons.calendar_month_outlined,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      _ExpiryDateFormatter(),
+                      LengthLimitingTextInputFormatter(5),
+                    ],
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) {
+                        return 'Please enter expiry';
+                      }
+                      if (value!.length != 5) {
+                        return 'Please enter valid expiry';
+                      }
+                      if (!_validateExpiryDate(value)) {
+                        return 'Card has expired';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
