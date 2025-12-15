@@ -71,7 +71,7 @@ class CartItem {
       price: json['price'].toDouble(),
       originalPrice: json['originalPrice'].toDouble(),
       category: json['category'],
-      sellerId: json['sellerId'],
+      sellerId: json['sellerIdfortheuser'],
       availableStock: json['availableStock'],
       quantity: json['quantity'],
       isSelected: json['isSelected'] ?? true,
