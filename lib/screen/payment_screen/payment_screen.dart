@@ -167,3 +167,15 @@ class _PaymentScreenState extends State<PaymentScreen>
       _isLoadingPaymentMethods = true;
       _paymentLoadError = null;
     });
+
+    try {
+      // Get cart provider to access cart items
+      final cartProvider = Provider.of<CartProvider>(context, listen: false);
+
+      if (cartProvider.cartItems.isEmpty) {
+        setState(() {
+          _isLoadingPaymentMethods = false;
+          _paymentLoadError = 'Cart is empty';
+        });
+        return;
+      }
