@@ -663,7 +663,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  Widget _customTextField(
+  Widget _customTextField( 
     String label,
     TextEditingController controller, {
     bool isPassword = false,
