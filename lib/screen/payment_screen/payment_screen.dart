@@ -179,3 +179,17 @@ class _PaymentScreenState extends State<PaymentScreen>
         });
         return;
       }
+
+      // Get unique seller IDs from cart items
+      final sellerIds = cartProvider.cartItems
+          .map((item) => item.sellerId)
+          .where((id) => id.isNotEmpty)
+          .toSet();
+
+      if (sellerIds.isEmpty) {
+        setState(() {
+          _isLoadingPaymentMethods = false;
+          _paymentLoadError = 'No seller information found';
+        });
+        return;
+      }
