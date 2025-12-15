@@ -229,3 +229,27 @@ class _PaymentScreenState extends State<PaymentScreen>
 
       final data = doc.data()!;
       final paymentOptions = <PaymentMethod>[];
+
+      // Map payment method IDs to emoji icons
+      const iconMap = {
+        'card': '💳',
+        'cod': '💵',
+        'bank_transfer': '🏦',
+      };
+
+      data.forEach((key, value) {
+        if (key != 'sellerId' && key != 'updatedAt') {
+          final methodData = value as Map<String, dynamic>;
+          if (methodData['enabled'] == true) {
+            paymentOptions.add(
+              PaymentMethod(
+                id: key,
+                name: methodData['name'] ?? key,
+                description: methodData['description'] ?? '',
+                icon: iconMap[key] ?? '💳',
+                processingFee: key == 'cod' ? 50.0 : null,
+              ),
+            );
+          }
+        }
+      });
