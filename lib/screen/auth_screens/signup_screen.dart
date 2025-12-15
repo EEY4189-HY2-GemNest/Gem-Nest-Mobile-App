@@ -167,7 +167,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   // Method to pick NIC document
-  Future<void>_pickNicFile() async {
+  Future<void> _pickNicFile() async {
     try {
       setState(() => _isUploadingNic = true);
 
