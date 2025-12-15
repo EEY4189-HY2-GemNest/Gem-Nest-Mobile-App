@@ -100,3 +100,7 @@ class _PaymentScreenState extends State<PaymentScreen>
   final TextEditingController _expiryController = TextEditingController();
   final TextEditingController _cvvController = TextEditingController();
   final TextEditingController _holderNameController = TextEditingController();
+
+  // Form Keys
+  final GlobalKey<FormState> _cardFormKey = GlobalKey<FormState>();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
