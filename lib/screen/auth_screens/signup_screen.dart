@@ -38,7 +38,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final ImagePicker _imagePicker = ImagePicker();
 
-  // File upload state variabless
+  // File upload state variables
   File? _businessRegistrationFile;
   File? _nicFile;
   String? _businessRegistrationFileName;
