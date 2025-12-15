@@ -1142,3 +1142,69 @@ class _PaymentScreenState extends State<PaymentScreen>
       ),
     );
   }
+
+  void _processPayment() async {
+    // Validate form based on payment method
+    bool isValid = true;
+    if (_selectedPaymentMethod?.id == 'card') {
+      isValid = _cardFormKey.currentState?.validate() ?? false;
+    }
+
+    if (!isValid) return;
+
+    setState(() {
+      _isProcessing = true;
+    });
+
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        _showSnackBar('Please login to continue', Colors.red);
+        return;
+      }
+
+      final cartProvider = Provider.of<CartProvider>(context, listen: false);
+      final processingFee = _selectedPaymentMethod?.processingFee ?? 0.0;
+      final finalTotal = widget.totalAmount + processingFee;
+
+      // Process payment based on method
+      if (_selectedPaymentMethod?.id == 'card') {
+        await _processCardPayment();
+      } else {
+        // For COD, just simulate order processing
+        await Future.delayed(const Duration(seconds: 2));
+      }
+
+      // Create order in Firestore
+      final orderData = {
+        'orderId': _orderId,
+        'userId': user.uid,
+        'items': cartProvider.cartItems
+            .map((item) => {
+                  'id': item.id,
+                  'name': item.name,
+                  'price': item.finalPrice,
+                  'quantity': item.quantity,
+                  'image': item.image,
+                })
+            .toList(),
+        'deliveryAddress': widget.deliveryAddress.toMap(),
+        'deliveryOption': {
+          'id': widget.deliveryOption.id,
+          'name': widget.deliveryOption.name,
+          'cost': widget.deliveryOption.cost,
+          'estimatedDays': widget.deliveryOption.estimatedDays,
+        },
+        'paymentMethod': {
+          'id': _selectedPaymentMethod!.id,
+          'name': _selectedPaymentMethod!.name,
+          'processingFee': processingFee,
+        },
+        'stripePaymentIntentId': _stripePaymentIntentId,
+        'specialInstructions': widget.specialInstructions,
+        'totalAmount': finalTotal,
+        'status': 'confirmed',
+        'orderDate': FieldValue.serverTimestamp(),
+        'estimatedDelivery': DateTime.now()
+            .add(Duration(days: widget.deliveryOption.estimatedDays)),
+      };
