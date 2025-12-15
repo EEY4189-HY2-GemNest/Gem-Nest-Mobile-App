@@ -157,3 +157,13 @@ class _PaymentScreenState extends State<PaymentScreen>
 
     _fadeController.forward();
   }
+
+  void _generateOrderId() {
+    _orderId = 'GN${DateTime.now().millisecondsSinceEpoch}';
+  }
+
+  Future<void> _loadPaymentMethods() async {
+    setState(() {
+      _isLoadingPaymentMethods = true;
+      _paymentLoadError = null;
+    });
