@@ -193,3 +193,10 @@ class _PaymentScreenState extends State<PaymentScreen>
         });
         return;
       }
+
+      // For simplicity, use the first seller's payment config
+      final sellerId = sellerIds.first;
+
+      // Fetch payment config from Firebase
+      final doc =
+          await _firestore.collection('payment_configs').doc(sellerId).get();
