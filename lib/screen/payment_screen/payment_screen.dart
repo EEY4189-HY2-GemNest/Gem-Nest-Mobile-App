@@ -123,3 +123,6 @@ class _PaymentScreenState extends State<PaymentScreen>
   // Animation Controllers
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
+
+  // Payment Methods - loaded dynamically from Firebase
+  List<PaymentMethod> _paymentMethods = [];
