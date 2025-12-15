@@ -371,3 +371,20 @@ class _PaymentScreenState extends State<PaymentScreen>
       centerTitle: true,
     );
   }
+
+  Widget _buildProgressIndicator() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          _buildProgressStep('Cart', 0, true),
+          _buildProgressLine(true),
+          _buildProgressStep('Checkout', 1, true),
+          _buildProgressLine(true),
+          _buildProgressStep('Payment', 2, true),
+          _buildProgressLine(false),
+          _buildProgressStep('Confirm', 3, false),
+        ],
+      ),
+    );
+  }
