@@ -126,3 +126,21 @@ class _PaymentScreenState extends State<PaymentScreen>
 
   // Payment Methods - loaded dynamically from Firebase
   List<PaymentMethod> _paymentMethods = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeAnimations();
+    _generateOrderId();
+    _loadPaymentMethods();
+
+    // Pre-select card payment method for test mode
+    _selectedPaymentMethod = PaymentMethod(
+      id: 'card',
+      name: 'Credit/Debit Card',
+      description: 'Pay securely with your card',
+      icon: '💳',
+    );
+    print(
+        'PaymentScreen: Card method pre-selected: ${_selectedPaymentMethod?.id}');
+  }
