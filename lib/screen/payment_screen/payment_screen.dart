@@ -807,3 +807,31 @@ class _PaymentScreenState extends State<PaymentScreen>
                 ),
               ],
             ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Checkbox(
+                  value: _saveCard,
+                  onChanged: (value) {
+                    setState(() {
+                      _saveCard = value ?? false;
+                    });
+                  },
+                  activeColor: AppTheme.primaryBlue,
+                ),
+                const Expanded(
+                  child: Text(
+                    'Save card for future payments (Secure)',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF4A5568),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
