@@ -170,7 +170,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Future<void>_pickNicFile() async {
     try {
       setState(() => _isUploadingNic = true);
-
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
