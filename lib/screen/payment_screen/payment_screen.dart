@@ -226,3 +226,6 @@ class _PaymentScreenState extends State<PaymentScreen>
         });
         return;
       }
+
+      final data = doc.data()!;
+      final paymentOptions = <PaymentMethod>[];
