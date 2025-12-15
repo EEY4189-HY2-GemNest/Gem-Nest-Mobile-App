@@ -294,3 +294,13 @@ class _PaymentScreenState extends State<PaymentScreen>
       });
     }
   }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    _cardNumberController.dispose();
+    _expiryController.dispose();
+    _cvvController.dispose();
+    _holderNameController.dispose();
+    super.dispose();
+  }
