@@ -304,3 +304,48 @@ class _PaymentScreenState extends State<PaymentScreen>
     _holderNameController.dispose();
     super.dispose();
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: _buildAppBar(),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [AppTheme.backgroundColor, Colors.white],
+          ),
+        ),
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: Column(
+            children: [
+              _buildProgressIndicator(),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildOrderSummaryCard(),
+                      const SizedBox(height: 24),
+                      _buildPaymentMethodsSection(),
+                      const SizedBox(height: 24),
+                      if (_selectedPaymentMethod?.id == 'card')
+                        _buildCardDetailsForm(),
+                      if (_selectedPaymentMethod?.id == 'cod') _buildCODInfo(),
+                      const SizedBox(height: 24),
+                      _buildSecurityInfo(),
+                      const SizedBox(height: 100),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      bottomSheet: _buildBottomSheet(),
+    );
+  }
