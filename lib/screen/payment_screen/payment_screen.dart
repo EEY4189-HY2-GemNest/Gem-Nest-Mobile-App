@@ -602,3 +602,12 @@ class _PaymentScreenState extends State<PaymentScreen>
       ),
     );
   }
+
+  Widget _buildPaymentMethodCard(PaymentMethod method) {
+    final isSelected = _selectedPaymentMethod?.id == method.id;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedPaymentMethod = method;
+        });
+      },
