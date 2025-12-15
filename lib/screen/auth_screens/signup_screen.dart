@@ -268,7 +268,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       setState(() => _isUploadingNic = false);
     }
   }
-
+  
   Future<void> _saveUser() async {
     if (!_formKey.currentState!.validate()) return;
 
