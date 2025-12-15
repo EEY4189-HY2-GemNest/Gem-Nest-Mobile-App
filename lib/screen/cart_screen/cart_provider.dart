@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CartItem {
+  final Map<String, dynamic> productData;
+  int quantity;
+  bool isSelected;
   final String id;
   final String imagePath;
   final String title;
@@ -15,9 +18,7 @@ class CartItem {
   final int availableStock;
   final bool isDiscounted;
   final double discountPercentage;
-  final Map<String, dynamic> productData;
-  int quantity;
-  bool isSelected;
+
 
   CartItem({
     required this.id,
