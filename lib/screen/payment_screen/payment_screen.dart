@@ -705,3 +705,16 @@ class _PaymentScreenState extends State<PaymentScreen>
           ),
         ],
       ),
+      child: Form(
+        key: _cardFormKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Card Details',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2D3748),
+              ),
+            ),
