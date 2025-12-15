@@ -92,3 +92,11 @@ class PaymentScreen extends StatefulWidget {
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
 }
+
+class _PaymentScreenState extends State<PaymentScreen>
+    with TickerProviderStateMixin {
+  // Form Controllers
+  final TextEditingController _cardNumberController = TextEditingController();
+  final TextEditingController _expiryController = TextEditingController();
+  final TextEditingController _cvvController = TextEditingController();
+  final TextEditingController _holderNameController = TextEditingController();
