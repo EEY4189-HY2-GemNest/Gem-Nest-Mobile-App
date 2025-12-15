@@ -77,3 +77,14 @@ class PaymentScreen extends StatefulWidget {
         state: 'Maharashtra',
         pincode: '400001',
       ),
+      deliveryOption: checkout.DeliveryOption(
+        id: 'standard',
+        name: 'Standard Delivery',
+        description: 'Standard delivery option',
+        cost: 50.0,
+        estimatedDays: 3,
+        icon: 'assets/icons/delivery.png',
+      ),
+      specialInstructions: 'Test order for Stripe integration',
+    );
+  }
