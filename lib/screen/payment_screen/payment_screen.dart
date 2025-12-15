@@ -112,3 +112,9 @@ class _PaymentScreenState extends State<PaymentScreen>
   String? _orderId;
   bool _isLoadingPaymentMethods = true;
   String? _paymentLoadError;
+
+  // Stripe Integration
+  final StripeService _stripeService = StripeService();
+  final StripeServiceDirect _stripeServiceDirect = StripeServiceDirect();
+  String? _paymentIntentClientSecret;
+  String? _stripePaymentIntentId;
