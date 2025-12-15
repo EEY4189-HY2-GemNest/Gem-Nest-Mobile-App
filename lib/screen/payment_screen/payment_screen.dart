@@ -118,3 +118,4 @@ class _PaymentScreenState extends State<PaymentScreen>
   final StripeServiceDirect _stripeServiceDirect = StripeServiceDirect();
   String? _paymentIntentClientSecret;
   String? _stripePaymentIntentId;
+  final bool _useDirectStripe = true; // Use direct Stripe for development
