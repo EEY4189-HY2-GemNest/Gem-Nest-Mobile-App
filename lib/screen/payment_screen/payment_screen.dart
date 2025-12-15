@@ -979,3 +979,31 @@ class _PaymentScreenState extends State<PaymentScreen>
       // ),
     );
   }
+
+  Widget _buildPriceRow(String label, String value,
+      {bool isBold = false, double textSize = 14, Color? textColor}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: textSize,
+              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+              color: textColor ?? const Color(0xFF4A5568),
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: textSize,
+              fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
+              color: textColor ?? const Color(0xFF2D3748),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
