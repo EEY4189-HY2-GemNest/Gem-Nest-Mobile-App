@@ -12,3 +12,22 @@ import 'package:gemnest_mobile_app/stripe_service_firebase.dart';
 import 'package:gemnest_mobile_app/theme/app_theme.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:provider/provider.dart';
+
+// Payment Method Model
+class PaymentMethod {
+  final String id;
+  final String name;
+  final String description;
+  final String icon;
+  final bool isAvailable;
+  final double? processingFee;
+
+  PaymentMethod({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.icon,
+    this.isAvailable = true,
+    this.processingFee,
+  });
+}
