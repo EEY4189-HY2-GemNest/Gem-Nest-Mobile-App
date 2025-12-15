@@ -268,11 +268,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
       setState(() => _isUploadingNic = false);
     }
   }
-  
+
   Future<void> _saveUser() async {
     if (!_formKey.currentState!.validate()) return;
 
-    if (passwordController .text != confirmPasswordController.text) {
+    if (passwordController.text != confirmPasswordController.text) {
       _showCustomDialog(
         title: 'Error',
         message: 'Passwords do not match!',
