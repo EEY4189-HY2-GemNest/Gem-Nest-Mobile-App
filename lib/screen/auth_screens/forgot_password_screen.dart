@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:gemnest_mobile_app/screens/auth_screens/login_screen.dart';
-import 'package:gemnest_mobile_app/screens/auth_screens/reset_password_screen.dart';
+import 'package:gemnest_mobile_app/screen/auth_screens/login_screen.dart';
+import 'package:gemnest_mobile_app/screen/auth_screens/reset_password_screen.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});

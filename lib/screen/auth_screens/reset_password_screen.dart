@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/Database/db_helper.dart';
-import 'package:gemnest_mobile_app/screens/auth_screens/login_screen.dart';
+import 'package:gemnest_mobile_app/screen/auth_screens/login_screen.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   final String phoneNumber;
