@@ -104,3 +104,11 @@ class _PaymentScreenState extends State<PaymentScreen>
   // Form Keys
   final GlobalKey<FormState> _cardFormKey = GlobalKey<FormState>();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // State Variables
+  PaymentMethod? _selectedPaymentMethod;
+  bool _isProcessing = false;
+  bool _saveCard = false;
+  String? _orderId;
+  bool _isLoadingPaymentMethods = true;
+  String? _paymentLoadError;
