@@ -15,114 +15,135 @@ export default function Dashboard() {
 
     useEffect(() => {
         fetchStats();
-        cohandleRefresh = async () => {
-            setRefreshing(true);
-            await fetchStats();
-            setRefreshing(false);
+    }, []);
+
+    const handleRefresh = async () => {
+        setRefreshing(true);
+        await fetchStats();
+        setRefreshing(false);
+    };
+
+    const exportStats = () => {
+        const data = {
+            exportDate: new Date().toLocaleString(),
+            users: userStats,
+            products: productStats,
+            auctions: auctionStats,
+            sellers: sellerStats
         };
+        const element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(data, null, 2)));
+        element.setAttribute('download', `gemnest-stats-${new Date().getTime()}.json`);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    };
 
-        const exportStats = () => {
-            const data = {
-                exportDate: new Date().toLocaleString(),
-                users: userStats,
-                products: productStats,
-                auctions: auctionStats,
-                sellers: sellerStats
-            };
-            const element = document.createElement('a');
-            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(data, null, 2)));
-            element.setAttribute('download', `gemnest-stats-${new Date().getTime()}.json`);
-            element.style.display = 'none';
-            document.body.appendChild(element);
-            element.click();
-            document.body.removeChild(element);
-        };
+    const fetchStats = async () => {
+        try {
+            if (!refreshing) setLoading(true);
 
-        const fetchStats = async () => {
-            try {
-                if (!refreshing) setLoading(true);
+            // User stats
+            const users = await getUserStats();
+            const usersRef = collection(db, 'users');
+            const sellerQuery = query(usersRef, where('userType', '==', 'seller'));
+            const buyerQuery = query(usersRef, where('userType', '==', 'buyer'));
+            const sellerSnap = await getDocs(sellerQuery);
+            const buyerSnap = await getDocs(buyerQuery);
 
-                // User stats
-                const users = await getUserStats();
-                const usersRef = collection(db, 'users');
-                const sellerQuery = query(usersRef, where('userType', '==', 'seller'));
-                const buyerQuery = query(usersRef, where('userType', '==', 'buyer'));
-                const sellerSnap = await getDocs(sellerQuery);
-                const buyerSnap = await getDocs(buyerQuery);
+            setUserStats({
+                ...users,
+                sellers: sellerSnap.docs.length,
+                buyers: buyerSnap.docs.length
+            });
 
-                setUserStats({
-                    ...users,
-                    sellers: sellerSnap.docs.length,
-                    buyers: buyerSnap.docs.length
-                });
+            // Product stats
+            const products = await getProductStats();
+            const productsRef = collection(db, 'products');
+            const inactiveProducts = query(productsRef, where('isActive', '==', false));
+            const inactiveSnap = await getDocs(inactiveProducts);
 
-                // Product stats
-                const products = await getProductStats();
-                const productsRef = collection(db, 'products');
-                const inactiveProducts = query(productsRef, where('isActive', '==', false));
-                const inactiveSnap = await getDocs(inactiveProducts);
+            setProductStats({
+                ...products,
+                inactive: inactiveSnap.docs.length
+            });
 
-                setProductStats({
-                    ...products,
-                    inactive: inactiveSnap.docs.length
-                });
+            // Auction stats
+            const auctionsRef = collection(db, 'auctions');
+            const auctionsSnap = await getDocs(auctionsRef);
+            const now = new Date();
 
-                // Auction stats
-                const auctionsRef = collection(db, 'auctions');
-                const auctionsSnap = await getDocs(auctionsRef);
-                const now = new Date();
+            let activeCount = 0;
+            let endedCount = 0;
 
-                let activeCount = 0;
-                let endedCount = 0;
+            auctionsSnap.docs.forEach(doc => {
+                const endTime = doc.data().endTime?.toDate?.() || new Date(doc.data().endTime);
+                if (now > endTime) {
+                    endedCount++;
+                } else {
+                    activeCount++;
+                }
+            });
 
-                auctionsSnap.docs.forEach(doc => {
-                    const endTime = doc.data().endTime?.toDate?.() || new Date(doc.data().endTime);
-                    if (now > endTime) {
-                        endedCount++;
-                    } else {
-                        activeCount++;
-                    }
-                });
+            setAuctionStats({
+                total: auctionsSnap.docs.length,
+                active: activeCount,
+                ended: endedCount
+            });
 
-                setAuctionStats({
-                    total: auctionsSnap.docs.length,
-                    active: activeCount,
-                    ended: endedCount
-                });
+            // Seller verification stats
+            const sellersRef = collection(db, 'sellers');
+            const sellersSnap = await getDocs(sellersRef);
 
-                // Seller verification stats
-                const sellersRef = collection(db, 'sellers');
-                const sellersSnap = await getDocs(sellersRef);
+            let verified = 0;
+            let unverified = 0;
 
-                let verified = 0;
-                let unverified = 0;
+            sellersSnap.docs.forEach(doc => {
+                if (doc.data().verified) {
+                    verified++;
+                } else {
+                    unverified++;
+                }
+            });
 
-                sellersSnap.docs.forEach(doc => {
-                    if (doc.data().verified) {
-                        verified++;
-                    } else {
-                        unverified++;
-                    }
-                });
+            setSellerStats({
+                verified,
+                unverified,
+                totalProducts: products.total
+            });
 
-                setSellerStats({
-                    verified,
-                    unverified,
-                    totalProducts: products.total
-                });
+            setLastUpdated(new Date());
+        } catch (error) {
+            console.error('Error fetching stats:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-                setLastUpdated(new Date());
-            } catch (error) {
-                console.error('Error fetching stats:', error);
-            } finally {
-                setLoading(false);
-            }
-
-}    
+    const StatCard = ({ icon: Icon, label, value, color, subtext }) => (
+        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 hover:border-gray-600 transition-all duration-300 hover:shadow-lg hover:shadow-gray-900/50">
+            <div className="flex items-center justify-between mb-2">
+                <div>
+                    <p className="text-gray-400 text-xs font-semibold uppercase tracking-wide mb-2">{label}</p>
+                    <p className="text-4xl font-bold text-white">{value}</p>
+                    {subtext && <p className="text-gray-500 text-xs mt-2">{subtext}</p>}
+                </div>
+                <div className={`p-4 rounded-xl ${color} shadow-lg`}>
+                    <Icon className="w-6 h-6" />
+                </div>
+            </div>
+        </div>
+    );
 
     if (loading) {
-        return <div className="text-center text-gray-400">Loading dashboard...</div>;   
-}
+        return (
+            <div className="text-center text-gray-400 py-12">
+                <div className="w-12 h-12 border-4 border-gray-700 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+                <p>Loading dashboard...</p>
+            </div>
+        );
+    }
 
 return (
     <div className="space-y-8">
