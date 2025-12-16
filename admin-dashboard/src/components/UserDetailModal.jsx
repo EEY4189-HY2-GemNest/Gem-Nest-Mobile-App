@@ -252,7 +252,7 @@ export default function UserDetailModal({ user, onClose }) {
                                                 </button>
                                                 <button
                                                     onClick={() => handleDownloadFile(sellerDetails.brUrl, 'BR_Document')}
-                                                    className="p-2 hover:bg-gray-700 rounded text-green-400"
+                                                    className="p-2 hover:bg-green-900/30 rounded-lg text-green-400 transition-colors"
                                                     title="Download"
                                                 >
                                                     <Download className="w-5 h-5" />
@@ -262,7 +262,7 @@ export default function UserDetailModal({ user, onClose }) {
                                     )}
 
                                     {!sellerDetails.nicUrl && !sellerDetails.brUrl && (
-                                        <p className="text-gray-400 text-sm">No verification documents uploaded</p>
+                                        <p className="text-gray-400 text-sm italic">No verification documents uploaded</p>
                                     )}
                                 </div>
                             </div>
@@ -271,15 +271,18 @@ export default function UserDetailModal({ user, onClose }) {
 
                     {/* Buyer Details */}
                     {user.userType === 'buyer' && (
-                        <div className="bg-gray-700/50 rounded-lg p-4">
-                            <h3 className="text-lg font-bold text-primary mb-4">Buyer Information</h3>
-                            <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div className="bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-xl p-6 border border-gray-700">
+                            <h3 className="text-lg font-bold text-primary mb-5 flex items-center gap-2">
+                                <div className="w-1 h-6 bg-gradient-to-b from-primary to-yellow-600 rounded"></div>
+                                Buyer Information
+                            </h3>
+                            <div className="grid grid-cols-2 gap-5 text-sm">
                                 <div>
-                                    <p className="text-gray-400">Phone</p>
+                                    <p className="text-gray-400 text-xs uppercase tracking-wide mb-2">Phone</p>
                                     <p className="text-white font-semibold">{user.phoneNumber || 'N/A'}</p>
                                 </div>
                                 <div>
-                                    <p className="text-gray-400">Address</p>
+                                    <p className="text-gray-400 text-xs uppercase tracking-wide mb-2">Address</p>
                                     <p className="text-white font-semibold">{user.address || 'N/A'}</p>
                                 </div>
                             </div>
@@ -290,29 +293,29 @@ export default function UserDetailModal({ user, onClose }) {
 
             {/* File Preview Modal */}
             {previewFile && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[60] p-4">
-                    <div className="bg-gray-800 rounded-lg border border-gray-700 max-w-3xl w-full max-h-[80vh] overflow-y-auto">
-                        <div className="bg-gray-900 border-b border-gray-700 p-4 flex items-center justify-between">
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[60] p-4 backdrop-blur-sm">
+                    <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border border-gray-700 max-w-3xl w-full max-h-[80vh] overflow-y-auto shadow-2xl">
+                        <div className="bg-gradient-to-r from-gray-900 to-gray-800 border-b border-gray-700 p-6 flex items-center justify-between sticky top-0">
                             <h3 className="text-lg font-bold text-white">{previewFile.name}</h3>
                             <button
                                 onClick={() => setPreviewFile(null)}
-                                className="p-2 hover:bg-gray-700 rounded"
+                                className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
                             >
-                                <X className="w-5 h-5 text-gray-300" />
+                                <X className="w-5 h-5 text-gray-300 hover:text-white" />
                             </button>
                         </div>
-                        <div className="p-4">
+                        <div className="p-6">
                             {previewFile.type === 'pdf' ? (
                                 <iframe
                                     src={previewFile.url}
-                                    className="w-full h-[60vh] rounded border border-gray-700"
+                                    className="w-full h-[60vh] rounded-lg border border-gray-700"
                                     title={previewFile.name}
                                 />
                             ) : (
                                 <img
                                     src={previewFile.url}
                                     alt={previewFile.name}
-                                    className="w-full h-auto max-h-[60vh] object-contain rounded border border-gray-700"
+                                    className="w-full h-auto max-h-[60vh] object-contain rounded-lg border border-gray-700"
                                 />
                             )}
                         </div>
