@@ -25,7 +25,26 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   ];
 
   late DocumentSnapshot orderData;
-  
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchOrderData();
+  }
+
+  Future<void> _fetchOrderData() async {
+    final doc = await FirebaseFirestore.instance
+        .collection('orders')
+        .doc(widget.orderId)
+        .get();
+
+    setState(() {
+      orderData = doc;
+      _deliveryDateController.text = doc['deliveryDate'];
+      _selectedStatus = doc['status'];
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return const Scaffold();
