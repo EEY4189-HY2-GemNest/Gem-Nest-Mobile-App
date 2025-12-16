@@ -189,13 +189,13 @@ export default function Dashboard() {
                         </div>
                     </div>
                 </div>
-dient-to-br from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 shadow-lg">
-                <h3 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
-                    <div className="p-2 bg-yellow-900/30 rounded-lg">
-                        <AlertCircle className="w-5 h-5 text-yellow-400" />
-                    </divray-700">
-                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                        <AlertCircle className="w-5 h-5 text-yellow-400" />
+
+                {/* Seller Verification */}
+                <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 shadow-lg">
+                    <h3 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
+                        <div className="p-2 bg-yellow-900/30 rounded-lg">
+                            <AlertCircle className="w-5 h-5 text-yellow-400" />
+                        </div>
                         Seller Verification
                     </h3>
                     <div className="space-y-4">
@@ -216,7 +216,7 @@ dient-to-br from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 shad
                             <p className="text-gray-400 text-sm">Pending Verification</p>
                         </div>
                     </div>
-            </div>
+                </div>
 
             {/* Auction Activity */}
             <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
