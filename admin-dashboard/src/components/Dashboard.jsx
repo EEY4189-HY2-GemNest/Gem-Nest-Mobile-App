@@ -95,15 +95,15 @@ export default function Dashboard() {
     };
 
     const StatCard = ({ icon: Icon, label, value, color, subtext }) => (
-        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-gray-600 transition">
+        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 hover:border-gray-600 transition-all duration-300 hover:shadow-lg hover:shadow-gray-900/50">
             <div className="flex items-center justify-between mb-2">
                 <div>
-                    <p className="text-gray-400 text-sm mb-1">{label}</p>
-                    <p className="text-3xl font-bold text-white">{value}</p>
-                    {subtext && <p className="text-gray-500 text-xs mt-1">{subtext}</p>}
+                    <p className="text-gray-400 text-xs font-semibold uppercase tracking-wide mb-2">{label}</p>
+                    <p className="text-4xl font-bold text-white">{value}</p>
+                    {subtext && <p className="text-gray-500 text-xs mt-2">{subtext}</p>}
                 </div>
-                <div className={`p-3 rounded-lg ${color}`}>
-                    <Icon className="w-8 h-8" />
+                <div className={`p-4 rounded-xl ${color} shadow-lg`}>
+                    <Icon className="w-6 h-6" />
                 </div>
             </div>
         </div>
@@ -114,10 +114,10 @@ export default function Dashboard() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
             <div>
-                <h2 className="text-3xl font-bold text-white mb-2">Dashboard</h2>
-                <p className="text-gray-400">GemNest Admin Overview</p>
+                <h2 className="text-4xl font-bold text-white mb-2">Dashboard</h2>
+                <p className="text-gray-400 text-lg">Welcome to GemNest Admin Panel</p>
             </div>
 
             {/* Main Stats */}
@@ -155,9 +155,11 @@ export default function Dashboard() {
             {/* Detailed Stats */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Users Breakdown */}
-                <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                        <Users className="w-5 h-5 text-blue-400" />
+                <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 shadow-lg">
+                    <h3 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
+                        <div className="p-2 bg-blue-900/30 rounded-lg">
+                            <Users className="w-5 h-5 text-blue-400" />
+                        </div>
                         Users Breakdown
                     </h3>
                     <div className="space-y-3">
@@ -189,9 +191,11 @@ export default function Dashboard() {
                 </div>
 
                 {/* Seller Verification */}
-                <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                        <AlertCircle className="w-5 h-5 text-yellow-400" />
+                <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 shadow-lg">
+                    <h3 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
+                        <div className="p-2 bg-yellow-900/30 rounded-lg">
+                            <AlertCircle className="w-5 h-5 text-yellow-400" />
+                        </div>
                         Seller Verification
                     </h3>
                     <div className="space-y-4">
@@ -265,6 +269,6 @@ export default function Dashboard() {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

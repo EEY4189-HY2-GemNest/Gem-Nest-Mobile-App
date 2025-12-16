@@ -45,44 +45,46 @@ export default function AuctionManagement() {
     return (
         <div className="space-y-6">
             <div>
-                <h2 className="text-3xl font-bold text-white mb-2">Auction Management</h2>
-                <p className="text-gray-400">Monitor and manage active auctions</p>
+                <h2 className="text-4xl font-bold text-white mb-2">Auction Management</h2>
+                <p className="text-gray-400 text-lg">Monitor and manage active auctions</p>
             </div>
 
             {message && (
-                <div className="bg-green-900/20 border border-green-500 rounded-lg p-4 flex items-center gap-2">
-                    <AlertCircle className="w-5 h-5 text-green-500" />
+                <div className="bg-gradient-to-r from-green-900/30 to-green-900/10 border border-green-500 rounded-xl p-4 flex items-center gap-3">
+                    <div className="p-2 bg-green-900/40 rounded-lg">
+                        <AlertCircle className="w-5 h-5 text-green-400" />
+                    </div>
                     <p className="text-green-200">{message}</p>
                 </div>
             )}
 
-            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <div className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl p-4 border border-gray-700 shadow-lg">
                 <input
                     type="text"
                     placeholder="Search by product name..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-primary"
+                    className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                 />
             </div>
 
-            <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border border-gray-700 overflow-hidden shadow-lg">
                 <div className="overflow-x-auto">
                     <table className="w-full">
-                        <thead className="bg-gray-900 border-b border-gray-700">
+                        <thead className="bg-gray-900/50 border-b border-gray-700">
                             <tr>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-300">Product</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-300">Starting Price</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-300">Current Bid</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-300">Bids</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-300">Status</th>
-                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-300">Ends</th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Product</th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Starting Price</th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Current Bid</th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Bids</th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Status</th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Ends</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredAuctions.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" className="px-6 py-8 text-center text-gray-400">
+                                    <td colSpan="6" className="px-6 py-12 text-center text-gray-400">
                                         No auctions found
                                     </td>
                                 </tr>
@@ -91,32 +93,32 @@ export default function AuctionManagement() {
                                     const status = getAuctionStatus(auction);
                                     const statusColor =
                                         status === 'Active'
-                                            ? 'bg-green-900 text-green-300'
+                                            ? 'bg-green-900/40 text-green-300 border border-green-700'
                                             : status === 'Ended'
-                                                ? 'bg-gray-700 text-gray-300'
-                                                : 'bg-blue-900 text-blue-300';
+                                                ? 'bg-gray-700/40 text-gray-300 border border-gray-600'
+                                                : 'bg-blue-900/40 text-blue-300 border border-blue-700';
 
                                     return (
-                                        <tr key={auction.id} className="border-b border-gray-700 hover:bg-gray-700/50">
-                                            <td className="px-6 py-3 text-white font-medium">
+                                        <tr key={auction.id} className="border-b border-gray-700 hover:bg-gray-700/20 transition-colors">
+                                            <td className="px-6 py-4 text-white font-medium">
                                                 {auction.productName || 'Unknown'}
                                             </td>
-                                            <td className="px-6 py-3 text-primary font-semibold">
+                                            <td className="px-6 py-4 text-primary font-bold">
                                                 ${auction.startingPrice || '0'}
                                             </td>
-                                            <td className="px-6 py-3 text-white font-semibold">
+                                            <td className="px-6 py-4 text-white font-bold">
                                                 ${auction.currentBid || auction.startingPrice || '0'}
                                             </td>
-                                            <td className="px-6 py-3 text-gray-300">
+                                            <td className="px-6 py-4 text-gray-300 font-semibold">
                                                 {auction.totalBids || 0}
                                             </td>
-                                            <td className="px-6 py-3">
-                                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColor}`}>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusColor}`}>
                                                     {status}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-3 text-gray-300 text-sm flex items-center gap-2">
-                                                <Clock className="w-4 h-4" />
+                                            <td className="px-6 py-4 text-gray-300 text-sm flex items-center gap-2">
+                                                <Clock className="w-4 h-4 text-gray-400" />
                                                 {auction.endTime
                                                     ? new Date(auction.endTime.seconds ? auction.endTime.seconds * 1000 : auction.endTime).toLocaleDateString()
                                                     : 'N/A'
@@ -131,8 +133,8 @@ export default function AuctionManagement() {
                 </div>
             </div>
 
-            <div className="text-gray-400 text-sm">
-                Total Auctions: {filteredAuctions.length}
+            <div className="text-gray-400 text-sm font-medium">
+                Showing {filteredAuctions.length} auctions
             </div>
         </div>
     );
