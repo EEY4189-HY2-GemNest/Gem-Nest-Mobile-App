@@ -110,8 +110,8 @@ export default function UserDetailModal({ user, onClose }) {
                             <div>
                                 <p className="text-gray-400 text-xs uppercase tracking-wide mb-2">Status</p>
                                 <span className={`px-3 py-2 rounded-lg text-xs font-bold inline-block border ${user.isActive !== false
-                                        ? 'bg-green-900/40 text-green-300 border-green-700'
-                                        : 'bg-red-900/40 text-red-300 border-red-700'
+                                    ? 'bg-green-900/40 text-green-300 border-green-700'
+                                    : 'bg-red-900/40 text-red-300 border-red-700'
                                     }`}>
                                     {user.status || (user.isActive !== false ? 'Active' : 'Inactive')}
                                 </span>
