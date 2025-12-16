@@ -87,60 +87,36 @@ export default function Dashboard() {
                 setAuctionStats({
                     total: auctionsSnap.docs.length,
                     active: activeCount,
-                    setLastUpdated(new Date());
                 ended: endedCount
             });
 
-    // Seller verification stats
-    const sellersRef = collection(db, 'sellers');
-    const sellersSnap = await getDocs(sellersRef);
+            // Seller verification stats
+            const sellersRef = collection(db, 'sellers');
+            const sellersSnap = await getDocs(sellersRef);
 
-    let verified = 0;
-    let unverified = 0;
+            let verified = 0;
+            let unverified = 0;
 
-    sellersSnap.docs.forEach(doc => {
-        if (doc.data().verified) {
-            verified++;
-        } else {
-            unverified++;
+            sellersSnap.docs.forEach(doc => {
+                if (doc.data().verified) {
+                    verified++;
+                } else {
+                    unverified++;
+                }
+            });
+
+            setSellerStats({
+                verified,
+                unverified,
+                totalProducts: products.total
+            });
+
+            setLastUpdated(new Date());
+        } catch (error) {
+            console.error('Error fetching stats:', error);
+        } finally {
+            setLoading(false);
         }
-    });
-
-    setSellerStats({
-        verified,
-        unverified,
-        totalProducts: products.total
-    });
-} catch (error) {
-    console.error('Error fetching stats:', error);
-} finally {
-    setLoading(false);
-}
-    };
-
-const StatCard = ({ icon: Icon, label, value, color, subtext }) => (
-    <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 hover:border-gray-600 transition-all duration-300 hover:shadow-lg hover:shadow-gray-900/50">
-        <div className="flex items-center justify-between mb-2">
-            <div>
-                <p className="text-gray-400 text-xs font-semibold uppercase tracking-wide mb-2">{label}</p>
-                <p className="text-4xl font-bold text-white">{value}</p>
-                {subtext && <p className="text-gray-500 text-xs mt-2">{subtext}</p>}
-            </div>
-            <div className={`p-4 rounded-xl ${color} shadow-lg`}>
-                <Icon className="w-6 h-6" />
-            </div>
-        </div>
-    </div>
-);
-
-if (loading) {
-    return (
-        <div className="flex items-center justify-center min-h-screen">
-            <div className="text-center">
-                <div className="w-16 h-16 border-4 border-gray-700 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-gray-300 text-lg">Loading dashboard statistics...</p>
-            </div>
-        </div>
     );
 }
 
