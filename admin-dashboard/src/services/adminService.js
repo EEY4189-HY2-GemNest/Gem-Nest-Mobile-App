@@ -219,5 +219,5 @@ export const getSellerAuctions = async (sellerId) => {
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     } catch (error) {
         throw error;
-    }       
+    }
 };
