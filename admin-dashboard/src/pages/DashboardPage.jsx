@@ -65,8 +65,8 @@ export default function DashboardPage() {
                                 key={item.id}
                                 onClick={() => setCurrentPage(item.id)}
                                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-medium text-sm ${isActive
-                                        ? 'bg-gradient-to-r from-primary to-yellow-600 text-gray-950 shadow-lg shadow-primary/20'
-                                        : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                                    ? 'bg-gradient-to-r from-primary to-yellow-600 text-gray-950 shadow-lg shadow-primary/20'
+                                    : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
                                     }`}
                             >
                                 <Icon className={`w-5 h-5 ${isActive ? '' : ''}`} />
