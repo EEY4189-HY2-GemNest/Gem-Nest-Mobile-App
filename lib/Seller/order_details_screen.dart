@@ -131,6 +131,22 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
 
     final order =
         snapshot.data!.data() as Map<String, dynamic>;
+    Card(
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        'Order #${widget.orderId.substring(0, 8)}',
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      Chip(
+        label: Text(_selectedStatus ?? order['status']),
+        backgroundColor:
+            _getStatusColor(_selectedStatus ?? order['status']),
+      ),
+    ],
+  ),
+),
 
     );
   }
