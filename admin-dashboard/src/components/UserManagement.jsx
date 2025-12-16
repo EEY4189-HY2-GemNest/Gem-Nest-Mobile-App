@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getAllUsers, activateUserAccount, deactivateUserAccount } from '../services/adminService';
-import { Check, X, AlertCircle, Loader } from 'lucide-react';
+import { Check, X, AlertCircle, Loader, Eye } from 'lucide-react';
+import UserDetailModal from './UserDetailModal';
+import ConfirmDialog from './ConfirmDialog';
 
 export default function UserManagement() {
     const [users, setUsers] = useState([]);
@@ -8,6 +10,8 @@ export default function UserManagement() {
     const [searchTerm, setSearchTerm] = useState('');
     const [actionLoading, setActionLoading] = useState(null);
     const [message, setMessage] = useState('');
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [confirmDialog, setConfirmDialog] = useState(null);
 
     useEffect(() => {
         fetchUsers();
@@ -26,31 +30,50 @@ export default function UserManagement() {
     };
 
     const handleActivate = async (userId) => {
-        try {
-            setActionLoading(userId);
-            await activateUserAccount(userId);
-            setUsers(users.map(u => u.id === userId ? { ...u, isActive: true, status: 'active' } : u));
-            setMessage('User account activated');
-            setTimeout(() => setMessage(''), 3000);
-        } catch (error) {
-            setMessage('Error activating user: ' + error.message);
-        } finally {
-            setActionLoading(null);
-        }
+        setConfirmDialog({
+            title: 'Activate Account',
+            message: 'Are you sure you want to activate this account?',
+            action: 'Activate',
+            onConfirm: async () => {
+                try {
+                    setActionLoading(userId);
+                    await activateUserAccount(userId);
+                    setUsers(users.map(u => u.id === userId ? { ...u, isActive: true, status: 'active' } : u));
+                    setMessage('User account activated');
+                    setTimeout(() => setMessage(''), 3000);
+                    setConfirmDialog(null);
+                } catch (error) {
+                    setMessage('Error activating user: ' + error.message);
+                    setConfirmDialog(null);
+                } finally {
+                    setActionLoading(null);
+                }
+            }
+        });
     };
 
     const handleDeactivate = async (userId) => {
-        try {
-            setActionLoading(userId);
-            await deactivateUserAccount(userId);
-            setUsers(users.map(u => u.id === userId ? { ...u, isActive: false, status: 'deactivated' } : u));
-            setMessage('User account deactivated');
-            setTimeout(() => setMessage(''), 3000);
-        } catch (error) {
-            setMessage('Error deactivating user: ' + error.message);
-        } finally {
-            setActionLoading(null);
-        }
+        setConfirmDialog({
+            title: 'Deactivate Account',
+            message: 'Are you sure you want to deactivate this account? The user will not be able to access the app.',
+            action: 'Deactivate',
+            isDangerous: true,
+            onConfirm: async () => {
+                try {
+                    setActionLoading(userId);
+                    await deactivateUserAccount(userId);
+                    setUsers(users.map(u => u.id === userId ? { ...u, isActive: false, status: 'deactivated' } : u));
+                    setMessage('User account deactivated');
+                    setTimeout(() => setMessage(''), 3000);
+                    setConfirmDialog(null);
+                } catch (error) {
+                    setMessage('Error deactivating user: ' + error.message);
+                    setConfirmDialog(null);
+                } finally {
+                    setActionLoading(null);
+                }
+            }
+        });
     };
 
     const filteredUsers = users.filter(user =>
@@ -112,8 +135,8 @@ export default function UserManagement() {
                                         <td className="px-6 py-3 text-white">{user.name || 'N/A'}</td>
                                         <td className="px-6 py-3">
                                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${user.isActive !== false
-                                                    ? 'bg-green-900 text-green-300'
-                                                    : 'bg-red-900 text-red-300'
+                                                ? 'bg-green-900 text-green-300'
+                                                : 'bg-red-900 text-red-300'
                                                 }`}>
                                                 {user.status || (user.isActive !== false ? 'active' : 'inactive')}
                                             </span>
@@ -121,6 +144,13 @@ export default function UserManagement() {
                                         <td className="px-6 py-3 text-gray-300">{user.userType || 'buyer'}</td>
                                         <td className="px-6 py-3">
                                             <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => setSelectedUser(user)}
+                                                    className="px-3 py-1 bg-blue-900 hover:bg-blue-800 text-blue-200 rounded text-xs font-semibold flex items-center gap-1 transition"
+                                                >
+                                                    <Eye className="w-4 h-4" />
+                                                    View
+                                                </button>
                                                 {user.isActive !== false ? (
                                                     <button
                                                         onClick={() => handleDeactivate(user.id)}
@@ -161,6 +191,24 @@ export default function UserManagement() {
             <div className="text-gray-400 text-sm">
                 Total Users: {filteredUsers.length}
             </div>
+
+            {/* User Detail Modal */}
+            {selectedUser && (
+                <UserDetailModal user={selectedUser} onClose={() => setSelectedUser(null)} />
+            )}
+
+            {/* Confirm Dialog */}
+            {confirmDialog && (
+                <ConfirmDialog
+                    title={confirmDialog.title}
+                    message={confirmDialog.message}
+                    action={confirmDialog.action}
+                    isDangerous={confirmDialog.isDangerous}
+                    isLoading={actionLoading !== null}
+                    onConfirm={confirmDialog.onConfirm}
+                    onCancel={() => setConfirmDialog(null)}
+                />
+            )}
         </div>
     );
 }
