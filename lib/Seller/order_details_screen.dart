@@ -150,4 +150,16 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
 
     );
   }
+Widget _buildInfoRow(
+    IconData icon, String label, String value) {
+  return Row(
+    children: [
+      Icon(icon),
+      const SizedBox(width: 8),
+      Text('$label $value'),
+    ],
+  );
+}
+
+
 }
