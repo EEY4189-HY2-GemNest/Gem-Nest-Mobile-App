@@ -227,7 +227,7 @@ export const getRevenueAnalytics = async () => {
     try {
         const ordersRef = collection(db, 'orders');
         const snapshot = await getDocs(ordersRef);
-        
+
         let totalRevenue = 0;
         let completedOrders = 0;
         let pendingOrders = 0;
@@ -253,7 +253,7 @@ export const getRecentActivity = async (limit = 10) => {
     try {
         const usersRef = collection(db, 'users');
         const snapshot = await getDocs(usersRef);
-        
+
         const activities = snapshot.docs
             .map(doc => ({ id: doc.id, ...doc.data() }))
             .filter(user => user.createdAt)
@@ -301,7 +301,7 @@ export const getPlatformStats = async () => {
         const usersRef = collection(db, 'users');
         const productsRef = collection(db, 'products');
         const auctionsRef = collection(db, 'auctions');
-        
+
         const [usersSnap, productsSnap, auctionsSnap] = await Promise.all([
             getDocs(usersRef),
             getDocs(productsRef),
