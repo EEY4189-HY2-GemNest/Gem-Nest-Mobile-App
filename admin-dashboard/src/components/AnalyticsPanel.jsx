@@ -94,11 +94,10 @@ export default function AnalyticsPanel() {
                                             Joined as {activity.userType === 'seller' ? '🏪 Seller' : '👤 Buyer'}
                                         </p>
                                     </div>
-                                    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
-                                        activity.isActive !== false
+                                    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${activity.isActive !== false
                                             ? 'bg-green-900/40 text-green-300 border-green-700'
                                             : 'bg-red-900/40 text-red-300 border-red-700'
-                                    }`}>
+                                        }`}>
                                         {activity.isActive !== false ? 'Active' : 'Inactive'}
                                     </span>
                                 </div>
