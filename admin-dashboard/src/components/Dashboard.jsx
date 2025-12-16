@@ -218,57 +218,57 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-            {/* Auction Activity */}
-            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                    <BarChart3 className="w-5 h-5 text-purple-400" />
-                    Auction Activity
-                </h3>
-                <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                        <span className="text-gray-400">Total Auctions</span>
-                        <span className="text-white font-bold text-lg">{auctionStats.total}</span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 pt-3 border-t border-gray-700">
-                        <div className="bg-gray-700/50 rounded p-3 text-center">
-                            <p className="text-2xl font-bold text-green-400">{auctionStats.active}</p>
-                            <p className="text-gray-400 text-xs">Active</p>
+                {/* Auction Activity */}
+                <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <BarChart3 className="w-5 h-5 text-purple-400" />
+                        Auction Activity
+                    </h3>
+                    <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                            <span className="text-gray-400">Total Auctions</span>
+                            <span className="text-white font-bold text-lg">{auctionStats.total}</span>
                         </div>
-                        <div className="bg-gray-700/50 rounded p-3 text-center">
-                            <p className="text-2xl font-bold text-gray-400">{auctionStats.ended}</p>
-                            <p className="text-gray-400 text-xs">Ended</p>
+                        <div className="grid grid-cols-2 gap-2 pt-3 border-t border-gray-700">
+                            <div className="bg-gray-700/50 rounded p-3 text-center">
+                                <p className="text-2xl font-bold text-green-400">{auctionStats.active}</p>
+                                <p className="text-gray-400 text-xs">Active</p>
+                            </div>
+                            <div className="bg-gray-700/50 rounded p-3 text-center">
+                                <p className="text-2xl font-bold text-gray-400">{auctionStats.ended}</p>
+                                <p className="text-gray-400 text-xs">Ended</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-            {/* Summary */ }
-    <div className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-lg p-6 border border-gray-600">
-        <h3 className="text-lg font-bold text-white mb-4">Platform Summary</h3>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
-            <div>
-                <p className="text-2xl font-bold text-primary">{userStats.total}</p>
-                <p className="text-gray-400 text-xs">Users</p>
+            {/* Summary */}
+            <div className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-lg p-6 border border-gray-600">
+                <h3 className="text-lg font-bold text-white mb-4">Platform Summary</h3>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
+                    <div>
+                        <p className="text-2xl font-bold text-primary">{userStats.total}</p>
+                        <p className="text-gray-400 text-xs">Users</p>
+                    </div>
+                    <div>
+                        <p className="text-2xl font-bold text-green-400">{productStats.total}</p>
+                        <p className="text-gray-400 text-xs">Products</p>
+                    </div>
+                    <div>
+                        <p className="text-2xl font-bold text-purple-400">{auctionStats.active}</p>
+                        <p className="text-gray-400 text-xs">Live Auctions</p>
+                    </div>
+                    <div>
+                        <p className="text-2xl font-bold text-yellow-400">{sellerStats.unverified}</p>
+                        <p className="text-gray-400 text-xs">Pending Reviews</p>
+                    </div>
+                    <div>
+                        <p className="text-2xl font-bold text-blue-400">{((userStats.active / userStats.total) * 100).toFixed(1)}%</p>
+                        <p className="text-gray-400 text-xs">Active Rate</p>
+                    </div>
+                </div>
             </div>
-            <div>
-                <p className="text-2xl font-bold text-green-400">{productStats.total}</p>
-                <p className="text-gray-400 text-xs">Products</p>
-            </div>
-            <div>
-                <p className="text-2xl font-bold text-purple-400">{auctionStats.active}</p>
-                <p className="text-gray-400 text-xs">Live Auctions</p>
-            </div>
-            <div>
-                <p className="text-2xl font-bold text-yellow-400">{sellerStats.unverified}</p>
-                <p className="text-gray-400 text-xs">Pending Reviews</p>
-            </div>
-            <div>
-                <p className="text-2xl font-bold text-blue-400">{((userStats.active / userStats.total) * 100).toFixed(1)}%</p>
-                <p className="text-gray-400 text-xs">Active Rate</p>
-            </div>
-        </div>
-    </div>
         </div >
     );
 }
