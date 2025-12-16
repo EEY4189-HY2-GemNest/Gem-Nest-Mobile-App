@@ -209,4 +209,6 @@ export default function UserManagement() {
                     onCancel={() => setConfirmDialog(null)}
                 />
             )}
+        </div>
+    );
 }
