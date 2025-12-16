@@ -135,8 +135,8 @@ export default function UserManagement() {
                                         <td className="px-6 py-3 text-white">{user.name || 'N/A'}</td>
                                         <td className="px-6 py-3">
                                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${user.isActive !== false
-                                                    ? 'bg-green-900 text-green-300'
-                                                    : 'bg-red-900 text-red-300'
+                                                ? 'bg-green-900 text-green-300'
+                                                : 'bg-red-900 text-red-300'
                                                 }`}>
                                                 {user.status || (user.isActive !== false ? 'active' : 'inactive')}
                                             </span>
