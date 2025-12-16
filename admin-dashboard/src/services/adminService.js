@@ -221,3 +221,100 @@ export const getSellerAuctions = async (sellerId) => {
         throw error;
     }
 };
+
+// Get revenue analytics
+export const getRevenueAnalytics = async () => {
+    try {
+        const ordersRef = collection(db, 'orders');
+        const snapshot = await getDocs(ordersRef);
+        
+        let totalRevenue = 0;
+        let completedOrders = 0;
+        let pendingOrders = 0;
+
+        snapshot.docs.forEach(doc => {
+            const data = doc.data();
+            if (data.status === 'completed') {
+                totalRevenue += data.amount || 0;
+                completedOrders++;
+            } else if (data.status === 'pending') {
+                pendingOrders++;
+            }
+        });
+
+        return { totalRevenue, completedOrders, pendingOrders };
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Get recent activity
+export const getRecentActivity = async (limit = 10) => {
+    try {
+        const usersRef = collection(db, 'users');
+        const snapshot = await getDocs(usersRef);
+        
+        const activities = snapshot.docs
+            .map(doc => ({ id: doc.id, ...doc.data() }))
+            .filter(user => user.createdAt)
+            .sort((a, b) => (b.createdAt?.toDate?.() || b.createdAt) - (a.createdAt?.toDate?.() || a.createdAt))
+            .slice(0, limit);
+
+        return activities;
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Verify seller
+export const verifySeller = async (sellerId) => {
+    try {
+        const sellerRef = doc(db, 'sellers', sellerId);
+        await updateDoc(sellerRef, {
+            verified: true,
+            verifiedAt: new Date(),
+            verificationStatus: 'approved'
+        });
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Reject seller verification
+export const rejectSellerVerification = async (sellerId, reason) => {
+    try {
+        const sellerRef = doc(db, 'sellers', sellerId);
+        await updateDoc(sellerRef, {
+            verified: false,
+            verificationStatus: 'rejected',
+            rejectionReason: reason,
+            rejectedAt: new Date()
+        });
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Get platform statistics
+export const getPlatformStats = async () => {
+    try {
+        const usersRef = collection(db, 'users');
+        const productsRef = collection(db, 'products');
+        const auctionsRef = collection(db, 'auctions');
+        
+        const [usersSnap, productsSnap, auctionsSnap] = await Promise.all([
+            getDocs(usersRef),
+            getDocs(productsRef),
+            getDocs(auctionsRef)
+        ]);
+
+        return {
+            totalUsers: usersSnap.size,
+            totalProducts: productsSnap.size,
+            totalAuctions: auctionsSnap.size,
+            timestamp: new Date()
+        };
+    } catch (error) {
+        throw error;
+    }
+};
