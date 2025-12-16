@@ -1472,4 +1472,9 @@ class _ExpiryDateFormatter extends TextInputFormatter {
 
     // Return updated TextEditingValue with formatted text
     // Cursor is placed at the end of the input
-    
+    return newValue.copyWith(
+      text: string,
+      selection: TextSelection.collapsed(offset: string.length),
+    );
+  }
+}
