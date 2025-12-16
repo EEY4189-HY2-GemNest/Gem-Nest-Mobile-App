@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Package, Gavel, LogOut, Menu, X } from 'lucide-react';
+import { Users, Package, Gavel, LogOut, Menu, X, BarChart3 } from 'lucide-react';
 import { logoutAdmin } from '../services/adminService';
 import { auth } from '../services/firebase';
 import UserManagement from '../components/UserManagement';
 import ProductManagement from '../components/ProductManagement';
 import AuctionManagement from '../components/AuctionManagement';
 import Dashboard from '../components/Dashboard';
+import AnalyticsPanel from '../components/AnalyticsPanel';
 
 export default function DashboardPage() {
     const [currentPage, setCurrentPage] = useState('dashboard');
@@ -35,6 +36,7 @@ export default function DashboardPage() {
 
     const menuItems = [
         { id: 'dashboard', label: 'Dashboard', icon: Users },
+        { id: 'analytics', label: 'Analytics', icon: BarChart3 },
         { id: 'users', label: 'Users', icon: Users },
         { id: 'products', label: 'Products', icon: Package },
         { id: 'auctions', label: 'Auctions', icon: Gavel },
@@ -123,6 +125,7 @@ export default function DashboardPage() {
                 {/* Content Area */}
                 <div className="flex-1 overflow-auto p-6 bg-gray-950">
                     {currentPage === 'dashboard' && <Dashboard />}
+                    {currentPage === 'analytics' && <AnalyticsPanel />}
                     {currentPage === 'users' && <UserManagement />}
                     {currentPage === 'products' && <ProductManagement />}
                     {currentPage === 'auctions' && <AuctionManagement />}
