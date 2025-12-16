@@ -38,58 +38,58 @@ export default function Dashboard() {
             document.body.removeChild(element);
         };
 
-    const fetchStats = async () => {
-        try {
-            if (!refreshing) setLoading(true);
+        const fetchStats = async () => {
+            try {
+                if (!refreshing) setLoading(true);
 
-            // User stats
-            const users = await getUserStats();
-            const usersRef = collection(db, 'users');
-            const sellerQuery = query(usersRef, where('userType', '==', 'seller'));
-            const buyerQuery = query(usersRef, where('userType', '==', 'buyer'));
-            const sellerSnap = await getDocs(sellerQuery);
-            const buyerSnap = await getDocs(buyerQuery);
+                // User stats
+                const users = await getUserStats();
+                const usersRef = collection(db, 'users');
+                const sellerQuery = query(usersRef, where('userType', '==', 'seller'));
+                const buyerQuery = query(usersRef, where('userType', '==', 'buyer'));
+                const sellerSnap = await getDocs(sellerQuery);
+                const buyerSnap = await getDocs(buyerQuery);
 
-                            setUserStats({
-                                ...users,
-                                sellers: sellerSnap.docs.length,
-                                buyers: buyerSnap.docs.length
-                            });
+                setUserStats({
+                    ...users,
+                    sellers: sellerSnap.docs.length,
+                    buyers: buyerSnap.docs.length
+                });
 
-                            // Product stats
-                            const products = await getProductStats();
-                            const productsRef = collection(db, 'products');
-                            const inactiveProducts = query(productsRef, where('isActive', '==', false));
-                            const inactiveSnap = await getDocs(inactiveProducts);
+                // Product stats
+                const products = await getProductStats();
+                const productsRef = collection(db, 'products');
+                const inactiveProducts = query(productsRef, where('isActive', '==', false));
+                const inactiveSnap = await getDocs(inactiveProducts);
 
-                            setProductStats({
-                                ...products,
-                                inactive: inactiveSnap.docs.length
-                            });
+                setProductStats({
+                    ...products,
+                    inactive: inactiveSnap.docs.length
+                });
 
-                            // Auction stats
-                            const auctionsRef = collection(db, 'auctions');
-                            const auctionsSnap = await getDocs(auctionsRef);
-                            const now = new Date();
+                // Auction stats
+                const auctionsRef = collection(db, 'auctions');
+                const auctionsSnap = await getDocs(auctionsRef);
+                const now = new Date();
 
-                            let activeCount = 0;
-                            let endedCount = 0;
+                let activeCount = 0;
+                let endedCount = 0;
 
-                            auctionsSnap.docs.forEach(doc => {
-                                const endTime = doc.data().endTime?.toDate?.() || new Date(doc.data().endTime);
-                                if (now > endTime) {
-                                    endedCount++;
-                                } else {
-                                    activeCount++;
-                                }
-                            });
+                auctionsSnap.docs.forEach(doc => {
+                    const endTime = doc.data().endTime?.toDate?.() || new Date(doc.data().endTime);
+                    if (now > endTime) {
+                        endedCount++;
+                    } else {
+                        activeCount++;
+                    }
+                });
 
-                            setAuctionStats({
-                                total: auctionsSnap.docs.length,
-                                active: activeCount,
-                                setLastUpdated(new Date());
-                            ended: endedCount
-                        });
+                setAuctionStats({
+                    total: auctionsSnap.docs.length,
+                    active: activeCount,
+                    setLastUpdated(new Date());
+                ended: endedCount
+            });
 
     // Seller verification stats
     const sellersRef = collection(db, 'sellers');
