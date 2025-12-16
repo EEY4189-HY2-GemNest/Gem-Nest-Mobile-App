@@ -131,6 +131,19 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           }
 
           final order = snapshot.data!.data() as Map<String, dynamic>;
+          final items = order['items'] as List<dynamic>;
+
+Column(
+  children: items.map((item) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(item['title']),
+        Text('Rs. ${item['totalPrice']}'),
+      ],
+    );
+  }).toList(),
+),
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
