@@ -117,6 +117,21 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
+      body: FutureBuilder<DocumentSnapshot>(
+  future: FirebaseFirestore.instance
+      .collection('orders')
+      .doc(widget.orderId)
+      .get(),
+  builder: (context, snapshot) {
+    if (!snapshot.hasData) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    final order =
+        snapshot.data!.data() as Map<String, dynamic>;
+
     );
   }
 }
