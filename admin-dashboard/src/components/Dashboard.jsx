@@ -38,21 +38,17 @@ export default function Dashboard() {
             document.body.removeChild(element);
         };
 
-        const fetchStats = async () => {
-            try {
-                if (!refreshing)
+    const fetchStats = async () => {
+        try {
+            if (!refreshing) setLoading(true);
 
-                    const fetchStats = async () => {
-                        try {
-                            setLoading(true);
-
-                            // User stats
-                            const users = await getUserStats();
-                            const usersRef = collection(db, 'users');
-                            const sellerQuery = query(usersRef, where('userType', '==', 'seller'));
-                            const buyerQuery = query(usersRef, where('userType', '==', 'buyer'));
-                            const sellerSnap = await getDocs(sellerQuery);
-                            const buyerSnap = await getDocs(buyerQuery);
+            // User stats
+            const users = await getUserStats();
+            const usersRef = collection(db, 'users');
+            const sellerQuery = query(usersRef, where('userType', '==', 'seller'));
+            const buyerQuery = query(usersRef, where('userType', '==', 'buyer'));
+            const sellerSnap = await getDocs(sellerQuery);
+            const buyerSnap = await getDocs(buyerQuery);
 
                             setUserStats({
                                 ...users,
