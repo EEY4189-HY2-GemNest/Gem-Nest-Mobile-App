@@ -53,37 +53,39 @@ export default function ProductManagement() {
     return (
         <div className="space-y-6">
             <div>
-                <h2 className="text-3xl font-bold text-white mb-2">Product Management</h2>
-                <p className="text-gray-400">Manage listed products and auctions</p>
+                <h2 className="text-4xl font-bold text-white mb-2">Product Management</h2>
+                <p className="text-gray-400 text-lg">Manage listed products and auctions</p>
             </div>
 
             {message && (
-                <div className="bg-green-900/20 border border-green-500 rounded-lg p-4 flex items-center gap-2">
-                    <AlertCircle className="w-5 h-5 text-green-500" />
+                <div className="bg-gradient-to-r from-green-900/30 to-green-900/10 border border-green-500 rounded-xl p-4 flex items-center gap-3">
+                    <div className="p-2 bg-green-900/40 rounded-lg">
+                        <AlertCircle className="w-5 h-5 text-green-400" />
+                    </div>
                     <p className="text-green-200">{message}</p>
                 </div>
             )}
 
-            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <div className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl p-4 border border-gray-700 shadow-lg">
                 <input
                     type="text"
                     placeholder="Search by product name..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-primary"
+                    className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                 />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredProducts.length === 0 ? (
-                    <div className="col-span-full text-center text-gray-400 py-8">
-                        No products found
+                    <div className="col-span-full text-center text-gray-400 py-12">
+                        <p className="text-lg">No products found</p>
                     </div>
                 ) : (
                     filteredProducts.map((product) => (
                         <div
                             key={product.id}
-                            className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden hover:border-gray-600 transition"
+                            className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border border-gray-700 overflow-hidden hover:border-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-gray-900/50"
                         >
                             {product.imageUrl && (
                                 <img
@@ -93,31 +95,31 @@ export default function ProductManagement() {
                                 />
                             )}
 
-                            <div className="p-4 space-y-3">
-                                <h3 className="font-bold text-white line-clamp-2">{product.name}</h3>
+                            <div className="p-5 space-y-4">
+                                <h3 className="font-bold text-white line-clamp-2 text-lg">{product.name}</h3>
 
                                 <p className="text-gray-400 text-sm line-clamp-2">
                                     {product.description || 'No description'}
                                 </p>
 
-                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                <div className="grid grid-cols-2 gap-3 text-sm">
                                     <div>
-                                        <p className="text-gray-400">Price</p>
-                                        <p className="text-primary font-bold">
+                                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Price</p>
+                                        <p className="text-primary font-bold text-lg">
                                             ${product.price || 'N/A'}
                                         </p>
                                     </div>
                                     <div>
-                                        <p className="text-gray-400">Status</p>
-                                        <p className={`font-semibold ${product.isActive !== false ? 'text-green-400' : 'text-red-400'
+                                        <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Status</p>
+                                        <p className={`font-bold ${product.isActive !== false ? 'text-green-400' : 'text-red-400'
                                             }`}>
                                             {product.isActive !== false ? 'Active' : 'Inactive'}
                                         </p>
                                     </div>
                                 </div>
 
-                                <div className="pt-2 border-t border-gray-700">
-                                    <p className="text-gray-500 text-xs mb-2">
+                                <div className="pt-3 border-t border-gray-700">
+                                    <p className="text-gray-500 text-xs">
                                         Seller: {product.sellerId || 'Unknown'}
                                     </p>
                                 </div>
@@ -126,7 +128,7 @@ export default function ProductManagement() {
                                     <button
                                         onClick={() => handleRemove(product.id)}
                                         disabled={actionLoading === product.id}
-                                        className="w-full px-4 py-2 bg-red-900 hover:bg-red-800 text-red-200 rounded font-semibold flex items-center justify-center gap-2 disabled:opacity-50 transition"
+                                        className="w-full px-4 py-2 bg-gradient-to-r from-red-900 to-red-800 hover:from-red-800 hover:to-red-700 text-red-200 rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50 transition-all shadow-lg hover:shadow-red-900/30"
                                     >
                                         {actionLoading === product.id ? (
                                             <Loader className="w-4 h-4 animate-spin" />
@@ -142,8 +144,8 @@ export default function ProductManagement() {
                 )}
             </div>
 
-            <div className="text-gray-400 text-sm">
-                Total Products: {filteredProducts.length}
+            <div className="text-gray-400 text-sm font-medium">
+                Showing {filteredProducts.length} products
             </div>
         </div>
     );
