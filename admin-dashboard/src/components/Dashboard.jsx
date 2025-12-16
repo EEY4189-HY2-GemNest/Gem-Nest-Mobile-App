@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart3, Users, Package, TrendingUp, Activity, AlertCircle } from 'lucide-react';
+import { BarChart3, Users, Package, TrendingUp, Activity, AlertCircle, Download, RefreshCw, TrendingDown, Award } from 'lucide-react';
 import { getUserStats, getProductStats } from '../services/adminService';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../services/firebase';
@@ -10,10 +10,37 @@ export default function Dashboard() {
     const [auctionStats, setAuctionStats] = useState({ total: 0, active: 0, ended: 0 });
     const [sellerStats, setSellerStats] = useState({ verified: 0, unverified: 0, totalProducts: 0 });
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+    const [lastUpdated, setLastUpdated] = useState(null);
 
     useEffect(() => {
         fetchStats();
-    }, []);
+        cohandleRefresh = async () => {
+        setRefreshing(true);
+        await fetchStats();
+        setRefreshing(false);
+    };
+
+    const exportStats = () => {
+        const data = {
+            exportDate: new Date().toLocaleString(),
+            users: userStats,
+            products: productStats,
+            auctions: auctionStats,
+            sellers: sellerStats
+        };
+        const element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(data, null, 2)));
+        element.setAttribute('download', `gemnest-stats-${new Date().getTime()}.json`);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    };
+
+    const fetchStats = async () => {
+        try {
+            if (!refreshing)
 
     const fetchStats = async () => {
         try {
@@ -64,6 +91,7 @@ export default function Dashboard() {
             setAuctionStats({
                 total: auctionsSnap.docs.length,
                 active: activeCount,
+            setLastUpdated(new Date());
                 ended: endedCount
             });
 
@@ -110,14 +138,44 @@ export default function Dashboard() {
     );
 
     if (loading) {
-        return <div className="text-center text-gray-400">Loading...</div>;
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-gray-700 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-gray-300 text-lg">Loading dashboard statistics...</p>
+                </div>
+            </div>
+        );
     }
 
     return (
         <div className="space-y-8">
-            <div>
-                <h2 className="text-4xl font-bold text-white mb-2">Dashboard</h2>
-                <p className="text-gray-400 text-lg">Welcome to GemNest Admin Panel</p>
+            {/* Header with Controls */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-4xl font-bold text-white mb-2">Dashboard Overview</h2>
+                    <p className="text-gray-400 text-lg">Real-time analytics and platform insights</p>
+                    {lastUpdated && (
+                        <p className="text-gray-500 text-xs mt-2">Last updated: {lastUpdated.toLocaleTimeString()}</p>
+                    )}
+                </div>
+                <div className="flex gap-3">
+                    <button
+                        onClick={handleRefresh}
+                        disabled={refreshing}
+                        className="px-4 py-2 bg-gradient-to-r from-primary to-yellow-600 hover:from-primary/90 hover:to-yellow-600/90 text-gray-950 rounded-lg font-bold flex items-center gap-2 transition-all disabled:opacity-50"
+                    >
+                        <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                        Refresh
+                    </button>
+                    <button
+                        onClick={exportStats}
+                        className="px-4 py-2 bg-gradient-to-r from-blue-900 to-blue-800 hover:from-blue-800 hover:to-blue-700 text-blue-200 rounded-lg font-bold flex items-center gap-2 transition-all shadow-lg hover:shadow-blue-900/30"
+                    >
+                        <Download className="w-4 h-4" />
+                        Export
+                    </button>
+                </div>
             </div>
 
             {/* Main Stats */}
@@ -219,26 +277,163 @@ export default function Dashboard() {
                 </div>
 
                 {/* Auction Activity */}
-                <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                        <BarChart3 className="w-5 h-5 text-purple-400" />
+                <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 shadow-lg">
+                    <h3 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
+                        <div className="p-2 bg-purple-900/30 rounded-lg">
+                            <BarChart3 className="w-5 h-5 text-purple-400" />
+                        </div>
                         Auction Activity
                     </h3>
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                         <div className="flex justify-between items-center">
-                            <span className="text-gray-400">Total Auctions</span>
-                            <span className="text-white font-bold text-lg">{auctionStats.total}</span>
+                            <span className="text-gray-400 text-sm">Total Auctions</span>
+                            <span className="text-white font-bold text-2xl">{auctionStats.total}</span>
                         </div>
-                        <div className="grid grid-cols-2 gap-2 pt-3 border-t border-gray-700">
-                            <div className="bg-gray-700/50 rounded p-3 text-center">
-                                <p className="text-2xl font-bold text-green-400">{auctionStats.active}</p>
-                                <p className="text-gray-400 text-xs">Active</p>
+                        <div className="grid grid-cols-2 gap-3 pt-4 border-t border-gray-700">
+                            <div className="bg-gradient-to-br from-green-900/30 to-green-800/30 rounded-lg p-4 border border-green-700/30 text-center">
+                                <p className="text-3xl font-bold text-green-400 mb-1">{auctionStats.active}</p>
+                                <p className="text-gray-300 text-xs font-medium">Active</p>
                             </div>
-                            <div className="bg-gray-700/50 rounded p-3 text-center">
-                                <p className="text-2xl font-bold text-gray-400">{auctionStats.ended}</p>
-                                <p className="text-gray-400 text-xs">Ended</p>
+                            <div className="bg-gradient-to-br from-gray-700/30 to-gray-600/30 rounded-lg p-4 border border-gray-600/30 text-center">
+                                <p className="text-3xl font-bold text-gray-400 mb-1">{auctionStats.ended}</p>
+                                <p className="text-gray-300 text-xs font-medium">Ended</p>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Platform Summary Section */}
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 shadow-lg">
+                <h3 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
+                    <div className="p-2 bg-pink-900/30 rounded-lg">
+                        <Award className="w-5 h-5 text-pink-400" />
+                    </div>
+                    Platform Health Score
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* User Engagement */}
+                    <div className="text-center">
+                        <div className="mb-3">
+                            <p className="text-sm text-gray-400 uppercase tracking-wide mb-2">Active Users</p>
+                            <div className="relative inline-flex items-center justify-center">
+                                <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+                                    <circle cx="50" cy="50" r="45" fill="none" stroke="#374151" strokeWidth="3" />
+                                    <circle
+                                        cx="50"
+                                        cy="50"
+                                        r="45"
+                                        fill="none"
+                                        stroke="#D4AF37"
+                                        strokeWidth="3"
+                                        strokeDasharray={`${(userStats.active / userStats.total) * 282.7} 282.7`}
+                                    />
+                                </svg>
+                                <div className="absolute text-center">
+                                    <p className="text-2xl font-bold text-primary">{userStats.active}</p>
+                                    <p className="text-xs text-gray-400">/{userStats.total}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <p className="text-gray-400 text-sm mt-2">
+                            {userStats.total > 0 ? Math.round((userStats.active / userStats.total) * 100) : 0}% Active
+                        </p>
+                    </div>
+
+                    {/* Seller Verification */}
+                    <div className="text-center">
+                        <div className="mb-3">
+                            <p className="text-sm text-gray-400 uppercase tracking-wide mb-2">Verified Sellers</p>
+                            <div className="relative inline-flex items-center justify-center">
+                                <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+                                    <circle cx="50" cy="50" r="45" fill="none" stroke="#374151" strokeWidth="3" />
+                                    <circle
+                                        cx="50"
+                                        cy="50"
+                                        r="45"
+                                        fill="none"
+                                        stroke="#22c55e"
+                                        strokeWidth="3"
+                                        strokeDasharray={`${(sellerStats.verified / userStats.sellers) * 282.7 || 0} 282.7`}
+                                    />
+                                </svg>
+                                <div className="absolute text-center">
+                                    <p className="text-2xl font-bold text-green-400">{sellerStats.verified}</p>
+                                    <p className="text-xs text-gray-400">/{userStats.sellers}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <p className="text-gray-400 text-sm mt-2">
+                            {userStats.sellers > 0 ? Math.round((sellerStats.verified / userStats.sellers) * 100) : 0}% Verified
+                        </p>
+                    </div>
+
+                    {/* Product Activity */}
+                    <div className="text-center">
+                        <div className="mb-3">
+                            <p className="text-sm text-gray-400 uppercase tracking-wide mb-2">Active Products</p>
+                            <div className="relative inline-flex items-center justify-center">
+                                <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+                                    <circle cx="50" cy="50" r="45" fill="none" stroke="#374151" strokeWidth="3" />
+                                    <circle
+                                        cx="50"
+                                        cy="50"
+                                        r="45"
+                                        fill="none"
+                                        stroke="#f59e0b"
+                                        strokeWidth="3"
+                                        strokeDasharray={`${(productStats.active / productStats.total) * 282.7 || 0} 282.7`}
+                                    />
+                                </svg>
+                                <div className="absolute text-center">
+                                    <p className="text-2xl font-bold text-amber-400">{productStats.active}</p>
+                                    <p className="text-xs text-gray-400">/{productStats.total}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <p className="text-gray-400 text-sm mt-2">
+                            {productStats.total > 0 ? Math.round((productStats.active / productStats.total) * 100) : 0}% Active
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Quick Stats Row */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-gradient-to-br from-blue-900/20 to-blue-800/20 rounded-xl p-4 border border-blue-700/30">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-blue-300 text-xs font-semibold uppercase">Inactive Users</p>
+                            <p className="text-2xl font-bold text-white mt-1">{userStats.inactive}</p>
+                        </div>
+                        <TrendingDown className="w-8 h-8 text-blue-400 opacity-50" />
+                    </div>
+                </div>
+                <div className="bg-gradient-to-br from-red-900/20 to-red-800/20 rounded-xl p-4 border border-red-700/30">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-red-300 text-xs font-semibold uppercase">Inactive Products</p>
+                            <p className="text-2xl font-bold text-white mt-1">{productStats.inactive}</p>
+                        </div>
+                        <AlertCircle className="w-8 h-8 text-red-400 opacity-50" />
+                    </div>
+                </div>
+                <div className="bg-gradient-to-br from-yellow-900/20 to-yellow-800/20 rounded-xl p-4 border border-yellow-700/30">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-yellow-300 text-xs font-semibold uppercase">Pending Verification</p>
+                            <p className="text-2xl font-bold text-white mt-1">{sellerStats.unverified}</p>
+                        </div>
+                        <AlertCircle className="w-8 h-8 text-yellow-400 opacity-50" />
+                    </div>
+                </div>
+                <div className="bg-gradient-to-br from-green-900/20 to-green-800/20 rounded-xl p-4 border border-green-700/30">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-green-300 text-xs font-semibold uppercase">Total Buyers</p>
+                            <p className="text-2xl font-bold text-white mt-1">{userStats.buyers}</p>
+                        </div>
+                        <TrendingUp className="w-8 h-8 text-green-400 opacity-50" />
                     </div>
                 </div>
             </div>
