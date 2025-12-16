@@ -87,37 +87,41 @@ export default function Dashboard() {
                 setAuctionStats({
                     total: auctionsSnap.docs.length,
                     active: activeCount,
-                ended: endedCount
-            });
+                    ended: endedCount
+                });
 
-            // Seller verification stats
-            const sellersRef = collection(db, 'sellers');
-            const sellersSnap = await getDocs(sellersRef);
+                // Seller verification stats
+                const sellersRef = collection(db, 'sellers');
+                const sellersSnap = await getDocs(sellersRef);
 
-            let verified = 0;
-            let unverified = 0;
+                let verified = 0;
+                let unverified = 0;
 
-            sellersSnap.docs.forEach(doc => {
-                if (doc.data().verified) {
-                    verified++;
-                } else {
-                    unverified++;
-                }
-            });
+                sellersSnap.docs.forEach(doc => {
+                    if (doc.data().verified) {
+                        verified++;
+                    } else {
+                        unverified++;
+                    }
+                });
 
-            setSellerStats({
-                verified,
-                unverified,
-                totalProducts: products.total
-            });
+                setSellerStats({
+                    verified,
+                    unverified,
+                    totalProducts: products.total
+                });
 
-            setLastUpdated(new Date());
-        } catch (error) {
-            console.error('Error fetching stats:', error);
-        } finally {
-            setLoading(false);
-        }
-    );
+                setLastUpdated(new Date());
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+            } finally {
+                setLoading(false);
+            }
+
+}    
+
+    if (loading) {
+        return <div className="text-center text-gray-400">Loading dashboard...</div>;   
 }
 
 return (
@@ -439,3 +443,4 @@ return (
     </div >
 );
 }
+
