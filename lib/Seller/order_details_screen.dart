@@ -45,6 +45,37 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     });
   }
 
+  Future<void> _updateOrder() async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('orders')
+          .doc(widget.orderId)
+          .update({
+        'deliveryDate': _deliveryDateController.text,
+        'status': _selectedStatus,
+        'lastUpdated': DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now()),
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Order updated successfully',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Failed to update order: $e',
+            style: const TextStyle(color: Colors.white),
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return const Scaffold();
