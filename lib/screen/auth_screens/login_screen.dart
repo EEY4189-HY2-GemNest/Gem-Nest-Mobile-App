@@ -78,16 +78,31 @@
 
 
 
-      DocumentSnapshot buyerSnapshot = await _firestore
-          .collection('buyers')
+
+
+
+
+      DocumentSnapshot sellerSnapshot = await _firestore
+          .collection('sellers')
           .doc(userId)
           .get();
+
      
 
 
+      } else if (sellerSnapshot.exists) {
+        Map<String, dynamic> sellerData =
+            sellerSnapshot.data() as Map<String, dynamic>;
+       
 
 
-      if (buyerSnapshot.exists) {
-        await _saveCredentials();
-        _navigateTo(const HomeScreen());
-      } 
+
+
+
+
+        
+        } else {
+          await _saveCredentials();
+          _navigateTo(const SellerHomePage());
+        } 
+     
