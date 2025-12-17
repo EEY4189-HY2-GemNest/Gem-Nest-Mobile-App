@@ -1497,4 +1497,67 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     Color textColor;
     IconData icon;
 
+    switch (status.toLowerCase()) {
+      case 'delivered':
+        backgroundColor = const Color(0xFF28a745);
+        textColor = Colors.white;
+        icon = Icons.check_circle;
+        break;
+      case 'shipped':
+      case 'in transit':
+        backgroundColor = const Color(0xFF007bff);
+        textColor = Colors.white;
+        icon = Icons.local_shipping;
+        break;
+      case 'processing':
+        backgroundColor = const Color(0xFFffc107);
+        textColor = Colors.white;
+        icon = Icons.hourglass_empty;
+        break;
+      case 'cancelled':
+        backgroundColor = const Color(0xFFdc3545);
+        textColor = Colors.white;
+        icon = Icons.cancel;
+        break;
+      case 'pending':
+      default:
+        backgroundColor = const Color(0xFF6c757d);
+        textColor = Colors.white;
+        icon = Icons.schedule;
+    }
 
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: backgroundColor.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: textColor,
+            size: 16,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            status.toUpperCase(),
+            style: TextStyle(
+              color: textColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
