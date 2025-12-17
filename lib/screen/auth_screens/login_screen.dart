@@ -82,27 +82,23 @@
 
 
 
-      DocumentSnapshot sellerSnapshot = await _firestore
-          .collection('sellers')
-          .doc(userId)
-          .get();
-
-     
-
-
-      } else if (sellerSnapshot.exists) {
-        Map<String, dynamic> sellerData =
-            sellerSnapshot.data() as Map<String, dynamic>;
-       
 
 
 
 
 
 
-        
-        } else {
-          await _saveCredentials();
-          _navigateTo(const SellerHomePage());
+
+
+
+
+
+        if (!sellerData['isActive']) {
+          await _auth.signOut();
+          _showCustomDialog(
+            title: 'Account Disabled',
+            message:
+                'Your seller account is disabled. Please wait for Admin approval.',
+            isError: true,
+          );
         } 
-     
