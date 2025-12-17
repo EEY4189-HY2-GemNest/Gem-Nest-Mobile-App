@@ -106,13 +106,43 @@
 
 
 
-    
-    
-    } on FirebaseAuthException catch (e) {
-      _showCustomDialog(
-        title: 'Login Failed',
-        message: e.message ?? 'Login failed. Please try again.',
-        isError: true,
-      );
-    } 
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomDialog(
+          title: title,
+          message: message,
+          onConfirm: onConfirm,
+          isError: isError,
+        );
+      },
+    );
+  
