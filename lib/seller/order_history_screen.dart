@@ -246,3 +246,11 @@ Card(
       ),
     ),
 
+title: Text('Order #${orderId.substring(0, 8)}'),
+subtitle: Column(
+  children: [
+    Text('Customer: ${order['customerName']}'),
+    Text('Amount: Rs. ${order['totalAmount']}'),
+    Text('Delivery: ${order['deliveryDate']}'),
+  ],
+),
