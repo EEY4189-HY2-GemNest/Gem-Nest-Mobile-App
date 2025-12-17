@@ -59,12 +59,28 @@ export const getCurrentAdmin = (callback) => {
     });
 };
 
-// Get all users
+// Get all users with details
 export const getAllUsers = async () => {
     try {
         const usersRef = collection(db, 'users');
         const snapshot = await getDocs(usersRef);
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Get user by ID with full details
+export const getUserById = async (userId) => {
+    try {
+        const userRef = doc(db, 'users', userId);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists()) {
+            throw new Error('User not found');
+        }
+
+        return { id: userId, ...userSnap.data() };
     } catch (error) {
         throw error;
     }
@@ -91,7 +107,8 @@ export const activateUserAccount = async (userId) => {
         const userRef = doc(db, 'users', userId);
         await updateDoc(userRef, {
             status: 'active',
-            isActive: true
+            isActive: true,
+            deactivatedAt: null
         });
         return true;
     } catch (error) {
@@ -121,7 +138,7 @@ export const getAllAuctions = async () => {
     }
 };
 
-// Remove product
+// Remove/deactivate product
 export const removeProduct = async (productId) => {
     try {
         const productRef = doc(db, 'products', productId);
@@ -158,6 +175,48 @@ export const getProductStats = async () => {
         const active = snapshot.docs.filter(doc => doc.data().isActive !== false).length;
 
         return { total, active };
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Get seller details
+export const getSellerDetails = async (sellerId) => {
+    try {
+        const sellerRef = doc(db, 'sellers', sellerId);
+        const sellerSnap = await getDoc(sellerRef);
+
+        if (!sellerSnap.exists()) {
+            throw new Error('Seller not found');
+        }
+
+        return { id: sellerId, ...sellerSnap.data() };
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Get seller products
+export const getSellerProducts = async (sellerId) => {
+    try {
+        const productsRef = collection(db, 'products');
+        const q = query(productsRef, where('sellerId', '==', sellerId));
+        const snapshot = await getDocs(q);
+
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Get seller auctions
+export const getSellerAuctions = async (sellerId) => {
+    try {
+        const auctionsRef = collection(db, 'auctions');
+        const q = query(auctionsRef, where('sellerId', '==', sellerId));
+        const snapshot = await getDocs(q);
+
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     } catch (error) {
         throw error;
     }

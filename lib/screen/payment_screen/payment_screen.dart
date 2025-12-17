@@ -1341,3 +1341,140 @@ class _PaymentScreenState extends State<PaymentScreen>
             );
           },
         );
+
+        // Direct Stripe payment flow (for development/testing)
+        final paymentResult = await _stripeServiceDirect.processTestPayment(
+          amount: finalTotal,
+          currency: 'inr',
+          orderId: _orderId!,
+          description: 'GemNest Order #$_orderId',
+        );
+
+        // Close loading dialog
+        if (mounted) Navigator.of(context).pop();
+
+        if (paymentResult['success'] != true) {
+          throw Exception(paymentResult['message'] ?? 'Payment failed');
+        }
+
+        _stripePaymentIntentId = paymentResult['payment_intent_id'];
+        print(
+            'Direct Stripe payment completed successfully: $_stripePaymentIntentId');
+      } else {
+        // Original Firebase Functions flow (when authentication is fixed)
+        final paymentIntentResult = await _stripeService.createPaymentIntent(
+          amount: finalTotal,
+          currency: 'inr',
+          orderId: _orderId!,
+          description: 'GemNest Order #$_orderId',
+        );
+
+        _paymentIntentClientSecret = paymentIntentResult['client_secret'];
+        _stripePaymentIntentId = paymentIntentResult['intent_id'];
+
+        if (_paymentIntentClientSecret == null) {
+          throw Exception('Failed to create payment intent');
+        }
+
+        // Step 2: Initialize payment sheet
+        await _stripeService.initPaymentSheet(
+          paymentIntentClientSecret: _paymentIntentClientSecret!,
+          customerID: user.uid,
+        );
+
+        // Step 3: Present payment sheet
+        final paymentSuccess = await _stripeService.displayPaymentSheet();
+
+        if (!paymentSuccess) {
+          throw Exception('Payment was cancelled or failed');
+        }
+
+        // Step 4: Confirm payment with backend
+        if (_stripePaymentIntentId != null) {
+          final confirmResult = await _stripeService.confirmPayment(
+            intentId: _stripePaymentIntentId!,
+            orderId: _orderId!,
+          );
+
+          if (confirmResult?['success'] != true) {
+            throw Exception(
+                confirmResult?['message'] ?? 'Payment confirmation failed');
+          }
+        }
+      }
+    } catch (e) {
+      // Handle Stripe-specific errors
+      if (e is StripeException) {
+        switch (e.error.code) {
+          case FailureCode.Canceled:
+            throw Exception('Payment was cancelled');
+          case FailureCode.Failed:
+            throw Exception('Payment failed: ${e.error.localizedMessage}');
+          default:
+            throw Exception('Payment error: ${e.error.localizedMessage}');
+        }
+      }
+      rethrow;
+    }
+  }
+}
+
+// Card Number Formatter
+class _CardNumberFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    var text = newValue.text;
+    if (newValue.selection.baseOffset == 0) {
+      return newValue;
+    }
+    var buffer = StringBuffer();
+    for (int i = 0; i < text.length; i++) {
+      buffer.write(text[i]);
+      var nonZeroIndex = i + 1;
+      if (nonZeroIndex % 4 == 0 && nonZeroIndex != text.length) {
+        buffer.write(' ');
+      }
+    }
+    var string = buffer.toString();
+    return newValue.copyWith(
+      text: string,
+      selection: TextSelection.collapsed(offset: string.length),
+    );
+  }
+}
+
+// Expiry Date Formatter
+// Automatically formats expiry date input into MM/YY format
+class _ExpiryDateFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    var text = newValue.text; // Get the latest text entered by the user
+    // If cursor is at the beginning, return the value without formatting
+
+    if (newValue.selection.baseOffset == 0) {
+      return newValue;
+    }
+    // StringBuffer is used for efficient string concatenation
+    var buffer = StringBuffer();
+
+    // Loop through each character in the input text
+    for (int i = 0; i < text.length; i++) {
+      buffer.write(text[i]);
+
+      var nonZeroIndex = i + 1;
+      if (nonZeroIndex % 2 == 0 && nonZeroIndex != text.length) {
+        buffer.write('/');
+      }
+    }
+    var string = buffer.toString(); // Convert buffer content to string
+
+    // Return updated TextEditingValue with formatted text
+    // Cursor is placed at the end of the input
+    return newValue.copyWith(
+      text: string,
+      selection: TextSelection.collapsed(offset: string.length),
+    );
+  }
+}
