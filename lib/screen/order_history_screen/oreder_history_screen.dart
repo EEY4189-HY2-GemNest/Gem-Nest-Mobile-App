@@ -1561,3 +1561,68 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     );
   }
 }
+
+/*
+|--------------------------------------------------------------------------
+| Order History Screen – Architectural & Design Notes
+|--------------------------------------------------------------------------
+|
+| This screen is responsible for presenting a complete, user-centric view
+| of a customer's historical orders. It combines Firestore real-time data,
+| local UI state (filters, sorting, animations), and adaptive rendering
+| logic to support inconsistent backend data formats.
+|
+| Key Responsibilities:
+| ---------------------
+| 1. Fetch user-specific orders from Firestore using FirebaseAuth UID.
+| 2. Apply client-side filtering (status, date range) and sorting
+|    (date, amount, status) without mutating backend data.
+| 3. Handle multiple Firestore data representations gracefully:
+|      - Dates may be stored as String or Timestamp
+|      - Address and paymentMethod may be String or Map
+|      - Items may vary in structure depending on order source
+| 4. Provide a modern, responsive UI with animations, gradients,
+|    and meaningful empty/error states.
+|
+| Data Handling Strategy:
+| -----------------------
+| Firestore queries are intentionally kept minimal (userId + optional
+| status/date constraints). All complex sorting logic is applied on the
+| client to avoid Firestore composite index overhead and to keep the
+| UI flexible.
+|
+| Defensive parsing is used throughout the screen to prevent runtime
+| crashes caused by:
+|  - Legacy orders
+|  - Partial documents
+|  - Schema evolution over time
+|
+| UI/UX Considerations:
+| --------------------
+| - Status chips use consistent color semantics across the app
+|   (green = success, red = cancelled, yellow = processing, etc.).
+| - Animations (fade + slide) are subtle and purpose-driven to enhance
+|   perceived performance rather than distract the user.
+| - Empty states provide actionable guidance instead of dead ends.
+| - Order cards prioritize scannability: ID, date, status, amount first.
+|
+| Extensibility Notes:
+| -------------------
+| - New order statuses can be added by updating:
+|     _statusOptions
+|     _getStatusIcon()
+|     _buildStatusChip()
+|     _buildModernStatusChip()
+| - Pagination can be introduced later by replacing ListView.builder
+|   with Firestore query cursors.
+| - Reorder logic is currently UI-only and should be connected to
+|   cart persistence in future iterations.
+|
+| Maintenance Guidance:
+| ---------------------
+| This file is intentionally verbose to keep business logic explicit
+| and readable. Refactoring into smaller widgets or services should
+| be done only when reuse or testability demands it.
+|
+|--------------------------------------------------------------------------
+*/
