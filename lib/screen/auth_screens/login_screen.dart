@@ -58,14 +58,61 @@
 
 
 
-    if (emailController.text.trim().isEmpty ||
-        passwordController.text.trim().isEmpty) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    
+    } on FirebaseAuthException catch (e) {
       _showCustomDialog(
-        title: 'Error',
-        message: 'Please fill in all fields',
+        title: 'Login Failed',
+        message: e.message ?? 'Login failed. Please try again.',
         isError: true,
       );
-      return;
-    }
-
+    } 
     
