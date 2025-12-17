@@ -92,7 +92,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
             children: [
               const Text(
                 'Please upload your business registration document:',
-                style: TextStyle(fontSize: 14, color: Colors.grey),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
               ),
               const SizedBox(height: 16),
               _buildUploadOption(
@@ -101,9 +104,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 subtitle: 'Use camera to capture document',
                 onTap: () async {
                   Navigator.pop(context);
-                  final XFile? image = await _imagePicker.pickImage(
-                    source: ImageSource.camera,
-                  );
+                  final XFile? image =
+                      await _imagePicker.pickImage(source: ImageSource.camera);
                   if (image != null) {
                     setState(() {
                       _businessRegistrationFile = File(image.path);
@@ -119,9 +121,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 subtitle: 'Select from your photos',
                 onTap: () async {
                   Navigator.pop(context);
-                  final XFile? image = await _imagePicker.pickImage(
-                    source: ImageSource.gallery,
-                  );
+                  final XFile? image =
+                      await _imagePicker.pickImage(source: ImageSource.gallery);
                   if (image != null) {
                     setState(() {
                       _businessRegistrationFile = File(image.path);
@@ -143,9 +144,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   );
                   if (result != null && result.files.single.path != null) {
                     setState(() {
-                      _businessRegistrationFile = File(
-                        result.files.single.path!,
-                      );
+                      _businessRegistrationFile =
+                          File(result.files.single.path!);
                       _businessRegistrationFileName = result.files.single.name;
                     });
                   }
@@ -156,7 +156,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.grey),
+              ),
             ),
           ],
         ),
@@ -197,7 +200,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
             children: [
               const Text(
                 'Please upload your National Identity Card:',
-                style: TextStyle(fontSize: 14, color: Colors.grey),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
               ),
               const SizedBox(height: 16),
               _buildUploadOption(
@@ -206,9 +212,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 subtitle: 'Use camera to capture NIC',
                 onTap: () async {
                   Navigator.pop(context);
-                  final XFile? image = await _imagePicker.pickImage(
-                    source: ImageSource.camera,
-                  );
+                  final XFile? image =
+                      await _imagePicker.pickImage(source: ImageSource.camera);
                   if (image != null) {
                     setState(() {
                       _nicFile = File(image.path);
@@ -224,9 +229,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 subtitle: 'Select from your photos',
                 onTap: () async {
                   Navigator.pop(context);
-                  final XFile? image = await _imagePicker.pickImage(
-                    source: ImageSource.gallery,
-                  );
+                  final XFile? image =
+                      await _imagePicker.pickImage(source: ImageSource.gallery);
                   if (image != null) {
                     setState(() {
                       _nicFile = File(image.path);
@@ -259,7 +263,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.grey),
+              ),
             ),
           ],
         ),
@@ -282,11 +289,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
 
     try {
-      UserCredential userCredential = await _auth
-          .createUserWithEmailAndPassword(
-            email: emailController.text.trim(),
-            password: passwordController.text.trim(),
-          );
+      UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
 
       String userId = userCredential.user?.uid ?? '';
       if (userId.isEmpty) {
@@ -308,10 +315,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
         if (_businessRegistrationFile != null) {
           businessRegUrl = await _uploadFile(
-            _businessRegistrationFile!,
-            'business_registrations',
-            userId,
-          );
+              _businessRegistrationFile!, 'business_registrations', userId);
         }
 
         if (_nicFile != null) {
@@ -345,7 +349,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
         );
       }
     } catch (e) {
-      _showCustomDialog(title: 'Error', message: 'Error: $e', isError: true);
+      _showCustomDialog(
+        title: 'Error',
+        message: 'Error: $e',
+        isError: true,
+      );
     }
   }
 
@@ -419,34 +427,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 if (!isBuyer) _customTextField('BR Number', brNumberController),
                 if (!isBuyer)
                   _buildFileUploadSection(
-                    'Business Registration',
-                    _businessRegistrationFileName,
-                    _isUploadingBusinessReg,
-                    _pickBusinessRegistrationFile,
-                  ),
+                      'Business Registration',
+                      _businessRegistrationFileName,
+                      _isUploadingBusinessReg,
+                      _pickBusinessRegistrationFile),
                 if (!isBuyer)
-                  _buildFileUploadSection(
-                    'NIC Document',
-                    _nicFileName,
-                    _isUploadingNic,
-                    _pickNicFile,
-                  ),
+                  _buildFileUploadSection('NIC Document', _nicFileName,
+                      _isUploadingNic, _pickNicFile),
                 _customTextField('Email', emailController),
-                _customTextField(
-                  'Phone Number',
-                  phoneNumberController,
-                  keyboardType: TextInputType.phone,
-                ),
-                _customTextField(
-                  'Password',
-                  passwordController,
-                  isPassword: true,
-                ),
-                _customTextField(
-                  'Confirm Password',
-                  confirmPasswordController,
-                  isPassword: true,
-                ),
+                _customTextField('Phone Number', phoneNumberController,
+                    keyboardType: TextInputType.phone),
+                _customTextField('Password', passwordController,
+                    isPassword: true),
+                _customTextField('Confirm Password', confirmPasswordController,
+                    isPassword: true),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _saveUser,
@@ -454,9 +448,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 50,
-                      vertical: 14,
-                    ),
+                        horizontal: 50, vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -473,7 +465,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   children: [
                     const Text(
                       'Already have an account? ',
-                      style: TextStyle(fontSize: 16, color: Colors.black54),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black54,
+                      ),
                     ),
                     GestureDetector(
                       onTap: () {
@@ -515,13 +510,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
       borderWidth: 2,
       children: const [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-          child: Text('Buyer'),
-        ),
+            padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+            child: Text('Buyer')),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-          child: Text('Seller'),
-        ),
+            padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+            child: Text('Seller')),
       ],
     );
   }
@@ -549,7 +542,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 color: Colors.blue.shade50,
                 borderRadius: BorderRadius.circular(6),
               ),
-              child: Icon(icon, color: Colors.blue, size: 20),
+              child: Icon(
+                icon,
+                color: Colors.blue,
+                size: 20,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -566,7 +563,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   Text(
                     subtitle,
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade600,
+                    ),
                   ),
                 ],
               ),
@@ -583,11 +583,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Widget _buildFileUploadSection(
-    String label,
-    String? fileName,
-    bool isUploading,
-    VoidCallback onTap,
-  ) {
+      String label, String? fileName, bool isUploading, VoidCallback onTap) {
     return Padding(
       padding: const EdgeInsets.only(top: 12),
       child: Column(
@@ -655,7 +651,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
               padding: const EdgeInsets.only(top: 4),
               child: Text(
                 'File uploaded: $fileName',
-                style: TextStyle(fontSize: 12, color: Colors.green.shade600),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.green.shade600,
+                ),
               ),
             ),
         ],
@@ -663,20 +662,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  Widget _customTextField(
-    String label,
-    TextEditingController controller, {
-    bool isPassword = false,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
+  Widget _customTextField(String label, TextEditingController controller,
+      {bool isPassword = false,
+      TextInputType keyboardType = TextInputType.text}) {
     return Padding(
       padding: const EdgeInsets.only(top: 12),
       child: TextFormField(
         controller: controller,
         obscureText: isPassword
             ? (label == 'Password'
-                  ? !isPasswordVisible
-                  : !isConfirmPasswordVisible)
+                ? !isPasswordVisible
+                : !isConfirmPasswordVisible)
             : false,
         keyboardType: keyboardType,
         decoration: InputDecoration(
@@ -689,13 +685,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
           suffixIcon: isPassword
               ? IconButton(
-                  icon: Icon(
-                    (label == 'Password'
-                            ? isPasswordVisible
-                            : isConfirmPasswordVisible)
-                        ? Icons.visibility
-                        : Icons.visibility_off,
-                  ),
+                  icon: Icon((label == 'Password'
+                          ? isPasswordVisible
+                          : isConfirmPasswordVisible)
+                      ? Icons.visibility
+                      : Icons.visibility_off),
                   onPressed: () => setState(() {
                     if (label == 'Password') {
                       isPasswordVisible = !isPasswordVisible;
@@ -726,3 +720,4 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 }
+
