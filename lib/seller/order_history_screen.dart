@@ -209,5 +209,11 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
   )
     )
 
-
 }
+StreamBuilder<QuerySnapshot>(
+  stream: _auth.currentUser?.uid != null
+      ? FirebaseFirestore.instance
+          .collection('orders')
+          .where('sellerId', isEqualTo: _auth.currentUser!.uid)
+          .snapshots()
+      : const Stream.empty(),
