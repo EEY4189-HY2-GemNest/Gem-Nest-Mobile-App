@@ -121,4 +121,23 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
     return orders;
   }
 
+    String _getFilterStatusText() {
+    List<String> filters = [];
+    if (_selectedDateRange != null) {
+      final formatter = DateFormat('MMM dd, yyyy');
+      filters.add(
+          'Date: ${formatter.format(_selectedDateRange!.start)} - ${formatter.format(_selectedDateRange!.end)}');
+    }
+    if (_selectedStatus != 'All') {
+      filters.add('Status: $_selectedStatus');
+    }
+    return 'Filters: ${filters.join(', ')}';
+  }
+
+  void _clearFilters() {
+    setState(() {
+      _selectedDateRange = null;
+      _selectedStatus = 'All';
+    });
+  }
 }
