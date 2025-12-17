@@ -78,71 +78,16 @@
 
 
 
+      DocumentSnapshot buyerSnapshot = await _firestore
+          .collection('buyers')
+          .doc(userId)
+          .get();
+     
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return CustomDialog(
-          title: title,
-          message: message,
-          onConfirm: onConfirm,
-          isError: isError,
-        );
-      },
-    );
-  
+      if (buyerSnapshot.exists) {
+        await _saveCredentials();
+        _navigateTo(const HomeScreen());
+      } 
