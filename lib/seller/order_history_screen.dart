@@ -233,3 +233,16 @@ orders.isEmpty
         ],
       ),
     )
+    
+    final isOverdue = isOrderOverdue(order);
+
+Card(
+  child: Container(
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: isOverdue
+            ? [Colors.red[800]!, Colors.red[900]!]
+            : [Colors.grey[850]!, Colors.grey[900]!],
+      ),
+    ),
+
