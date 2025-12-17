@@ -223,3 +223,13 @@ var orders = snapshot.data!.docs;
 
 orders = _applyFilters(orders);
 orders = _applySorting(orders);
+
+orders.isEmpty
+  ? const Center(
+      child: Column(
+        children: [
+          Icon(Icons.inbox_outlined),
+          Text('No orders found'),
+        ],
+      ),
+    )
