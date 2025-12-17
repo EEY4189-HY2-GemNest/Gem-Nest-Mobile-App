@@ -75,7 +75,100 @@ class _CategoryScreenState extends State<CategoryScreen> {
     _fetchProducts();
   }
 
-
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.blue[700],
+        title: Text(widget.categoryTitle,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              setState(() {
+                _sortOrder = value;
+                _applyFilters();
+              });
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'asc',
+                child: Text('Price: Low to High'),
+              ),
+              const PopupMenuItem(
+                value: 'desc',
+                child: Text('Price: High to Low'),
+              ),
+            ],
+            icon: const Icon(Icons.sort, color: Colors.white),
+          ),
+        ],
+      ),
+      body: Container(
+        color: Colors.lightBlue[50],
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 20),
+            TextField(
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value.trim();
+                  _applyFilters();
+                });
+              },
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search, color: Colors.blue),
+                hintText: 'Search gems...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25),
+                  borderSide: const BorderSide(color: Colors.blue),
+                ),
+                filled: true,
+                fillColor: Colors.blue[50],
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _filteredProducts.isEmpty
+                      ? const Center(child: Text('No products found.'))
+                      : GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.75,
+                            crossAxisSpacing: 15,
+                            mainAxisSpacing: 15,
+                          ),
+                          itemCount: _filteredProducts.length,
+                          itemBuilder: (context, index) {
+                            final product = _filteredProducts[index];
+                            return GestureDetector(
+                              onTap: () {
+                                _showProductDetails(context, product);
+                              },
+                              child: ProductCard(
+                                id: product['id'],
+                                imagePath: product['imageUrl'] ?? '',
+                                title: product['title'] ?? 'Untitled',
+                                price:
+                                    'Rs. ${(product['pricing'] as num? ?? 0).toStringAsFixed(2)}',
+                                product: product,
+                              ),
+                            );
+                          },
+                        ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   // Updated product details dialog with modern design
   void _showProductDetails(BuildContext context, Map<String, dynamic> product) {
@@ -315,3 +408,30 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 }
+
+
+/*
+|--------------------------------------------------------------------------
+| CategoryScreen – Product Listing, Search, Sort, and Details Handling
+|--------------------------------------------------------------------------
+| This screen is responsible for displaying all products that belong to a
+| selected category. Products are fetched in real-time from Firestore using
+| a snapshot listener to ensure the UI stays in sync with database changes.
+|
+| Core responsibilities:
+| - Fetch products filtered by category from Firestore
+| - Maintain local product state for efficient UI updates
+| - Provide client-side search functionality based on product title
+| - Support price-based sorting (ascending / descending)
+| - Display products in a responsive grid layout
+| - Show a detailed product dialog with seller information on selection
+|
+| Data flow:
+| Firestore → _products → _applyFilters() → _filteredProducts → UI
+|
+| Notes:
+| - Search and sorting are applied locally for better performance
+| - Seller information is fetched lazily inside the product details dialog
+| - Loading and empty states are handled explicitly for better UX
+|--------------------------------------------------------------------------
+*/
