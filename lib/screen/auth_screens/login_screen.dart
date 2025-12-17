@@ -78,10 +78,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
       String? userId = userCredential.user?.uid;
 
-      DocumentSnapshot buyerSnapshot =
-          await _firestore.collection('buyers').doc(userId).get();
-      DocumentSnapshot sellerSnapshot =
-          await _firestore.collection('sellers').doc(userId).get();
+      DocumentSnapshot buyerSnapshot = await _firestore
+          .collection('buyers')
+          .doc(userId)
+          .get();
+      DocumentSnapshot sellerSnapshot = await _firestore
+          .collection('sellers')
+          .doc(userId)
+          .get();
 
       if (buyerSnapshot.exists) {
         await _saveCredentials();
