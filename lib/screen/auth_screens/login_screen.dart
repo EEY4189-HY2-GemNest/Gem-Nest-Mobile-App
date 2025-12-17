@@ -20,6 +20,7 @@
 
 
 
+  bool rememberMe = false;
 
 
 
@@ -67,38 +68,10 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        if (!sellerData['isActive']) {
-          await _auth.signOut();
-          _showCustomDialog(
-            title: 'Account Disabled',
-            message:
-                'Your seller account is disabled. Please wait for Admin approval.',
-            isError: true,
-          );
-        } 
+                          Checkbox(
+                            value: rememberMe,
+                            onChanged: (value) =>
+                                setState(() => rememberMe = value ?? false),
+                            activeColor: AppTheme.primaryBlue,
+                          ),
+                          
