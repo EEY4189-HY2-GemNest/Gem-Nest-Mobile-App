@@ -82,4 +82,43 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
       return true;
     }).toList();
   }
+    // Apply sorting to orders
+  List<QueryDocumentSnapshot> _applySorting(
+      List<QueryDocumentSnapshot> orders) {
+    orders.sort((a, b) {
+      final dataA = a.data() as Map<String, dynamic>;
+      final dataB = b.data() as Map<String, dynamic>;
+
+      int comparison = 0;
+
+      switch (_sortBy) {
+        case 'Date':
+          try {
+            final dateA =
+                DateTime.parse(dataA['deliveryDate']?.toString() ?? '');
+            final dateB =
+                DateTime.parse(dataB['deliveryDate']?.toString() ?? '');
+            comparison = dateA.compareTo(dateB);
+          } catch (e) {
+            comparison = 0;
+          }
+          break;
+        case 'Amount':
+          final amountA = (dataA['totalAmount'] ?? 0).toDouble();
+          final amountB = (dataB['totalAmount'] ?? 0).toDouble();
+          comparison = amountA.compareTo(amountB);
+          break;
+        case 'Status':
+          final statusA = dataA['status']?.toString() ?? '';
+          final statusB = dataB['status']?.toString() ?? '';
+          comparison = statusA.compareTo(statusB);
+          break;
+      }
+
+      return _isAscending ? comparison : -comparison;
+    });
+
+    return orders;
+  }
+
 }
