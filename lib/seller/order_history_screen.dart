@@ -29,3 +29,23 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
     'Cancelled'
   ];
   final List<String> _sortOptions = ['Date', 'Amount', 'Status'];
+
+  // Helper method to check if order is overdue (NULL SAFE - FIXED)
+  bool isOrderOverdue(Map<String, dynamic> order) {
+    final deliveryDateStr = order['deliveryDate'];
+    final status = order['status'];
+
+    // NULL SAFETY CHECK - prevents the crash
+    if (deliveryDateStr == null || status == null) {
+      return false;
+    }
+
+    try {
+      final deliveryDate = DateTime.parse(deliveryDateStr.toString());
+      final currentDate = DateTime.now();
+      return currentDate.isAfter(deliveryDate) &&
+          status.toString().toLowerCase() != 'delivered';
+    } catch (e) {
+      return false;
+    }
+  }
