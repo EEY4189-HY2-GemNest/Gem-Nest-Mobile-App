@@ -217,3 +217,9 @@ StreamBuilder<QuerySnapshot>(
           .where('sellerId', isEqualTo: _auth.currentUser!.uid)
           .snapshots()
       : const Stream.empty(),
+)
+
+var orders = snapshot.data!.docs;
+
+orders = _applyFilters(orders);
+orders = _applySorting(orders);
