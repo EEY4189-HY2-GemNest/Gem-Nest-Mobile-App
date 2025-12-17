@@ -49,3 +49,37 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
       return false;
     }
   }
+    // Apply filters to orders
+  List<QueryDocumentSnapshot> _applyFilters(
+      List<QueryDocumentSnapshot> orders) {
+    return orders.where((order) {
+      final data = order.data() as Map<String, dynamic>;
+
+      // Date range filter
+      if (_selectedDateRange != null) {
+        try {
+          final orderDate =
+              DateTime.parse(data['deliveryDate']?.toString() ?? '');
+          if (!(orderDate.isAfter(_selectedDateRange!.start
+                  .subtract(const Duration(days: 1))) &&
+              orderDate.isBefore(
+                  _selectedDateRange!.end.add(const Duration(days: 1))))) {
+            return false;
+          }
+        } catch (e) {
+          return false;
+        }
+      }
+
+      // Status filter
+      if (_selectedStatus != 'All') {
+        final status = data['status']?.toString() ?? '';
+        if (status.toLowerCase() != _selectedStatus.toLowerCase()) {
+          return false;
+        }
+      }
+
+      return true;
+    }).toList();
+  }
+}
