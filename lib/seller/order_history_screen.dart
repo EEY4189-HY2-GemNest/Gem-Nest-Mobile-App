@@ -191,4 +191,23 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
         return Colors.grey;
     }
   }
+
+   Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: const Text('Order History'),
+  leading: const ProfessionalAppBarBackButton(),
+  actions: [
+    PopupMenuButton<String>(...),
+    PopupMenuButton<String>(...),
+    IconButton(
+      icon: const Icon(Icons.date_range),
+      onPressed: () => _pickDateRange(context),
+    ),
+  ],
+  )
+    )
+
+
 }
