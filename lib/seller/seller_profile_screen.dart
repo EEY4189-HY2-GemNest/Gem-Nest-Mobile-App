@@ -98,6 +98,24 @@ Future<void> _loadProfileImage() async {
   }
 }
 
+Future<void> _pickAndUploadProfileImage() async {
+  setState(() => _isUploadingProfilePic = true);
+
+  final pickedFile = await _picker.pickImage(
+    source: ImageSource.gallery,
+    imageQuality: 80,
+  );
+
+  if (pickedFile != null) {
+    final userId = _auth.currentUser!.uid;
+    final ref = _storage.ref('profile_images/$userId.jpg');
+    await ref.putFile(File(pickedFile.path));
+    _profileImageUrl = await ref.getDownloadURL();
+  }
+
+  setState(() => _isUploadingProfilePic = false);
+}
+
 
   }
 }
