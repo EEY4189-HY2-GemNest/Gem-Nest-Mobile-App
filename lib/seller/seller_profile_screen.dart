@@ -85,5 +85,19 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
   }
 }
 
+Future<void> _loadProfileImage() async {
+  final userId = _auth.currentUser?.uid;
+  if (userId == null) return;
+
+  try {
+    final ref = _storage.ref('profile_images/$userId.jpg');
+    final url = await ref.getDownloadURL();
+    setState(() => _profileImageUrl = url);
+  } catch (_) {
+    _profileImageUrl = null;
+  }
+}
+
+
   }
 }
