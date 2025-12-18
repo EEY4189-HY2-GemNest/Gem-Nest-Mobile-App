@@ -122,6 +122,12 @@ Future<void> _downloadDocument(String url, String fileName) async {
 
   final file = File('${dir.path}/$fileName');
   await file.writeAsBytes(response.bodyBytes);
+
+  await Share.shareXFiles(
+  [XFile(file.path)],
+  text: 'Document: $fileName',
+);
+
 }
 
 
