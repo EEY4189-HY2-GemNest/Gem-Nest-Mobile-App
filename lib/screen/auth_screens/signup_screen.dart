@@ -720,3 +720,4 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 }
+

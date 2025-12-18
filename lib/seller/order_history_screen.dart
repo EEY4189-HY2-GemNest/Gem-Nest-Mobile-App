@@ -535,3 +535,4 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
     );
   }
 }
+

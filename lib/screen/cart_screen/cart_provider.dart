@@ -341,6 +341,7 @@ class CartProvider with ChangeNotifier {
     }
   }
 
+
   void removeCoupon() {
     _appliedCouponCode = null;
     _couponDiscount = 0.0;
