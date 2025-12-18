@@ -140,4 +140,20 @@ void dispose() {
 
 
   }
+
+  return Scaffold(
+  backgroundColor: Colors.black,
+  body: Stack(
+    children: [
+      Container(
+        decoration: const BoxDecoration(
+          gradient: RadialGradient(
+            colors: [Color(0xFF1A1A2E), Colors.black],
+          ),
+        ),
+      ),
+    ],
+  ),
+);
+
 }
