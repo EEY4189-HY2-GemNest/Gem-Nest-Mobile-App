@@ -20,10 +20,17 @@ class SellerProfileScreen extends StatefulWidget {
 
 class _SellerProfileScreenState extends State<SellerProfileScreen>
     with TickerProviderStateMixin {
+  // Firebase instances
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
+
+  // State variables
+  Map<String, dynamic>? sellerData;
+  bool _isLoading = true;
+  bool _isUploadingProfilePic = false;
   String? _profileImageUrl;
+
   final ImagePicker _picker = ImagePicker();
 
   // Animation controllers
@@ -32,18 +39,17 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  // Seller data
-  Map<String, dynamic>? sellerData;
-  bool _isLoading = true;
-  bool _isUploadingProfilePic = false;
-
   @override
   void initState() {
     super.initState();
+
+    // Fade animation
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
     );
+
+    // Slide animation
     _slideController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -51,109 +57,259 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
 
     _fadeAnimation =
         CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut);
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
     ).animate(
-        CurvedAnimation(parent: _slideController, curve: Curves.easeOutBack));
+      CurvedAnimation(parent: _slideController, curve: Curves.easeOutBack),
+    );
 
-    _fetchSellerData();
-    _loadProfileImage();
-
-    // Start animations
     _fadeController.forward();
     _slideController.forward();
 
-    Future<void> _fetchSellerData() async {
-  final userId = _auth.currentUser?.uid;
-  if (userId == null) return;
+    _fetchSellerData();
+    _loadProfileImage();
+  }
 
-  try {
-    final doc =
-        await _firestore.collection('sellers').doc(userId).get();
-
-    if (doc.exists) {
-      setState(() {
-        sellerData = doc.data();
-        _isLoading = false;
-      });
-    } else {
-      _isLoading = false;
+  // ================= FETCH SELLER DATA =================
+  Future<void> _fetchSellerData() async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) {
+      setState(() => _isLoading = false);
+      return;
     }
-  } catch (e) {
-    _isLoading = false;
-  }
-}
 
-Future<void> _loadProfileImage() async {
-  final userId = _auth.currentUser?.uid;
-  if (userId == null) return;
+    try {
+      final doc =
+          await _firestore.collection('sellers').doc(userId).get();
 
-  try {
-    final ref = _storage.ref('profile_images/$userId.jpg');
-    final url = await ref.getDownloadURL();
-    setState(() => _profileImageUrl = url);
-  } catch (_) {
-    _profileImageUrl = null;
-  }
-}
-
-Future<void> _pickAndUploadProfileImage() async {
-  setState(() => _isUploadingProfilePic = true);
-
-  final pickedFile = await _picker.pickImage(
-    source: ImageSource.gallery,
-    imageQuality: 80,
-  );
-
-  if (pickedFile != null) {
-    final userId = _auth.currentUser!.uid;
-    final ref = _storage.ref('profile_images/$userId.jpg');
-    await ref.putFile(File(pickedFile.path));
-    _profileImageUrl = await ref.getDownloadURL();
+      if (doc.exists) {
+        setState(() {
+          sellerData = doc.data();
+          _isLoading = false;
+        });
+      } else {
+        setState(() => _isLoading = false);
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+    }
   }
 
-  setState(() => _isUploadingProfilePic = false);
-}
+  // ================= LOAD PROFILE IMAGE =================
+  Future<void> _loadProfileImage() async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return;
 
-Future<void> _downloadDocument(String url, String fileName) async {
-  final response = await http.get(Uri.parse(url));
-  final dir = await getApplicationDocumentsDirectory();
-
-  final file = File('${dir.path}/$fileName');
-  await file.writeAsBytes(response.bodyBytes);
-
-  await Share.shareXFiles(
-  [XFile(file.path)],
-  text: 'Document: $fileName',
-);
-
-}
-
-@override
-void dispose() {
-  _fadeController.dispose();
-  _slideController.dispose();
-  super.dispose();
-}
-
-
-
+    try {
+      final ref = _storage.ref('profile_images/$userId.jpg');
+      final url = await ref.getDownloadURL();
+      setState(() => _profileImageUrl = url);
+    } catch (_) {
+      _profileImageUrl = null;
+    }
   }
 
-  return Scaffold(
-  backgroundColor: Colors.black,
-  body: Stack(
-    children: [
-      Container(
-        decoration: const BoxDecoration(
-          gradient: RadialGradient(
-            colors: [Color(0xFF1A1A2E), Colors.black],
-          ),
+  // ================= PICK & UPLOAD PROFILE IMAGE =================
+  Future<void> _pickAndUploadProfileImage() async {
+    setState(() => _isUploadingProfilePic = true);
+
+    try {
+      final pickedFile = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 80,
+      );
+
+      if (pickedFile != null) {
+        final userId = _auth.currentUser!.uid;
+        final ref = _storage.ref('profile_images/$userId.jpg');
+
+        await ref.putFile(File(pickedFile.path));
+        final url = await ref.getDownloadURL();
+
+        setState(() => _profileImageUrl = url);
+      }
+    } finally {
+      setState(() => _isUploadingProfilePic = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    _slideController.dispose();
+    super.dispose();
+  }
+
+  // ================= UI =================
+  @override
+  Widget build(BuildContext context) {
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+          children: [
+            // Background gradient
+            Container(
+              decoration: const BoxDecoration(
+                gradient: RadialGradient(
+                  center: Alignment.topLeft,
+                  radius: 1.5,
+                  colors: [
+                    Color(0xFF1A1A2E),
+                    Color(0xFF16213E),
+                    Colors.black87,
+                  ],
+                ),
+              ),
+            ),
+
+            SafeArea(
+              child: _isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.blueAccent,
+                      ),
+                    )
+                  : sellerData == null
+                      ? const Center(
+                          child: Text(
+                            'No Data Available',
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 18),
+                          ),
+                        )
+                      : FadeTransition(
+                          opacity: _fadeAnimation,
+                          child: SlideTransition(
+                            position: _slideAnimation,
+                            child: SingleChildScrollView(
+                              child: Column(
+                                children: [
+                                  _buildModernHeader(),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+            ),
+          ],
         ),
       ),
-    ],
-  ),
-);
+    );
+  }
 
+  // ================= HEADER (COMMIT 13) =================
+  Widget _buildModernHeader() {
+    return Container(
+      margin: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          // Top bar
+          Row(
+            children: [
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.arrow_back_ios,
+                    color: Colors.white),
+              ),
+              const Spacer(),
+              const Text(
+                'My Profile',
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const Spacer(),
+              const SizedBox(width: 40),
+            ],
+          ),
+
+          const SizedBox(height: 32),
+
+          // Profile image
+          Stack(
+            alignment: Alignment.bottomRight,
+            children: [
+              CircleAvatar(
+                radius: 60,
+                backgroundColor: Colors.grey[800],
+                backgroundImage: _profileImageUrl != null
+                    ? NetworkImage(_profileImageUrl!)
+                    : const AssetImage(
+                            'assets/images/logo_new.png')
+                        as ImageProvider,
+              ),
+              GestureDetector(
+                onTap: _isUploadingProfilePic
+                    ? null
+                    : _pickAndUploadProfileImage,
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    shape: BoxShape.circle,
+                    border:
+                        Border.all(color: Colors.white, width: 2),
+                  ),
+                  child: _isUploadingProfilePic
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.camera_alt,
+                          color: Colors.white, size: 18),
+                ),
+              ),
+            ],
+          ).animate().scale(duration: 700.ms),
+
+          const SizedBox(height: 16),
+
+          // Seller name
+          Text(
+            sellerData!['displayName'] ?? 'Unknown Seller',
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+          ).animate().fadeIn(duration: 500.ms),
+
+          const SizedBox(height: 8),
+
+          // Verification badge
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            decoration: BoxDecoration(
+              color: (sellerData!['isActive'] ?? false)
+                  ? Colors.green
+                  : Colors.orange,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              (sellerData!['isActive'] ?? false)
+                  ? 'Verified Seller'
+                  : 'Pending Verification',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ).animate().fadeIn(delay: 300.ms),
+        ],
+      ),
+    );
+  }
 }
