@@ -329,5 +329,15 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
     );
   }
 
+  Widget _buildDocumentsSection() {
+    return _buildDocumentCard(
+      'NIC Document',
+      sellerData!['nicDocumentUrl'],
+      Icons.credit_card,
+      Colors.green,
+    );
+  }
+
+
 
 }
