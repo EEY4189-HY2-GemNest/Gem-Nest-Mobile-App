@@ -344,5 +344,13 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
     );
   }
 
+  Widget _buildInfoCard(String label, String value, IconData icon) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(label),
+      subtitle: Text(value),
+    );
+  }
+
 
 }
