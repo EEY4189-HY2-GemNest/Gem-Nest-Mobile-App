@@ -63,5 +63,27 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
     // Start animations
     _fadeController.forward();
     _slideController.forward();
+
+    Future<void> _fetchSellerData() async {
+  final userId = _auth.currentUser?.uid;
+  if (userId == null) return;
+
+  try {
+    final doc =
+        await _firestore.collection('sellers').doc(userId).get();
+
+    if (doc.exists) {
+      setState(() {
+        sellerData = doc.data();
+        _isLoading = false;
+      });
+    } else {
+      _isLoading = false;
+    }
+  } catch (e) {
+    _isLoading = false;
+  }
+}
+
   }
 }
