@@ -20,12 +20,12 @@ class SellerProfileScreen extends StatefulWidget {
 
 class _SellerProfileScreenState extends State<SellerProfileScreen>
     with TickerProviderStateMixin {
-  // Firebase instances
+  // ================= FIREBASE =================
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
-  // State variables
+  // ================= STATE =================
   Map<String, dynamic>? sellerData;
   bool _isLoading = true;
   bool _isUploadingProfilePic = false;
@@ -33,23 +33,22 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
 
   final ImagePicker _picker = ImagePicker();
 
-  // Animation controllers
+  // ================= ANIMATIONS =================
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
+  // ================= INIT =================
   @override
   void initState() {
     super.initState();
 
-    // Fade animation
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
     );
 
-    // Slide animation
     _slideController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -72,7 +71,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
     _loadProfileImage();
   }
 
-  // ================= FETCH SELLER DATA =================
+  // ================= DATA =================
   Future<void> _fetchSellerData() async {
     final userId = _auth.currentUser?.uid;
     if (userId == null) {
@@ -83,7 +82,6 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
     try {
       final doc =
           await _firestore.collection('sellers').doc(userId).get();
-
       if (doc.exists) {
         setState(() {
           sellerData = doc.data();
@@ -92,12 +90,11 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
       } else {
         setState(() => _isLoading = false);
       }
-    } catch (e) {
+    } catch (_) {
       setState(() => _isLoading = false);
     }
   }
 
-  // ================= LOAD PROFILE IMAGE =================
   Future<void> _loadProfileImage() async {
     final userId = _auth.currentUser?.uid;
     if (userId == null) return;
@@ -111,7 +108,6 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
     }
   }
 
-  // ================= PICK & UPLOAD PROFILE IMAGE =================
   Future<void> _pickAndUploadProfileImage() async {
     setState(() => _isUploadingProfilePic = true);
 
@@ -126,10 +122,8 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
       if (pickedFile != null) {
         final userId = _auth.currentUser!.uid;
         final ref = _storage.ref('profile_images/$userId.jpg');
-
         await ref.putFile(File(pickedFile.path));
         final url = await ref.getDownloadURL();
-
         setState(() => _profileImageUrl = url);
       }
     } finally {
@@ -137,11 +131,14 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
     }
   }
 
-  @override
-  void dispose() {
-    _fadeController.dispose();
-    _slideController.dispose();
-    super.dispose();
+  // ================= DOCUMENT DOWNLOAD =================
+  Future<void> _downloadDocument(String url, String name) async {
+    final response = await http.get(Uri.parse(url));
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/$name');
+    await file.writeAsBytes(response.bodyBytes);
+
+    await Share.shareXFiles([XFile(file.path)], text: name);
   }
 
   // ================= UI =================
@@ -153,7 +150,6 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
         backgroundColor: Colors.black,
         body: Stack(
           children: [
-            // Background gradient
             Container(
               decoration: const BoxDecoration(
                 gradient: RadialGradient(
@@ -167,7 +163,6 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
                 ),
               ),
             ),
-
             SafeArea(
               child: _isLoading
                   ? const Center(
@@ -191,6 +186,11 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
                               child: Column(
                                 children: [
                                   _buildModernHeader(),
+                                  _buildPersonalInfoSection(),
+                                  _buildBusinessInfoSection(),
+                                  _buildDocumentsSection(),
+                                  _buildAccountStatusSection(),
+                                  const SizedBox(height: 80),
                                 ],
                               ),
                             ),
@@ -203,13 +203,12 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
     );
   }
 
-  // ================= HEADER (COMMIT 13) =================
+  // ================= HEADER =================
   Widget _buildModernHeader() {
     return Container(
       margin: const EdgeInsets.all(24),
       child: Column(
         children: [
-          // Top bar
           Row(
             children: [
               IconButton(
@@ -230,10 +229,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
               const SizedBox(width: 40),
             ],
           ),
-
           const SizedBox(height: 32),
-
-          // Profile image
           Stack(
             alignment: Alignment.bottomRight,
             children: [
@@ -273,10 +269,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
               ),
             ],
           ).animate().scale(duration: 700.ms),
-
           const SizedBox(height: 16),
-
-          // Seller name
           Text(
             sellerData!['displayName'] ?? 'Unknown Seller',
             style: const TextStyle(
@@ -284,11 +277,8 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
               fontWeight: FontWeight.w700,
               color: Colors.white,
             ),
-          ).animate().fadeIn(duration: 500.ms),
-
+          ),
           const SizedBox(height: 8),
-
-          // Verification badge
           Container(
             padding:
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -302,63 +292,171 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
               (sellerData!['isActive'] ?? false)
                   ? 'Verified Seller'
                   : 'Pending Verification',
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-              ),
+              style: const TextStyle(color: Colors.white),
             ),
-          ).animate().fadeIn(delay: 300.ms),
+          ),
         ],
       ),
     );
   }
 
+  // ================= PERSONAL INFO =================
   Widget _buildPersonalInfoSection() {
-    return _buildInfoCard(
-      'Email',
-      sellerData!['email'],
-      Icons.email,
+    return _buildSection(
+      'Personal Information',
+      [
+        _buildInfoCard('Email', sellerData!['email']),
+        _buildInfoCard('Phone', sellerData!['phoneNumber']),
+        _buildInfoCard('NIC', sellerData!['nicNumber']),
+        _buildInfoCard('Address', sellerData!['address']),
+      ],
     );
   }
 
+  // ================= BUSINESS INFO =================
   Widget _buildBusinessInfoSection() {
-    return _buildInfoCard(
-      'Business Name',
-      sellerData!['businessName'],
-      Icons.business,
+    return _buildSection(
+      'Business Information',
+      [
+        _buildInfoCard('Business Name', sellerData!['businessName']),
+        _buildInfoCard('BR Number', sellerData!['brNumber']),
+      ],
     );
   }
 
+  // ================= DOCUMENTS =================
   Widget _buildDocumentsSection() {
-    return _buildDocumentCard(
-      'NIC Document',
-      sellerData!['nicDocumentUrl'],
-      Icons.credit_card,
-      Colors.green,
+    return _buildSection(
+      'Documents',
+      [
+        _buildDocumentCard(
+          'Business Registration',
+          sellerData!['businessRegistrationUrl'],
+        ),
+        _buildDocumentCard(
+          'NIC Document',
+          sellerData!['nicDocumentUrl'],
+        ),
+      ],
     );
   }
 
+  // ================= ACCOUNT STATUS =================
   Widget _buildAccountStatusSection() {
-    return Text(
-      sellerData!['isActive'] ? 'Verified' : 'Pending',
+    return _buildSection(
+      'Account Status',
+      [
+        Text(
+          (sellerData!['isActive'] ?? false)
+              ? 'Your account is verified'
+              : 'Your account is under review',
+          style: const TextStyle(color: Colors.white),
+        ),
+      ],
     );
   }
 
-  Widget _buildInfoCard(String label, String value, IconData icon) {
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(label),
-      subtitle: Text(value),
+  // ================= REUSABLE =================
+  Widget _buildSection(String title, List<Widget> children) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 20,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
     );
   }
 
-bottomNavigationBar: BottomNavigationBar(
-  currentIndex: 2,
-  items: const [
-    BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
-    BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-  ],
-),
+  Widget _buildInfoCard(String label, String? value) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[900],
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              '$label\n${value ?? 'N/A'}',
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
+  Widget _buildDocumentCard(String title, String? url) {
+    return GestureDetector(
+      onTap: url != null ? () => _viewDocument(url, title) : null,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.grey[900],
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+            if (url != null)
+              IconButton(
+                icon: const Icon(Icons.download, color: Colors.blue),
+                onPressed: () => _downloadDocument(url, title),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 
+  // ================= DOCUMENT PREVIEW (COMMIT 20) =================
+  void _viewDocument(String url, String title) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        title: Text(title,
+            style: const TextStyle(color: Colors.white)),
+        content: Image.network(url),
+        actions: [
+          TextButton(
+            onPressed: () => _downloadDocument(url, title),
+            child: const Text('Download',
+                style: TextStyle(color: Colors.green)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close',
+                style: TextStyle(color: Colors.blue)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    _slideController.dispose();
+    super.dispose();
+  }
 }
