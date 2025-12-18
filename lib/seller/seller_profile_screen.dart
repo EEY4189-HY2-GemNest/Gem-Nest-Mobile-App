@@ -27,8 +27,16 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
   String? _profileImageUrl;
   final ImagePicker _picker = ImagePicker();
 
+  // Animation controllers
+  late AnimationController _fadeController;
+  late AnimationController _slideController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
   // Seller data
   Map<String, dynamic>? sellerData;
   bool _isLoading = true;
   bool _isUploadingProfilePic = false;
 }
+
+
