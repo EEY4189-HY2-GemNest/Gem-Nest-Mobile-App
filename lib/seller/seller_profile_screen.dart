@@ -338,6 +338,11 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
     );
   }
 
+  Widget _buildAccountStatusSection() {
+    return Text(
+      sellerData!['isActive'] ? 'Verified' : 'Pending',
+    );
+  }
 
 
 }
