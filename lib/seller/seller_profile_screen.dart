@@ -130,6 +130,14 @@ Future<void> _downloadDocument(String url, String fileName) async {
 
 }
 
+@override
+void dispose() {
+  _fadeController.dispose();
+  _slideController.dispose();
+  super.dispose();
+}
+
+
 
   }
 }
