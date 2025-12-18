@@ -21,7 +21,21 @@ class _CategoryScreenState extends State<CategoryScreen> {
   final CollectionReference _productsCollection =
       FirebaseFirestore.instance.collection('products');
 
-
+  void _fetchProducts() {
+    _productsCollection
+        .where('category', isEqualTo: widget.categoryTitle)
+        .snapshots()
+        .listen((snapshot) {
+      setState(() {
+        _products = snapshot.docs
+            .map((doc) => {
+                  'id': doc.id,
+                  ...doc.data() as Map<String, dynamic>,
+                })
+            .toList();
+        _applyFilters();
+        _isLoading = false;
+      });
     }, onError: (error) {
       setState(() {
         _isLoading = false;
