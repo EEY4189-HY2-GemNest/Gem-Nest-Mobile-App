@@ -312,4 +312,13 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
       ),
     );
   }
+
+  Widget _buildPersonalInfoSection() {
+  return _buildInfoCard(
+    'Email',
+    sellerData!['email'],
+    Icons.email,
+  );
+}
+
 }
