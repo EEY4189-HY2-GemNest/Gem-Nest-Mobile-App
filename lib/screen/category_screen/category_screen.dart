@@ -408,30 +408,3 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 }
-
-
-/*
-|--------------------------------------------------------------------------
-| CategoryScreen – Product Listing, Search, Sort, and Details Handling
-|--------------------------------------------------------------------------
-| This screen is responsible for displaying all products that belong to a
-| selected category. Products are fetched in real-time from Firestore using
-| a snapshot listener to ensure the UI stays in sync with database changes.
-|
-| Core responsibilities:
-| - Fetch products filtered by category from Firestore
-| - Maintain local product state for efficient UI updates
-| - Provide client-side search functionality based on product title
-| - Support price-based sorting (ascending / descending)
-| - Display products in a responsive grid layout
-| - Show a detailed product dialog with seller information on selection
-|
-| Data flow:
-| Firestore → _products → _applyFilters() → _filteredProducts → UI
-|
-| Notes:
-| - Search and sorting are applied locally for better performance
-| - Seller information is fetched lazily inside the product details dialog
-| - Loading and empty states are handled explicitly for better UX
-|--------------------------------------------------------------------------
-*/
