@@ -11,7 +11,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-
 class SellerProfileScreen extends StatefulWidget {
   const SellerProfileScreen({super.key});
 
@@ -37,6 +36,32 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
   Map<String, dynamic>? sellerData;
   bool _isLoading = true;
   bool _isUploadingProfilePic = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+    _slideController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+
+    _fadeAnimation =
+        CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut);
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(
+        CurvedAnimation(parent: _slideController, curve: Curves.easeOutBack));
+
+    _fetchSellerData();
+    _loadProfileImage();
+
+    // Start animations
+    _fadeController.forward();
+    _slideController.forward();
+  }
 }
-
-
