@@ -26,15 +26,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  // Filter and sort options
-  final List<String> _statusOptions = [
-    'All',
-    'Pending',
-    'Processing',
-    'Shipped',
-    'Delivered',
-    'Cancelled'
-  ];
+ 
 
   final Map<String, String> _sortOptions = {
     'date_desc': 'Newest First',
