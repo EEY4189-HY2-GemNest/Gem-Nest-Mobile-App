@@ -116,6 +116,14 @@ Future<void> _pickAndUploadProfileImage() async {
   setState(() => _isUploadingProfilePic = false);
 }
 
+Future<void> _downloadDocument(String url, String fileName) async {
+  final response = await http.get(Uri.parse(url));
+  final dir = await getApplicationDocumentsDirectory();
+
+  final file = File('${dir.path}/$fileName');
+  await file.writeAsBytes(response.bodyBytes);
+}
+
 
   }
 }
