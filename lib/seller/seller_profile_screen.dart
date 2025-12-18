@@ -352,5 +352,13 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
     );
   }
 
+bottomNavigationBar: BottomNavigationBar(
+  currentIndex: 2,
+  items: const [
+    BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
+    BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+  ],
+),
+
 
 }
