@@ -84,5 +84,14 @@ Future<void> _selectDate(BuildContext context) async {
   }
 }
 
+return Scaffold(
+  backgroundColor: Colors.black,
+  appBar: AppBar(
+    title: const Text('Order Details'),
+    centerTitle: true,
+    leading: const ProfessionalAppBarBackButton(),
+  ),
+);
+
 
 }
