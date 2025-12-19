@@ -331,7 +331,102 @@ class _CategoryScreenState extends State<CategoryScreen> {
                               ? 'Loading...' // Show loading while fetching
                               : sellerName ?? 'Unknown',
                         ),
-                        if (product['gemCertificateUrl'] != null &&
+                        if (product['gemCertificates'] != null &&
+                            (product['gemCertificates'] as List).isNotEmpty)
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 16),
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [Colors.purple.withOpacity(0.2), Colors.purple.withOpacity(0.1)],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: Colors.purple, width: 1),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.verified, color: Colors.purple, size: 20),
+                                        const SizedBox(width: 8),
+                                        const Text(
+                                          'Gem Authorization Certificates',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.purple,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: _getCertStatusColor(product['certificateVerificationStatus'] ?? 'pending').withOpacity(0.2),
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: Text(
+                                            'Verification: ${_getCertStatusText(product['certificateVerificationStatus'] ?? 'pending')}',
+                                            style: TextStyle(
+                                              color: _getCertStatusColor(product['certificateVerificationStatus'] ?? 'pending'),
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    ...(product['gemCertificates'] as List).map((cert) {
+                                      final certMap = cert as Map<String, dynamic>;
+                                      return Padding(
+                                        padding: const EdgeInsets.only(bottom: 8),
+                                        child: GestureDetector(
+                                          onTap: () => _showCertificateDetails(context, certMap),
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                            decoration: BoxDecoration(
+                                              color: Colors.purple.withOpacity(0.3),
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Icon(Icons.download, color: Colors.purple, size: 16),
+                                                const SizedBox(width: 6),
+                                                Expanded(
+                                                  child: Text(
+                                                    certMap['fileName'] ?? 'Certificate',
+                                                    style: const TextStyle(
+                                                      color: Colors.purple,
+                                                      fontSize: 12,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          )
+                        else if (product['gemCertificateUrl'] != null &&
                             product['gemCertificateUrl'].toString().isNotEmpty)
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -449,6 +544,28 @@ class _CategoryScreenState extends State<CategoryScreen> {
         ),
       ),
     );
+  }
+
+  Color _getCertStatusColor(String status) {
+    switch (status) {
+      case 'verified':
+        return Colors.green;
+      case 'rejected':
+        return Colors.red;
+      default:
+        return Colors.orange;
+    }
+  }
+
+  String _getCertStatusText(String status) {
+    switch (status) {
+      case 'verified':
+        return 'Verified ✓';
+      case 'rejected':
+        return 'Rejected ✗';
+      default:
+        return 'Pending Review';
+    }
   }
 
   // Helper method to build detail rows
