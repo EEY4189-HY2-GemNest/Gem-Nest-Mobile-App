@@ -1,3 +1,9 @@
+// order_details_screen.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
+import 'package:intl/intl.dart';
+
 class OrderDetailsScreen extends StatefulWidget {
   final String orderId;
 
@@ -59,5 +65,24 @@ Future<void> _updateOrder() async {
     );
   }
 }
+
+Future<void> _selectDate(BuildContext context) async {
+  DateTime initialDate = DateTime.parse(_deliveryDateController.text);
+
+  final DateTime? picked = await showDatePicker(
+    context: context,
+    initialDate: initialDate,
+    firstDate: DateTime.now(),
+    lastDate: DateTime.now().add(const Duration(days: 30)),
+  );
+
+  if (picked != null) {
+    setState(() {
+      _deliveryDateController.text =
+          DateFormat('yyyy-MM-dd').format(picked);
+    });
+  }
+}
+
 
 }
