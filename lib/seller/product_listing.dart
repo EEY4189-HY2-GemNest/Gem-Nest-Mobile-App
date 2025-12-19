@@ -156,7 +156,8 @@ class _ProductListingState extends State<ProductListing>
       if (result != null && result.files.isNotEmpty) {
         setState(() {
           for (var file in result.files) {
-            if (file.path != null && !_certificateFiles.any((f) => f.path == file.path)) {
+            if (file.path != null &&
+                !_certificateFiles.any((f) => f.path == file.path)) {
               _certificateFiles.add(File(file.path!));
             }
           }
