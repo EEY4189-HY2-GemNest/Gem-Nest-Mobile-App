@@ -128,7 +128,8 @@ class Auction {
           .toList(),
       imageUrl: map['imageUrl'] ?? '',
       gemCertificates: map['gemCertificates'] as List<dynamic>?,
-      certificateVerificationStatus: map['certificateVerificationStatus'] as String?,
+      certificateVerificationStatus:
+          map['certificateVerificationStatus'] as String?,
     );
   }
 }
