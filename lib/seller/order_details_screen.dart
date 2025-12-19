@@ -160,6 +160,14 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     );
   }
 
+  Text('Order #${widget.orderId.substring(0, 8)}'),
+Chip(
+  label: Text(_selectedStatus ?? order['status']),
+  backgroundColor:
+      _getStatusColor(_selectedStatus ?? order['status']),
+),
+
+
   @override
   void dispose() {
     _deliveryDateController.dispose();
