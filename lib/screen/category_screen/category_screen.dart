@@ -280,7 +280,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-
                         const SizedBox(height: 8),
 
                         // Price (unchanged)
@@ -335,7 +334,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       ],
                     ),
                   ),
-
                   // Close Icon in Top-Right Corner (unchanged)
                   Positioned(
                     top: 0,
