@@ -44,4 +44,27 @@ class _CategoryScreenState extends State<CategoryScreen> {
         SnackBar(content: Text('Error fetching products: $error')),
       );
     });
-  }    
+  }  
+
+  void _applyFilters() {
+    setState(() {
+      _filteredProducts = List.from(_products);
+
+      if (_searchQuery.isNotEmpty) {
+        _filteredProducts = _filteredProducts
+            .where((product) => product['title']
+                .toString()
+                .toLowerCase()
+                .contains(_searchQuery.toLowerCase()))
+            .toList();
+      }
+
+      _filteredProducts.sort((a, b) {
+        final aPrice = a['pricing'] as num? ?? 0;
+        final bPrice = b['pricing'] as num? ?? 0;
+        return _sortOrder == 'asc'
+            ? aPrice.compareTo(bPrice)
+            : bPrice.compareTo(aPrice);
+      });
+    });
+  }  
