@@ -568,7 +568,7 @@ class _ProductListingState extends State<ProductListing>
         ),
       );
     } else {
-      _showErrorDialog('Please fill all fields and upload at least one photo.');
+      _showErrorDialog('Please fill all fields, upload at least one photo, and upload a gem certificate.');
     }
   }
 
@@ -1105,7 +1105,7 @@ class _ProductListingState extends State<ProductListing>
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'PDF, JPG, PNG (Optional)',
+                        'PDF, JPG, PNG (Required)',
                         style: TextStyle(
                           color: Colors.white54,
                           fontSize: 12,
