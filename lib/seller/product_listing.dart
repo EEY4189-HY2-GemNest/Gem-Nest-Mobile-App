@@ -1110,7 +1110,7 @@ class _ProductListingState extends State<ProductListing>
                 ),
               ],
             ),
-            child: _certificateFile != null
+            child: _certificateFiles.isNotEmpty
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
