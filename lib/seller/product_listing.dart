@@ -568,7 +568,8 @@ class _ProductListingState extends State<ProductListing>
         ),
       );
     } else {
-      _showErrorDialog('Please fill all fields, upload at least one photo, and upload a gem certificate.');
+      _showErrorDialog(
+          'Please fill all fields, upload at least one photo, and upload a gem certificate.');
     }
   }
 
