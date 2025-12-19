@@ -314,7 +314,7 @@ class _ProductListingState extends State<ProductListing>
   }
 
   Future<void> _saveProductToFirestore(
-      String? imageUrl, String? certificateUrl) async {
+      String? imageUrl, List<Map<String, String>>? certificates) async {
     if (imageUrl == null) {
       _showErrorDialog('Image upload failed. Please try again.');
       return;
@@ -329,7 +329,8 @@ class _ProductListingState extends State<ProductListing>
         'quantity': int.tryParse(_quantityController.text) ?? 0,
         'description': _descriptionController.text,
         'imageUrl': imageUrl,
-        'gemCertificateUrl': certificateUrl ?? '',
+        'gemCertificates': certificates ?? [],
+        'certificateVerificationStatus': 'pending', // Admin verification status
         'timestamp': FieldValue.serverTimestamp(),
         'sellerId': _auth.currentUser?.uid,
         'userId': _auth.currentUser?.uid,
@@ -566,9 +567,9 @@ class _ProductListingState extends State<ProductListing>
 
   void _showConfirmationDialog() {
     // Validate certificate selection
-    if (_certificateFile == null) {
+    if (_certificateFiles.isEmpty) {
       _showErrorDialog(
-          'Gem Authorization Certificate is required. Please upload a certificate.');
+          'Gem Authorization Certificate is required. Please upload at least one certificate.');
       return;
     }
 
