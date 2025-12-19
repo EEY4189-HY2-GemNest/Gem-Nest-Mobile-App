@@ -204,7 +204,47 @@ class _ProductListingState extends State<ProductListing>
     }
   }
 
-  Future<void> _saveProductToFirestore(String? imageUrl) async {
+  Future<String?> _uploadCertificate() async {
+    if (_auth.currentUser == null) {
+      _showErrorDialog('You must be signed in to upload certificates.');
+      return null;
+    }
+
+    if (_certificateFile == null) {
+      // Certificate is optional, return empty string
+      return '';
+    }
+
+    String fileExtension = _certificateFile!.path.split('.').last;
+    String fileName =
+        'gem_certificates/${DateTime.now().millisecondsSinceEpoch}_${_auth.currentUser!.uid}_certificate.$fileExtension';
+
+    try {
+      SettableMetadata metadata = SettableMetadata(
+        cacheControl: 'public,max-age=31536000',
+        contentType: fileExtension == 'pdf' ? 'application/pdf' : 'image/jpeg',
+      );
+
+      UploadTask uploadTask =
+          _storage.ref(fileName).putFile(_certificateFile!, metadata);
+      TaskSnapshot snapshot = await uploadTask;
+      String downloadUrl = await snapshot.ref.getDownloadURL();
+      return downloadUrl;
+    } on FirebaseException catch (e) {
+      String errorMessage = 'Error uploading certificate: ${e.message}';
+      if (e.code == 'permission-denied') {
+        errorMessage =
+            'Permission denied. Check your authentication status or storage rules.';
+      }
+      _showErrorDialog(errorMessage);
+      return null;
+    } catch (e) {
+      _showErrorDialog('Unexpected error uploading certificate: $e');
+      return null;
+    }
+  }
+
+  Future<void> _saveProductToFirestore(String? imageUrl, String? certificateUrl) async {
     if (imageUrl == null) {
       _showErrorDialog('Image upload failed. Please try again.');
       return;
@@ -219,6 +259,7 @@ class _ProductListingState extends State<ProductListing>
         'quantity': int.tryParse(_quantityController.text) ?? 0,
         'description': _descriptionController.text,
         'imageUrl': imageUrl,
+        'gemCertificateUrl': certificateUrl ?? '',
         'timestamp': FieldValue.serverTimestamp(),
         'sellerId': _auth.currentUser?.uid,
         'userId': _auth.currentUser?.uid,
@@ -244,7 +285,8 @@ class _ProductListingState extends State<ProductListing>
           'unit',
           'deliveryMethods',
           'description',
-          'imageUrl'
+          'imageUrl',
+          'gemCertificateUrl'
         ],
       ];
 
@@ -312,7 +354,8 @@ class _ProductListingState extends State<ProductListing>
         'unit',
         'deliveryMethods',
         'description',
-        'imageUrl'
+        'imageUrl',
+        'gemCertificateUrl'
       ];
 
       List<String> actualHeaders =
