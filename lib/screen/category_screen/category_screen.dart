@@ -218,3 +218,67 @@ showDialog(
                   // Trigger rebuild after fetching seller name
                 });
               });
+
+                            return Stack(
+                children: [
+                  SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Product Image (unchanged)
+                        if (product['imageUrl'] != null &&
+                            product['imageUrl'].isNotEmpty)
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
+                              child: Image.network(
+                                product['imageUrl'],
+                                height: 200,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    height: 200,
+                                    color: Colors.grey[300],
+                                    child: const Icon(Icons.broken_image,
+                                        size: 50, color: Colors.grey),
+                                  );
+                                },
+                              ),
+                            ),
+                          )
+                        else
+                          Container(
+                            height: 200,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: const Icon(Icons.image_not_supported,
+                                size: 50, color: Colors.grey),
+                          ),
+                        const SizedBox(height: 16),
+
+                        // Product Title (unchanged)
+                        Text(
+                          product['title'] ?? 'Untitled',
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
