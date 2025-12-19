@@ -44,7 +44,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
         SnackBar(content: Text('Error fetching products: $error')),
       );
     });
-  }  
+  }
 
   void _applyFilters() {
     setState(() {
@@ -67,7 +67,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
             : bPrice.compareTo(aPrice);
       });
     });
-  }  
+  }
 
   @override
   void initState() {
@@ -104,7 +104,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
           ),
         ],
       ),
-
       body: Container(
         color: Colors.lightBlue[50],
         padding: const EdgeInsets.all(16.0),
@@ -132,8 +131,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
               ),
             ),
-
-                        const SizedBox(height: 20),
+            const SizedBox(height: 20),
             Expanded(
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
@@ -196,7 +194,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
       isLoadingSeller = false;
     }
 
-showDialog(
+    showDialog(
       context: context,
       builder: (context) => Dialog(
         shape: RoundedRectangleBorder(
@@ -219,7 +217,7 @@ showDialog(
                 });
               });
 
-                            return Stack(
+              return Stack(
                 children: [
                   SingleChildScrollView(
                     child: Column(
@@ -283,7 +281,7 @@ showDialog(
                           overflow: TextOverflow.ellipsis,
                         ),
 
-const SizedBox(height: 8),
+                        const SizedBox(height: 8),
 
                         // Price (unchanged)
                         Container(
@@ -338,7 +336,6 @@ const SizedBox(height: 8),
                     ),
                   ),
 
-                                          
                   // Close Icon in Top-Right Corner (unchanged)
                   Positioned(
                     top: 0,
@@ -367,6 +364,7 @@ const SizedBox(height: 8),
       ),
     );
   }
+
   // Helper method to build detail rows
   Widget _buildDetailRow({
     required IconData icon,
@@ -394,3 +392,21 @@ const SizedBox(height: 8),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                  maxLines: isMultiLine ? 3 : 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
