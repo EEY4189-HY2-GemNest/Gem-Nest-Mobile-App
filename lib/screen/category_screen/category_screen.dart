@@ -341,19 +341,24 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
-                                    colors: [Colors.purple.withOpacity(0.2), Colors.purple.withOpacity(0.1)],
+                                    colors: [
+                                      Colors.purple.withOpacity(0.2),
+                                      Colors.purple.withOpacity(0.1)
+                                    ],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                   ),
                                   borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: Colors.purple, width: 1),
+                                  border: Border.all(
+                                      color: Colors.purple, width: 1),
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
                                       children: [
-                                        const Icon(Icons.verified, color: Colors.purple, size: 20),
+                                        const Icon(Icons.verified,
+                                            color: Colors.purple, size: 20),
                                         const SizedBox(width: 8),
                                         const Text(
                                           'Gem Authorization Certificates',
@@ -369,15 +374,22 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                     Row(
                                       children: [
                                         Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8, vertical: 4),
                                           decoration: BoxDecoration(
-                                            color: _getCertStatusColor(product['certificateVerificationStatus'] ?? 'pending').withOpacity(0.2),
-                                            borderRadius: BorderRadius.circular(4),
+                                            color: _getCertStatusColor(product[
+                                                        'certificateVerificationStatus'] ??
+                                                    'pending')
+                                                .withOpacity(0.2),
+                                            borderRadius:
+                                                BorderRadius.circular(4),
                                           ),
                                           child: Text(
                                             'Verification: ${_getCertStatusText(product['certificateVerificationStatus'] ?? 'pending')}',
                                             style: TextStyle(
-                                              color: _getCertStatusColor(product['certificateVerificationStatus'] ?? 'pending'),
+                                              color: _getCertStatusColor(product[
+                                                      'certificateVerificationStatus'] ??
+                                                  'pending'),
                                               fontSize: 11,
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -386,33 +398,45 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                       ],
                                     ),
                                     const SizedBox(height: 8),
-                                    ...(product['gemCertificates'] as List).map((cert) {
-                                      final certMap = cert as Map<String, dynamic>;
+                                    ...(product['gemCertificates'] as List)
+                                        .map((cert) {
+                                      final certMap =
+                                          cert as Map<String, dynamic>;
                                       return Padding(
-                                        padding: const EdgeInsets.only(bottom: 8),
+                                        padding:
+                                            const EdgeInsets.only(bottom: 8),
                                         child: GestureDetector(
-                                          onTap: () => _showCertificateDetails(context, certMap),
+                                          onTap: () => _showCertificateDetails(
+                                              context, certMap),
                                           child: Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 12, vertical: 8),
                                             decoration: BoxDecoration(
-                                              color: Colors.purple.withOpacity(0.3),
-                                              borderRadius: BorderRadius.circular(8),
+                                              color: Colors.purple
+                                                  .withOpacity(0.3),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
                                             child: Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
-                                                const Icon(Icons.download, color: Colors.purple, size: 16),
+                                                const Icon(Icons.download,
+                                                    color: Colors.purple,
+                                                    size: 16),
                                                 const SizedBox(width: 6),
                                                 Expanded(
                                                   child: Text(
-                                                    certMap['fileName'] ?? 'Certificate',
+                                                    certMap['fileName'] ??
+                                                        'Certificate',
                                                     style: const TextStyle(
                                                       color: Colors.purple,
                                                       fontSize: 12,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                     ),
                                                     maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
                                                   ),
                                                 ),
                                               ],
@@ -420,7 +444,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                           ),
                                         ),
                                       );
-                                    }).toList(),
+                                    }),
                                   ],
                                 ),
                               ),
