@@ -875,7 +875,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
                   ),
                 ],
                 const SizedBox(height: 20),
-                if (widget.auction.gemCertificates != null && 
+                if (widget.auction.gemCertificates != null &&
                     (widget.auction.gemCertificates as List).isNotEmpty) ...[
                   _buildCertificateSection(),
                   const SizedBox(height: 20),
@@ -1009,8 +1009,9 @@ class _AuctionItemCardState extends State<AuctionItemCard>
       return const SizedBox.shrink();
     }
 
-    final verificationStatus = widget.auction.certificateVerificationStatus ?? 'pending';
-    
+    final verificationStatus =
+        widget.auction.certificateVerificationStatus ?? 'pending';
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1049,7 +1050,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
               final certUrl = cert['url'] ?? '';
               final fileName = cert['fileName'] ?? 'Certificate ${index + 1}';
               final type = cert['type'] ?? 'pdf';
-              
+
               return Material(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
@@ -1057,7 +1058,8 @@ class _AuctionItemCardState extends State<AuctionItemCard>
                   onTap: () => _showCertificateDetails(context, certUrl, type),
                   borderRadius: BorderRadius.circular(8),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
                     child: Row(
                       children: [
                         Icon(
@@ -1141,7 +1143,8 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     );
   }
 
-  void _showCertificateDetails(BuildContext context, String certUrl, String type) {
+  void _showCertificateDetails(
+      BuildContext context, String certUrl, String type) {
     if (type == 'pdf') {
       _showPDFViewer(context, certUrl);
     } else {
