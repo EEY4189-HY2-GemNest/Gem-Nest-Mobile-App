@@ -252,7 +252,7 @@ class AppTheme {
       floatingActionButtonTheme: fabTheme,
       elevatedButtonTheme: ElevatedButtonThemeData(style: primaryButtonStyle),
       outlinedButtonTheme: OutlinedButtonThemeData(style: secondaryButtonStyle),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: white,
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
