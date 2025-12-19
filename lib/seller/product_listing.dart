@@ -144,6 +144,24 @@ class _ProductListingState extends State<ProductListing>
     }
   }
 
+  Future<void> _pickCertificate() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+        withData: true,
+      );
+
+      if (result != null && result.files.single.path != null) {
+        setState(() {
+          _certificateFile = File(result.files.single.path!);
+        });
+      }
+    } catch (e) {
+      _showErrorDialog('Error picking certificate: $e');
+    }
+  }
+
   Future<String?> _uploadFirstImage() async {
     if (_auth.currentUser == null) {
       _showErrorDialog('You must be signed in to upload images.');
@@ -899,7 +917,7 @@ class _ProductListingState extends State<ProductListing>
         ),
         const SizedBox(height: 10),
         DropdownButtonFormField<String>(
-          value: value,
+          initialValue: value,
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.grey[900],
