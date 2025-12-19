@@ -177,6 +177,17 @@ Widget _buildInfoRow(IconData icon, String label, String value) {
   );
 }
 
+Widget _buildEditableDateRow(IconData icon, String label) {
+  return GestureDetector(
+    onTap: () => _selectDate(context),
+    child: TextField(
+      controller: _deliveryDateController,
+      enabled: false,
+    ),
+  );
+}
+
+
 
   @override
   void dispose() {
