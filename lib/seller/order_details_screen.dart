@@ -167,6 +167,16 @@ Chip(
       _getStatusColor(_selectedStatus ?? order['status']),
 ),
 
+Widget _buildInfoRow(IconData icon, String label, String value) {
+  return Row(
+    children: [
+      Icon(icon),
+      const SizedBox(width: 12),
+      Text('$label $value'),
+    ],
+  );
+}
+
 
   @override
   void dispose() {
