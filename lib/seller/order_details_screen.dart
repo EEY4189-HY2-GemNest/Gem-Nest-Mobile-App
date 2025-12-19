@@ -6,3 +6,18 @@ class OrderDetailsScreen extends StatefulWidget {
   @override
   State<OrderDetailsScreen> createState() => _OrderDetailsScreenState();
 }
+
+class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
+  final TextEditingController _deliveryDateController = TextEditingController();
+  String? _selectedStatus;
+
+  final List<String> _statusOptions = [
+    'Pending',
+    'Processing',
+    'Shipped',
+    'Delivered',
+    'Cancelled'
+  ];
+
+  late DocumentSnapshot orderData;
+}
