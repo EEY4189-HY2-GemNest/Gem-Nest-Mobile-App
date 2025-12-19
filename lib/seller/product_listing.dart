@@ -23,7 +23,7 @@ class _ProductListingState extends State<ProductListing>
   late AnimationController _controller;
   late Animation<double> _animation;
   final List<File?> _images = List.filled(3, null);
-  File? _certificateFile;
+  final List<File> _certificateFiles = [];
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _categoryController = TextEditingController();
@@ -149,17 +149,28 @@ class _ProductListingState extends State<ProductListing>
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+        allowMultiple: true,
         withData: true,
       );
 
-      if (result != null && result.files.single.path != null) {
+      if (result != null && result.files.isNotEmpty) {
         setState(() {
-          _certificateFile = File(result.files.single.path!);
+          for (var file in result.files) {
+            if (file.path != null && !_certificateFiles.any((f) => f.path == file.path)) {
+              _certificateFiles.add(File(file.path!));
+            }
+          }
         });
       }
     } catch (e) {
-      _showErrorDialog('Error picking certificate: $e');
+      _showErrorDialog('Error picking certificates: $e');
     }
+  }
+
+  void _removeCertificate(int index) {
+    setState(() {
+      _certificateFiles.removeAt(index);
+    });
   }
 
   Future<String?> _uploadFirstImage() async {
