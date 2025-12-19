@@ -56,8 +56,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           .update({
         'deliveryDate': _deliveryDateController.text,
         'status': _selectedStatus,
-        'lastUpdated': DateFormat('yyyy-MM-dd HH:mm')
-            .format(DateTime.now()),
+        'lastUpdated':
+            DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now()),
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -111,7 +111,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               .doc(widget.orderId)
               .get(),
           builder: (context, snapshot) {
-            // ===== Loading State =====
+            // ===== Loading =====
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
                 child: CircularProgressIndicator(
@@ -120,7 +120,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               );
             }
 
-            // ===== Error State =====
+            // ===== Error =====
             if (snapshot.hasError) {
               return const Center(
                 child: Text(
@@ -140,18 +140,62 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               );
             }
 
-            // ===== Data Loaded =====
             final order =
                 snapshot.data!.data() as Map<String, dynamic>;
 
-            // UI content will be added in next commits
-            return Center(
-              child: Text(
-                'Order data loaded successfully',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ================= ORDER SUMMARY =================
+                  Card(
+                    color: Colors.grey[900],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Order #${widget.orderId.substring(0, 8)}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          _buildInfoRow(
+                            Icons.calendar_today,
+                            'Order Date:',
+                            order['orderDate'],
+                          ),
+                          _buildEditableDateRow(
+                            Icons.local_shipping,
+                            'Delivery Date:',
+                          ),
+                          _buildInfoRow(
+                            Icons.location_on,
+                            'Address:',
+                            order['address'],
+                          ),
+                          _buildInfoRow(
+                            Icons.payment,
+                            'Payment:',
+                            order['paymentMethod'],
+                          ),
+                          _buildEditableStatusRow(
+                            Icons.update,
+                            'Status:',
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             );
           },
@@ -160,34 +204,109 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     );
   }
 
-  Text('Order #${widget.orderId.substring(0, 8)}'),
-Chip(
-  label: Text(_selectedStatus ?? order['status']),
-  backgroundColor:
-      _getStatusColor(_selectedStatus ?? order['status']),
-),
+  // ================= INFO ROW =================
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.blueAccent, size: 20),
+          const SizedBox(width: 12),
+          Text(
+            '$label ',
+            style: const TextStyle(color: Colors.white60),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-Widget _buildInfoRow(IconData icon, String label, String value) {
-  return Row(
-    children: [
-      Icon(icon),
-      const SizedBox(width: 12),
-      Text('$label $value'),
-    ],
-  );
-}
+  // ================= EDITABLE DATE =================
+  Widget _buildEditableDateRow(IconData icon, String label) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.blueAccent, size: 20),
+          const SizedBox(width: 12),
+          Text(
+            '$label ',
+            style: const TextStyle(color: Colors.white60),
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () => _selectDate(context),
+              child: AbsorbPointer(
+                child: TextField(
+                  controller: _deliveryDateController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    filled: true,
+                    fillColor: Colors.black54,
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                    ),
+                    suffixIcon: Icon(
+                      Icons.calendar_today,
+                      color: Colors.blueAccent,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-Widget _buildEditableDateRow(IconData icon, String label) {
-  return GestureDetector(
-    onTap: () => _selectDate(context),
-    child: TextField(
-      controller: _deliveryDateController,
-      enabled: false,
-    ),
-  );
-}
-
-
+  // ================= EDITABLE STATUS =================
+  Widget _buildEditableStatusRow(IconData icon, String label) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.blueAccent, size: 20),
+          const SizedBox(width: 12),
+          Text(
+            '$label ',
+            style: const TextStyle(color: Colors.white60),
+          ),
+          Expanded(
+            child: DropdownButtonFormField<String>(
+              value: _selectedStatus,
+              dropdownColor: Colors.grey[900],
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                filled: true,
+                fillColor: Colors.black54,
+                border: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              items: _statusOptions.map((status) {
+                return DropdownMenuItem<String>(
+                  value: status,
+                  child: Text(status),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedStatus = value;
+                });
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   void dispose() {
