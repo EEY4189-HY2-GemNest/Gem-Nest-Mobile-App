@@ -653,9 +653,12 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 children: [
                   Icon(Icons.picture_as_pdf, size: 64, color: Colors.blue[700]),
                   const SizedBox(height: 16),
-                  const Text('PDF Viewer', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  const Text('PDF Viewer',
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 8),
-                  const Text('Tap the button below to open', style: TextStyle(color: Colors.grey)),
+                  const Text('Tap the button below to open',
+                      style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 24),
                   ElevatedButton.icon(
                     onPressed: () {
