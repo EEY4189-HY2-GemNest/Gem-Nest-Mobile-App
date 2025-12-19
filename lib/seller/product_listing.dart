@@ -617,9 +617,10 @@ class _ProductListingState extends State<ProductListing>
                 Navigator.pop(context);
                 String? imageUrl = await _uploadFirstImage();
                 if (imageUrl != null) {
-                  String? certificateUrl = await _uploadCertificate();
-                  if (certificateUrl != null) {
-                    await _saveProductToFirestore(imageUrl, certificateUrl);
+                  List<Map<String, String>>? certificates =
+                      await _uploadCertificates();
+                  if (certificates != null && certificates.isNotEmpty) {
+                    await _saveProductToFirestore(imageUrl, certificates);
                     _showSuccessDialog();
                   }
                 }
