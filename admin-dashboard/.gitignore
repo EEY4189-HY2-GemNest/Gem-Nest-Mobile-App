@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Dependencies
 node_modules/
 npm-debug.log*
@@ -50,3 +51,8 @@ coverage/
 # Misc
 *.pem
 .env.*.local
+=======
+.env.local
+node_modules/
+dist/
+>>>>>>> 7c7fdc9cc38a2113ce3b8a5a984a9ec129826cb1
