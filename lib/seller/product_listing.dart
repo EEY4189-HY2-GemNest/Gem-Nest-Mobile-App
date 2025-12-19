@@ -1006,7 +1006,7 @@ class _ProductListingState extends State<ProductListing>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Gem Authorize Certification (Optional)',
+          'Gem Authorize Certification *Required',
           style: TextStyle(color: Colors.white70, fontSize: 16),
         ),
         const SizedBox(height: 10),
