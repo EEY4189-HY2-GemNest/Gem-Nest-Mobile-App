@@ -223,7 +223,8 @@ class _ProductListingState extends State<ProductListing>
     }
 
     if (_certificateFiles.isEmpty) {
-      _showErrorDialog('Gem Authorization Certificate is required. Please upload at least one certificate.');
+      _showErrorDialog(
+          'Gem Authorization Certificate is required. Please upload at least one certificate.');
       return null;
     }
 
@@ -237,14 +238,15 @@ class _ProductListingState extends State<ProductListing>
       try {
         SettableMetadata metadata = SettableMetadata(
           cacheControl: 'public,max-age=31536000',
-          contentType: fileExtension == 'pdf' ? 'application/pdf' : 'image/jpeg',
+          contentType:
+              fileExtension == 'pdf' ? 'application/pdf' : 'image/jpeg',
         );
 
         UploadTask uploadTask =
             _storage.ref(fileName).putFile(certFile, metadata);
         TaskSnapshot snapshot = await uploadTask;
         String downloadUrl = await snapshot.ref.getDownloadURL();
-        
+
         uploadedCertificates.add({
           'url': downloadUrl,
           'fileName': certFile.path.split('/').last,
