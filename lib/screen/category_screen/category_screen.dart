@@ -17,3 +17,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
   List<Map<String, dynamic>> _products = [];
   List<Map<String, dynamic>> _filteredProducts = [];
   bool _isLoading = true;
+
+  final CollectionReference _productsCollection =
+      FirebaseFirestore.instance.collection('products');
