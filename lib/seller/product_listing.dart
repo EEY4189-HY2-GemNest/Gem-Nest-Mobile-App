@@ -458,6 +458,7 @@ class _ProductListingState extends State<ProductListing>
             'deliveryMethods': deliveryMethods,
             'description': description,
             'imageUrl': imageUrl,
+            'gemCertificateUrl': gemCertificateUrl,
             'timestamp': FieldValue.serverTimestamp(),
             'userId': _auth.currentUser!.uid,
             'sellerId': _auth.currentUser!.uid,
