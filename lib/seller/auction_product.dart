@@ -237,7 +237,8 @@ class _AuctionProductState extends State<AuctionProduct>
     }
   }
 
-  Future<void> _saveAuctionToFirestore(String? imageUrl, List<Map<String, String>>? certificates) async {
+  Future<void> _saveAuctionToFirestore(
+      String? imageUrl, List<Map<String, String>>? certificates) async {
     try {
       // Convert to ISO 8601 format for Firebase
       String endTimeIso = _selectedEndTime != null
@@ -259,7 +260,10 @@ class _AuctionProductState extends State<AuctionProduct>
         'deliveryMethods': _selectedDeliveryMethods.toList(),
         'paymentMethods': _selectedPaymentMethods.toList(),
         'gemCertificates': certificates ?? [],
-        'certificateVerificationStatus': certificates != null && certificates.isNotEmpty ? 'pending' : 'none',
+        'certificateVerificationStatus':
+            certificates != null && certificates.isNotEmpty
+                ? 'pending'
+                : 'none',
         'sellerId': userId,
         'timestamp': FieldValue.serverTimestamp(),
       });
@@ -310,7 +314,9 @@ class _AuctionProductState extends State<AuctionProduct>
               onPressed: () async {
                 Navigator.pop(context);
                 String? imageUrl = await _uploadImage();
-                await _saveAuctionToFirestore(imageUrl);
+                List<Map<String, String>>? certificates =
+                    await _uploadCertificates();
+                await _saveAuctionToFirestore(imageUrl, certificates);
                 _showSuccessDialog();
               },
               style: ElevatedButton.styleFrom(
