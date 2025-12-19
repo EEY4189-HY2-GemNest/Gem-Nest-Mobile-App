@@ -10,3 +10,10 @@ class CategoryScreen extends StatefulWidget {
   @override
   State<CategoryScreen> createState() => _CategoryScreenState();
 }
+
+class _CategoryScreenState extends State<CategoryScreen> {
+  String _searchQuery = '';
+  String _sortOrder = 'asc';
+  List<Map<String, dynamic>> _products = [];
+  List<Map<String, dynamic>> _filteredProducts = [];
+  bool _isLoading = true;
