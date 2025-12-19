@@ -965,4 +965,120 @@ class _AuctionProductState extends State<AuctionProduct>
       ],
     );
   }
+
+  Widget _buildCertificateSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Gem Certificates (Required)',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 12),
+        GestureDetector(
+          onTap: _pickCertificates,
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.blue.withOpacity(0.5), width: 2),
+              borderRadius: BorderRadius.circular(12),
+              color: Colors.blue.withOpacity(0.05),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.file_upload_outlined,
+                  color: Colors.blue.withOpacity(0.7),
+                  size: 32,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  _certificateFiles.isEmpty
+                      ? 'Tap to select certificates'
+                      : '${_certificateFiles.length} certificate(s) selected',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.7),
+                    fontSize: 14,
+                  ),
+                ),
+                if (_certificateFiles.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      'Tap to add more',
+                      style: TextStyle(
+                        color: Colors.blue.withOpacity(0.6),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        if (_certificateFiles.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          const Text(
+            'Selected Certificates:',
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 8),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _certificateFiles.length,
+            itemBuilder: (context, index) {
+              final fileName = _certificateFiles[index].path.split('/').last;
+              return Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.grey[850],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.green.withOpacity(0.3)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.description,
+                      color: Colors.blue,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        fileName,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 13,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => _removeCertificate(index),
+                      child: Icon(
+                        Icons.clear,
+                        color: Colors.red.withOpacity(0.6),
+                        size: 20,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
+      ],
+    );
+  }
 }
