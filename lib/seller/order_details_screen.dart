@@ -61,11 +61,21 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Order updated successfully')),
+        const SnackBar(
+          content: Text(
+            'Order updated successfully',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update order: $e')),
+        SnackBar(
+          content: Text(
+            'Failed to update order: $e',
+            style: const TextStyle(color: Colors.white),
+          ),
+        ),
       );
     }
   }
@@ -142,6 +152,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
 
             final order =
                 snapshot.data!.data() as Map<String, dynamic>;
+            final items = order['items'] as List<dynamic>;
 
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16),
@@ -192,6 +203,132 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                             'Status:',
                           ),
                         ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // ================= ITEMS LIST =================
+                  Card(
+                    color: Colors.grey[900],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Items',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          ...items.map(
+                            (item) => Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 6),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item['title'],
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Qty: ${item['quantity']}',
+                                          style: const TextStyle(
+                                            color: Colors.white60,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Text(
+                                    'Rs. ${item['totalPrice'].toStringAsFixed(2)}',
+                                    style: const TextStyle(
+                                      color: Colors.blueAccent,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // ================= TOTAL =================
+                  Card(
+                    color: Colors.grey[900],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Total',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            'Rs. ${order['totalAmount'].toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              color: Colors.blueAccent,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // ================= SAVE BUTTON =================
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _updateOrder,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueAccent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Save Changes',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                   ),
@@ -307,23 +444,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       ),
     );
   }
-
-final items = order['items'] as List<dynamic>;
-
-...items.map((item) => Row(
-  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  children: [
-    Text(item['title']),
-    Text('Qty: ${item['quantity']}'),
-    Text('Rs. ${item['totalPrice']}'),
-  ],
-)),
-
-Text(
-  'Rs. ${order['totalAmount'].toStringAsFixed(2)}',
-  style: const TextStyle(fontWeight: FontWeight.bold),
-);
-
 
   @override
   void dispose() {
