@@ -308,6 +308,18 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     );
   }
 
+final items = order['items'] as List<dynamic>;
+
+...items.map((item) => Row(
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  children: [
+    Text(item['title']),
+    Text('Qty: ${item['quantity']}'),
+    Text('Rs. ${item['totalPrice']}'),
+  ],
+)),
+
+
   @override
   void dispose() {
     _deliveryDateController.dispose();
