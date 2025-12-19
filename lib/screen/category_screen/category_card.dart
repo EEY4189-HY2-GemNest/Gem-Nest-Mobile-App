@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/category_screen/category_screen.dart';
+
 class CategoryCard extends StatelessWidget {
   final String imagePath;
   final String title;
@@ -38,4 +39,17 @@ class CategoryCard extends StatelessWidget {
               ),
             ),
           ),
-
+          const SizedBox(height: 8),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
