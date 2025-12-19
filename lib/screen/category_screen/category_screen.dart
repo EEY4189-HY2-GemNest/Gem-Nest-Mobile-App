@@ -367,3 +367,10 @@ const SizedBox(height: 8),
       ),
     );
   }
+  // Helper method to build detail rows
+  Widget _buildDetailRow({
+    required IconData icon,
+    required String label,
+    required String value,
+    bool isMultiLine = false,
+  }) {
