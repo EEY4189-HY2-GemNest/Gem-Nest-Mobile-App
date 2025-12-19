@@ -204,7 +204,50 @@ class _ProductListingState extends State<ProductListing>
     }
   }
 
-  Future<void> _saveProductToFirestore(String? imageUrl) async {
+  Future<String?> _uploadCertificate() async {
+    if (_auth.currentUser == null) {
+      _showErrorDialog('You must be signed in to upload certificates.');
+      return null;
+    }
+
+    if (_certificateFile == null) {
+      // Certificate is REQUIRED
+      _showErrorDialog(
+          'Gem Authorization Certificate is required. Please upload a certificate.');
+      return null;
+    }
+
+    String fileExtension = _certificateFile!.path.split('.').last;
+    String fileName =
+        'gem_certificates/${DateTime.now().millisecondsSinceEpoch}_${_auth.currentUser!.uid}_certificate.$fileExtension';
+
+    try {
+      SettableMetadata metadata = SettableMetadata(
+        cacheControl: 'public,max-age=31536000',
+        contentType: fileExtension == 'pdf' ? 'application/pdf' : 'image/jpeg',
+      );
+
+      UploadTask uploadTask =
+          _storage.ref(fileName).putFile(_certificateFile!, metadata);
+      TaskSnapshot snapshot = await uploadTask;
+      String downloadUrl = await snapshot.ref.getDownloadURL();
+      return downloadUrl;
+    } on FirebaseException catch (e) {
+      String errorMessage = 'Error uploading certificate: ${e.message}';
+      if (e.code == 'permission-denied') {
+        errorMessage =
+            'Permission denied. Check your authentication status or storage rules.';
+      }
+      _showErrorDialog(errorMessage);
+      return null;
+    } catch (e) {
+      _showErrorDialog('Unexpected error uploading certificate: $e');
+      return null;
+    }
+  }
+
+  Future<void> _saveProductToFirestore(
+      String? imageUrl, String? certificateUrl) async {
     if (imageUrl == null) {
       _showErrorDialog('Image upload failed. Please try again.');
       return;
@@ -219,6 +262,7 @@ class _ProductListingState extends State<ProductListing>
         'quantity': int.tryParse(_quantityController.text) ?? 0,
         'description': _descriptionController.text,
         'imageUrl': imageUrl,
+        'gemCertificateUrl': certificateUrl ?? '',
         'timestamp': FieldValue.serverTimestamp(),
         'sellerId': _auth.currentUser?.uid,
         'userId': _auth.currentUser?.uid,
@@ -244,7 +288,8 @@ class _ProductListingState extends State<ProductListing>
           'unit',
           'deliveryMethods',
           'description',
-          'imageUrl'
+          'imageUrl',
+          'gemCertificateUrl'
         ],
       ];
 
@@ -312,7 +357,8 @@ class _ProductListingState extends State<ProductListing>
         'unit',
         'deliveryMethods',
         'description',
-        'imageUrl'
+        'imageUrl',
+        'gemCertificateUrl'
       ];
 
       List<String> actualHeaders =
@@ -350,9 +396,9 @@ class _ProductListingState extends State<ProductListing>
       StringBuffer errorMessages = StringBuffer();
       for (int i = 1; i < csvData.length; i++) {
         final row = csvData[i];
-        if (row.length != 8) {
+        if (row.length != 9) {
           errorMessages.writeln(
-              'Row ${i + 1}: Invalid number of columns. Expected 8, found ${row.length}');
+              'Row ${i + 1}: Invalid number of columns. Expected 9, found ${row.length}');
           continue;
         }
 
@@ -364,6 +410,7 @@ class _ProductListingState extends State<ProductListing>
         String deliveryMethodsStr = row[5].toString().trim();
         String description = row[6].toString().trim();
         String imageUrl = row[7].toString().trim();
+        String gemCertificateUrl = row[8].toString().trim();
 
         // Parse delivery methods (comma-separated)
         List<String> deliveryMethods = [];
@@ -413,6 +460,7 @@ class _ProductListingState extends State<ProductListing>
             'deliveryMethods': deliveryMethods,
             'description': description,
             'imageUrl': imageUrl,
+            'gemCertificateUrl': gemCertificateUrl,
             'timestamp': FieldValue.serverTimestamp(),
             'userId': _auth.currentUser!.uid,
             'sellerId': _auth.currentUser!.uid,
@@ -450,6 +498,13 @@ class _ProductListingState extends State<ProductListing>
   }
 
   void _showConfirmationDialog() {
+    // Validate certificate selection
+    if (_certificateFile == null) {
+      _showErrorDialog(
+          'Gem Authorization Certificate is required. Please upload a certificate.');
+      return;
+    }
+
     // Validate delivery methods selection
     if (_selectedDeliveryMethods.isEmpty &&
         _availableDeliveryMethods.isNotEmpty) {
@@ -494,8 +549,11 @@ class _ProductListingState extends State<ProductListing>
                 Navigator.pop(context);
                 String? imageUrl = await _uploadFirstImage();
                 if (imageUrl != null) {
-                  await _saveProductToFirestore(imageUrl);
-                  _showSuccessDialog();
+                  String? certificateUrl = await _uploadCertificate();
+                  if (certificateUrl != null) {
+                    await _saveProductToFirestore(imageUrl, certificateUrl);
+                    _showSuccessDialog();
+                  }
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -510,7 +568,8 @@ class _ProductListingState extends State<ProductListing>
         ),
       );
     } else {
-      _showErrorDialog('Please fill all fields and upload at least one photo.');
+      _showErrorDialog(
+          'Please fill all fields, upload at least one photo, and upload a gem certificate.');
     }
   }
 
@@ -726,6 +785,8 @@ class _ProductListingState extends State<ProductListing>
                         value!.isEmpty ? 'Description is required' : null,
                     maxLines: 5,
                   ),
+                  const SizedBox(height: 20),
+                  _buildCertificateSection(),
                   const SizedBox(height: 20),
                   _buildDeliveryMethodsSection(),
                   const SizedBox(height: 20),
@@ -945,6 +1006,115 @@ class _ProductListingState extends State<ProductListing>
           ],
           onChanged: onChanged,
           validator: validator,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCertificateSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Gem Authorize Certification *Required',
+          style: TextStyle(color: Colors.white70, fontSize: 16),
+        ),
+        const SizedBox(height: 10),
+        GestureDetector(
+          onTap: _pickCertificate,
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.grey[900]!, Colors.grey[800]!],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: Colors.purple, width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.purple.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: _certificateFile != null
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.check_circle,
+                              color: Colors.green, size: 24),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Certificate Selected',
+                                  style: TextStyle(
+                                    color: Colors.green,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  _certificateFile!.path.split('/').last,
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 12,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      GestureDetector(
+                        onTap: _pickCertificate,
+                        child: Text(
+                          'Tap to change certificate',
+                          style: TextStyle(
+                            color: Colors.blue.withOpacity(0.8),
+                            fontSize: 12,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : Column(
+                    children: [
+                      const Icon(Icons.upload_file,
+                          color: Colors.purple, size: 40),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Upload Gem Certificate',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'PDF, JPG, PNG (Required)',
+                        style: TextStyle(
+                          color: Colors.white54,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
         ),
       ],
     );
