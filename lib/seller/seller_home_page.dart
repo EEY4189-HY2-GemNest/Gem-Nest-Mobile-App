@@ -78,12 +78,27 @@ class _SellerHomePageState extends State<SellerHomePage>
           .where('sellerId', isEqualTo: currentUserId)
           .get();
 
-      // Fetch live auctions count
+      // Fetch live auctions count (simplified query without composite index)
       final auctionsSnapshot = await _firestore
           .collection('auctions')
           .where('sellerId', isEqualTo: currentUserId)
-          .where('endDate', isGreaterThan: Timestamp.now())
           .get();
+
+      // Filter for active auctions in code
+      final now = Timestamp.now();
+      final activeAuctions = auctionsSnapshot.docs.where((doc) {
+        final data = doc.data();
+        final endTimeStr = data['endTime'];
+        if (endTimeStr != null) {
+          try {
+            final endTime = DateTime.parse(endTimeStr.toString());
+            return endTime.isAfter(DateTime.now());
+          } catch (e) {
+            return false;
+          }
+        }
+        return false;
+      }).length;
 
       // Fetch total orders count
       final ordersSnapshot = await _firestore
@@ -94,7 +109,7 @@ class _SellerHomePageState extends State<SellerHomePage>
       if (mounted) {
         setState(() {
           _activeProductsCount = productsSnapshot.docs.length;
-          _liveAuctionsCount = auctionsSnapshot.docs.length;
+          _liveAuctionsCount = activeAuctions;
           _totalOrdersCount = ordersSnapshot.docs.length;
           _isLoadingStats = false;
         });
