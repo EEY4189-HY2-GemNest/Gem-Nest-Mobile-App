@@ -283,7 +283,7 @@ showDialog(
                           overflow: TextOverflow.ellipsis,
                         ),
 
-                                                const SizedBox(height: 8),
+const SizedBox(height: 8),
 
                         // Price (unchanged)
                         Container(
@@ -302,3 +302,38 @@ showDialog(
                             ),
                           ),
                         ),
+                        const SizedBox(height: 12),
+
+                        // Product Details
+                        _buildDetailRow(
+                          icon: Icons.inventory,
+                          label: 'Quantity',
+                          value: product['quantity']?.toString() ?? 'N/A',
+                        ),
+                        _buildDetailRow(
+                          icon: Icons.straighten,
+                          label: 'Unit',
+                          value: product['unit'] ?? 'N/A',
+                        ),
+                        _buildDetailRow(
+                          icon: Icons.description,
+                          label: 'Description',
+                          value: product['description'] ?? 'No description',
+                          isMultiLine: true,
+                        ),
+                        _buildDetailRow(
+                          icon: Icons.category,
+                          label: 'Category',
+                          value: product['category'] ?? 'N/A',
+                        ),
+                        _buildDetailRow(
+                          icon: Icons.person,
+                          label: 'Listed by',
+                          value: isLoadingSeller
+                              ? 'Loading...' // Show loading while fetching
+                              : sellerName ?? 'Unknown',
+                        ),
+                        const SizedBox(height: 16), // Extra space at the bottom
+                      ],
+                    ),
+                  ),
