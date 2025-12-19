@@ -282,3 +282,23 @@ showDialog(
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
+
+                                                const SizedBox(height: 8),
+
+                        // Price (unchanged)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.green[100],
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            'Price: Rs. ${(product['pricing'] as num? ?? 0).toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                          ),
+                        ),
