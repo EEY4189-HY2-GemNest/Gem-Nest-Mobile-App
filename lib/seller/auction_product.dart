@@ -1039,7 +1039,8 @@ class _AuctionProductState extends State<AuctionProduct>
               final fileName = _certificateFiles[index].path.split('/').last;
               return Container(
                 margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: BoxDecoration(
                   color: Colors.grey[850],
                   borderRadius: BorderRadius.circular(8),
