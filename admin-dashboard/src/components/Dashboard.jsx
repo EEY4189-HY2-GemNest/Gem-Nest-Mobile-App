@@ -468,3 +468,11 @@ export default function Dashboard() {
             <div className="mt-8">
                 <CertificateVerificationDashboard />
             </div>
+
+            {/* Auction Certificate Verification Dashboard */}
+            <div className="mt-8">
+                <AuctionCertificateVerificationDashboard />
+            </div>
+        </div>
+    );
+}
