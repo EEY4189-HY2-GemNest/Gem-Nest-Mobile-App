@@ -74,3 +74,33 @@ class _CategoryScreenState extends State<CategoryScreen> {
     super.initState();
     _fetchProducts();
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.blue[700],
+        title: Text(widget.categoryTitle,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              setState(() {
+                _sortOrder = value;
+                _applyFilters();
+              });
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'asc',
+                child: Text('Price: Low to High'),
+              ),
+              const PopupMenuItem(
+                value: 'desc',
+                child: Text('Price: High to Low'),
+              ),
+            ],
+            icon: const Icon(Icons.sort, color: Colors.white),
+          ),
+        ],
+      ),
