@@ -104,3 +104,31 @@ class _CategoryScreenState extends State<CategoryScreen> {
           ),
         ],
       ),
+
+      body: Container(
+        color: Colors.lightBlue[50],
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 20),
+            TextField(
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value.trim();
+                  _applyFilters();
+                });
+              },
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search, color: Colors.blue),
+                hintText: 'Search gems...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25),
+                  borderSide: const BorderSide(color: Colors.blue),
+                ),
+                filled: true,
+                fillColor: Colors.blue[50],
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+              ),
+            ),
