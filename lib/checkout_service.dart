@@ -1,7 +1,7 @@
 import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
-import 'package:gemnest_mobile_app/screen/payment_screen.dart';
+import 'package:gemnest_mobile_app/screen/payment_screen/payment_screen.dart';
 
 class CheckoutService {
   /// Navigate to payment screen from cart
@@ -21,14 +21,8 @@ class CheckoutService {
 
     return await Navigator.of(context).push<bool?>(
           MaterialPageRoute(
-            builder: (context) => PaymentScreen(
-              amount: totalAmount,
-              orderId: orderId,
-              customerId: customerId,
-              description: description,
-              onPaymentComplete: (success) {
-                developer.log('Payment completed: $success');
-              },
+            builder: (context) => PaymentScreen.test(
+              totalAmount: totalAmount,
             ),
           ),
         ) ??
