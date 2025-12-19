@@ -550,6 +550,8 @@ class _AuctionProductState extends State<AuctionProduct>
                   const SizedBox(height: 20),
                   _buildPaymentMethodsSection(),
                   const SizedBox(height: 32),
+                  _buildCertificateSection(),
+                  const SizedBox(height: 32),
                   Center(
                     child: SizedBox(
                       width: MediaQuery.of(context).size.width * 0.85,
