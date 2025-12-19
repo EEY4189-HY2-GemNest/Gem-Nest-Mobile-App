@@ -505,7 +505,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 
-  void _showCertificateDetails(BuildContext context, Map<String, dynamic> certificate) {
+  void _showCertificateDetails(
+      BuildContext context, Map<String, dynamic> certificate) {
     final certUrl = certificate['url'] ?? '';
     final fileName = certificate['fileName'] ?? 'Certificate';
     final type = certificate['type'] ?? 'pdf';
@@ -572,11 +573,13 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     const SizedBox(height: 8),
                     Text(
                       'Type: ${type.toUpperCase()}',
-                      style: const TextStyle(color: Colors.white70, fontSize: 12),
+                      style:
+                          const TextStyle(color: Colors.white70, fontSize: 12),
                     ),
                     const SizedBox(height: 4),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: status == 'verified'
                             ? Colors.green.withOpacity(0.2)
@@ -586,7 +589,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       child: Text(
                         'Status: ${status[0].toUpperCase()}${status.substring(1)}',
                         style: TextStyle(
-                          color: status == 'verified' ? Colors.green : Colors.orange,
+                          color: status == 'verified'
+                              ? Colors.green
+                              : Colors.orange,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
