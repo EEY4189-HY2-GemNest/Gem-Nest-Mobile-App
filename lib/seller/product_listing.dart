@@ -394,9 +394,9 @@ class _ProductListingState extends State<ProductListing>
       StringBuffer errorMessages = StringBuffer();
       for (int i = 1; i < csvData.length; i++) {
         final row = csvData[i];
-        if (row.length != 8) {
+        if (row.length != 9) {
           errorMessages.writeln(
-              'Row ${i + 1}: Invalid number of columns. Expected 8, found ${row.length}');
+              'Row ${i + 1}: Invalid number of columns. Expected 9, found ${row.length}');
           continue;
         }
 
@@ -408,6 +408,7 @@ class _ProductListingState extends State<ProductListing>
         String deliveryMethodsStr = row[5].toString().trim();
         String description = row[6].toString().trim();
         String imageUrl = row[7].toString().trim();
+        String gemCertificateUrl = row[8].toString().trim();
 
         // Parse delivery methods (comma-separated)
         List<String> deliveryMethods = [];
