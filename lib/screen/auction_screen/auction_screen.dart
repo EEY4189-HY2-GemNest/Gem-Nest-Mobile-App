@@ -10,6 +10,7 @@ import 'package:gemnest_mobile_app/repositories/auction_repository.dart';
 import 'package:gemnest_mobile_app/screen/auction_screen/auction_payment_screen.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class AuctionScreen extends StatefulWidget {
   const AuctionScreen({super.key});
@@ -874,6 +875,11 @@ class _AuctionItemCardState extends State<AuctionItemCard>
                   ),
                 ],
                 const SizedBox(height: 20),
+                if (widget.auction.gemCertificates != null &&
+                    (widget.auction.gemCertificates as List).isNotEmpty) ...[
+                  _buildCertificateSection(),
+                  const SizedBox(height: 20),
+                ],
                 if (isAuctionActive) ...[
                   TextField(
                     controller: _bidController,
@@ -995,5 +1001,201 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     } else {
       return null; // Disable button if user is not the winner
     }
+  }
+
+  Widget _buildCertificateSection() {
+    final certificates = widget.auction.gemCertificates as List?;
+    if (certificates == null || certificates.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final verificationStatus =
+        widget.auction.certificateVerificationStatus ?? 'pending';
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.blue[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.blue[200]!, width: 1.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.verified, color: Colors.blue[700], size: 22),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Gem Certificates',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.blue[900],
+                  ),
+                ),
+              ),
+              _buildStatusBadge(verificationStatus),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: certificates.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            itemBuilder: (context, index) {
+              final cert = certificates[index] as Map<String, dynamic>;
+              final certUrl = cert['url'] ?? '';
+              final fileName = cert['fileName'] ?? 'Certificate ${index + 1}';
+              final type = cert['type'] ?? 'pdf';
+
+              return Material(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                child: InkWell(
+                  onTap: () => _showCertificateDetails(context, certUrl, type),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
+                    child: Row(
+                      children: [
+                        Icon(
+                          type == 'pdf' ? Icons.picture_as_pdf : Icons.image,
+                          color: Colors.blue[700],
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            fileName,
+                            style: TextStyle(
+                              color: Colors.blue[900],
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Icon(
+                          Icons.visibility,
+                          color: Colors.blue[400],
+                          size: 18,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(String status) {
+    Color bgColor;
+    Color textColor;
+    IconData icon;
+
+    switch (status) {
+      case 'verified':
+        bgColor = Colors.green[100]!;
+        textColor = Colors.green[800]!;
+        icon = Icons.check_circle;
+        break;
+      case 'rejected':
+        bgColor = Colors.red[100]!;
+        textColor = Colors.red[800]!;
+        icon = Icons.cancel;
+        break;
+      default:
+        bgColor = Colors.amber[100]!;
+        textColor = Colors.amber[800]!;
+        icon = Icons.schedule;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: textColor, size: 14),
+          const SizedBox(width: 4),
+          Text(
+            status.toUpperCase(),
+            style: TextStyle(
+              color: textColor,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCertificateDetails(
+      BuildContext context, String certUrl, String type) {
+    if (type == 'pdf') {
+      _showPDFViewer(context, certUrl);
+    } else {
+      _showImageViewer(context, certUrl);
+    }
+  }
+
+  void _showPDFViewer(BuildContext context, String pdfUrl) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          color: Colors.white,
+          child: Column(
+            children: [
+              AppBar(
+                backgroundColor: Colors.blue[700],
+                title: const Text('Certificate PDF'),
+                automaticallyImplyLeading: true,
+              ),
+              Expanded(
+                child: SfPdfViewer.network(pdfUrl),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showImageViewer(BuildContext context, String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: Column(
+          children: [
+            AppBar(
+              backgroundColor: Colors.blue[700],
+              title: const Text('Certificate Image'),
+              automaticallyImplyLeading: true,
+            ),
+            Expanded(
+              child: Image.network(
+                imageUrl,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
