@@ -23,6 +23,7 @@ class _ProductListingState extends State<ProductListing>
   late AnimationController _controller;
   late Animation<double> _animation;
   final List<File?> _images = List.filled(3, null);
+  File? _certificateFile;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _categoryController = TextEditingController();
@@ -140,6 +141,24 @@ class _ProductListingState extends State<ProductListing>
       setState(() {
         _images[index] = File(pickedFile.path);
       });
+    }
+  }
+
+  Future<void> _pickCertificate() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+        withData: true,
+      );
+
+      if (result != null && result.files.single.path != null) {
+        setState(() {
+          _certificateFile = File(result.files.single.path!);
+        });
+      }
+    } catch (e) {
+      _showErrorDialog('Error picking certificate: $e');
     }
   }
 
@@ -898,7 +917,7 @@ class _ProductListingState extends State<ProductListing>
         ),
         const SizedBox(height: 10),
         DropdownButtonFormField<String>(
-          value: value,
+          initialValue: value,
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.grey[900],
