@@ -244,7 +244,8 @@ class _ProductListingState extends State<ProductListing>
     }
   }
 
-  Future<void> _saveProductToFirestore(String? imageUrl, String? certificateUrl) async {
+  Future<void> _saveProductToFirestore(
+      String? imageUrl, String? certificateUrl) async {
     if (imageUrl == null) {
       _showErrorDialog('Image upload failed. Please try again.');
       return;
