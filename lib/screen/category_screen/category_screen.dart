@@ -330,7 +330,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
                               ? 'Loading...' // Show loading while fetching
                               : sellerName ?? 'Unknown',
                         ),
-                        if (product['gemCertificateUrl'] != null && product['gemCertificateUrl'].toString().isNotEmpty)
+                        if (product['gemCertificateUrl'] != null &&
+                            product['gemCertificateUrl'].toString().isNotEmpty)
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -339,19 +340,24 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
-                                    colors: [Colors.purple.withOpacity(0.2), Colors.purple.withOpacity(0.1)],
+                                    colors: [
+                                      Colors.purple.withOpacity(0.2),
+                                      Colors.purple.withOpacity(0.1)
+                                    ],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                   ),
                                   borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: Colors.purple, width: 1),
+                                  border: Border.all(
+                                      color: Colors.purple, width: 1),
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
                                       children: [
-                                        const Icon(Icons.verified, color: Colors.purple, size: 20),
+                                        const Icon(Icons.verified,
+                                            color: Colors.purple, size: 20),
                                         const SizedBox(width: 8),
                                         const Text(
                                           'Gem Authorization Certificate',
@@ -367,24 +373,32 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                     GestureDetector(
                                       onTap: () {
                                         // Open certificate in webview or browser
-                                        final certUrl = product['gemCertificateUrl'].toString();
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        final certUrl =
+                                            product['gemCertificateUrl']
+                                                .toString();
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
                                           SnackBar(
-                                            content: Text('Certificate: ${certUrl.split('/').last}'),
-                                            duration: const Duration(seconds: 2),
+                                            content: Text(
+                                                'Certificate: ${certUrl.split('/').last}'),
+                                            duration:
+                                                const Duration(seconds: 2),
                                           ),
                                         );
                                       },
                                       child: Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 8),
                                         decoration: BoxDecoration(
                                           color: Colors.purple.withOpacity(0.3),
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                         ),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            const Icon(Icons.download, color: Colors.purple, size: 16),
+                                            const Icon(Icons.download,
+                                                color: Colors.purple, size: 16),
                                             const SizedBox(width: 6),
                                             const Text(
                                               'View Certificate',
