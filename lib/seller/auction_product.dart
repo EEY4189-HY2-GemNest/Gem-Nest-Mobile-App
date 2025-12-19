@@ -956,4 +956,3 @@ class _AuctionProductState extends State<AuctionProduct>
     );
   }
 }
-
