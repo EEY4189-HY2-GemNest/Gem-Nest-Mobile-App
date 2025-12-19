@@ -20,6 +20,7 @@ class _AuctionProductState extends State<AuctionProduct>
   late AnimationController _controller;
   late Animation<double> _animation;
   File? _image;
+  final List<File> _certificateFiles = [];
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _currentBidController = TextEditingController();
@@ -86,6 +87,57 @@ class _AuctionProductState extends State<AuctionProduct>
       return await snapshot.ref.getDownloadURL();
     }
     return null;
+  }
+
+  Future<void> _pickCertificates() async {
+    final picker = ImagePicker();
+    final pickedFiles = await picker.pickMultiImage();
+    if (pickedFiles.isNotEmpty) {
+      setState(() {
+        _certificateFiles.addAll(pickedFiles.map((file) => File(file.path)));
+      });
+    }
+  }
+
+  void _removeCertificate(int index) {
+    setState(() {
+      _certificateFiles.removeAt(index);
+    });
+  }
+
+  Future<List<Map<String, String>>?> _uploadCertificates() async {
+    if (_certificateFiles.isEmpty) return null;
+
+    try {
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) {
+        _showErrorDialog('User not authenticated');
+        return null;
+      }
+
+      List<Map<String, String>> certificates = [];
+
+      for (final certFile in _certificateFiles) {
+        String fileName =
+            'gem_certificates_auction/${DateTime.now().millisecondsSinceEpoch}_${certFile.path.split('/').last}';
+        UploadTask uploadTask = _storage.ref(fileName).putFile(certFile);
+        TaskSnapshot snapshot = await uploadTask;
+        String downloadUrl = await snapshot.ref.getDownloadURL();
+
+        certificates.add({
+          'url': downloadUrl,
+          'fileName': certFile.path.split('/').last,
+          'type': certFile.path.split('.').last,
+          'uploadedAt': DateTime.now().toIso8601String(),
+          'status': 'pending',
+        });
+      }
+
+      return certificates;
+    } catch (e) {
+      _showErrorDialog('Error uploading certificates: $e');
+      return null;
+    }
   }
 
   Future<void> _loadDeliveryConfig() async {
