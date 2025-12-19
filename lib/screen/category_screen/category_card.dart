@@ -32,4 +32,10 @@ class CategoryCard extends StatelessWidget {
                   blurRadius: 5,
                 ),
               ],
+              image: DecorationImage(
+                image: AssetImage(imagePath),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
 
