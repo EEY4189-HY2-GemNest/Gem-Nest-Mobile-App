@@ -3,6 +3,7 @@ import { BarChart3, Users, Package, TrendingUp, Activity, AlertCircle, Download,
 import { getUserStats, getProductStats } from '../services/adminService';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../services/firebase';
+import CertificateVerificationDashboard from './CertificateVerificationDashboard';
 
 export default function Dashboard() {
     const [userStats, setUserStats] = useState({ total: 0, active: 0, inactive: 0, sellers: 0, buyers: 0 });
