@@ -211,8 +211,10 @@ class _ProductListingState extends State<ProductListing>
     }
 
     if (_certificateFile == null) {
-      // Certificate is optional, return empty string
-      return '';
+      // Certificate is REQUIRED
+      _showErrorDialog(
+          'Gem Authorization Certificate is required. Please upload a certificate.');
+      return null;
     }
 
     String fileExtension = _certificateFile!.path.split('.').last;
@@ -496,6 +498,13 @@ class _ProductListingState extends State<ProductListing>
   }
 
   void _showConfirmationDialog() {
+    // Validate certificate selection
+    if (_certificateFile == null) {
+      _showErrorDialog(
+          'Gem Authorization Certificate is required. Please upload a certificate.');
+      return;
+    }
+
     // Validate delivery methods selection
     if (_selectedDeliveryMethods.isEmpty &&
         _availableDeliveryMethods.isNotEmpty) {
