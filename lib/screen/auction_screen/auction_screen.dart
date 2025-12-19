@@ -10,7 +10,6 @@ import 'package:gemnest_mobile_app/repositories/auction_repository.dart';
 import 'package:gemnest_mobile_app/screen/auction_screen/auction_payment_screen.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class AuctionScreen extends StatefulWidget {
   const AuctionScreen({super.key});
@@ -1004,7 +1003,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
   }
 
   Widget _buildCertificateSection() {
-    final certificates = widget.auction.gemCertificates as List?;
+    final certificates = widget.auction.gemCertificates;
     if (certificates == null || certificates.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -1167,7 +1166,37 @@ class _AuctionItemCardState extends State<AuctionItemCard>
                 automaticallyImplyLeading: true,
               ),
               Expanded(
-                child: SfPdfViewer.network(pdfUrl),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.picture_as_pdf,
+                        size: 64, color: Colors.blue[700]),
+                    const SizedBox(height: 16),
+                    const Text('PDF Viewer',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 8),
+                    const Text('Tap the button below to open',
+                        style: TextStyle(color: Colors.grey)),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        // Open PDF in browser/external app
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Opening certificate...')),
+                        );
+                      },
+                      icon: const Icon(Icons.open_in_browser),
+                      label: const Text('Open Certificate'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue[700],
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
