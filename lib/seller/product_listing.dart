@@ -1124,7 +1124,7 @@ class _ProductListingState extends State<ProductListing>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text(
-                                  'Certificate Selected',
+                                  'Certificates Selected',
                                   style: TextStyle(
                                     color: Colors.green,
                                     fontSize: 14,
@@ -1133,13 +1133,11 @@ class _ProductListingState extends State<ProductListing>
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  _certificateFile!.path.split('/').last,
+                                  '${_certificateFiles.length} certificate${_certificateFiles.length > 1 ? 's' : ''}',
                                   style: const TextStyle(
                                     color: Colors.white70,
                                     fontSize: 12,
                                   ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ),
@@ -1147,10 +1145,43 @@ class _ProductListingState extends State<ProductListing>
                         ],
                       ),
                       const SizedBox(height: 12),
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _certificateFiles.length,
+                        itemBuilder: (context, index) {
+                          final fileName =
+                              _certificateFiles[index].path.split('/').last;
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    fileName,
+                                    style: const TextStyle(
+                                      color: Colors.white54,
+                                      fontSize: 11,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () => _removeCertificate(index),
+                                  child: const Icon(Icons.close,
+                                      color: Colors.red, size: 16),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 12),
                       GestureDetector(
                         onTap: _pickCertificate,
                         child: Text(
-                          'Tap to change certificate',
+                          'Tap to add more certificates',
                           style: TextStyle(
                             color: Colors.blue.withOpacity(0.8),
                             fontSize: 12,
