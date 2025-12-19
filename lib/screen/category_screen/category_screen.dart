@@ -132,3 +132,42 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
               ),
             ),
+
+                        const SizedBox(height: 20),
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _filteredProducts.isEmpty
+                      ? const Center(child: Text('No products found.'))
+                      : GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.75,
+                            crossAxisSpacing: 15,
+                            mainAxisSpacing: 15,
+                          ),
+                          itemCount: _filteredProducts.length,
+                          itemBuilder: (context, index) {
+                            final product = _filteredProducts[index];
+                            return GestureDetector(
+                              onTap: () {
+                                _showProductDetails(context, product);
+                              },
+                              child: ProductCard(
+                                id: product['id'],
+                                imagePath: product['imageUrl'] ?? '',
+                                title: product['title'] ?? 'Untitled',
+                                price:
+                                    'Rs. ${(product['pricing'] as num? ?? 0).toStringAsFixed(2)}',
+                                product: product,
+                              ),
+                            );
+                          },
+                        ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
