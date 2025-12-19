@@ -540,8 +540,11 @@ class _ProductListingState extends State<ProductListing>
                 Navigator.pop(context);
                 String? imageUrl = await _uploadFirstImage();
                 if (imageUrl != null) {
-                  await _saveProductToFirestore(imageUrl);
-                  _showSuccessDialog();
+                  String? certificateUrl = await _uploadCertificate();
+                  if (certificateUrl != null) {
+                    await _saveProductToFirestore(imageUrl, certificateUrl);
+                    _showSuccessDialog();
+                  }
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -773,6 +776,8 @@ class _ProductListingState extends State<ProductListing>
                     maxLines: 5,
                   ),
                   const SizedBox(height: 20),
+                  _buildCertificateSection(),
+                  const SizedBox(height: 20),
                   _buildDeliveryMethodsSection(),
                   const SizedBox(height: 20),
                   _buildPaymentMethodsSection(),
@@ -991,6 +996,115 @@ class _ProductListingState extends State<ProductListing>
           ],
           onChanged: onChanged,
           validator: validator,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCertificateSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Gem Authorize Certification (Optional)',
+          style: TextStyle(color: Colors.white70, fontSize: 16),
+        ),
+        const SizedBox(height: 10),
+        GestureDetector(
+          onTap: _pickCertificate,
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.grey[900]!, Colors.grey[800]!],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: Colors.purple, width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.purple.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: _certificateFile != null
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.check_circle,
+                              color: Colors.green, size: 24),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Certificate Selected',
+                                  style: TextStyle(
+                                    color: Colors.green,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  _certificateFile!.path.split('/').last,
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 12,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      GestureDetector(
+                        onTap: _pickCertificate,
+                        child: Text(
+                          'Tap to change certificate',
+                          style: TextStyle(
+                            color: Colors.blue.withOpacity(0.8),
+                            fontSize: 12,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : Column(
+                    children: [
+                      const Icon(Icons.upload_file,
+                          color: Colors.purple, size: 40),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Upload Gem Certificate',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'PDF, JPG, PNG (Optional)',
+                        style: TextStyle(
+                          color: Colors.white54,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
         ),
       ],
     );
