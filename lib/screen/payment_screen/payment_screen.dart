@@ -1445,23 +1445,33 @@ class _CardNumberFormatter extends TextInputFormatter {
 }
 
 // Expiry Date Formatter
+// Automatically formats expiry date input into MM/YY format
 class _ExpiryDateFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
       TextEditingValue oldValue, TextEditingValue newValue) {
-    var text = newValue.text;
+    var text = newValue.text; // Get the latest text entered by the user
+    // If cursor is at the beginning, return the value without formatting
+
     if (newValue.selection.baseOffset == 0) {
       return newValue;
     }
+    // StringBuffer is used for efficient string concatenation
     var buffer = StringBuffer();
+
+    // Loop through each character in the input text
     for (int i = 0; i < text.length; i++) {
       buffer.write(text[i]);
+
       var nonZeroIndex = i + 1;
       if (nonZeroIndex % 2 == 0 && nonZeroIndex != text.length) {
         buffer.write('/');
       }
     }
-    var string = buffer.toString();
+    var string = buffer.toString(); // Convert buffer content to string
+
+    // Return updated TextEditingValue with formatted text
+    // Cursor is placed at the end of the input
     return newValue.copyWith(
       text: string,
       selection: TextSelection.collapsed(offset: string.length),
