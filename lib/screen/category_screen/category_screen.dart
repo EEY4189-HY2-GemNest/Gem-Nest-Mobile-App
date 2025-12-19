@@ -195,3 +195,26 @@ class _CategoryScreenState extends State<CategoryScreen> {
       }
       isLoadingSeller = false;
     }
+
+showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        elevation: 8,
+        backgroundColor: Colors.white,
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.8,
+            maxWidth: MediaQuery.of(context).size.width * 0.9,
+          ),
+          child: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              // Fetch seller name when the dialog is built
+              fetchSellerName().then((_) {
+                setState(() {
+                  // Trigger rebuild after fetching seller name
+                });
+              });
