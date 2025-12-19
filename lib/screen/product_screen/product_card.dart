@@ -26,10 +26,15 @@ class ProductCard extends StatelessWidget {
           (item) => item.id == id,
           orElse: () => CartItem(
             id: id,
+            productData: {},
             imagePath: '',
             title: '',
-            price: 0,
+            price: 0.0,
             quantity: 0,
+            sellerId: '',
+            category: '',
+            originalPrice: 0.0,
+            availableStock: 0,
           ),
         );
         final int quantity = cartItem.quantity;

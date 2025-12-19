@@ -1,18 +1,27 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:intl/intl.dart';
 
-class ListedAuctionScreen extends StatelessWidget {
+class ListedAuctionScreen extends StatefulWidget {
   final String sellerId;
 
   const ListedAuctionScreen({super.key, required this.sellerId});
 
   @override
+  State<ListedAuctionScreen> createState() => _ListedAuctionScreenState();
+}
+
+class _ListedAuctionScreenState extends State<ListedAuctionScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  String _statusFilter = 'all'; // all, active, ended
+
+  @override
   Widget build(BuildContext context) {
     // Get current user ID for additional verification
-    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
-    print('Passed sellerId: $sellerId');
+    final currentUserId = _auth.currentUser?.uid;
+    print('Passed sellerId: ${widget.sellerId}');
     print('Current Firebase user ID: $currentUserId');
 
     return Scaffold(
@@ -38,17 +47,95 @@ class ListedAuctionScreen extends StatelessWidget {
           ),
         ),
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        leading: const ProfessionalAppBarBackButton(),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.filter_list, color: Colors.white),
+            color: Colors.grey[850],
+            onSelected: (value) {
+              setState(() {
+                _statusFilter = value;
+              });
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'all',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.list,
+                      color: _statusFilter == 'all'
+                          ? Colors.blueAccent
+                          : Colors.white70,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'All Auctions',
+                      style: TextStyle(
+                        color: _statusFilter == 'all'
+                            ? Colors.blueAccent
+                            : Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'active',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.play_circle_outline,
+                      color: _statusFilter == 'active'
+                          ? Colors.blueAccent
+                          : Colors.white70,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Active Auctions',
+                      style: TextStyle(
+                        color: _statusFilter == 'active'
+                            ? Colors.blueAccent
+                            : Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'ended',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.stop_circle_outlined,
+                      color: _statusFilter == 'ended'
+                          ? Colors.blueAccent
+                          : Colors.white70,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Ended Auctions',
+                      style: TextStyle(
+                        color: _statusFilter == 'ended'
+                            ? Colors.blueAccent
+                            : Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: SafeArea(
         child: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('auctions')
-              .orderBy('timestamp', descending: true)
-              .snapshots(),
+          stream: currentUserId != null
+              ? FirebaseFirestore.instance
+                  .collection('auctions')
+                  .where('sellerId', isEqualTo: currentUserId)
+                  .snapshots()
+              : const Stream<QuerySnapshot>.empty(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
@@ -92,11 +179,48 @@ class ListedAuctionScreen extends StatelessWidget {
               );
             }
 
+            // Filter auctions based on status
+            final now = DateTime.now();
+            List<QueryDocumentSnapshot> filteredAuctions =
+                snapshot.data!.docs.where((auction) {
+              final data = auction.data() as Map<String, dynamic>;
+              final endTime = DateTime.parse(
+                  data['endTime'] ?? DateTime.now().toIso8601String());
+
+              if (_statusFilter == 'active') {
+                return endTime.isAfter(now);
+              } else if (_statusFilter == 'ended') {
+                return endTime.isBefore(now);
+              }
+              return true; // 'all'
+            }).toList();
+
+            if (filteredAuctions.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.filter_list_off,
+                        color: Colors.white70, size: 60),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No ${_statusFilter == 'all' ? '' : _statusFilter} auctions found',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
             return ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: snapshot.data!.docs.length,
+              itemCount: filteredAuctions.length,
               itemBuilder: (context, index) {
-                var auction = snapshot.data!.docs[index];
+                var auction = filteredAuctions[index];
                 Map<String, dynamic> auctionData =
                     auction.data() as Map<String, dynamic>;
 
@@ -110,7 +234,7 @@ class ListedAuctionScreen extends StatelessWidget {
                 }
 
                 bool isSeller =
-                    hasSellerId && auctionData['sellerId'] == sellerId;
+                    hasSellerId && auctionData['sellerId'] == widget.sellerId;
                 print('isSeller for ${auction.id}: $isSeller');
 
                 return AuctionCard(

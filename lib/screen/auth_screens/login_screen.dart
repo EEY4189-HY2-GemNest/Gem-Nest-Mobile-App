@@ -5,6 +5,7 @@ import 'package:gemnest_mobile_app/Seller/seller_home_page.dart';
 import 'package:gemnest_mobile_app/home_screen.dart';
 import 'package:gemnest_mobile_app/screen/auth_screens/forgot_password_screen.dart';
 import 'package:gemnest_mobile_app/screen/auth_screens/signup_screen.dart';
+import 'package:gemnest_mobile_app/theme/app_theme.dart';
 import 'package:gemnest_mobile_app/widget/custom_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -160,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16.0),
-        borderSide: const BorderSide(color: Colors.blue, width: 2.0),
+        borderSide: BorderSide(color: AppTheme.primaryBlue, width: 2.0),
       ),
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 20.0,
@@ -267,7 +268,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             value: rememberMe,
                             onChanged: (value) =>
                                 setState(() => rememberMe = value ?? false),
-                            activeColor: Colors.blue,
+                            activeColor: AppTheme.primaryBlue,
                           ),
                           const Text(
                             'Remember me',
@@ -288,7 +289,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ElevatedButton(
                     onPressed: isLoading ? null : _validateLogin,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black87,
+                      backgroundColor: AppTheme.primaryBlue,
                       padding: const EdgeInsets.symmetric(
                         vertical: 16.0,
                         horizontal: 50.0,
@@ -325,7 +326,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: const Text(
                           'Register',
                           style: TextStyle(
-                            color: Colors.blue,
+                            color: AppTheme.primaryBlue,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

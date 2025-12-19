@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
@@ -27,7 +29,20 @@ class _AuctionProductState extends State<AuctionProduct>
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   DateTime? _selectedEndTime;
+
+  // Delivery methods state
+  Map<String, Map<String, dynamic>> _availableDeliveryMethods = {};
+  final Set<String> _selectedDeliveryMethods = {};
+  bool _isLoadingDeliveryConfig = false;
+  bool _isDeliveryExpanded = false;
+
+  // Payment methods state
+  Map<String, Map<String, dynamic>> _availablePaymentMethods = {};
+  final Set<String> _selectedPaymentMethods = {};
+  bool _isLoadingPaymentConfig = false;
+  bool _isPaymentExpanded = false;
 
   @override
   void initState() {
@@ -38,6 +53,8 @@ class _AuctionProductState extends State<AuctionProduct>
     );
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
     _controller.forward();
+    _loadDeliveryConfig();
+    _loadPaymentConfig();
   }
 
   @override
@@ -69,6 +86,72 @@ class _AuctionProductState extends State<AuctionProduct>
       return await snapshot.ref.getDownloadURL();
     }
     return null;
+  }
+
+  Future<void> _loadDeliveryConfig() async {
+    setState(() => _isLoadingDeliveryConfig = true);
+    try {
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) return;
+
+      final doc =
+          await _firestore.collection('delivery_configs').doc(userId).get();
+
+      if (doc.exists) {
+        final data = doc.data()!;
+        final enabledMethods = <String, Map<String, dynamic>>{};
+
+        data.forEach((key, value) {
+          if (key != 'sellerId' && key != 'updatedAt') {
+            final methodData = value as Map<String, dynamic>;
+            if (methodData['enabled'] == true) {
+              enabledMethods[key] = methodData;
+            }
+          }
+        });
+
+        setState(() {
+          _availableDeliveryMethods = enabledMethods;
+        });
+      }
+    } catch (e) {
+      print('Error loading delivery config: $e');
+    } finally {
+      setState(() => _isLoadingDeliveryConfig = false);
+    }
+  }
+
+  Future<void> _loadPaymentConfig() async {
+    setState(() => _isLoadingPaymentConfig = true);
+    try {
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) return;
+
+      final doc =
+          await _firestore.collection('payment_configs').doc(userId).get();
+
+      if (doc.exists) {
+        final data = doc.data()!;
+        final enabledMethods = <String, Map<String, dynamic>>{};
+
+        data.forEach((key, value) {
+          if (key != 'sellerId' && key != 'updatedAt') {
+            final methodData = value as Map<String, dynamic>;
+            if (methodData['enabled'] == true) {
+              enabledMethods[key] = methodData;
+            }
+          }
+        });
+
+        setState(() {
+          _availablePaymentMethods = enabledMethods;
+        });
+      }
+    } catch (e) {
+      print('Error loading payment config: $e');
+    } finally {
+      setState(() => _isLoadingPaymentConfig = false);
+    }
   }
 
   Future<void> _selectDateTime(BuildContext context) async {
@@ -109,6 +192,7 @@ class _AuctionProductState extends State<AuctionProduct>
           ? _selectedEndTime!.toUtc().toIso8601String()
           : DateTime.now().toUtc().toIso8601String();
 
+      final userId = _auth.currentUser?.uid;
       await _firestore.collection('auctions').add({
         'title': _titleController.text,
         'currentBid': double.tryParse(_currentBidController.text) ?? 0.0,
@@ -120,6 +204,9 @@ class _AuctionProductState extends State<AuctionProduct>
         'paymentInitiatedAt': null,
         'paymentStatus': 'pending',
         'winningUserId': null,
+        'deliveryMethods': _selectedDeliveryMethods.toList(),
+        'paymentMethods': _selectedPaymentMethods.toList(),
+        'sellerId': userId,
         'timestamp': FieldValue.serverTimestamp(),
       });
     } catch (e) {
@@ -128,6 +215,20 @@ class _AuctionProductState extends State<AuctionProduct>
   }
 
   void _showConfirmationDialog() {
+    // Validate delivery methods selection
+    if (_selectedDeliveryMethods.isEmpty &&
+        _availableDeliveryMethods.isNotEmpty) {
+      _showErrorDialog('Please select at least one delivery method.');
+      return;
+    }
+
+    // Validate payment methods selection
+    if (_selectedPaymentMethods.isEmpty &&
+        _availablePaymentMethods.isNotEmpty) {
+      _showErrorDialog('Please select at least one payment method.');
+      return;
+    }
+
     if (_formKey.currentState!.validate() &&
         _image != null &&
         _selectedEndTime != null) {
@@ -266,10 +367,7 @@ class _AuctionProductState extends State<AuctionProduct>
               color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        leading: const ProfessionalAppBarBackButton(),
       ),
       body: SafeArea(
         child: FadeTransition(
@@ -387,6 +485,10 @@ class _AuctionProductState extends State<AuctionProduct>
                       ),
                     ],
                   ),
+                  const SizedBox(height: 20),
+                  _buildDeliveryMethodsSection(),
+                  const SizedBox(height: 20),
+                  _buildPaymentMethodsSection(),
                   const SizedBox(height: 32),
                   Center(
                     child: SizedBox(
@@ -466,6 +568,338 @@ class _AuctionProductState extends State<AuctionProduct>
           style: const TextStyle(color: Colors.white, fontSize: 16),
           validator: validator,
         ),
+      ],
+    );
+  }
+
+  Widget _buildDeliveryMethodsSection() {
+    if (_availableDeliveryMethods.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.orange.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.orange, width: 1),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.warning_amber, color: Colors.orange, size: 24),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'No Delivery Methods Configured',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Go to Delivery Config to set up delivery methods',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.7),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Accepted Delivery Methods',
+          style: TextStyle(
+              color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 10),
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF212121),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Colors.blue.withOpacity(0.3), width: 1),
+          ),
+          child: Column(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _isDeliveryExpanded = !_isDeliveryExpanded;
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Select Delivery Methods',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (_selectedDeliveryMethods.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: Text(
+                                  '${_selectedDeliveryMethods.length} method${_selectedDeliveryMethods.length > 1 ? 's' : ''} selected',
+                                  style: TextStyle(
+                                    color: Colors.blueAccent.withOpacity(0.8),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        _isDeliveryExpanded
+                            ? Icons.expand_less
+                            : Icons.expand_more,
+                        color: Colors.white70,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if (_isDeliveryExpanded) ...[
+                const Divider(color: Colors.white24, height: 0),
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    children: _availableDeliveryMethods.entries.map((entry) {
+                      final methodId = entry.key;
+                      final methodData = entry.value;
+                      final isSelected =
+                          _selectedDeliveryMethods.contains(methodId);
+
+                      return CheckboxListTile(
+                        title: Text(
+                          methodData['name'] ?? methodId,
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 14),
+                        ),
+                        subtitle: Text(
+                          'LKR ${(methodData['price'] ?? 0.0).toStringAsFixed(2)}',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.6),
+                            fontSize: 12,
+                          ),
+                        ),
+                        value: isSelected,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            if (value == true) {
+                              _selectedDeliveryMethods.add(methodId);
+                            } else {
+                              _selectedDeliveryMethods.remove(methodId);
+                            }
+                          });
+                        },
+                        activeColor: Colors.blue,
+                        checkColor: Colors.white,
+                        contentPadding: EdgeInsets.zero,
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        if (_selectedDeliveryMethods.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              'Please select at least one delivery method',
+              style: TextStyle(
+                color: Colors.red.withOpacity(0.8),
+                fontSize: 12,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildPaymentMethodsSection() {
+    if (_availablePaymentMethods.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.orange.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.orange, width: 1),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.warning_amber, color: Colors.orange, size: 24),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'No Payment Methods Configured',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Go to Payment Config to set up payment methods',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.7),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Accepted Payment Methods',
+          style: TextStyle(
+              color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 10),
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF212121),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Colors.blue.withOpacity(0.3), width: 1),
+          ),
+          child: Column(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _isPaymentExpanded = !_isPaymentExpanded;
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Select Payment Methods',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (_selectedPaymentMethods.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: Text(
+                                  '${_selectedPaymentMethods.length} method${_selectedPaymentMethods.length > 1 ? 's' : ''} selected',
+                                  style: TextStyle(
+                                    color: Colors.blueAccent.withOpacity(0.8),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        _isPaymentExpanded
+                            ? Icons.expand_less
+                            : Icons.expand_more,
+                        color: Colors.white70,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if (_isPaymentExpanded) ...[
+                const Divider(color: Colors.white24, height: 0),
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    children: _availablePaymentMethods.entries.map((entry) {
+                      final methodId = entry.key;
+                      final methodData = entry.value;
+                      final isSelected =
+                          _selectedPaymentMethods.contains(methodId);
+
+                      return CheckboxListTile(
+                        title: Text(
+                          methodData['name'] ?? methodId,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                        ),
+                        subtitle: Text(
+                          methodData['description'] ?? '',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.6),
+                            fontSize: 12,
+                          ),
+                        ),
+                        value: isSelected,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            if (value == true) {
+                              _selectedPaymentMethods.add(methodId);
+                            } else {
+                              _selectedPaymentMethods.remove(methodId);
+                            }
+                          });
+                        },
+                        activeColor: Colors.blueAccent,
+                        checkColor: Colors.white,
+                        contentPadding: EdgeInsets.zero,
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        if (_selectedPaymentMethods.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              'Please select at least one payment method',
+              style: TextStyle(
+                color: Colors.red.withOpacity(0.8),
+                fontSize: 12,
+              ),
+            ),
+          ),
       ],
     );
   }
