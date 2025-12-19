@@ -319,6 +319,11 @@ final items = order['items'] as List<dynamic>;
   ],
 )),
 
+Text(
+  'Rs. ${order['totalAmount'].toStringAsFixed(2)}',
+  style: const TextStyle(fontWeight: FontWeight.bold),
+);
+
 
   @override
   void dispose() {
