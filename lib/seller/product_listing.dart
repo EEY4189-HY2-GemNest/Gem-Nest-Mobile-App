@@ -23,7 +23,7 @@ class _ProductListingState extends State<ProductListing>
   late AnimationController _controller;
   late Animation<double> _animation;
   final List<File?> _images = List.filled(3, null);
-  File? _certificateFile;
+  final List<File> _certificateFiles = [];
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _categoryController = TextEditingController();
@@ -149,17 +149,29 @@ class _ProductListingState extends State<ProductListing>
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+        allowMultiple: true,
         withData: true,
       );
 
-      if (result != null && result.files.single.path != null) {
+      if (result != null && result.files.isNotEmpty) {
         setState(() {
-          _certificateFile = File(result.files.single.path!);
+          for (var file in result.files) {
+            if (file.path != null &&
+                !_certificateFiles.any((f) => f.path == file.path)) {
+              _certificateFiles.add(File(file.path!));
+            }
+          }
         });
       }
     } catch (e) {
-      _showErrorDialog('Error picking certificate: $e');
+      _showErrorDialog('Error picking certificates: $e');
     }
+  }
+
+  void _removeCertificate(int index) {
+    setState(() {
+      _certificateFiles.removeAt(index);
+    });
   }
 
   Future<String?> _uploadFirstImage() async {
@@ -204,20 +216,75 @@ class _ProductListingState extends State<ProductListing>
     }
   }
 
+  Future<List<Map<String, String>>?> _uploadCertificates() async {
+    if (_auth.currentUser == null) {
+      _showErrorDialog('You must be signed in to upload certificates.');
+      return null;
+    }
+
+    if (_certificateFiles.isEmpty) {
+      _showErrorDialog(
+          'Gem Authorization Certificate is required. Please upload at least one certificate.');
+      return null;
+    }
+
+    List<Map<String, String>> uploadedCertificates = [];
+
+    for (var certFile in _certificateFiles) {
+      String fileExtension = certFile.path.split('.').last;
+      String fileName =
+          'gem_certificates/${DateTime.now().millisecondsSinceEpoch}_${_auth.currentUser!.uid}_${certFile.path.split('/').last}';
+
+      try {
+        SettableMetadata metadata = SettableMetadata(
+          cacheControl: 'public,max-age=31536000',
+          contentType:
+              fileExtension == 'pdf' ? 'application/pdf' : 'image/jpeg',
+        );
+
+        UploadTask uploadTask =
+            _storage.ref(fileName).putFile(certFile, metadata);
+        TaskSnapshot snapshot = await uploadTask;
+        String downloadUrl = await snapshot.ref.getDownloadURL();
+
+        uploadedCertificates.add({
+          'url': downloadUrl,
+          'fileName': certFile.path.split('/').last,
+          'type': fileExtension,
+          'uploadedAt': DateTime.now().toIso8601String(),
+          'status': 'pending', // pending verification
+        });
+      } on FirebaseException catch (e) {
+        String errorMessage = 'Error uploading certificate: ${e.message}';
+        if (e.code == 'permission-denied') {
+          errorMessage =
+              'Permission denied. Check your authentication status or storage rules.';
+        }
+        _showErrorDialog(errorMessage);
+        return null;
+      } catch (e) {
+        _showErrorDialog('Unexpected error uploading certificate: $e');
+        return null;
+      }
+    }
+
+    return uploadedCertificates;
+  }
+
   Future<String?> _uploadCertificate() async {
     if (_auth.currentUser == null) {
       _showErrorDialog('You must be signed in to upload certificates.');
       return null;
     }
 
-    if (_certificateFile == null) {
+    if (_certificateFiles.isEmpty) {
       // Certificate is REQUIRED
       _showErrorDialog(
           'Gem Authorization Certificate is required. Please upload a certificate.');
       return null;
     }
 
-    String fileExtension = _certificateFile!.path.split('.').last;
+    String fileExtension = _certificateFiles[0].path.split('.').last;
     String fileName =
         'gem_certificates/${DateTime.now().millisecondsSinceEpoch}_${_auth.currentUser!.uid}_certificate.$fileExtension';
 
@@ -228,7 +295,7 @@ class _ProductListingState extends State<ProductListing>
       );
 
       UploadTask uploadTask =
-          _storage.ref(fileName).putFile(_certificateFile!, metadata);
+          _storage.ref(fileName).putFile(_certificateFiles[0], metadata);
       TaskSnapshot snapshot = await uploadTask;
       String downloadUrl = await snapshot.ref.getDownloadURL();
       return downloadUrl;
@@ -247,7 +314,7 @@ class _ProductListingState extends State<ProductListing>
   }
 
   Future<void> _saveProductToFirestore(
-      String? imageUrl, String? certificateUrl) async {
+      String? imageUrl, List<Map<String, String>>? certificates) async {
     if (imageUrl == null) {
       _showErrorDialog('Image upload failed. Please try again.');
       return;
@@ -262,7 +329,8 @@ class _ProductListingState extends State<ProductListing>
         'quantity': int.tryParse(_quantityController.text) ?? 0,
         'description': _descriptionController.text,
         'imageUrl': imageUrl,
-        'gemCertificateUrl': certificateUrl ?? '',
+        'gemCertificates': certificates ?? [],
+        'certificateVerificationStatus': 'pending', // Admin verification status
         'timestamp': FieldValue.serverTimestamp(),
         'sellerId': _auth.currentUser?.uid,
         'userId': _auth.currentUser?.uid,
@@ -499,9 +567,9 @@ class _ProductListingState extends State<ProductListing>
 
   void _showConfirmationDialog() {
     // Validate certificate selection
-    if (_certificateFile == null) {
+    if (_certificateFiles.isEmpty) {
       _showErrorDialog(
-          'Gem Authorization Certificate is required. Please upload a certificate.');
+          'Gem Authorization Certificate is required. Please upload at least one certificate.');
       return;
     }
 
@@ -549,9 +617,10 @@ class _ProductListingState extends State<ProductListing>
                 Navigator.pop(context);
                 String? imageUrl = await _uploadFirstImage();
                 if (imageUrl != null) {
-                  String? certificateUrl = await _uploadCertificate();
-                  if (certificateUrl != null) {
-                    await _saveProductToFirestore(imageUrl, certificateUrl);
+                  List<Map<String, String>>? certificates =
+                      await _uploadCertificates();
+                  if (certificates != null && certificates.isNotEmpty) {
+                    await _saveProductToFirestore(imageUrl, certificates);
                     _showSuccessDialog();
                   }
                 }
@@ -1041,7 +1110,7 @@ class _ProductListingState extends State<ProductListing>
                 ),
               ],
             ),
-            child: _certificateFile != null
+            child: _certificateFiles.isNotEmpty
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -1055,7 +1124,7 @@ class _ProductListingState extends State<ProductListing>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text(
-                                  'Certificate Selected',
+                                  'Certificates Selected',
                                   style: TextStyle(
                                     color: Colors.green,
                                     fontSize: 14,
@@ -1064,13 +1133,11 @@ class _ProductListingState extends State<ProductListing>
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  _certificateFile!.path.split('/').last,
+                                  '${_certificateFiles.length} certificate${_certificateFiles.length > 1 ? 's' : ''}',
                                   style: const TextStyle(
                                     color: Colors.white70,
                                     fontSize: 12,
                                   ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ),
@@ -1078,10 +1145,43 @@ class _ProductListingState extends State<ProductListing>
                         ],
                       ),
                       const SizedBox(height: 12),
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _certificateFiles.length,
+                        itemBuilder: (context, index) {
+                          final fileName =
+                              _certificateFiles[index].path.split('/').last;
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    fileName,
+                                    style: const TextStyle(
+                                      color: Colors.white54,
+                                      fontSize: 11,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () => _removeCertificate(index),
+                                  child: const Icon(Icons.close,
+                                      color: Colors.red, size: 16),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 12),
                       GestureDetector(
                         onTap: _pickCertificate,
                         child: Text(
-                          'Tap to change certificate',
+                          'Tap to add more certificates',
                           style: TextStyle(
                             color: Colors.blue.withOpacity(0.8),
                             fontSize: 12,
