@@ -17,4 +17,19 @@ class CategoryCard extends StatelessWidget {
           ),
         );
       },
+      child: Column(
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color:
+                      const Color.fromARGB(255, 148, 145, 145).withOpacity(0.3),
+                  spreadRadius: 3,
+                  blurRadius: 5,
+                ),
+              ],
 
