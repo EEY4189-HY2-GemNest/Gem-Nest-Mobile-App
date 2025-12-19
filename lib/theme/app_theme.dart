@@ -6,13 +6,13 @@ class AppTheme {
   static const Color primaryBlueDark = Color.fromARGB(255, 69, 49, 247);
   static const Color primaryBlueLight = Color.fromARGB(255, 0, 119, 255);
   static const Color primaryBlueAccent = Color.fromARGB(255, 36, 105, 255);
-  
+
   // Secondary Blues
   static const Color lightBlue = Color.fromARGB(255, 157, 200, 255);
   static const Color mediumBlue = Color.fromARGB(255, 34, 74, 255);
   static const Color darkBlue = Color(0xFF1E40AF);
   static const Color navyBlue = Color(0xFF1E3A8A);
-  
+
   // Neutral Colors
   static const Color white = Color(0xFFFFFFFF);
   static const Color black = Color(0xFF000000);
@@ -21,31 +21,31 @@ class AppTheme {
   static const Color lightGray = Color(0xFF718096);
   static const Color paleGray = Color(0xFFF7FAFC);
   static const Color borderGray = Color(0xFFE2E8F0);
-  
+
   // Background Colors
   static const Color backgroundColor = Color(0xFFF8F9FA);
   static const Color cardBackgroundColor = white;
   static const Color scaffoldBackgroundColor = backgroundColor;
-  
+
   // Status Colors
   static const Color successGreen = Color(0xFF28a745);
   static const Color warningOrange = Color(0xFFffc107);
   static const Color errorRed = Color(0xFFdc3545);
   static const Color infoBlue = Color(0xFF007bff);
-  
+
   // Gradients
   static const LinearGradient primaryGradient = LinearGradient(
     colors: [primaryBlue, primaryBlueDark],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
-  
+
   static const LinearGradient backgroundGradient = LinearGradient(
     colors: [backgroundColor, white],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
-  
+
   static const LinearGradient cardGradient = LinearGradient(
     colors: [white, Color(0xFFF1F5F9)],
     begin: Alignment.topLeft,
@@ -59,44 +59,44 @@ class AppTheme {
     color: darkGray,
     letterSpacing: 0.5,
   );
-  
+
   static const TextStyle headingMedium = TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.w700,
     color: white,
     letterSpacing: 0.5,
   );
-  
+
   static const TextStyle headingSmall = TextStyle(
     fontSize: 20,
     fontWeight: FontWeight.w600,
     color: darkGray,
   );
-  
+
   static const TextStyle bodyLarge = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w500,
     color: darkGray,
   );
-  
+
   static const TextStyle bodyMedium = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.normal,
     color: mediumGray,
   );
-  
+
   static const TextStyle bodySmall = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.normal,
     color: lightGray,
   );
-  
+
   static const TextStyle buttonText = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w600,
     color: white,
   );
-  
+
   static const TextStyle priceText = TextStyle(
     fontSize: 18,
     fontWeight: FontWeight.bold,
@@ -114,7 +114,7 @@ class AppTheme {
     elevation: 4,
     shadowColor: primaryBlue.withOpacity(0.3),
   );
-  
+
   static ButtonStyle secondaryButtonStyle = OutlinedButton.styleFrom(
     foregroundColor: primaryBlue,
     side: const BorderSide(color: primaryBlue, width: 2),
@@ -123,7 +123,7 @@ class AppTheme {
       borderRadius: BorderRadius.circular(12),
     ),
   );
-  
+
   static ButtonStyle dangerButtonStyle = ElevatedButton.styleFrom(
     backgroundColor: errorRed,
     foregroundColor: white,
@@ -142,7 +142,8 @@ class AppTheme {
     return InputDecoration(
       labelText: labelText,
       hintText: hintText,
-      prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: primaryBlue) : null,
+      prefixIcon:
+          prefixIcon != null ? Icon(prefixIcon, color: primaryBlue) : null,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: borderGray),
@@ -179,7 +180,7 @@ class AppTheme {
       ),
     ],
   );
-  
+
   static BoxDecoration gradientCardDecoration = BoxDecoration(
     gradient: cardGradient,
     borderRadius: BorderRadius.circular(16),
@@ -218,7 +219,8 @@ class AppTheme {
   );
 
   // Bottom Navigation Theme
-  static BottomNavigationBarThemeData bottomNavTheme = BottomNavigationBarThemeData(
+  static BottomNavigationBarThemeData bottomNavTheme =
+      BottomNavigationBarThemeData(
     backgroundColor: white,
     selectedItemColor: primaryBlue,
     unselectedItemColor: lightGray,
@@ -227,7 +229,8 @@ class AppTheme {
   );
 
   // Floating Action Button Theme
-  static FloatingActionButtonThemeData fabTheme = const FloatingActionButtonThemeData(
+  static FloatingActionButtonThemeData fabTheme =
+      const FloatingActionButtonThemeData(
     backgroundColor: primaryBlue,
     foregroundColor: white,
     elevation: 6,
