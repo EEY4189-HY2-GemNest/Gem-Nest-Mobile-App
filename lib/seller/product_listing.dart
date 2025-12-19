@@ -23,6 +23,7 @@ class _ProductListingState extends State<ProductListing>
   late AnimationController _controller;
   late Animation<double> _animation;
   final List<File?> _images = List.filled(3, null);
+  File? _certificateFile;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _categoryController = TextEditingController();
