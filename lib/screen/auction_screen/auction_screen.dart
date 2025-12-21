@@ -64,3 +64,24 @@ class _AuctionScreenState extends State<AuctionScreen> {
           letterSpacing: 0.5,
         ),
       ),
+      
+      centerTitle: true,
+      leading: ProfessionalAppBarBackButton(
+        onPressed: () => Navigator.pop(context),
+      ),
+      actions: [
+        IconButton(
+          icon: Icon(
+            _isFilterExpanded ? Icons.filter_list_off : Icons.filter_list,
+            color: Colors.white,
+            size: 26,
+          ),
+          onPressed: () {
+            setState(() {
+              _isFilterExpanded = !_isFilterExpanded;
+            });
+          },
+        ),
+      ],
+    );
+  }
