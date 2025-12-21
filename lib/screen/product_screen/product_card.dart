@@ -26,10 +26,15 @@ class ProductCard extends StatelessWidget {
           (item) => item.id == id,
           orElse: () => CartItem(
             id: id,
+            productData: {},
             imagePath: '',
             title: '',
-            price: 0,
+            price: 0.0,
             quantity: 0,
+            sellerId: '',
+            category: '',
+            originalPrice: 0.0,
+            availableStock: 0,
           ),
         );
         final int quantity = cartItem.quantity;
@@ -58,8 +63,11 @@ class ProductCard extends StatelessWidget {
                       width: double.infinity,
                       height: 120,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const Icon(Icons.broken_image, size: 120),
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        color: Colors.grey[200],
+                        child: const Icon(Icons.image_not_supported,
+                            size: 50, color: Colors.grey),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 5),

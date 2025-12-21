@@ -22,10 +22,16 @@ dependencies:
   sqflite: ^2.3.3+1
   path: ^1.9.0
   shared_preferences: ^2.3.0
+  
+  # Stripe payment integration
+  flutter_stripe: ^10.1.1
+  dio: ^5.4.0
+  flutter_dotenv: ^5.1.0
 
   # Firebase dependencies (aligned versions)
   firebase_core: ^3.12.1
   firebase_auth: ^5.5.1
+  cloud_functions: ^5.6.2
   cloud_firestore: ^5.6.5
   firebase_storage: ^12.4.4
   firebase_database: ^11.3.4
@@ -38,6 +44,8 @@ dependencies:
   share_plus: ^10.1.4
   pdf: ^3.11.3
   printing: ^5.14.2
+  path_provider: ^2.1.4
+  http: ^1.2.2
 
 dev_dependencies:
   flutter_test:
@@ -50,3 +58,4 @@ flutter:
 
   assets:
     - assets/images/
+    - .env
