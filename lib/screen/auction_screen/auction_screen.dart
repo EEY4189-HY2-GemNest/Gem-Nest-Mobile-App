@@ -205,3 +205,21 @@ class _AuctionScreenState extends State<AuctionScreen> {
           : const SizedBox.shrink(),
     );
   }
+
+
+  Stream<QuerySnapshot> _getFilteredAuctionsStream() {
+    Query query = FirebaseFirestore.instance.collection('auctions');
+
+    // Apply category filter
+    if (_selectedCategory != 'all') {
+      query = query.where('category', isEqualTo: _selectedCategory);
+    }
+
+    // Apply price range filter
+    query = query
+        .where('currentBid', isGreaterThanOrEqualTo: _minPrice)
+        .where('currentBid', isLessThanOrEqualTo: _maxPrice);
+
+    // Only order by currentBid to avoid composite index requirement
+    return query.orderBy('currentBid').snapshots();
+  }  
