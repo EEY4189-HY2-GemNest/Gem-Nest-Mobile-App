@@ -140,7 +140,7 @@ class _AuctionScreenState extends State<AuctionScreen> {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    
+
                     // Category Filter
                     Row(
                       children: [
@@ -173,3 +173,35 @@ class _AuctionScreenState extends State<AuctionScreen> {
                         ),
                       ],
                     ),
+
+
+                    // Price Range Filter
+                    Row(
+                      children: [
+                        const Text('Price Range: ',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Expanded(
+                          child: RangeSlider(
+                            values: RangeValues(_minPrice, _maxPrice),
+                            min: 0,
+                            max: 10000,
+                            divisions: 100,
+                            labels: RangeLabels('₹${_minPrice.toInt()}',
+                                '₹${_maxPrice.toInt()}'),
+                            onChanged: (values) {
+                              setState(() {
+                                _minPrice = values.start;
+                                _maxPrice = values.end;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : const SizedBox.shrink(),
+    );
+  }
