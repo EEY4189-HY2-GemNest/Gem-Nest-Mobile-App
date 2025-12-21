@@ -25,3 +25,18 @@ class _AuctionScreenState extends State<AuctionScreen> {
 
   // Filter Controllers
   final TextEditingController _filterController = TextEditingController();
+  
+
+  // Filter State Variables
+  bool _isFilterExpanded = false;
+  String _searchQuery = '';
+  String _selectedStatus = 'all';
+  String _selectedCategory = 'all';
+  double _minPrice = 0;
+  double _maxPrice = 10000;
+
+  @override
+  void dispose() {
+    _filterController.dispose();
+    super.dispose();
+  }
