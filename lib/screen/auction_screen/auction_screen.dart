@@ -17,3 +17,11 @@ class AuctionScreen extends StatefulWidget {
   @override
   State<AuctionScreen> createState() => _AuctionScreenState();
 }
+
+
+class _AuctionScreenState extends State<AuctionScreen> {
+  // Repository with optimized data structures
+  final AuctionRepository _auctionRepository = AuctionRepository();
+
+  // Filter Controllers
+  final TextEditingController _filterController = TextEditingController();
