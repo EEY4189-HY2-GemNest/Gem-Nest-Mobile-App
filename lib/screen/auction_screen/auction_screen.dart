@@ -53,3 +53,14 @@ class _AuctionScreenState extends State<AuctionScreen> {
           ),
         ),
       ),
+      
+      elevation: 0,
+      title: const Text(
+        'Auctions',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 24,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.5,
+        ),
+      ),
