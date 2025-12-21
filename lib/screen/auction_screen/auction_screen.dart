@@ -85,3 +85,22 @@ class _AuctionScreenState extends State<AuctionScreen> {
       ],
     );
   }
+  
+
+  Widget _buildFiltersSection() {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      height: _isFilterExpanded ? 320 : 0,
+      child: _isFilterExpanded
+          ? Container(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
