@@ -124,3 +124,32 @@ class _AuctionScreenState extends State<AuctionScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
+
+
+                    // Status Filter
+                    Row(
+                      children: [
+                        const Text('Status: ',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Expanded(
+                          child: Wrap(
+                            spacing: 8,
+                            children:
+                                ['all', 'live', 'ended', 'won'].map((status) {
+                              final isSelected = _selectedStatus == status;
+                              return FilterChip(
+                                label: Text(status.toUpperCase()),
+                                selected: isSelected,
+                                onSelected: (selected) {
+                                  setState(() {
+                                    _selectedStatus = status;
+                                  });
+                                },
+                                selectedColor: Colors.blue.shade100,
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
