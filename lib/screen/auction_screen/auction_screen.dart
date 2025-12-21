@@ -10,3 +10,10 @@ import 'package:gemnest_mobile_app/repositories/auction_repository.dart';
 import 'package:gemnest_mobile_app/screen/auction_screen/auction_payment_screen.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
+
+class AuctionScreen extends StatefulWidget {
+  const AuctionScreen({super.key});
+
+  @override
+  State<AuctionScreen> createState() => _AuctionScreenState();
+}
