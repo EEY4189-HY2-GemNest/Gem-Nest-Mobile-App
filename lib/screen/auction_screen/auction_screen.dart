@@ -104,3 +104,23 @@ class _AuctionScreenState extends State<AuctionScreen> {
                   ),
                 ],
               ),
+
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Search Filter
+                    TextField(
+                      controller: _filterController,
+                      decoration: const InputDecoration(
+                        labelText: 'Search auctions...',
+                        prefixIcon: Icon(Icons.search),
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value.toLowerCase();
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
