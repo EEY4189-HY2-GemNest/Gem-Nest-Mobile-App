@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 
 /// Notification types for the GemNest app
 enum NotificationType {
@@ -239,7 +241,7 @@ class GemNestNotification {
         return Colors.green;
       case NotificationType.lowStockAlert:
       case NotificationType.productListingExpiring:
-      case NotificationType.auctionEndingoon:
+      case NotificationType.auctionEndingsoon:
         return Colors.orange;
       default:
         return Colors.grey;
@@ -338,7 +340,3 @@ class NotificationPreferences {
     );
   }
 }
-
-/// For compatibility - this import is needed
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
