@@ -261,4 +261,12 @@ class AuctionCard extends StatelessWidget {
 String formatEndTime(DateTime endTime) {
   return DateFormat('MMM d, yyyy - HH:mm').format(endTime);
 }
+bool isSeller = data['sellerId'] == _auth.currentUser?.uid;
+
+if (isSeller)
+  IconButton(
+    icon: const Icon(Icons.edit, color: Colors.blue),
+    onPressed: () {},
+  );
+
 
