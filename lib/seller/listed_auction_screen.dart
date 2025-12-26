@@ -61,118 +61,182 @@ class _ListedAuctionScreenState extends State<ListedAuctionScreen> {
               });
             },
             itemBuilder: (context) => [
-              PopupMenuItem(
+              _buildFilterItem(
                 value: 'all',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.list,
-                      color: _statusFilter == 'all'
-                          ? Colors.blueAccent
-                          : Colors.white70,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'All Auctions',
-                      style: TextStyle(
-                        color: _statusFilter == 'all'
-                            ? Colors.blueAccent
-                            : Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
+                label: 'All Auctions',
+                icon: Icons.list,
               ),
-              PopupMenuItem(
+              _buildFilterItem(
                 value: 'active',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.play_circle_outline,
-                      color: _statusFilter == 'active'
-                          ? Colors.blueAccent
-                          : Colors.white70,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Active Auctions',
-                      style: TextStyle(
-                        color: _statusFilter == 'active'
-                            ? Colors.blueAccent
-                            : Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
+                label: 'Active Auctions',
+                icon: Icons.play_circle_outline,
               ),
-              PopupMenuItem(
+              _buildFilterItem(
                 value: 'ended',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.stop_circle_outlined,
-                      color: _statusFilter == 'ended'
-                          ? Colors.blueAccent
-                          : Colors.white70,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Ended Auctions',
-                      style: TextStyle(
-                        color: _statusFilter == 'ended'
-                            ? Colors.blueAccent
-                            : Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
+                label: 'Ended Auctions',
+                icon: Icons.stop_circle_outlined,
               ),
             ],
           ),
         ],
       ),
-      body: const SafeArea(
-        child: Center(
-          child: Text(
-            'Auction list will be displayed here',
+      body: SafeArea(
+        child: currentUserId == null
+            ? const Center(
+                child: Text(
+                  'User not logged in',
+                  style: TextStyle(color: Colors.white70),
+                ),
+              )
+            : StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('auctions')
+                    .where('sellerId', isEqualTo: currentUserId)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.blueAccent,
+                      ),
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        'Error: ${snapshot.error}',
+                        style: const TextStyle(
+                          color: Colors.redAccent,
+                        ),
+                      ),
+                    );
+                  }
+
+                  if (!snapshot.hasData ||
+                      snapshot.data!.docs.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'No auctions listed yet',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 16,
+                        ),
+                      ),
+                    );
+                  }
+
+                  final now = DateTime.now();
+
+                  /// Filter auctions based on selected status
+                  final filteredAuctions =
+                      snapshot.data!.docs.where((doc) {
+                    final data =
+                        doc.data() as Map<String, dynamic>;
+                    final endTime = DateTime.parse(
+                      data['endTime'] ??
+                          DateTime.now().toIso8601String(),
+                    );
+
+                    if (_statusFilter == 'active') {
+                      return endTime.isAfter(now);
+                    } else if (_statusFilter == 'ended') {
+                      return endTime.isBefore(now);
+                    }
+                    return true;
+                  }).toList();
+
+                  if (filteredAuctions.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'No $_statusFilter auctions found',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                        ),
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: filteredAuctions.length,
+                    itemBuilder: (context, index) {
+                      final auction = filteredAuctions[index];
+                      final data =
+                          auction.data() as Map<String, dynamic>;
+
+                      final endTime = DateTime.parse(
+                        data['endTime'] ??
+                            DateTime.now().toIso8601String(),
+                      );
+
+                      return Card(
+                        color: Colors.grey[900],
+                        margin:
+                            const EdgeInsets.only(bottom: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(12),
+                        ),
+                        child: ListTile(
+                          title: Text(
+                            data['title'] ?? 'Untitled Auction',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          subtitle: Text(
+                            'Ends: ${DateFormat('MMM d, yyyy - HH:mm').format(endTime)}',
+                            style: const TextStyle(
+                              color: Colors.white70,
+                            ),
+                          ),
+                          trailing: Text(
+                            'Rs. ${data['currentBid'] ?? 0}',
+                            style: const TextStyle(
+                              color: Colors.blueAccent,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+      ),
+    );
+  }
+
+  /// Helper for popup menu items
+  PopupMenuItem<String> _buildFilterItem({
+    required String value,
+    required String label,
+    required IconData icon,
+  }) {
+    final isSelected = _statusFilter == value;
+
+    return PopupMenuItem(
+      value: value,
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            color:
+                isSelected ? Colors.blueAccent : Colors.white70,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            label,
             style: TextStyle(
-              color: Colors.white70,
-              fontSize: 16,
+              color:
+                  isSelected ? Colors.blueAccent : Colors.white,
             ),
           ),
-        ),
+        ],
       ),
     );
   }
 }
-
-body: StreamBuilder<QuerySnapshot>(
-  stream: FirebaseFirestore.instance
-      .collection('auctions')
-      .where('sellerId', isEqualTo: _auth.currentUser?.uid)
-      .snapshots(),
-  builder: (context, snapshot) {
-    if (snapshot.connectionState == ConnectionState.waiting) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    return Container();
-  },
-),
-
-if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-  return const Center(
-    child: Text(
-      'No auctions listed yet',
-      style: TextStyle(color: Colors.white70),
-    ),
-  );
-}
-
-final now = DateTime.now();
-final filteredAuctions = snapshot.data!.docs.where((doc) {
-  final endTime = DateTime.parse(doc['endTime']);
-  if (_statusFilter == 'active') return endTime.isAfter(now);
-  if (_statusFilter == 'ended') return endTime.isBefore(now);
-  return true;
-}).toList();
-
