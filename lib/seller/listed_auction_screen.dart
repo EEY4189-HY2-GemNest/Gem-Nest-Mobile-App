@@ -158,3 +158,12 @@ body: StreamBuilder<QuerySnapshot>(
     return Container();
   },
 ),
+
+if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+  return const Center(
+    child: Text(
+      'No auctions listed yet',
+      style: TextStyle(color: Colors.white70),
+    ),
+  );
+}
