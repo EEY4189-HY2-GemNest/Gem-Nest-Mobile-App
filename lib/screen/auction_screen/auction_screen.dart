@@ -206,7 +206,8 @@ class _AuctionScreenState extends State<AuctionScreen> {
   }
 
   Stream<QuerySnapshot> _getFilteredAuctionsStream() {
-    Query query = FirebaseFirestore.instance.collection('auctions');
+    Query query = FirebaseFirestore.instance.collection('auctions')
+        .where('approvalStatus', isEqualTo: 'approved');
 
     // Apply category filter
     if (_selectedCategory != 'all') {
