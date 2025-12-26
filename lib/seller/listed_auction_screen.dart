@@ -240,3 +240,20 @@ class _ListedAuctionScreenState extends State<ListedAuctionScreen> {
     );
   }
 }
+
+class AuctionCard extends StatelessWidget {
+  final String title;
+
+  const AuctionCard({super.key, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Colors.grey[900],
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Text(title, style: const TextStyle(color: Colors.white)),
+      ),
+    );
+  }
+}
