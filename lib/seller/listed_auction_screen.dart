@@ -15,23 +15,15 @@ class ListedAuctionScreen extends StatefulWidget {
 
 class _ListedAuctionScreenState extends State<ListedAuctionScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  /// Auction filter state: all | active | ended
   String _statusFilter = 'all';
 
   @override
   Widget build(BuildContext context) {
     final currentUserId = _auth.currentUser?.uid;
 
-    // Debug logs
-    print('Passed sellerId: ${widget.sellerId}');
-    print('Current Firebase user ID: $currentUserId');
-
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        elevation: 4,
-        shadowColor: Colors.black26,
         centerTitle: true,
         leading: const ProfessionalAppBarBackButton(),
         title: const Text(
@@ -56,26 +48,14 @@ class _ListedAuctionScreenState extends State<ListedAuctionScreen> {
             icon: const Icon(Icons.filter_list, color: Colors.white),
             color: Colors.grey[850],
             onSelected: (value) {
-              setState(() {
-                _statusFilter = value;
-              });
+              setState(() => _statusFilter = value);
             },
             itemBuilder: (context) => [
+              _buildFilterItem('all', 'All Auctions', Icons.list),
               _buildFilterItem(
-                value: 'all',
-                label: 'All Auctions',
-                icon: Icons.list,
-              ),
+                  'active', 'Active Auctions', Icons.play_circle_outline),
               _buildFilterItem(
-                value: 'active',
-                label: 'Active Auctions',
-                icon: Icons.play_circle_outline,
-              ),
-              _buildFilterItem(
-                value: 'ended',
-                label: 'Ended Auctions',
-                icon: Icons.stop_circle_outlined,
-              ),
+                  'ended', 'Ended Auctions', Icons.stop_circle_outlined),
             ],
           ),
         ],
@@ -107,9 +87,7 @@ class _ListedAuctionScreenState extends State<ListedAuctionScreen> {
                     return Center(
                       child: Text(
                         'Error: ${snapshot.error}',
-                        style: const TextStyle(
-                          color: Colors.redAccent,
-                        ),
+                        style: const TextStyle(color: Colors.redAccent),
                       ),
                     );
                   }
@@ -119,25 +97,20 @@ class _ListedAuctionScreenState extends State<ListedAuctionScreen> {
                     return const Center(
                       child: Text(
                         'No auctions listed yet',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 16,
-                        ),
+                        style: TextStyle(color: Colors.white70),
                       ),
                     );
                   }
 
                   final now = DateTime.now();
 
-                  /// Filter auctions based on selected status
                   final filteredAuctions =
                       snapshot.data!.docs.where((doc) {
                     final data =
                         doc.data() as Map<String, dynamic>;
                     final endTime = DateTime.parse(
-                      data['endTime'] ??
-                          DateTime.now().toIso8601String(),
-                    );
+                        data['endTime'] ??
+                            DateTime.now().toIso8601String());
 
                     if (_statusFilter == 'active') {
                       return endTime.isAfter(now);
@@ -151,9 +124,7 @@ class _ListedAuctionScreenState extends State<ListedAuctionScreen> {
                     return Center(
                       child: Text(
                         'No $_statusFilter auctions found',
-                        style: const TextStyle(
-                          color: Colors.white70,
-                        ),
+                        style: const TextStyle(color: Colors.white70),
                       ),
                     );
                   }
@@ -167,40 +138,24 @@ class _ListedAuctionScreenState extends State<ListedAuctionScreen> {
                           auction.data() as Map<String, dynamic>;
 
                       final endTime = DateTime.parse(
-                        data['endTime'] ??
-                            DateTime.now().toIso8601String(),
-                      );
+                          data['endTime'] ??
+                              DateTime.now().toIso8601String());
 
-                      return Card(
-                        color: Colors.grey[900],
-                        margin:
-                            const EdgeInsets.only(bottom: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(12),
-                        ),
-                        child: ListTile(
-                          title: Text(
-                            data['title'] ?? 'Untitled Auction',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          subtitle: Text(
-                            'Ends: ${DateFormat('MMM d, yyyy - HH:mm').format(endTime)}',
-                            style: const TextStyle(
-                              color: Colors.white70,
-                            ),
-                          ),
-                          trailing: Text(
-                            'Rs. ${data['currentBid'] ?? 0}',
-                            style: const TextStyle(
-                              color: Colors.blueAccent,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
+                      final isSeller =
+                          data['sellerId'] == widget.sellerId;
+
+                      return AuctionCard(
+                        title: data['title'] ?? 'Untitled',
+                        currentBid:
+                            data['currentBid']?.toString() ?? '0',
+                        endTime: endTime,
+                        imageUrl: data['imagePath'] ?? '',
+                        minimumIncrement:
+                            data['minimumIncrement']?.toString() ??
+                                '0',
+                        auctionId: auction.id,
+                        isSeller: isSeller,
+                        onTap: () {},
                       );
                     },
                   );
@@ -210,12 +165,8 @@ class _ListedAuctionScreenState extends State<ListedAuctionScreen> {
     );
   }
 
-  /// Helper for popup menu items
-  PopupMenuItem<String> _buildFilterItem({
-    required String value,
-    required String label,
-    required IconData icon,
-  }) {
+  PopupMenuItem<String> _buildFilterItem(
+      String value, String label, IconData icon) {
     final isSelected = _statusFilter == value;
 
     return PopupMenuItem(
@@ -241,32 +192,194 @@ class _ListedAuctionScreenState extends State<ListedAuctionScreen> {
   }
 }
 
+/* ===================== AUCTION CARD ===================== */
+
 class AuctionCard extends StatelessWidget {
   final String title;
+  final String currentBid;
+  final DateTime endTime;
+  final String imageUrl;
+  final String minimumIncrement;
+  final VoidCallback onTap;
+  final String auctionId;
+  final bool isSeller;
 
-  const AuctionCard({super.key, required this.title});
+  const AuctionCard({
+    super.key,
+    required this.title,
+    required this.currentBid,
+    required this.endTime,
+    required this.imageUrl,
+    required this.minimumIncrement,
+    required this.onTap,
+    required this.auctionId,
+    required this.isSeller,
+  });
+
+  String _formatEndTime() {
+    return DateFormat('MMM d, yyyy - HH:mm')
+        .format(endTime.toLocal());
+  }
+
+  String _getTimeRemaining() {
+    final diff = endTime.difference(DateTime.now());
+    if (diff.isNegative) return 'Ended';
+
+    final hours = diff.inHours;
+    final minutes = diff.inMinutes % 60;
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
+  }
+
+  void _showEditDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => EditEndTimeDialog(
+        auctionId: auctionId,
+        currentEndTime: endTime,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.grey[900],
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Text(title, style: const TextStyle(color: Colors.white)),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[900],
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 90,
+            height: 90,
+            decoration: BoxDecoration(
+              color: Colors.grey[800],
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: imageUrl.isEmpty
+                ? const Icon(Icons.image,
+                    color: Colors.white54)
+                : ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      imageUrl,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Min Inc: Rs. $minimumIncrement',
+                  style:
+                      const TextStyle(color: Colors.blueAccent),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Ends: ${_formatEndTime()}',
+                  style:
+                      const TextStyle(color: Colors.white70),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Rs. $currentBid',
+                      style: const TextStyle(
+                        color: Colors.blueAccent,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          _getTimeRemaining(),
+                          style: TextStyle(
+                            color: endTime.isBefore(DateTime.now())
+                                ? Colors.redAccent
+                                : Colors.white70,
+                          ),
+                        ),
+                        if (isSeller)
+                          IconButton(
+                            icon: const Icon(Icons.edit,
+                                color: Colors.blueAccent),
+                            onPressed: () =>
+                                _showEditDialog(context),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-String formatEndTime(DateTime endTime) {
-  return DateFormat('MMM d, yyyy - HH:mm').format(endTime);
+/* ===================== EDIT END TIME DIALOG ===================== */
+
+class EditEndTimeDialog extends StatefulWidget {
+  final String auctionId;
+  final DateTime currentEndTime;
+
+  const EditEndTimeDialog({
+    super.key,
+    required this.auctionId,
+    required this.currentEndTime,
+  });
+
+  @override
+  State<EditEndTimeDialog> createState() =>
+      _EditEndTimeDialogState();
 }
-bool isSeller = data['sellerId'] == _auth.currentUser?.uid;
 
-if (isSeller)
-  IconButton(
-    icon: const Icon(Icons.edit, color: Colors.blue),
-    onPressed: () {},
-  );
+class _EditEndTimeDialogState extends State<EditEndTimeDialog> {
+  late DateTime selectedDateTime;
 
+  @override
+  void initState() {
+    super.initState();
+    selectedDateTime = widget.currentEndTime;
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Colors.grey[900],
+      title: const Text(
+        'Edit End Time',
+        style: TextStyle(color: Colors.white),
+      ),
+      content: Text(
+        DateFormat('MMM d, yyyy - HH:mm')
+            .format(selectedDateTime),
+        style: const TextStyle(color: Colors.white70),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child:
+              const Text('Cancel', style: TextStyle(color: Colors.white70)),
+        ),
+      ],
+    );
+  }
+}
