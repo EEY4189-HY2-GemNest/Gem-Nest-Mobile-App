@@ -264,6 +264,7 @@ class _AuctionProductState extends State<AuctionProduct>
             certificates != null && certificates.isNotEmpty
                 ? 'pending'
                 : 'none',
+        'approvalStatus': 'pending', // Auction listing approval status
         'sellerId': userId,
         'timestamp': FieldValue.serverTimestamp(),
       });
