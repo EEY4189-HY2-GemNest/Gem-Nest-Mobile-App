@@ -145,3 +145,16 @@ class _ListedAuctionScreenState extends State<ListedAuctionScreen> {
     );
   }
 }
+
+body: StreamBuilder<QuerySnapshot>(
+  stream: FirebaseFirestore.instance
+      .collection('auctions')
+      .where('sellerId', isEqualTo: _auth.currentUser?.uid)
+      .snapshots(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return Container();
+  },
+),
