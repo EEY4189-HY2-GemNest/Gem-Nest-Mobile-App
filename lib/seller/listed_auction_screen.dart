@@ -167,3 +167,12 @@ if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
     ),
   );
 }
+
+final now = DateTime.now();
+final filteredAuctions = snapshot.data!.docs.where((doc) {
+  final endTime = DateTime.parse(doc['endTime']);
+  if (_statusFilter == 'active') return endTime.isAfter(now);
+  if (_statusFilter == 'ended') return endTime.isBefore(now);
+  return true;
+}).toList();
+
