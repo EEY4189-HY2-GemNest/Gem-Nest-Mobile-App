@@ -15,6 +15,7 @@ class Auction {
   final String imageUrl;
   final List<dynamic>? gemCertificates;
   final String? certificateVerificationStatus;
+  final String approvalStatus; // 'pending', 'approved', 'rejected'
 
   Auction({
     required this.id,
@@ -31,6 +32,7 @@ class Auction {
     required this.imageUrl,
     this.gemCertificates,
     this.certificateVerificationStatus,
+    this.approvalStatus = 'pending',
   });
 
   /// Get highest bidder using efficient algorithm
@@ -107,6 +109,7 @@ class Auction {
       'totalBids': totalBids,
       'gemCertificates': gemCertificates ?? [],
       'certificateVerificationStatus': certificateVerificationStatus ?? 'none',
+      'approvalStatus': approvalStatus,
     };
   }
 
@@ -130,6 +133,7 @@ class Auction {
       gemCertificates: map['gemCertificates'] as List<dynamic>?,
       certificateVerificationStatus:
           map['certificateVerificationStatus'] as String?,
+      approvalStatus: map['approvalStatus'] ?? 'pending',
     );
   }
 }
