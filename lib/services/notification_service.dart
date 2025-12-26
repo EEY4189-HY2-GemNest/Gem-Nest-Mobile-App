@@ -7,17 +7,17 @@ import 'package:gemnest_mobile_app/models/notification_model.dart';
 /// Service for handling Firebase Cloud Messaging and local notifications
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
-  
+
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  
+
   late FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin;
-  
+
   factory NotificationService() {
     return _instance;
   }
-  
+
   NotificationService._internal();
 
   /// Initialize notification service
@@ -31,19 +31,19 @@ class NotificationService {
       requestBadgePermission: true,
       requestSoundPermission: true,
     );
-    
+
     const InitializationSettings initializationSettings =
         InitializationSettings(
       android: androidInitializationSettings,
       iOS: iosInitializationSettings,
     );
-    
+
     _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
     await _flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: _handleNotificationTap,
     );
-    
+
     // Request FCM permissions
     final settings = await _firebaseMessaging.requestPermission(
       alert: true,
@@ -58,7 +58,7 @@ class NotificationService {
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       // Get FCM token and save to Firestore
       await _setupFCMToken();
-      
+
       // Setup message handlers
       _setupMessageHandlers();
     }
@@ -125,14 +125,14 @@ class NotificationService {
         enableLights: true,
         playSound: true,
       );
-      
+
       const DarwinNotificationDetails iosNotificationDetails =
           DarwinNotificationDetails(
         presentSound: true,
         presentBadge: true,
         presentAlert: true,
       );
-      
+
       const NotificationDetails notificationDetails = NotificationDetails(
         android: androidNotificationDetails,
         iOS: iosNotificationDetails,
@@ -172,7 +172,7 @@ class NotificationService {
       if (user != null) {
         final notification = GemNestNotification.fromRemoteMessage(message)
             .copyWith(userId: user.uid);
-        
+
         await _firestore
             .collection('users')
             .doc(user.uid)
@@ -233,8 +233,7 @@ class NotificationService {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs
-          .map((doc) => GemNestNotification.fromMap(
-              doc.data() as Map<String, dynamic>, doc.id))
+          .map((doc) => GemNestNotification.fromMap(doc.data(), doc.id))
           .toList();
     });
   }
@@ -251,7 +250,8 @@ class NotificationService {
   }
 
   /// Mark notification as read
-  Future<void> markNotificationAsRead(String userId, String notificationId) async {
+  Future<void> markNotificationAsRead(
+      String userId, String notificationId) async {
     try {
       await _firestore
           .collection('users')
