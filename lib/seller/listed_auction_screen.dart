@@ -257,3 +257,8 @@ class AuctionCard extends StatelessWidget {
     );
   }
 }
+
+String formatEndTime(DateTime endTime) {
+  return DateFormat('MMM d, yyyy - HH:mm').format(endTime);
+}
+
