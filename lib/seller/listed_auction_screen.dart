@@ -36,9 +36,22 @@ class _ListedAuctionScreenState extends State<ListedAuctionScreen> {
     print('Passed sellerId: ${widget.sellerId}');
     print('Current Firebase user ID: $currentUserId');
 
-    return const Scaffold(
+    return Scaffold(
       backgroundColor: Colors.black,
+      appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blueAccent, Colors.lightBlue],
+            ),
+          ),
+        ),
+        title: const Text(
+          'Listed Auctions',
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
+      ),
     );
   }
 }
-
