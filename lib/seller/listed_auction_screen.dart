@@ -29,6 +29,8 @@ class _ListedAuctionScreenState extends State<ListedAuctionScreen> {
 
 class _ListedAuctionScreenState extends State<ListedAuctionScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  String _statusFilter = 'all';
+
 
   @override
   Widget build(BuildContext context) {
