@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/product_screen/product_card.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class CategoryScreen extends StatefulWidget {
   final String categoryTitle;
@@ -641,7 +640,45 @@ class _CategoryScreenState extends State<CategoryScreen> {
     showDialog(
       context: context,
       builder: (context) => Dialog(
-        child: SfPdfViewer.network(pdfUrl),
+        child: Column(
+          children: [
+            AppBar(
+              backgroundColor: Colors.blue[700],
+              title: const Text('Certificate PDF'),
+              automaticallyImplyLeading: true,
+            ),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.picture_as_pdf, size: 64, color: Colors.blue[700]),
+                  const SizedBox(height: 16),
+                  const Text('PDF Viewer',
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  const Text('Tap the button below to open',
+                      style: TextStyle(color: Colors.grey)),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Opening certificate...')),
+                      );
+                    },
+                    icon: const Icon(Icons.open_in_browser),
+                    label: const Text('Open Certificate'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[700],
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

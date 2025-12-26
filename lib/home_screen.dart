@@ -60,8 +60,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _fetchRandomGems() async {
     try {
-      final productsSnapshot =
-          await FirebaseFirestore.instance.collection('products').get();
+      final productsSnapshot = await FirebaseFirestore.instance
+          .collection('products')
+          .where('approvalStatus', isEqualTo: 'approved')
+          .get();
 
       final List<Map<String, dynamic>> products = [];
       for (var doc in productsSnapshot.docs) {

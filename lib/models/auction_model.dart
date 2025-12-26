@@ -13,6 +13,9 @@ class Auction {
   final DateTime endTime;
   final List<Bid> bidHistory;
   final String imageUrl;
+  final List<dynamic>? gemCertificates;
+  final String? certificateVerificationStatus;
+  final String approvalStatus; // 'pending', 'approved', 'rejected'
 
   Auction({
     required this.id,
@@ -27,6 +30,9 @@ class Auction {
     required this.endTime,
     required this.bidHistory,
     required this.imageUrl,
+    this.gemCertificates,
+    this.certificateVerificationStatus,
+    this.approvalStatus = 'pending',
   });
 
   /// Get highest bidder using efficient algorithm
@@ -101,6 +107,9 @@ class Auction {
       'bidHistory': bidHistory.map((bid) => bid.toMap()).toList(),
       'imageUrl': imageUrl,
       'totalBids': totalBids,
+      'gemCertificates': gemCertificates ?? [],
+      'certificateVerificationStatus': certificateVerificationStatus ?? 'none',
+      'approvalStatus': approvalStatus,
     };
   }
 
@@ -121,6 +130,10 @@ class Auction {
           .map((bid) => Bid.fromMap(bid as Map<String, dynamic>))
           .toList(),
       imageUrl: map['imageUrl'] ?? '',
+      gemCertificates: map['gemCertificates'] as List<dynamic>?,
+      certificateVerificationStatus:
+          map['certificateVerificationStatus'] as String?,
+      approvalStatus: map['approvalStatus'] ?? 'pending',
     );
   }
 }

@@ -264,6 +264,7 @@ class _AuctionProductState extends State<AuctionProduct>
             certificates != null && certificates.isNotEmpty
                 ? 'pending'
                 : 'none',
+        'approvalStatus': 'pending', // Auction listing approval status
         'sellerId': userId,
         'timestamp': FieldValue.serverTimestamp(),
       });
@@ -971,114 +972,137 @@ class _AuctionProductState extends State<AuctionProduct>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Gem Certificates (Required)',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          'Gem Authorize Certification *Required',
+          style: TextStyle(color: Colors.white70, fontSize: 16),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         GestureDetector(
           onTap: _pickCertificates,
           child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.blue.withOpacity(0.5), width: 2),
-              borderRadius: BorderRadius.circular(12),
-              color: Colors.blue.withOpacity(0.05),
-            ),
+            width: double.infinity,
             padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.file_upload_outlined,
-                  color: Colors.blue.withOpacity(0.7),
-                  size: 32,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.grey[900]!, Colors.grey[800]!],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: Colors.purple, width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.purple.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  _certificateFiles.isEmpty
-                      ? 'Tap to select certificates'
-                      : '${_certificateFiles.length} certificate(s) selected',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
-                    fontSize: 14,
-                  ),
-                ),
-                if (_certificateFiles.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(
-                      'Tap to add more',
-                      style: TextStyle(
-                        color: Colors.blue.withOpacity(0.6),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
               ],
             ),
+            child: _certificateFiles.isNotEmpty
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.check_circle,
+                              color: Colors.green, size: 24),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Certificates Selected',
+                                  style: TextStyle(
+                                    color: Colors.green,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${_certificateFiles.length} certificate${_certificateFiles.length > 1 ? 's' : ''}',
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _certificateFiles.length,
+                        itemBuilder: (context, index) {
+                          final fileName =
+                              _certificateFiles[index].path.split('/').last;
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    fileName,
+                                    style: const TextStyle(
+                                      color: Colors.white54,
+                                      fontSize: 11,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () => _removeCertificate(index),
+                                  child: const Icon(Icons.close,
+                                      color: Colors.red, size: 16),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      GestureDetector(
+                        onTap: _pickCertificates,
+                        child: Text(
+                          'Tap to add more certificates',
+                          style: TextStyle(
+                            color: Colors.blue.withOpacity(0.8),
+                            fontSize: 12,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : Column(
+                    children: [
+                      const Icon(Icons.upload_file,
+                          color: Colors.purple, size: 40),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Upload Gem Certificate',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'PDF, JPG, PNG (Required)',
+                        style: TextStyle(
+                          color: Colors.white54,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
           ),
         ),
-        if (_certificateFiles.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          const Text(
-            'Selected Certificates:',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 8),
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: _certificateFiles.length,
-            itemBuilder: (context, index) {
-              final fileName = _certificateFiles[index].path.split('/').last;
-              return Container(
-                margin: const EdgeInsets.only(bottom: 8),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                decoration: BoxDecoration(
-                  color: Colors.grey[850],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.green.withOpacity(0.3)),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.description,
-                      color: Colors.blue,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        fileName,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 13,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () => _removeCertificate(index),
-                      child: Icon(
-                        Icons.clear,
-                        color: Colors.red.withOpacity(0.6),
-                        size: 20,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
       ],
     );
   }

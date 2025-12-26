@@ -46,7 +46,6 @@ dependencies:
   printing: ^5.14.2
   path_provider: ^2.1.4
   http: ^1.2.2
-  syncfusion_flutter_pdfviewer: ^23.2.36
 
 dev_dependencies:
   flutter_test:
