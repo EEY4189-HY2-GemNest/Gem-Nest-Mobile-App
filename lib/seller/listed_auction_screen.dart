@@ -26,3 +26,19 @@ class _ListedAuctionScreenState extends State<ListedAuctionScreen> {
     );
   }
 }
+
+class _ListedAuctionScreenState extends State<ListedAuctionScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  @override
+  Widget build(BuildContext context) {
+    final currentUserId = _auth.currentUser?.uid;
+    print('Passed sellerId: ${widget.sellerId}');
+    print('Current Firebase user ID: $currentUserId');
+
+    return const Scaffold(
+      backgroundColor: Colors.black,
+    );
+  }
+}
+
