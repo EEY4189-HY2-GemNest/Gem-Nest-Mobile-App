@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/models/notification_model.dart';
 import 'package:gemnest_mobile_app/services/notification_service.dart';
 import 'package:intl/intl.dart';
@@ -159,7 +159,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.notifications_none, size: 64, color: Colors.grey[400]),
+                Icon(Icons.notifications_none,
+                    size: 64, color: Colors.grey[400]),
                 const SizedBox(height: 16),
                 Text(
                   'No notifications yet',
@@ -219,7 +220,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
-  Widget _buildNotificationCard(GemNestNotification notification, String userId) {
+  Widget _buildNotificationCard(
+      GemNestNotification notification, String userId) {
     final backgroundColor =
         notification.isRead ? Colors.white : Colors.blue[50];
 
@@ -228,7 +230,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       color: backgroundColor,
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
