@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 
 /// Notification types for the GemNest app
 enum NotificationType {
@@ -7,14 +9,14 @@ enum NotificationType {
   productRejected,
   auctionApproved,
   auctionRejected,
-  
+
   // Auction Activity
   bidPlaced,
   outbid,
   auctionEnded,
   auctionWon,
   auctionNotificationBuyerInterested,
-  
+
   // Orders & Payments
   orderCreated,
   paymentReceived,
@@ -23,19 +25,19 @@ enum NotificationType {
   orderShipped,
   orderDelivered,
   orderCancelled,
-  
+
   // Seller Notifications
   newBidOnAuction,
   auctionEndingsoon,
   productListingExpiring,
   lowStockAlert,
-  
+
   // Buyer Notifications
   itemApprovedNotification,
   bidOutbidNotification,
   auctionWonNotification,
   productInStock,
-  
+
   // General
   systemMessage,
   unknown,
@@ -49,7 +51,8 @@ class GemNestNotification {
   final String body;
   final NotificationType type;
   final String? imageUrl;
-  final Map<String, dynamic>? data; // Additional data (productId, auctionId, etc.)
+  final Map<String, dynamic>?
+      data; // Additional data (productId, auctionId, etc.)
   final DateTime createdAt;
   final DateTime? readAt;
   final String? actionUrl; // Deep link to navigate
@@ -150,7 +153,7 @@ class GemNestNotification {
   /// Parse notification type from string
   static NotificationType _parseNotificationType(String? typeString) {
     if (typeString == null) return NotificationType.unknown;
-    
+
     try {
       return NotificationType.values.firstWhere(
         (e) => e.toString().split('.').last == typeString,
@@ -239,7 +242,7 @@ class GemNestNotification {
         return Colors.green;
       case NotificationType.lowStockAlert:
       case NotificationType.productListingExpiring:
-      case NotificationType.auctionEndingoon:
+      case NotificationType.auctionEndingsoon:
         return Colors.orange;
       default:
         return Colors.grey;
@@ -338,7 +341,3 @@ class NotificationPreferences {
     );
   }
 }
-
-/// For compatibility - this import is needed
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
