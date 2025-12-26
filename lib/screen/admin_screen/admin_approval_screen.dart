@@ -129,8 +129,7 @@ class _AdminApprovalScreenState extends State<AdminApprovalScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(12)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
             child: Image.network(
               productData['imageUrl'] ?? '',
               height: 200,
@@ -196,8 +195,8 @@ class _AdminApprovalScreenState extends State<AdminApprovalScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     ElevatedButton.icon(
-                      onPressed: () =>
-                          _approveProduct(productId, productData['title'] ?? ''),
+                      onPressed: () => _approveProduct(
+                          productId, productData['title'] ?? ''),
                       icon: const Icon(Icons.check),
                       label: const Text('Approve'),
                       style: ElevatedButton.styleFrom(
@@ -273,8 +272,7 @@ class _AdminApprovalScreenState extends State<AdminApprovalScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(12)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
             child: Image.network(
               auctionData['imagePath'] ?? '',
               height: 200,
@@ -340,8 +338,8 @@ class _AdminApprovalScreenState extends State<AdminApprovalScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     ElevatedButton.icon(
-                      onPressed: () =>
-                          _approveAuction(auctionId, auctionData['title'] ?? ''),
+                      onPressed: () => _approveAuction(
+                          auctionId, auctionData['title'] ?? ''),
                       icon: const Icon(Icons.check),
                       label: const Text('Approve'),
                       style: ElevatedButton.styleFrom(
