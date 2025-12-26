@@ -331,6 +331,7 @@ class _ProductListingState extends State<ProductListing>
         'imageUrl': imageUrl,
         'gemCertificates': certificates ?? [],
         'certificateVerificationStatus': 'pending', // Admin verification status
+        'approvalStatus': 'pending', // Product listing approval status
         'timestamp': FieldValue.serverTimestamp(),
         'sellerId': _auth.currentUser?.uid,
         'userId': _auth.currentUser?.uid,
@@ -529,6 +530,7 @@ class _ProductListingState extends State<ProductListing>
             'description': description,
             'imageUrl': imageUrl,
             'gemCertificateUrl': gemCertificateUrl,
+            'approvalStatus': 'pending', // Product listing approval status
             'timestamp': FieldValue.serverTimestamp(),
             'userId': _auth.currentUser!.uid,
             'sellerId': _auth.currentUser!.uid,
