@@ -499,7 +499,7 @@ exports.broadcastProductApprovedByCategory = functions.firestore
             for (const userDoc of usersSnapshot.docs) {
                 const tokens = await getUserFCMTokens(userDoc.id);
                 const notification = {
-                    title: f'✨ New ${category} Available!',
+                    title: `✨ New ${category} Available!`,
                     body: `"${after.title}" is now available. Check it out!`,
                     type: 'itemApprovedNotification',
                     data: {
