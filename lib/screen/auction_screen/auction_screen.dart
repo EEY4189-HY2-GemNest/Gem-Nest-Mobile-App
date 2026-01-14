@@ -1,11 +1,10 @@
-// ignore_for_file: avoid_print, deprecated_member_use
-
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/auction_screen/auction_payment_screen.dart';
+import 'package:gemnest_mobile_app/screen/auction_screen/auction_details_screen.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
 
