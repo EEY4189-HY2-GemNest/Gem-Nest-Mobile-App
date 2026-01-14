@@ -108,17 +108,14 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   String? _deliveryLoadError;
 
   // Form Keys
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _addressFormKey = GlobalKey<FormState>();
 
   // State Variables
   List<Address> _addresses = [];
   Address? _selectedAddress;
   DeliveryOption? _selectedDelivery;
-  bool _isLoading = false;
   bool _showAddressForm = false;
   bool _saveDetails = true;
-  final int _currentStep = 0;
 
   // Animation Controllers
   late AnimationController _fadeController;
