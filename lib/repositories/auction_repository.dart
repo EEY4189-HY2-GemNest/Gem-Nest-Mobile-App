@@ -98,8 +98,6 @@ class AuctionRepository {
 
   /// Get active auctions sorted by end time - O(n log n)
   Stream<List<Auction>> getActiveAuctions() {
-    final now = DateTime.now();
-
     return _auctionsCollection.snapshots().map((snapshot) {
       final auctions = snapshot.docs
           .map((doc) => Auction.fromMap(doc.data() as Map<String, dynamic>))
