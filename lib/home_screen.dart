@@ -74,11 +74,17 @@ class _HomeScreenState extends State<HomeScreen> {
           'imageUrl': doc['imageUrl'],
           'title': doc['title'],
           'pricing': doc['pricing'],
+          'category': doc['category'],
+          'description': doc['description'],
+          'quantity': doc['quantity'],
+          'sellerId': doc['sellerId'],
+          'gemCertificates': doc['gemCertificates'],
+          'deliveryMethods': doc['deliveryMethods'],
         });
       }
 
       products.shuffle();
-      final randomProducts = products.take(2).toList();
+      final randomProducts = products.take(4).toList();
 
       setState(() {
         popularProducts = randomProducts;
