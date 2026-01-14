@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:image_picker/image_picker.dart';
@@ -41,7 +40,6 @@ class _ProductListingState extends State<ProductListing>
   final Set<String> _selectedPaymentMethods = {};
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
@@ -185,69 +183,6 @@ class _ProductListingState extends State<ProductListing>
 
   Future<void> _downloadCsvTemplate() async {
     _showErrorDialog('CSV template download coming soon!');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Product Listing'),
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.help_outline),
-            onPressed: () {},
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Category Section
-              Text(
-                'Product Category',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 12),
-              DropdownButton<String>(
-                value: _selectedCategory,
-                isExpanded: true,
-                items: ['Gemstones', 'Jewelry', 'Auction Items']
-                    .map((category) => DropdownMenuItem(
-                        value: category, child: Text(category)))
-                    .toList(),
-                onChanged: (value) =>
-                    setState(() => _selectedCategory = value ?? ''),
-              ),
-              const SizedBox(height: 24),
-              // Certificate Upload Section
-              Text(
-                'Gem Authorization Certificate',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.file_upload),
-                label: const Text('Upload Certificate'),
-              ),
-              const SizedBox(height: 24),
-              // Submit Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  child: const Text('Complete Listing'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   void _showSuccessDialog({String? message}) {
