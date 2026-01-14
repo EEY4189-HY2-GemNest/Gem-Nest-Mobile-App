@@ -32,19 +32,19 @@ class _ProductListingState extends State<ProductListing>
   final TextEditingController _quantityController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   String? _selectedCategory;
-  bool _isBulkUploading = false;
-  bool _isDownloadingTemplate = false;
+  final bool _isBulkUploading = false;
+  final bool _isDownloadingTemplate = false;
 
   // Delivery methods
   Map<String, Map<String, dynamic>> _availableDeliveryMethods = {};
   final Set<String> _selectedDeliveryMethods = {};
-  bool _isDeliveryExpanded = false;
+  final bool _isDeliveryExpanded = false;
   bool _isLoadingDeliveryConfig = true;
 
   // Payment methods
   Map<String, Map<String, dynamic>> _availablePaymentMethods = {};
   final Set<String> _selectedPaymentMethods = {};
-  bool _isPaymentExpanded = false;
+  final bool _isPaymentExpanded = false;
   bool _isLoadingPaymentConfig = true;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -334,83 +334,9 @@ class _ProductListingState extends State<ProductListing>
     );
   }
 }
-    if (_certificateFiles.isEmpty) {
-      _showErrorDialog(
-          'Gem Authorization Certificate is required. Please upload at least one certificate.');
-      return;
-    }
-
-    // Validate delivery methods selection
-    if (_selectedDeliveryMethods.isEmpty &&
-        _availableDeliveryMethods.isNotEmpty) {
-      _showErrorDialog('Please select at least one delivery method.');
-      return;
-    }
-
-    // Validate payment methods selection
-    if (_selectedPaymentMethods.isEmpty &&
-        _availablePaymentMethods.isNotEmpty) {
-      _showErrorDialog('Please select at least one payment method.');
-      return;
-    }
-
-    if (_formKey.currentState!.validate() &&
-        _images.any((image) => image != null)) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          backgroundColor: Colors.grey[900],
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text(
-            'Confirm Listing',
-            style: TextStyle(
-                color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          content: const Text(
-            'Are you sure you want to list this product?',
-            style: TextStyle(color: Colors.white70, fontSize: 16),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.grey),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                String? imageUrl = await _uploadFirstImage();
-                List<Map<String, String>>? certificates =
-                    await _uploadCertificates();
-                if (certificates.isNotEmpty) {
-                  await _saveProductToFirestore(imageUrl, certificates);
-                  _showSuccessDialog();
-                }
-                            },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text('Confirm'),
-            ),
-          ],
-        ),
-      );
-    } else {
-      _showErrorDialog(
-          'Please fill all fields, upload at least one photo, and upload a gem certificate.');
-    }
-  }
-
-  void _showSuccessDialog({String? message}) {
     showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+      context = context,
+      builder = (context) => AlertDialog(
         backgroundColor: Colors.grey[900],
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text(
