@@ -300,8 +300,8 @@ class _ProductListingState extends State<ProductListing>
                 value: _selectedCategory,
                 isExpanded: true,
                 items: ['Gemstones', 'Jewelry', 'Auction Items']
-                    .map((category) =>
-                    DropdownMenuItem(value: category, child: Text(category)))
+                    .map((category) => DropdownMenuItem(
+                        value: category, child: Text(category)))
                     .toList(),
                 onChanged: (value) =>
                     setState(() => _selectedCategory = value ?? ''),
@@ -336,8 +336,8 @@ class _ProductListingState extends State<ProductListing>
 
   void _showSuccessDialog({String? message}) {
     showDialog(
-      context = context,
-      builder = (context) => AlertDialog(
+      context: context,
+      builder: (context) => AlertDialog(
         backgroundColor: Colors.grey[900],
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text(
