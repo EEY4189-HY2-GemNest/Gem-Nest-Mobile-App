@@ -356,7 +356,8 @@ class NotificationPreferences {
       auctionNotifications: map['auctionNotifications'] as bool? ?? true,
       paymentNotifications: map['paymentNotifications'] as bool? ?? true,
       approvalNotifications: map['approvalNotifications'] as bool? ?? true,
-      promotionalNotifications: map['promotionalNotifications'] as bool? ?? true,
+      promotionalNotifications:
+          map['promotionalNotifications'] as bool? ?? true,
       interestBasedNotifications:
           map['interestBasedNotifications'] as bool? ?? true,
       bidNotifications: map['bidNotifications'] as bool? ?? true,
@@ -395,7 +396,8 @@ class NotificationPreferences {
       orderNotifications: orderNotifications ?? this.orderNotifications,
       auctionNotifications: auctionNotifications ?? this.auctionNotifications,
       paymentNotifications: paymentNotifications ?? this.paymentNotifications,
-      approvalNotifications: approvalNotifications ?? this.approvalNotifications,
+      approvalNotifications:
+          approvalNotifications ?? this.approvalNotifications,
       promotionalNotifications:
           promotionalNotifications ?? this.promotionalNotifications,
       interestBasedNotifications:
