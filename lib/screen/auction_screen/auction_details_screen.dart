@@ -381,9 +381,9 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                         const SizedBox(height: 8),
                         Text(
                           _auction['description'] ?? 'No description available',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey[700],
+                            color: Colors.grey.shade700,
                             height: 1.5,
                           ),
                         ),
