@@ -1,19 +1,16 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/models/notification_model.dart';
 import 'package:gemnest_mobile_app/services/notification_service.dart';
-import 'package:gemnest_mobile_app/providers/buyer_notification_provider.dart';
-import 'package:gemnest_mobile_app/providers/seller_notification_provider.dart';
 
 /// Notification Settings/Preferences Screen for users
 class NotificationSettingsScreen extends StatefulWidget {
   final String userRole; // 'buyer', 'seller', or 'admin'
 
   const NotificationSettingsScreen({
-    Key? key,
+    super.key,
     required this.userRole,
-  }) : super(key: key);
+  });
 
   @override
   State<NotificationSettingsScreen> createState() =>
@@ -38,7 +35,8 @@ class _NotificationSettingsScreenState
 
     final notificationService = NotificationService();
     try {
-      final prefs = await notificationService.getNotificationPreferences(userId);
+      final prefs =
+          await notificationService.getNotificationPreferences(userId);
       setState(() {
         _preferences = prefs;
         _isLoading = false;
@@ -419,8 +417,7 @@ class _NotificationSettingsScreenState
                 value: _preferences.soundEnabled,
                 onChanged: (value) {
                   setState(() {
-                    _preferences =
-                        _preferences.copyWith(soundEnabled: value);
+                    _preferences = _preferences.copyWith(soundEnabled: value);
                   });
                 },
               ),
