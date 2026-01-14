@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> product;
@@ -37,7 +37,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             .collection('users')
             .doc(sellerId)
             .get();
-        
+
         if (sellerDoc.exists) {
           setState(() {
             _sellerData = sellerDoc.data();
@@ -61,7 +61,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
     final phoneNumber = _sellerData!['phone'];
     final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
-    
+
     try {
       if (await canLaunchUrl(phoneUri)) {
         await launchUrl(phoneUri);
@@ -109,7 +109,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       'quantity': _quantity,
     };
     cartProvider.addToCart(productWithQuantity);
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Added $_quantity item(s) to cart'),
@@ -156,7 +156,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                 size: 80, color: Colors.grey),
                           ),
                   ),
-                  
+
                   const SizedBox(height: 20),
 
                   // Product Title and Price
@@ -274,8 +274,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               itemCount:
                                   (_product['gemCertificates'] as List).length,
                               itemBuilder: (context, index) {
-                                final cert =
-                                    (_product['gemCertificates'] as List)[index];
+                                final cert = (_product['gemCertificates']
+                                    as List)[index];
                                 return ListTile(
                                   leading: Icon(
                                     _getCertificateIcon(cert['type']),
@@ -453,8 +453,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               IconButton(
                                 icon: const Icon(Icons.remove),
                                 onPressed: _quantity > 1
-                                    ? () =>
-                                        setState(() => _quantity -= 1)
+                                    ? () => setState(() => _quantity -= 1)
                                     : null,
                               ),
                               Text(
@@ -466,11 +465,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               ),
                               IconButton(
                                 icon: const Icon(Icons.add),
-                                onPressed: _quantity <
-                                        (_product['quantity'] ?? 1)
-                                    ? () =>
-                                        setState(() => _quantity += 1)
-                                    : null,
+                                onPressed:
+                                    _quantity < (_product['quantity'] ?? 1)
+                                        ? () => setState(() => _quantity += 1)
+                                        : null,
                               ),
                             ],
                           ),
