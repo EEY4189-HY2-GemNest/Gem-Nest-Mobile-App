@@ -8,7 +8,6 @@ import 'package:gemnest_mobile_app/services/notification_service.dart';
 
 /// Provider for managing buyer-side notifications
 class BuyerNotificationProvider extends ChangeNotifier {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final NotificationService _notificationService = NotificationService();
 
