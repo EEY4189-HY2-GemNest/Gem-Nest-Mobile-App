@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, unused_field
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
