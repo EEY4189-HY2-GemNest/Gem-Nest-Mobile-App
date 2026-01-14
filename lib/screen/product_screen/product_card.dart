@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
+import 'package:gemnest_mobile_app/screen/product_screen/product_details_screen.dart';
 import 'package:provider/provider.dart';
 
 class ProductCard extends StatelessWidget {
@@ -41,6 +42,15 @@ class ProductCard extends StatelessWidget {
 
         return InkWell(
           borderRadius: BorderRadius.circular(20),
+          onTap: () {
+            // Navigate to product details screen
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductDetailsScreen(product: product),
+              ),
+            );
+          },
           child: SizedBox(
             width: 180,
             height: 280,
