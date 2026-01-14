@@ -232,9 +232,7 @@ class _AuctionPaymentScreenState extends State<AuctionPaymentScreen> {
         });
       }
 
-      await FirebaseFirestore.instance
-          .collection('payments')
-          .add(paymentData);
+      await FirebaseFirestore.instance.collection('payments').add(paymentData);
 
       DateTime paymentDate = DateTime.now();
       DateTime deliveryDate = paymentDate.add(const Duration(days: 5));
