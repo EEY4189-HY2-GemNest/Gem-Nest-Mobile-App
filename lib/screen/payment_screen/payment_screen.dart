@@ -110,6 +110,8 @@ class _PaymentScreenState extends State<PaymentScreen>
   bool _isProcessing = false;
   bool _saveCard = false;
   String? _orderId;
+  bool _isLoadingPaymentMethods = true;
+  String? _paymentLoadError;
 
   // Stripe Integration
   final StripeService _stripeService = StripeService();
