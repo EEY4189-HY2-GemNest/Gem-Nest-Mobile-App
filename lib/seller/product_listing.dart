@@ -81,8 +81,6 @@ class _ProductListingState extends State<ProductListing>
       }
     } catch (e) {
       print('Error loading delivery config: $e');
-    } finally {
-      setState(() => _isLoadingDeliveryConfig = false);
     }
   }
 
@@ -110,8 +108,6 @@ class _ProductListingState extends State<ProductListing>
       }
     } catch (e) {
       print('Error loading payment config: $e');
-    } finally {
-      setState(() => _isLoadingPaymentConfig = false);
     }
   }
 
@@ -160,101 +156,35 @@ class _ProductListingState extends State<ProductListing>
     });
   }
 
-  Future<String?> _uploadFirstImage() async {
-    if (_auth.currentUser == null) {
-      _showErrorDialog('You must be signed in to upload images.');
-      return null;
-    }
-
-    File? firstImage =
-        _images.firstWhere((image) => image != null, orElse: () => null);
-
-    if (firstImage == null) {
-      _showErrorDialog('Please select at least one image.');
-      return null;
-    }
-
-    String fileName =
-        'product_images/${DateTime.now().millisecondsSinceEpoch}_${firstImage.path.split('/').last}';
-
-    try {
-      SettableMetadata metadata = SettableMetadata(
-        cacheControl: 'public,max-age=31536000',
-        contentType: 'image/jpeg',
-      );
-
-      UploadTask uploadTask =
-          _storage.ref(fileName).putFile(firstImage, metadata);
-      TaskSnapshot snapshot = await uploadTask;
-      String downloadUrl = await snapshot.ref.getDownloadURL();
-      return downloadUrl;
-    } on FirebaseException catch (e) {
-      String errorMessage = 'Error uploading image: ${e.message}';
-      if (e.code == 'permission-denied') {
-        errorMessage =
-            'Permission denied. Check your authentication status or storage rules.';
-      }
-      _showErrorDialog(errorMessage);
-      return null;
-    } catch (e) {
-      _showErrorDialog('Unexpected error uploading image: $e');
-      return null;
-    }
+  void _showConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirm Product Listing'),
+        content: const Text('Are you sure you want to list this product?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _showSuccessDialog();
+            },
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
+    );
   }
 
-  Future<List<Map<String, String>>?> _uploadCertificates() async {
-    if (_auth.currentUser == null) {
-      _showErrorDialog('You must be signed in to upload certificates.');
-      return null;
-    }
+  void _handleBulkUpload() {
+    _showErrorDialog('Bulk upload feature coming soon!');
+  }
 
-    if (_certificateFiles.isEmpty) {
-      _showErrorDialog(
-          'Gem Authorization Certificate is required. Please upload at least one certificate.');
-      return null;
-    }
-
-    List<Map<String, String>> uploadedCertificates = [];
-
-    for (var certFile in _certificateFiles) {
-      String fileExtension = certFile.path.split('.').last;
-      String fileName =
-          'gem_certificates/${DateTime.now().millisecondsSinceEpoch}_${_auth.currentUser!.uid}_${certFile.path.split('/').last}';
-
-      try {
-        SettableMetadata metadata = SettableMetadata(
-          cacheControl: 'public,max-age=31536000',
-          contentType:
-              fileExtension == 'pdf' ? 'application/pdf' : 'image/jpeg',
-        );
-
-        UploadTask uploadTask =
-            _storage.ref(fileName).putFile(certFile, metadata);
-        TaskSnapshot snapshot = await uploadTask;
-        String downloadUrl = await snapshot.ref.getDownloadURL();
-
-        uploadedCertificates.add({
-          'url': downloadUrl,
-          'fileName': certFile.path.split('/').last,
-          'type': fileExtension,
-          'uploadedAt': DateTime.now().toIso8601String(),
-          'status': 'pending', // pending verification
-        });
-      } on FirebaseException catch (e) {
-        String errorMessage = 'Error uploading certificate: ${e.message}';
-        if (e.code == 'permission-denied') {
-          errorMessage =
-              'Permission denied. Check your authentication status or storage rules.';
-        }
-        _showErrorDialog(errorMessage);
-        return null;
-      } catch (e) {
-        _showErrorDialog('Unexpected error uploading certificate: $e');
-        return null;
-      }
-    }
-
-    return uploadedCertificates;
+  Future<void> _downloadCsvTemplate() async {
+    _showErrorDialog('CSV template download coming soon!');
   }
 
   @override
