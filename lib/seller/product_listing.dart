@@ -18,27 +18,27 @@ class _ProductListingState extends State<ProductListing>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
-  
+
   final List<File?> _images = List.filled(3, null);
   final List<File> _certificateFiles = [];
   final _formKey = GlobalKey<FormState>();
-  
+
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _pricingController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  
+
   String? _selectedCategory;
-  bool _isBulkUploading = false;
-  bool _isDownloadingTemplate = false;
+  final bool _isBulkUploading = false;
+  final bool _isDownloadingTemplate = false;
   bool _isDeliveryExpanded = false;
   bool _isPaymentExpanded = false;
 
   Map<String, Map<String, dynamic>> _availableDeliveryMethods = {};
-  Set<String> _selectedDeliveryMethods = {};
+  final Set<String> _selectedDeliveryMethods = {};
 
   Map<String, Map<String, dynamic>> _availablePaymentMethods = {};
-  Set<String> _selectedPaymentMethods = {};
+  final Set<String> _selectedPaymentMethods = {};
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -139,7 +139,7 @@ class _ProductListingState extends State<ProductListing>
     try {
       final picker = ImagePicker();
       final pickedFiles = await picker.pickMultiImage();
-      
+
       if (pickedFiles.isNotEmpty && mounted) {
         setState(() {
           for (var file in pickedFiles) {
