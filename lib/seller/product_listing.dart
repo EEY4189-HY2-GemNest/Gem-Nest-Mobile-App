@@ -32,18 +32,18 @@ class _ProductListingState extends State<ProductListing>
   final TextEditingController _quantityController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   String? _selectedCategory;
-  bool _isBulkUploading = false;
-  bool _isDownloadingTemplate = false;
+  final bool _isBulkUploading = false;
+  final bool _isDownloadingTemplate = false;
 
   // Delivery methods
   Map<String, Map<String, dynamic>> _availableDeliveryMethods = {};
   final Set<String> _selectedDeliveryMethods = {};
-  bool _isDeliveryExpanded = false;
+  final bool _isDeliveryExpanded = false;
 
   // Payment methods
   Map<String, Map<String, dynamic>> _availablePaymentMethods = {};
   final Set<String> _selectedPaymentMethods = {};
-  bool _isPaymentExpanded = false;
+  final bool _isPaymentExpanded = false;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -666,15 +666,13 @@ class _ProductListingState extends State<ProductListing>
               onPressed: () async {
                 Navigator.pop(context);
                 String? imageUrl = await _uploadFirstImage();
-                if (imageUrl != null) {
-                  List<Map<String, String>>? certificates =
-                      await _uploadCertificates();
-                  if (certificates != null && certificates.isNotEmpty) {
-                    await _saveProductToFirestore(imageUrl, certificates);
-                    _showSuccessDialog();
-                  }
+                List<Map<String, String>>? certificates =
+                    await _uploadCertificates();
+                if (certificates.isNotEmpty) {
+                  await _saveProductToFirestore(imageUrl, certificates);
+                  _showSuccessDialog();
                 }
-              },
+                            },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
