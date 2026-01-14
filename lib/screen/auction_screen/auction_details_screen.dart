@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
-import 'package:provider/provider.dart';
 
 class AuctionDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> auction;
@@ -36,7 +34,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
             .collection('users')
             .doc(sellerId)
             .get();
-        
+
         if (sellerDoc.exists) {
           setState(() {
             _sellerData = sellerDoc.data();
@@ -60,7 +58,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
 
     final phoneNumber = _sellerData!['phone'];
     final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
-    
+
     try {
       if (await canLaunchUrl(phoneUri)) {
         await launchUrl(phoneUri);
@@ -81,7 +79,8 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
     }
 
     final phoneNumber = _sellerData!['phone'];
-    final String message = 'Hi, I am interested in bidding for ${_auction['title']}';
+    final String message =
+        'Hi, I am interested in bidding for ${_auction['title']}';
     final Uri whatsappUri = Uri.parse(
       'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}',
     );
@@ -244,8 +243,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          _formatDuration(
-                              _getTimeRemaining() ?? Duration.zero),
+                          _formatDuration(_getTimeRemaining() ?? Duration.zero),
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -382,8 +380,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          _auction['description'] ??
-                              'No description available',
+                          _auction['description'] ?? 'No description available',
                           style: const TextStyle(
                             fontSize: 14,
                             color: Colors.grey[700],
@@ -425,8 +422,8 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                               itemCount:
                                   (_auction['gemCertificates'] as List).length,
                               itemBuilder: (context, index) {
-                                final cert =
-                                    (_auction['gemCertificates'] as List)[index];
+                                final cert = (_auction['gemCertificates']
+                                    as List)[index];
                                 return ListTile(
                                   leading: Icon(
                                     _getCertificateIcon(cert['type']),
@@ -552,8 +549,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.green,
                               foregroundColor: Colors.white,
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 14),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -573,8 +569,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.green[600],
                               foregroundColor: Colors.white,
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 14),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
