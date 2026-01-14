@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:image_picker/image_picker.dart';
@@ -41,7 +40,6 @@ class _ProductListingState extends State<ProductListing>
   final Set<String> _selectedPaymentMethods = {};
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
@@ -81,8 +79,6 @@ class _ProductListingState extends State<ProductListing>
       }
     } catch (e) {
       print('Error loading delivery config: $e');
-    } finally {
-      setState(() => _isLoadingDeliveryConfig = false);
     }
   }
 
@@ -110,8 +106,6 @@ class _ProductListingState extends State<ProductListing>
       }
     } catch (e) {
       print('Error loading payment config: $e');
-    } finally {
-      setState(() => _isLoadingPaymentConfig = false);
     }
   }
 
@@ -160,164 +154,35 @@ class _ProductListingState extends State<ProductListing>
     });
   }
 
-  Future<String?> _uploadFirstImage() async {
-    if (_auth.currentUser == null) {
-      _showErrorDialog('You must be signed in to upload images.');
-      return null;
-    }
-
-    File? firstImage =
-        _images.firstWhere((image) => image != null, orElse: () => null);
-
-    if (firstImage == null) {
-      _showErrorDialog('Please select at least one image.');
-      return null;
-    }
-
-    String fileName =
-        'product_images/${DateTime.now().millisecondsSinceEpoch}_${firstImage.path.split('/').last}';
-
-    try {
-      SettableMetadata metadata = SettableMetadata(
-        cacheControl: 'public,max-age=31536000',
-        contentType: 'image/jpeg',
-      );
-
-      UploadTask uploadTask =
-          _storage.ref(fileName).putFile(firstImage, metadata);
-      TaskSnapshot snapshot = await uploadTask;
-      String downloadUrl = await snapshot.ref.getDownloadURL();
-      return downloadUrl;
-    } on FirebaseException catch (e) {
-      String errorMessage = 'Error uploading image: ${e.message}';
-      if (e.code == 'permission-denied') {
-        errorMessage =
-            'Permission denied. Check your authentication status or storage rules.';
-      }
-      _showErrorDialog(errorMessage);
-      return null;
-    } catch (e) {
-      _showErrorDialog('Unexpected error uploading image: $e');
-      return null;
-    }
-  }
-
-  Future<List<Map<String, String>>?> _uploadCertificates() async {
-    if (_auth.currentUser == null) {
-      _showErrorDialog('You must be signed in to upload certificates.');
-      return null;
-    }
-
-    if (_certificateFiles.isEmpty) {
-      _showErrorDialog(
-          'Gem Authorization Certificate is required. Please upload at least one certificate.');
-      return null;
-    }
-
-    List<Map<String, String>> uploadedCertificates = [];
-
-    for (var certFile in _certificateFiles) {
-      String fileExtension = certFile.path.split('.').last;
-      String fileName =
-          'gem_certificates/${DateTime.now().millisecondsSinceEpoch}_${_auth.currentUser!.uid}_${certFile.path.split('/').last}';
-
-      try {
-        SettableMetadata metadata = SettableMetadata(
-          cacheControl: 'public,max-age=31536000',
-          contentType:
-              fileExtension == 'pdf' ? 'application/pdf' : 'image/jpeg',
-        );
-
-        UploadTask uploadTask =
-            _storage.ref(fileName).putFile(certFile, metadata);
-        TaskSnapshot snapshot = await uploadTask;
-        String downloadUrl = await snapshot.ref.getDownloadURL();
-
-        uploadedCertificates.add({
-          'url': downloadUrl,
-          'fileName': certFile.path.split('/').last,
-          'type': fileExtension,
-          'uploadedAt': DateTime.now().toIso8601String(),
-          'status': 'pending', // pending verification
-        });
-      } on FirebaseException catch (e) {
-        String errorMessage = 'Error uploading certificate: ${e.message}';
-        if (e.code == 'permission-denied') {
-          errorMessage =
-              'Permission denied. Check your authentication status or storage rules.';
-        }
-        _showErrorDialog(errorMessage);
-        return null;
-      } catch (e) {
-        _showErrorDialog('Unexpected error uploading certificate: $e');
-        return null;
-      }
-    }
-
-    return uploadedCertificates;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Product Listing'),
-        elevation: 0,
+  void _showConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirm Product Listing'),
+        content: const Text('Are you sure you want to list this product?'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.help_outline),
-            onPressed: () {},
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _showSuccessDialog();
+            },
+            child: const Text('Confirm'),
           ),
         ],
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Category Section
-              Text(
-                'Product Category',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 12),
-              DropdownButton<String>(
-                value: _selectedCategory,
-                isExpanded: true,
-                items: ['Gemstones', 'Jewelry', 'Auction Items']
-                    .map((category) => DropdownMenuItem(
-                        value: category, child: Text(category)))
-                    .toList(),
-                onChanged: (value) =>
-                    setState(() => _selectedCategory = value ?? ''),
-              ),
-              const SizedBox(height: 24),
-              // Certificate Upload Section
-              Text(
-                'Gem Authorization Certificate',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.file_upload),
-                label: const Text('Upload Certificate'),
-              ),
-              const SizedBox(height: 24),
-              // Submit Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  child: const Text('Complete Listing'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
+  }
+
+  void _handleBulkUpload() {
+    _showErrorDialog('Bulk upload feature coming soon!');
+  }
+
+  Future<void> _downloadCsvTemplate() async {
+    _showErrorDialog('CSV template download coming soon!');
   }
 
   void _showSuccessDialog({String? message}) {
