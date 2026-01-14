@@ -333,7 +333,8 @@ class _ProductListingState extends State<ProductListing>
       ),
     );
   }
-}
+
+  void _showSuccessDialog({String? message}) {
     showDialog(
       context = context,
       builder = (context) => AlertDialog(
