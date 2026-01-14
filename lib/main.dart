@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gemnest_mobile_app/firebase_options.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
+import 'package:gemnest_mobile_app/services/notification_service.dart';
 import 'package:gemnest_mobile_app/splash_screen.dart';
 import 'package:gemnest_mobile_app/stripe_service.dart';
 import 'package:gemnest_mobile_app/stripe_service_direct.dart';
@@ -37,6 +38,9 @@ void main() async {
     // Initialize Stripe services
     await StripeService.initialize();
     await StripeServiceDirect.initialize();
+
+    // Initialize notification service
+    await NotificationService().initialize();
 
     runApp(
       MultiProvider(
