@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/auction_screen/auction_payment_screen.dart';
-import 'package:gemnest_mobile_app/screen/auction_screen/auction_details_screen.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
 
@@ -340,15 +339,31 @@ class _AuctionScreenState extends State<AuctionScreen> {
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 16),
-              child: AuctionItemCard(
-                auctionId: doc.id,
-                imagePath: data['imagePath'] ?? '',
-                title: data['title'] ?? 'Untitled',
-                currentBid: (data['currentBid'] as num?)?.toDouble() ?? 0.0,
-                endTime: _parseEndTime(data['endTime']),
-                minimumIncrement:
-                    (data['minimumIncrement'] as num?)?.toDouble() ?? 0.0,
-                paymentStatus: data['paymentStatus'] ?? 'pending',
+              child: GestureDetector(
+                onTap: () {
+                  // Navigate to auction details screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AuctionDetailsScreen(
+                        auction: {
+                          'id': doc.id,
+                          ...data,
+                        },
+                      ),
+                    ),
+                  );
+                },
+                child: AuctionItemCard(
+                  auctionId: doc.id,
+                  imagePath: data['imagePath'] ?? '',
+                  title: data['title'] ?? 'Untitled',
+                  currentBid: (data['currentBid'] as num?)?.toDouble() ?? 0.0,
+                  endTime: _parseEndTime(data['endTime']),
+                  minimumIncrement:
+                      (data['minimumIncrement'] as num?)?.toDouble() ?? 0.0,
+                  paymentStatus: data['paymentStatus'] ?? 'pending',
+                ),
               ),
             );
           },
