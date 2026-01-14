@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:gemnest_mobile_app/providers/buyer_notification_provider.dart';
-import 'package:gemnest_mobile_app/widget/buyer_notification_widgets.dart';
 import 'package:gemnest_mobile_app/screen/notification_settings_screen.dart';
+import 'package:gemnest_mobile_app/widget/buyer_notification_widgets.dart';
+import 'package:provider/provider.dart';
 
 /// Buyer Notifications Screen - Full notifications view for buyers
 class BuyerNotificationsScreen extends StatefulWidget {
-  const BuyerNotificationsScreen({Key? key}) : super(key: key);
+  const BuyerNotificationsScreen({super.key});
 
   @override
   State<BuyerNotificationsScreen> createState() =>
@@ -64,8 +64,8 @@ class _BuyerNotificationsScreenState extends State<BuyerNotificationsScreen> {
                     notifications = provider.getUnreadNotifications();
                   } else if (_selectedFilter != null &&
                       _selectedFilter != 'all') {
-                    notifications = provider
-                        .getNotificationsByCategory(_selectedFilter!);
+                    notifications =
+                        provider.getNotificationsByCategory(_selectedFilter!);
                   } else {
                     notifications = provider.notifications;
                   }
