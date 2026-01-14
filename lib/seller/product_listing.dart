@@ -1,15 +1,11 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:csv/csv.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 
 class ProductListing extends StatefulWidget {
   const ProductListing({super.key});
@@ -22,30 +18,27 @@ class _ProductListingState extends State<ProductListing>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
+  
   final List<File?> _images = List.filled(3, null);
   final List<File> _certificateFiles = [];
   final _formKey = GlobalKey<FormState>();
+  
   final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _categoryController = TextEditingController();
   final TextEditingController _pricingController = TextEditingController();
-  final TextEditingController _unitController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  
   String? _selectedCategory;
-  final bool _isBulkUploading = false;
-  final bool _isDownloadingTemplate = false;
+  bool _isBulkUploading = false;
+  bool _isDownloadingTemplate = false;
+  bool _isDeliveryExpanded = false;
+  bool _isPaymentExpanded = false;
 
-  // Delivery methods
   Map<String, Map<String, dynamic>> _availableDeliveryMethods = {};
-  final Set<String> _selectedDeliveryMethods = {};
-  final bool _isDeliveryExpanded = false;
-  bool _isLoadingDeliveryConfig = true;
+  Set<String> _selectedDeliveryMethods = {};
 
-  // Payment methods
   Map<String, Map<String, dynamic>> _availablePaymentMethods = {};
-  final Set<String> _selectedPaymentMethods = {};
-  final bool _isPaymentExpanded = false;
-  bool _isLoadingPaymentConfig = true;
+  Set<String> _selectedPaymentMethods = {};
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -126,9 +119,7 @@ class _ProductListingState extends State<ProductListing>
   void dispose() {
     _controller.dispose();
     _titleController.dispose();
-    _categoryController.dispose();
     _pricingController.dispose();
-    _unitController.dispose();
     _quantityController.dispose();
     _descriptionController.dispose();
     super.dispose();
@@ -146,25 +137,20 @@ class _ProductListingState extends State<ProductListing>
 
   Future<void> _pickCertificate() async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
-        allowMultiple: true,
-        withData: true,
-      );
-
-      if (result != null && result.files.isNotEmpty) {
+      final picker = ImagePicker();
+      final pickedFiles = await picker.pickMultiImage();
+      
+      if (pickedFiles.isNotEmpty && mounted) {
         setState(() {
-          for (var file in result.files) {
-            if (file.path != null &&
-                !_certificateFiles.any((f) => f.path == file.path)) {
-              _certificateFiles.add(File(file.path!));
-            }
+          for (var file in pickedFiles) {
+            _certificateFiles.add(File(file.path));
           }
         });
       }
     } catch (e) {
-      _showErrorDialog('Error picking certificates: $e');
+      if (mounted) {
+        _showErrorDialog('Error picking certificates: $e');
+      }
     }
   }
 
