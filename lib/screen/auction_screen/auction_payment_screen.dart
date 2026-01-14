@@ -232,7 +232,7 @@ class _AuctionPaymentScreenState extends State<AuctionPaymentScreen> {
         });
       }
 
-      DocumentReference paymentRef = await FirebaseFirestore.instance
+      await FirebaseFirestore.instance
           .collection('payments')
           .add(paymentData);
 
