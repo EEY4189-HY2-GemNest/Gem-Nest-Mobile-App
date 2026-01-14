@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:gemnest_mobile_app/providers/seller_notification_provider.dart';
-import 'package:gemnest_mobile_app/widget/seller_notification_widgets.dart';
 import 'package:gemnest_mobile_app/screen/notification_settings_screen.dart';
+import 'package:gemnest_mobile_app/widget/seller_notification_widgets.dart';
+import 'package:provider/provider.dart';
 
 /// Seller Notifications Screen - Full notifications view for sellers
 class SellerNotificationsScreen extends StatefulWidget {
-  const SellerNotificationsScreen({Key? key}) : super(key: key);
+  const SellerNotificationsScreen({super.key});
 
   @override
   State<SellerNotificationsScreen> createState() =>
       _SellerNotificationsScreenState();
 }
 
-class _SellerNotificationsScreenState
-    extends State<SellerNotificationsScreen> {
+class _SellerNotificationsScreenState extends State<SellerNotificationsScreen> {
   String? _selectedFilter;
 
   @override
