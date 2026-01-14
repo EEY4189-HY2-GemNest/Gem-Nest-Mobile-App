@@ -114,6 +114,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   List<Address> _addresses = [];
   Address? _selectedAddress;
   DeliveryOption? _selectedDelivery;
+  bool _isLoading = false;
   bool _showAddressForm = false;
   bool _saveDetails = true;
 
