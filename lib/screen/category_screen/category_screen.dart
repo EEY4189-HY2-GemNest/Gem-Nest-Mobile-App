@@ -172,7 +172,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
   // Updated product details dialog with modern design
   void _showProductDetails(BuildContext context, Map<String, dynamic> product) {
-    int cartQuantity = 0; // Local state to track quantity in the dialog
     String? sellerName; // Variable to hold the seller's name
     bool isLoadingSeller = true; // To show a loading indicator while fetching
 
