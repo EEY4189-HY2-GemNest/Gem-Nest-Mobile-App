@@ -5,12 +5,11 @@ class PaymentConfigHelper {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   /// Fetch seller's payment configuration
-  static Future<Map<String, dynamic>?> getSellerPaymentConfig(String sellerId) async {
+  static Future<Map<String, dynamic>?> getSellerPaymentConfig(
+      String sellerId) async {
     try {
-      final doc = await _firestore
-          .collection('payment_configs')
-          .doc(sellerId)
-          .get();
+      final doc =
+          await _firestore.collection('payment_configs').doc(sellerId).get();
 
       return doc.exists ? doc.data() : null;
     } catch (e) {
@@ -39,7 +38,8 @@ class PaymentConfigHelper {
   }
 
   /// Get bank transfer details for a seller
-  static Future<Map<String, dynamic>?> getBankTransferDetails(String sellerId) async {
+  static Future<Map<String, dynamic>?> getBankTransferDetails(
+      String sellerId) async {
     try {
       final config = await getSellerPaymentConfig(sellerId);
       if (config == null) return null;
