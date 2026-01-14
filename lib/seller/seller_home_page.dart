@@ -85,7 +85,6 @@ class _SellerHomePageState extends State<SellerHomePage>
           .get();
 
       // Filter for active auctions in code
-      final now = Timestamp.now();
       final activeAuctions = auctionsSnapshot.docs.where((doc) {
         final data = doc.data();
         final endTimeStr = data['endTime'];

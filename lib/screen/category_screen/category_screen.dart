@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/product_screen/product_card.dart';
@@ -172,7 +174,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
   // Updated product details dialog with modern design
   void _showProductDetails(BuildContext context, Map<String, dynamic> product) {
-    int cartQuantity = 0; // Local state to track quantity in the dialog
     String? sellerName; // Variable to hold the seller's name
     bool isLoadingSeller = true; // To show a loading indicator while fetching
 

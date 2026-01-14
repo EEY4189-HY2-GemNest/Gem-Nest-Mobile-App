@@ -1,5 +1,7 @@
 // Auction Model with optimized data structures
 
+// ignore_for_file: constant_identifier_names
+
 class Auction {
   final String id;
   final String title;
