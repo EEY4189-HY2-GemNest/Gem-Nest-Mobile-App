@@ -1,10 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 /// Helper class to manage seller payment configurations from Firebase
 class PaymentConfigHelper {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  static final FirebaseAuth _auth = FirebaseAuth.instance;
 
   /// Fetch seller's payment configuration
   static Future<Map<String, dynamic>?> getSellerPaymentConfig(String sellerId) async {
