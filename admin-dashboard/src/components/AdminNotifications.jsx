@@ -113,11 +113,10 @@ export function AdminNotificationCenter({ adminId }) {
                             <button
                                 key={filter}
                                 onClick={() => setSelectedFilter(filter)}
-                                className={`px-3 py-1 rounded-full text-sm whitespace-nowrap transition ${
-                                    selectedFilter === filter
+                                className={`px-3 py-1 rounded-full text-sm whitespace-nowrap transition ${selectedFilter === filter
                                         ? 'bg-blue-100 text-blue-700'
                                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                }`}
+                                    }`}
                             >
                                 {filter.charAt(0).toUpperCase() +
                                     filter.slice(1)}
@@ -214,9 +213,8 @@ export function AdminNotificationItem({
 
     return (
         <div
-            className={`p-4 border-b hover:bg-gray-50 transition cursor-pointer ${
-                !notification.isRead ? 'bg-blue-50' : ''
-            } ${getNotificationColor(notification.type)}`}
+            className={`p-4 border-b hover:bg-gray-50 transition cursor-pointer ${!notification.isRead ? 'bg-blue-50' : ''
+                } ${getNotificationColor(notification.type)}`}
             onClick={!notification.isRead ? onMarkAsRead : undefined}
         >
             <div className="flex items-start gap-3">
@@ -229,11 +227,10 @@ export function AdminNotificationItem({
                 <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
                         <p
-                            className={`font-semibold text-sm truncate ${
-                                !notification.isRead
+                            className={`font-semibold text-sm truncate ${!notification.isRead
                                     ? 'font-bold'
                                     : 'font-medium'
-                            }`}
+                                }`}
                         >
                             {notification.title}
                         </p>
