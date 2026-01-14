@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 import 'package:gemnest_mobile_app/models/notification_model.dart';
 import 'package:gemnest_mobile_app/providers/seller_notification_provider.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 /// Seller Notification Tile Widget - displays a single notification
 class SellerNotificationTile extends StatelessWidget {
@@ -11,11 +11,11 @@ class SellerNotificationTile extends StatelessWidget {
   final VoidCallback? onDelete;
 
   const SellerNotificationTile({
-    Key? key,
+    super.key,
     required this.notification,
     this.onTap,
     this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -38,9 +38,8 @@ class SellerNotificationTile extends StatelessWidget {
             color: notification.isRead ? Colors.grey[100] : Colors.orange[50],
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: notification.isRead
-                  ? Colors.grey[300]!
-                  : Colors.orange[200]!,
+              color:
+                  notification.isRead ? Colors.grey[300]! : Colors.orange[200]!,
               width: 1,
             ),
           ),
@@ -124,8 +123,7 @@ class SellerNotificationTile extends StatelessWidget {
 class SellerNotificationsList extends StatefulWidget {
   final String? filterCategory;
 
-  const SellerNotificationsList({Key? key, this.filterCategory})
-      : super(key: key);
+  const SellerNotificationsList({super.key, this.filterCategory});
 
   @override
   State<SellerNotificationsList> createState() =>
@@ -227,11 +225,11 @@ class SellerNotificationBadge extends StatelessWidget {
   final double size;
 
   const SellerNotificationBadge({
-    Key? key,
+    super.key,
     this.backgroundColor,
     this.textColor,
     this.size = 24,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -267,7 +265,7 @@ class SellerNotificationBadge extends StatelessWidget {
 
 /// Seller Pending Approvals Widget - Quick access to rejections
 class SellerPendingApprovalsCard extends StatelessWidget {
-  const SellerPendingApprovalsCard({Key? key}) : super(key: key);
+  const SellerPendingApprovalsCard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -329,9 +327,9 @@ class SellerNotificationFilterBar extends StatefulWidget {
   final Function(String) onFilterChanged;
 
   const SellerNotificationFilterBar({
-    Key? key,
+    super.key,
     required this.onFilterChanged,
-  }) : super(key: key);
+  });
 
   @override
   State<SellerNotificationFilterBar> createState() =>
@@ -371,7 +369,7 @@ class _SellerNotificationFilterBarState
 
 /// Seller Notification Actions Bar Widget
 class SellerNotificationActionsBar extends StatelessWidget {
-  const SellerNotificationActionsBar({Key? key}) : super(key: key);
+  const SellerNotificationActionsBar({super.key});
 
   @override
   Widget build(BuildContext context) {
