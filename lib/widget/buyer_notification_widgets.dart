@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 import 'package:gemnest_mobile_app/models/notification_model.dart';
 import 'package:gemnest_mobile_app/providers/buyer_notification_provider.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 /// Buyer Notification Tile Widget - displays a single notification
 class BuyerNotificationTile extends StatelessWidget {
@@ -11,11 +11,11 @@ class BuyerNotificationTile extends StatelessWidget {
   final VoidCallback? onDelete;
 
   const BuyerNotificationTile({
-    Key? key,
+    super.key,
     required this.notification,
     this.onTap,
     this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,8 @@ class BuyerNotificationTile extends StatelessWidget {
             color: notification.isRead ? Colors.grey[100] : Colors.blue[50],
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: notification.isRead ? Colors.grey[300]! : Colors.blue[200]!,
+              color:
+                  notification.isRead ? Colors.grey[300]! : Colors.blue[200]!,
               width: 1,
             ),
           ),
@@ -122,12 +123,10 @@ class BuyerNotificationTile extends StatelessWidget {
 class BuyerNotificationsList extends StatefulWidget {
   final String? filterCategory;
 
-  const BuyerNotificationsList({Key? key, this.filterCategory})
-      : super(key: key);
+  const BuyerNotificationsList({super.key, this.filterCategory});
 
   @override
-  State<BuyerNotificationsList> createState() =>
-      _BuyerNotificationsListState();
+  State<BuyerNotificationsList> createState() => _BuyerNotificationsListState();
 }
 
 class _BuyerNotificationsListState extends State<BuyerNotificationsList> {
@@ -209,11 +208,11 @@ class BuyerNotificationBadge extends StatelessWidget {
   final double size;
 
   const BuyerNotificationBadge({
-    Key? key,
+    super.key,
     this.backgroundColor,
     this.textColor,
     this.size = 24,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -252,9 +251,9 @@ class BuyerNotificationFilterBar extends StatefulWidget {
   final Function(String) onFilterChanged;
 
   const BuyerNotificationFilterBar({
-    Key? key,
+    super.key,
     required this.onFilterChanged,
-  }) : super(key: key);
+  });
 
   @override
   State<BuyerNotificationFilterBar> createState() =>
@@ -294,7 +293,7 @@ class _BuyerNotificationFilterBarState
 
 /// Buyer Notification Actions Bar Widget
 class BuyerNotificationActionsBar extends StatelessWidget {
-  const BuyerNotificationActionsBar({Key? key}) : super(key: key);
+  const BuyerNotificationActionsBar({super.key});
 
   @override
   Widget build(BuildContext context) {
