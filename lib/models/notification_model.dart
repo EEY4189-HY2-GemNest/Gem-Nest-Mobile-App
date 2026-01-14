@@ -292,52 +292,125 @@ class GemNestNotification {
 /// Notification preference model
 class NotificationPreferences {
   final String userId;
-  final bool productApprovals;
-  final bool auctionApprovals;
+  final bool enableNotifications;
+  final bool orderNotifications;
+  final bool auctionNotifications;
+  final bool paymentNotifications;
+  final bool approvalNotifications;
+  final bool promotionalNotifications;
+  final bool interestBasedNotifications;
   final bool bidNotifications;
-  final bool orderUpdates;
-  final bool promotions;
-  final bool systemMessages;
-  final bool emailNotifications;
-  final bool pushNotifications;
+  final bool digestNotifications;
+  final bool soundEnabled;
+  final bool vibrationEnabled;
+  final String notificationFrequency; // 'instant', 'hourly', 'daily'
+  final bool quietHoursEnabled;
+  final String quietHoursStart; // HH:mm format
+  final String quietHoursEnd; // HH:mm format
 
   NotificationPreferences({
     required this.userId,
-    this.productApprovals = true,
-    this.auctionApprovals = true,
+    this.enableNotifications = true,
+    this.orderNotifications = true,
+    this.auctionNotifications = true,
+    this.paymentNotifications = true,
+    this.approvalNotifications = true,
+    this.promotionalNotifications = true,
+    this.interestBasedNotifications = true,
     this.bidNotifications = true,
-    this.orderUpdates = true,
-    this.promotions = true,
-    this.systemMessages = true,
-    this.emailNotifications = true,
-    this.pushNotifications = true,
+    this.digestNotifications = false,
+    this.soundEnabled = true,
+    this.vibrationEnabled = true,
+    this.notificationFrequency = 'instant',
+    this.quietHoursEnabled = false,
+    this.quietHoursStart = '22:00',
+    this.quietHoursEnd = '08:00',
   });
 
   Map<String, dynamic> toMap() {
     return {
       'userId': userId,
-      'productApprovals': productApprovals,
-      'auctionApprovals': auctionApprovals,
+      'enableNotifications': enableNotifications,
+      'orderNotifications': orderNotifications,
+      'auctionNotifications': auctionNotifications,
+      'paymentNotifications': paymentNotifications,
+      'approvalNotifications': approvalNotifications,
+      'promotionalNotifications': promotionalNotifications,
+      'interestBasedNotifications': interestBasedNotifications,
       'bidNotifications': bidNotifications,
-      'orderUpdates': orderUpdates,
-      'promotions': promotions,
-      'systemMessages': systemMessages,
-      'emailNotifications': emailNotifications,
-      'pushNotifications': pushNotifications,
+      'digestNotifications': digestNotifications,
+      'soundEnabled': soundEnabled,
+      'vibrationEnabled': vibrationEnabled,
+      'notificationFrequency': notificationFrequency,
+      'quietHoursEnabled': quietHoursEnabled,
+      'quietHoursStart': quietHoursStart,
+      'quietHoursEnd': quietHoursEnd,
     };
   }
 
   factory NotificationPreferences.fromMap(Map<String, dynamic> map) {
     return NotificationPreferences(
       userId: map['userId'] as String? ?? '',
-      productApprovals: map['productApprovals'] as bool? ?? true,
-      auctionApprovals: map['auctionApprovals'] as bool? ?? true,
+      enableNotifications: map['enableNotifications'] as bool? ?? true,
+      orderNotifications: map['orderNotifications'] as bool? ?? true,
+      auctionNotifications: map['auctionNotifications'] as bool? ?? true,
+      paymentNotifications: map['paymentNotifications'] as bool? ?? true,
+      approvalNotifications: map['approvalNotifications'] as bool? ?? true,
+      promotionalNotifications:
+          map['promotionalNotifications'] as bool? ?? true,
+      interestBasedNotifications:
+          map['interestBasedNotifications'] as bool? ?? true,
       bidNotifications: map['bidNotifications'] as bool? ?? true,
-      orderUpdates: map['orderUpdates'] as bool? ?? true,
-      promotions: map['promotions'] as bool? ?? true,
-      systemMessages: map['systemMessages'] as bool? ?? true,
-      emailNotifications: map['emailNotifications'] as bool? ?? true,
-      pushNotifications: map['pushNotifications'] as bool? ?? true,
+      digestNotifications: map['digestNotifications'] as bool? ?? false,
+      soundEnabled: map['soundEnabled'] as bool? ?? true,
+      vibrationEnabled: map['vibrationEnabled'] as bool? ?? true,
+      notificationFrequency:
+          map['notificationFrequency'] as String? ?? 'instant',
+      quietHoursEnabled: map['quietHoursEnabled'] as bool? ?? false,
+      quietHoursStart: map['quietHoursStart'] as String? ?? '22:00',
+      quietHoursEnd: map['quietHoursEnd'] as String? ?? '08:00',
+    );
+  }
+
+  NotificationPreferences copyWith({
+    String? userId,
+    bool? enableNotifications,
+    bool? orderNotifications,
+    bool? auctionNotifications,
+    bool? paymentNotifications,
+    bool? approvalNotifications,
+    bool? promotionalNotifications,
+    bool? interestBasedNotifications,
+    bool? bidNotifications,
+    bool? digestNotifications,
+    bool? soundEnabled,
+    bool? vibrationEnabled,
+    String? notificationFrequency,
+    bool? quietHoursEnabled,
+    String? quietHoursStart,
+    String? quietHoursEnd,
+  }) {
+    return NotificationPreferences(
+      userId: userId ?? this.userId,
+      enableNotifications: enableNotifications ?? this.enableNotifications,
+      orderNotifications: orderNotifications ?? this.orderNotifications,
+      auctionNotifications: auctionNotifications ?? this.auctionNotifications,
+      paymentNotifications: paymentNotifications ?? this.paymentNotifications,
+      approvalNotifications:
+          approvalNotifications ?? this.approvalNotifications,
+      promotionalNotifications:
+          promotionalNotifications ?? this.promotionalNotifications,
+      interestBasedNotifications:
+          interestBasedNotifications ?? this.interestBasedNotifications,
+      bidNotifications: bidNotifications ?? this.bidNotifications,
+      digestNotifications: digestNotifications ?? this.digestNotifications,
+      soundEnabled: soundEnabled ?? this.soundEnabled,
+      vibrationEnabled: vibrationEnabled ?? this.vibrationEnabled,
+      notificationFrequency:
+          notificationFrequency ?? this.notificationFrequency,
+      quietHoursEnabled: quietHoursEnabled ?? this.quietHoursEnabled,
+      quietHoursStart: quietHoursStart ?? this.quietHoursStart,
+      quietHoursEnd: quietHoursEnd ?? this.quietHoursEnd,
     );
   }
 }
