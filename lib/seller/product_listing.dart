@@ -38,13 +38,11 @@ class _ProductListingState extends State<ProductListing>
   // Delivery methods
   Map<String, Map<String, dynamic>> _availableDeliveryMethods = {};
   final Set<String> _selectedDeliveryMethods = {};
-  bool _isLoadingDeliveryConfig = true;
   bool _isDeliveryExpanded = false;
 
   // Payment methods
   Map<String, Map<String, dynamic>> _availablePaymentMethods = {};
   final Set<String> _selectedPaymentMethods = {};
-  bool _isLoadingPaymentConfig = true;
   bool _isPaymentExpanded = false;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -271,20 +269,70 @@ class _ProductListingState extends State<ProductListing>
     return uploadedCertificates;
   }
 
-  Future<String?> _uploadCertificate() async {
-    if (_auth.currentUser == null) {
-      _showErrorDialog('You must be signed in to upload certificates.');
-      return null;
-    }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Product Listing'),
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            onPressed: () {},
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Category Section
+              Text(
+                'Product Category',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 12),
+              DropdownButton<String>(
+                value: _selectedCategory,
+                isExpanded: true,
+                items: ['Gemstones', 'Jewelry', 'Auction Items']
+                    .map((category) =>
+                    DropdownMenuItem(value: category, child: Text(category)))
+                    .toList(),
+                onChanged: (value) =>
+                    setState(() => _selectedCategory = value ?? ''),
+              ),
+              const SizedBox(height: 24),
+              // Certificate Upload Section
+              Text(
+                'Gem Authorization Certificate',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton.icon(
+                onPressed: () {},
+                icon: const Icon(Icons.file_upload),
+                label: const Text('Upload Certificate'),
+              ),
+              const SizedBox(height: 24),
+              // Submit Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {},
+                  child: const Text('Complete Listing'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-    if (_certificateFiles.isEmpty) {
-      // Certificate is REQUIRED
-      _showErrorDialog(
-          'Gem Authorization Certificate is required. Please upload a certificate.');
-      return null;
-    }
-
-    String fileExtension = _certificateFiles[0].path.split('.').last;
+  String fileExtension = _certificateFiles[0].path.split('.').last;
     String fileName =
         'gem_certificates/${DateTime.now().millisecondsSinceEpoch}_${_auth.currentUser!.uid}_certificate.$fileExtension';
 
