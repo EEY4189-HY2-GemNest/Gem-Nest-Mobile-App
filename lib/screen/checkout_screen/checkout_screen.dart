@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, unused_field
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -108,7 +110,6 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   String? _deliveryLoadError;
 
   // Form Keys
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _addressFormKey = GlobalKey<FormState>();
 
   // State Variables
@@ -118,7 +119,6 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   bool _isLoading = false;
   bool _showAddressForm = false;
   bool _saveDetails = true;
-  final int _currentStep = 0;
 
   // Animation Controllers
   late AnimationController _fadeController;

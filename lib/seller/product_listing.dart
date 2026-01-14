@@ -1,15 +1,10 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:csv/csv.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 
 class ProductListing extends StatefulWidget {
   const ProductListing({super.key});
@@ -22,33 +17,29 @@ class _ProductListingState extends State<ProductListing>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
+
   final List<File?> _images = List.filled(3, null);
   final List<File> _certificateFiles = [];
   final _formKey = GlobalKey<FormState>();
+
   final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _categoryController = TextEditingController();
   final TextEditingController _pricingController = TextEditingController();
-  final TextEditingController _unitController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+
   String? _selectedCategory;
-  bool _isBulkUploading = false;
-  bool _isDownloadingTemplate = false;
-
-  // Delivery methods
-  Map<String, Map<String, dynamic>> _availableDeliveryMethods = {};
-  final Set<String> _selectedDeliveryMethods = {};
-  bool _isLoadingDeliveryConfig = true;
+  final bool _isBulkUploading = false;
+  final bool _isDownloadingTemplate = false;
   bool _isDeliveryExpanded = false;
-
-  // Payment methods
-  Map<String, Map<String, dynamic>> _availablePaymentMethods = {};
-  final Set<String> _selectedPaymentMethods = {};
-  bool _isLoadingPaymentConfig = true;
   bool _isPaymentExpanded = false;
 
+  Map<String, Map<String, dynamic>> _availableDeliveryMethods = {};
+  final Set<String> _selectedDeliveryMethods = {};
+
+  Map<String, Map<String, dynamic>> _availablePaymentMethods = {};
+  final Set<String> _selectedPaymentMethods = {};
+
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
@@ -88,8 +79,6 @@ class _ProductListingState extends State<ProductListing>
       }
     } catch (e) {
       print('Error loading delivery config: $e');
-    } finally {
-      setState(() => _isLoadingDeliveryConfig = false);
     }
   }
 
@@ -117,8 +106,6 @@ class _ProductListingState extends State<ProductListing>
       }
     } catch (e) {
       print('Error loading payment config: $e');
-    } finally {
-      setState(() => _isLoadingPaymentConfig = false);
     }
   }
 
@@ -126,9 +113,7 @@ class _ProductListingState extends State<ProductListing>
   void dispose() {
     _controller.dispose();
     _titleController.dispose();
-    _categoryController.dispose();
     _pricingController.dispose();
-    _unitController.dispose();
     _quantityController.dispose();
     _descriptionController.dispose();
     super.dispose();
@@ -146,25 +131,20 @@ class _ProductListingState extends State<ProductListing>
 
   Future<void> _pickCertificate() async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
-        allowMultiple: true,
-        withData: true,
-      );
+      final picker = ImagePicker();
+      final pickedFiles = await picker.pickMultiImage();
 
-      if (result != null && result.files.isNotEmpty) {
+      if (pickedFiles.isNotEmpty && mounted) {
         setState(() {
-          for (var file in result.files) {
-            if (file.path != null &&
-                !_certificateFiles.any((f) => f.path == file.path)) {
-              _certificateFiles.add(File(file.path!));
-            }
+          for (var file in pickedFiles) {
+            _certificateFiles.add(File(file.path));
           }
         });
       }
     } catch (e) {
-      _showErrorDialog('Error picking certificates: $e');
+      if (mounted) {
+        _showErrorDialog('Error picking certificates: $e');
+      }
     }
   }
 
@@ -174,474 +154,35 @@ class _ProductListingState extends State<ProductListing>
     });
   }
 
-  Future<String?> _uploadFirstImage() async {
-    if (_auth.currentUser == null) {
-      _showErrorDialog('You must be signed in to upload images.');
-      return null;
-    }
-
-    File? firstImage =
-        _images.firstWhere((image) => image != null, orElse: () => null);
-
-    if (firstImage == null) {
-      _showErrorDialog('Please select at least one image.');
-      return null;
-    }
-
-    String fileName =
-        'product_images/${DateTime.now().millisecondsSinceEpoch}_${firstImage.path.split('/').last}';
-
-    try {
-      SettableMetadata metadata = SettableMetadata(
-        cacheControl: 'public,max-age=31536000',
-        contentType: 'image/jpeg',
-      );
-
-      UploadTask uploadTask =
-          _storage.ref(fileName).putFile(firstImage, metadata);
-      TaskSnapshot snapshot = await uploadTask;
-      String downloadUrl = await snapshot.ref.getDownloadURL();
-      return downloadUrl;
-    } on FirebaseException catch (e) {
-      String errorMessage = 'Error uploading image: ${e.message}';
-      if (e.code == 'permission-denied') {
-        errorMessage =
-            'Permission denied. Check your authentication status or storage rules.';
-      }
-      _showErrorDialog(errorMessage);
-      return null;
-    } catch (e) {
-      _showErrorDialog('Unexpected error uploading image: $e');
-      return null;
-    }
+  void _showConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirm Product Listing'),
+        content: const Text('Are you sure you want to list this product?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _showSuccessDialog();
+            },
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
+    );
   }
 
-  Future<List<Map<String, String>>?> _uploadCertificates() async {
-    if (_auth.currentUser == null) {
-      _showErrorDialog('You must be signed in to upload certificates.');
-      return null;
-    }
-
-    if (_certificateFiles.isEmpty) {
-      _showErrorDialog(
-          'Gem Authorization Certificate is required. Please upload at least one certificate.');
-      return null;
-    }
-
-    List<Map<String, String>> uploadedCertificates = [];
-
-    for (var certFile in _certificateFiles) {
-      String fileExtension = certFile.path.split('.').last;
-      String fileName =
-          'gem_certificates/${DateTime.now().millisecondsSinceEpoch}_${_auth.currentUser!.uid}_${certFile.path.split('/').last}';
-
-      try {
-        SettableMetadata metadata = SettableMetadata(
-          cacheControl: 'public,max-age=31536000',
-          contentType:
-              fileExtension == 'pdf' ? 'application/pdf' : 'image/jpeg',
-        );
-
-        UploadTask uploadTask =
-            _storage.ref(fileName).putFile(certFile, metadata);
-        TaskSnapshot snapshot = await uploadTask;
-        String downloadUrl = await snapshot.ref.getDownloadURL();
-
-        uploadedCertificates.add({
-          'url': downloadUrl,
-          'fileName': certFile.path.split('/').last,
-          'type': fileExtension,
-          'uploadedAt': DateTime.now().toIso8601String(),
-          'status': 'pending', // pending verification
-        });
-      } on FirebaseException catch (e) {
-        String errorMessage = 'Error uploading certificate: ${e.message}';
-        if (e.code == 'permission-denied') {
-          errorMessage =
-              'Permission denied. Check your authentication status or storage rules.';
-        }
-        _showErrorDialog(errorMessage);
-        return null;
-      } catch (e) {
-        _showErrorDialog('Unexpected error uploading certificate: $e');
-        return null;
-      }
-    }
-
-    return uploadedCertificates;
-  }
-
-  Future<String?> _uploadCertificate() async {
-    if (_auth.currentUser == null) {
-      _showErrorDialog('You must be signed in to upload certificates.');
-      return null;
-    }
-
-    if (_certificateFiles.isEmpty) {
-      // Certificate is REQUIRED
-      _showErrorDialog(
-          'Gem Authorization Certificate is required. Please upload a certificate.');
-      return null;
-    }
-
-    String fileExtension = _certificateFiles[0].path.split('.').last;
-    String fileName =
-        'gem_certificates/${DateTime.now().millisecondsSinceEpoch}_${_auth.currentUser!.uid}_certificate.$fileExtension';
-
-    try {
-      SettableMetadata metadata = SettableMetadata(
-        cacheControl: 'public,max-age=31536000',
-        contentType: fileExtension == 'pdf' ? 'application/pdf' : 'image/jpeg',
-      );
-
-      UploadTask uploadTask =
-          _storage.ref(fileName).putFile(_certificateFiles[0], metadata);
-      TaskSnapshot snapshot = await uploadTask;
-      String downloadUrl = await snapshot.ref.getDownloadURL();
-      return downloadUrl;
-    } on FirebaseException catch (e) {
-      String errorMessage = 'Error uploading certificate: ${e.message}';
-      if (e.code == 'permission-denied') {
-        errorMessage =
-            'Permission denied. Check your authentication status or storage rules.';
-      }
-      _showErrorDialog(errorMessage);
-      return null;
-    } catch (e) {
-      _showErrorDialog('Unexpected error uploading certificate: $e');
-      return null;
-    }
-  }
-
-  Future<void> _saveProductToFirestore(
-      String? imageUrl, List<Map<String, String>>? certificates) async {
-    if (imageUrl == null) {
-      _showErrorDialog('Image upload failed. Please try again.');
-      return;
-    }
-
-    try {
-      await _firestore.collection('products').add({
-        'title': _titleController.text,
-        'category': _selectedCategory,
-        'pricing': double.tryParse(_pricingController.text) ?? 0.0,
-        'unit': _unitController.text,
-        'quantity': int.tryParse(_quantityController.text) ?? 0,
-        'description': _descriptionController.text,
-        'imageUrl': imageUrl,
-        'gemCertificates': certificates ?? [],
-        'certificateVerificationStatus': 'pending', // Admin verification status
-        'approvalStatus': 'pending', // Product listing approval status
-        'timestamp': FieldValue.serverTimestamp(),
-        'sellerId': _auth.currentUser?.uid,
-        'userId': _auth.currentUser?.uid,
-        'deliveryMethods': _selectedDeliveryMethods.toList(),
-        'paymentMethods': _selectedPaymentMethods.toList(),
-      });
-    } catch (e) {
-      _showErrorDialog('Error saving product: $e');
-    }
+  void _handleBulkUpload() {
+    _showErrorDialog('Bulk upload feature coming soon!');
   }
 
   Future<void> _downloadCsvTemplate() async {
-    try {
-      setState(() => _isDownloadingTemplate = true);
-
-      // Define the CSV headers
-      List<List<dynamic>> csvData = [
-        [
-          'title',
-          'category',
-          'pricing',
-          'quantity',
-          'unit',
-          'deliveryMethods',
-          'description',
-          'imageUrl',
-          'gemCertificateUrl'
-        ],
-      ];
-
-      // Convert to CSV string
-      String csv = const ListToCsvConverter().convert(csvData);
-
-      // Get the temporary directory
-      final directory = await getTemporaryDirectory();
-      final filePath = '${directory.path}/product_template.csv';
-      final file = File(filePath);
-
-      // Write the CSV string to the file
-      await file.writeAsString(csv);
-
-      // Share the file
-      await Share.shareXFiles([XFile(filePath)],
-          text: 'Product Listing CSV Template');
-    } catch (e) {
-      _showErrorDialog('Error generating CSV template: $e');
-    } finally {
-      setState(() => _isDownloadingTemplate = false);
-    }
-  }
-
-  Future<void> _handleBulkUpload() async {
-    try {
-      setState(() => _isBulkUploading = true);
-
-      // Check if the user is authenticated
-      if (_auth.currentUser == null) {
-        _showErrorDialog('You must be signed in to upload products.');
-        return;
-      }
-
-      // Pick the CSV file
-      FilePickerResult? csvResult = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['csv'],
-      );
-
-      if (csvResult == null || csvResult.files.single.path == null) {
-        _showErrorDialog('No CSV file selected.');
-        setState(() => _isBulkUploading = false);
-        return;
-      }
-
-      // Read the CSV file
-      final csvFile = File(csvResult.files.single.path!);
-      final input = await csvFile.readAsString();
-      final List<List<dynamic>> csvData =
-          const CsvToListConverter().convert(input);
-
-      // Validate CSV headers
-      if (csvData.isEmpty) {
-        _showErrorDialog('CSV file is empty.');
-        setState(() => _isBulkUploading = false);
-        return;
-      }
-
-      List<String> expectedHeaders = [
-        'title',
-        'category',
-        'pricing',
-        'quantity',
-        'unit',
-        'deliveryMethods',
-        'description',
-        'imageUrl',
-        'gemCertificateUrl'
-      ];
-
-      List<String> actualHeaders =
-          csvData[0].map((e) => e.toString().trim()).toList();
-
-      // Check number of columns
-      if (actualHeaders.length != expectedHeaders.length) {
-        _showErrorDialog(
-            'Header mismatch: Expected ${expectedHeaders.length} columns but found ${actualHeaders.length} columns.\n\n'
-            'Expected headers: ${expectedHeaders.join(", ")}\n'
-            'Found headers: ${actualHeaders.join(", ")}');
-        setState(() => _isBulkUploading = false);
-        return;
-      }
-
-      // Check each header for an exact match
-      StringBuffer headerErrors = StringBuffer();
-      for (int i = 0; i < expectedHeaders.length; i++) {
-        if (actualHeaders[i] != expectedHeaders[i]) {
-          headerErrors.writeln(
-              'Column ${i + 1}: Expected "${expectedHeaders[i]}", but found "${actualHeaders[i]}"');
-        }
-      }
-
-      if (headerErrors.isNotEmpty) {
-        _showErrorDialog(
-            'Header mismatch detected:\n\n${headerErrors.toString()}\n\n'
-            'Please ensure the CSV headers match exactly: ${expectedHeaders.join(", ")}');
-        setState(() => _isBulkUploading = false);
-        return;
-      }
-
-      // If headers are correct, proceed with data validation
-      List<Map<String, dynamic>> products = [];
-      StringBuffer errorMessages = StringBuffer();
-      for (int i = 1; i < csvData.length; i++) {
-        final row = csvData[i];
-        if (row.length != 9) {
-          errorMessages.writeln(
-              'Row ${i + 1}: Invalid number of columns. Expected 9, found ${row.length}');
-          continue;
-        }
-
-        String title = row[0].toString().trim();
-        String category = row[1].toString().trim();
-        String pricingStr = row[2].toString().trim();
-        String quantityStr = row[3].toString().trim();
-        String unit = row[4].toString().trim();
-        String deliveryMethodsStr = row[5].toString().trim();
-        String description = row[6].toString().trim();
-        String imageUrl = row[7].toString().trim();
-        String gemCertificateUrl = row[8].toString().trim();
-
-        // Parse delivery methods (comma-separated)
-        List<String> deliveryMethods = [];
-        if (deliveryMethodsStr.isNotEmpty) {
-          deliveryMethods = deliveryMethodsStr
-              .split(',')
-              .map((e) => e.trim())
-              .where((e) => e.isNotEmpty)
-              .toList();
-        }
-
-        // Validate each field
-        bool hasErrors = false;
-        if (title.isEmpty) {
-          errorMessages.writeln('Row ${i + 1}: Title is empty');
-          hasErrors = true;
-        }
-        if (category.isEmpty ||
-            !['Blue Sapphires', 'White Sapphires', 'Yellow Sapphires']
-                .contains(category)) {
-          errorMessages.writeln(
-              'Row ${i + 1}: Category is empty or invalid. Must be Blue Sapphires, White Sapphires, or Yellow Sapphires');
-          hasErrors = true;
-        }
-        double? pricing = double.tryParse(pricingStr);
-        if (pricingStr.isEmpty || pricing == null) {
-          errorMessages.writeln('Row ${i + 1}: Pricing is empty or invalid');
-          hasErrors = true;
-        }
-        int? quantity = int.tryParse(quantityStr);
-        if (quantityStr.isEmpty || quantity == null) {
-          errorMessages.writeln('Row ${i + 1}: Quantity is empty or invalid');
-          hasErrors = true;
-        }
-        if (description.isEmpty) {
-          errorMessages.writeln('Row ${i + 1}: Description is empty');
-          hasErrors = true;
-        }
-
-        if (!hasErrors) {
-          products.add({
-            'title': title,
-            'category': category,
-            'pricing': pricing!,
-            'quantity': quantity!,
-            'unit': unit,
-            'deliveryMethods': deliveryMethods,
-            'description': description,
-            'imageUrl': imageUrl,
-            'gemCertificateUrl': gemCertificateUrl,
-            'approvalStatus': 'pending', // Product listing approval status
-            'timestamp': FieldValue.serverTimestamp(),
-            'userId': _auth.currentUser!.uid,
-            'sellerId': _auth.currentUser!.uid,
-          });
-        }
-      }
-
-      if (products.isEmpty) {
-        if (errorMessages.isNotEmpty) {
-          _showErrorDialog(
-              'Upload failed due to the following errors:\n${errorMessages.toString()}');
-        } else {
-          _showErrorDialog(
-              'No valid products to upload. CSV file contains only headers or all rows are invalid.');
-        }
-        setState(() => _isBulkUploading = false);
-        return;
-      }
-
-      // Batch write to Firestore
-      WriteBatch batch = _firestore.batch();
-      for (var product in products) {
-        DocumentReference docRef = _firestore.collection('products').doc();
-        batch.set(docRef, product);
-      }
-
-      await batch.commit();
-      _showSuccessDialog(
-          message: 'Successfully uploaded ${products.length} products');
-    } catch (e) {
-      _showErrorDialog('Error uploading bulk products: $e');
-    } finally {
-      setState(() => _isBulkUploading = false);
-    }
-  }
-
-  void _showConfirmationDialog() {
-    // Validate certificate selection
-    if (_certificateFiles.isEmpty) {
-      _showErrorDialog(
-          'Gem Authorization Certificate is required. Please upload at least one certificate.');
-      return;
-    }
-
-    // Validate delivery methods selection
-    if (_selectedDeliveryMethods.isEmpty &&
-        _availableDeliveryMethods.isNotEmpty) {
-      _showErrorDialog('Please select at least one delivery method.');
-      return;
-    }
-
-    // Validate payment methods selection
-    if (_selectedPaymentMethods.isEmpty &&
-        _availablePaymentMethods.isNotEmpty) {
-      _showErrorDialog('Please select at least one payment method.');
-      return;
-    }
-
-    if (_formKey.currentState!.validate() &&
-        _images.any((image) => image != null)) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          backgroundColor: Colors.grey[900],
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text(
-            'Confirm Listing',
-            style: TextStyle(
-                color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          content: const Text(
-            'Are you sure you want to list this product?',
-            style: TextStyle(color: Colors.white70, fontSize: 16),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.grey),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                String? imageUrl = await _uploadFirstImage();
-                if (imageUrl != null) {
-                  List<Map<String, String>>? certificates =
-                      await _uploadCertificates();
-                  if (certificates != null && certificates.isNotEmpty) {
-                    await _saveProductToFirestore(imageUrl, certificates);
-                    _showSuccessDialog();
-                  }
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text('Confirm'),
-            ),
-          ],
-        ),
-      );
-    } else {
-      _showErrorDialog(
-          'Please fill all fields, upload at least one photo, and upload a gem certificate.');
-    }
+    _showErrorDialog('CSV template download coming soon!');
   }
 
   void _showSuccessDialog({String? message}) {

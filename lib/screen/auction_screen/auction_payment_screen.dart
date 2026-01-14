@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -232,9 +234,7 @@ class _AuctionPaymentScreenState extends State<AuctionPaymentScreen> {
         });
       }
 
-      DocumentReference paymentRef = await FirebaseFirestore.instance
-          .collection('payments')
-          .add(paymentData);
+      await FirebaseFirestore.instance.collection('payments').add(paymentData);
 
       DateTime paymentDate = DateTime.now();
       DateTime deliveryDate = paymentDate.add(const Duration(days: 5));

@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -370,42 +372,6 @@ class _ProfileScreenState extends State<ProfileScreen>
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message), backgroundColor: color));
-  }
-
-  Widget _buildProfileField({
-    required String label,
-    required TextEditingController controller,
-    bool enabled = true,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: TextField(
-        controller: controller,
-        enabled: enabled,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: TextStyle(color: AppTheme.primaryBlue),
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: AppTheme.borderGray),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: AppTheme.primaryBlue, width: 2),
-          ),
-          disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: AppTheme.borderGray),
-          ),
-        ),
-      ),
-    );
   }
 
   Future<bool> _onWillPop() async {
