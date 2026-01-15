@@ -1,0 +1,165 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - dev
+      - qa
+      - main
+
+jobs:
+  build:
+    name: Build and analyze
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          cache: true
+
+      - name: Cache Android SDK
+        if: github.ref == 'refs/heads/qa' || github.ref == 'refs/heads/main'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Android/sdk
+            ~/.android
+          key: ${{ runner.os }}-android-sdk-${{ hashFiles('**/build.gradle', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-android-sdk-
+
+      - name: Cache Pub dependencies
+        if: github.ref == 'refs/heads/qa' || github.ref == 'refs/heads/main'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            **/.dart_tool
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Cache Gradle
+        if: github.ref == 'refs/heads/qa' || github.ref == 'refs/heads/main'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      - name: Run analyzer
+        run: dart analyze lib/
+
+      - name: Build Web
+        run: flutter build web --release
+
+      - name: Prepare Web Build for Upload
+        id: web-prep
+        run: |
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          ARTIFACT_NAME="gem-nest-web_${TIMESTAMP}"
+          
+          echo "artifact_name=${ARTIFACT_NAME}" >> $GITHUB_OUTPUT
+          echo "web_path=build/web" >> $GITHUB_OUTPUT
+          
+          echo "Prepared web build for upload: ${ARTIFACT_NAME}"
+
+      - name: Upload Web Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.web-prep.outputs.artifact_name }}
+          path: ${{ steps.web-prep.outputs.web_path }}
+          retention-days: 30
+
+      - name: Build APK
+        if: github.ref == 'refs/heads/qa' || github.ref == 'refs/heads/main'
+        run: flutter build apk --release
+
+      - name: Find and prepare APK
+        if: github.ref == 'refs/heads/qa' || github.ref == 'refs/heads/main'
+        id: apk-name
+        run: |
+          APK_FILE=$(find . -name "*.apk" -path "*/build/app/outputs/flutter-apk/*.apk" | head -n 1)
+          
+          if [ -z "$APK_FILE" ]; then
+            echo "No APK file found"
+            exit 1
+          fi
+          
+          echo "Found APK: $APK_FILE"
+          
+          mkdir -p artifacts
+          
+          if [[ "$APK_FILE" != artifacts/* ]]; then
+            cp "$APK_FILE" artifacts/
+            APK_FILE="artifacts/$(basename "$APK_FILE")"
+          fi
+          
+          APK_NAME=$(basename "$APK_FILE" .apk)
+          echo "name=$APK_NAME" >> $GITHUB_OUTPUT
+          echo "path=$APK_FILE" >> $GITHUB_OUTPUT
+
+      - name: Upload APK Artifact
+        if: github.ref == 'refs/heads/qa' || github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.apk-name.outputs.name }}
+          path: ${{ steps.apk-name.outputs.path }}
+          retention-days: 30
+
+      - name: Build iOS (Archive)
+        if: github.ref == 'refs/heads/qa' || github.ref == 'refs/heads/main'
+        run: |
+          flutter build ios --release --no-codesign
+          cd ios
+          xcodebuild -workspace Runner.xcworkspace -scheme Runner -configuration Release -derivedDataPath ../build/ios_build -archivePath ../build/ios_build/Runner.xcarchive archive
+
+      - name: Upload iOS Build
+        if: github.ref == 'refs/heads/qa' || github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: gem-nest-ios-archive-${{ github.sha }}
+          path: build/ios_build/Runner.xcarchive
+          retention-days: 30
+
+  build-admin-dashboard:
+    name: Build Admin Dashboard
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/qa' || github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: admin-dashboard/package-lock.json
+
+      - name: Install dependencies
+        working-directory: admin-dashboard
+        run: npm install
+
+      - name: Build admin dashboard
+        working-directory: admin-dashboard
+        run: npm run build
+
+      - name: Upload Admin Dashboard Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-dashboard-build-${{ github.sha }}
+          path: admin-dashboard/dist
+          retention-days: 30
