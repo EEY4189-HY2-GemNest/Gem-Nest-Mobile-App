@@ -3,35 +3,34 @@ import { X, Download, Eye, AlertCircle, CheckCircle, Clock, FileText } from 'luc
 
 export default function SellerDetailsModal({ seller, onClose }) {
     const [selectedImage, setSelectedImage] = useState(null);
-    const [downloading, setDownloading] = useState(null);
+    const [downloadingId, setDownloadingId] = useState(null);
 
-    const handleDownload = (url, fileName) => {
+    const handleDownload = (url, downloadId) => {
         if (!url) return;
+        
+        setDownloadingId(downloadId);
+        
         try {
-            setDownloading(fileName);
-
-            // Add ?alt=media parameter if not present to ensure download instead of preview
+            // Ensure the URL has alt=media parameter
             const downloadUrl = url.includes('alt=media') ? url : `${url}?alt=media`;
-
+            
             // Create a temporary anchor element to trigger download
             const link = document.createElement('a');
             link.href = downloadUrl;
-            link.download = fileName;
-            link.setAttribute('rel', 'noreferrer noopener');
             link.style.display = 'none';
-
+            
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-
+            
             // Success feedback
-            setTimeout(() => setDownloading(null), 500);
+            setTimeout(() => setDownloadingId(null), 500);
         } catch (error) {
             console.error('Download error:', error);
             // Fallback: open in new tab if direct download fails
             const downloadUrl = url.includes('alt=media') ? url : `${url}?alt=media`;
             window.open(downloadUrl, '_blank');
-            setDownloading(null);
+            setDownloadingId(null);
         }
     };
 
@@ -168,11 +167,11 @@ export default function SellerDetailsModal({ seller, onClose }) {
                                         View
                                     </button>
                                     <button
-                                        onClick={() => handleDownload(seller.nicDocumentUrl, `NIC-${seller.nicNumber || seller.firebaseUid}.pdf`)}
-                                        disabled={downloading === 'nic'}
+                                        onClick={() => handleDownload(seller.nicDocumentUrl, 'nic')}
+                                        disabled={downloadingId === 'nic'}
                                         className="flex-1 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
                                     >
-                                        {downloading === 'nic' ? (
+                                        {downloadingId === 'nic' ? (
                                             <>
                                                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                                                 Downloading...
@@ -238,11 +237,11 @@ export default function SellerDetailsModal({ seller, onClose }) {
                                         View
                                     </button>
                                     <button
-                                        onClick={() => handleDownload(seller.businessRegistrationUrl, `BR-${seller.brNumber || seller.firebaseUid}.pdf`)}
-                                        disabled={downloading === 'br'}
+                                        onClick={() => handleDownload(seller.businessRegistrationUrl, 'br')}
+                                        disabled={downloadingId === 'br'}
                                         className="flex-1 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
                                     >
-                                        {downloading === 'br' ? (
+                                        {downloadingId === 'br' ? (
                                             <>
                                                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                                                 Downloading...
