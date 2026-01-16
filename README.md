@@ -372,14 +372,16 @@ await FirebaseFirestore.instance
 ## 🔒 Security Features
 
 ### Authentication
-- Firebase Authentication integration
+- Firebase Authentication integration with email/password
 - Secure user session management
+- Admin role-based access control
 - Multi-factor authentication support
 
 ### Data Security
-- Encrypted data transmission
-- Secure payment processing
-- User data privacy protection
+- Encrypted data transmission over HTTPS
+- Secure payment processing with Stripe
+- User data privacy protection with Firestore security rules
+- Sensitive credentials stored in environment variables
 
 ### Business Logic Security
 ```dart
@@ -387,7 +389,67 @@ await FirebaseFirestore.instance
 bool validateBid(double newBid, double currentBid, double minIncrement) {
   return newBid >= (currentBid + minIncrement);
 }
+
+// User authorization for seller operations
+bool isSellerAuthorized(String userId, String sellerId) {
+  return userId == sellerId;
+}
 ```
+
+## 📬 Push Notifications System
+
+### Overview
+GemNest uses Firebase Cloud Messaging (FCM) for real-time push notifications across:
+- **Mobile App**: Buyer and Seller notifications
+- **Admin Dashboard**: Management alerts and updates
+
+### Notification Types
+
+#### Buyer Notifications
+- Auction bid placed by another user
+- Auction won notification
+- Order status updates
+- Payment confirmations
+- Seller messages
+
+#### Seller Notifications
+- New bid on auction
+- Product approved/rejected
+- Order received
+- Order shipped
+- New product review
+
+#### Admin Notifications
+- Suspicious activity alerts
+- High-value transaction alerts
+- System status updates
+
+### Setup Instructions
+
+1. **Enable Firebase Cloud Messaging**:
+   - Go to Firebase Console → Project Settings
+   - Download and configure `google-services.json` (Android)
+   - Download and configure `GoogleService-Info.plist` (iOS)
+
+2. **Create Firestore Collections**:
+   ```
+   users/{userId}
+   ├── fcmToken (string)
+   ├── fcmTokenUpdatedAt (timestamp)
+   └── notifications (subcollection)
+       ├── {notificationId}
+       ├── title
+       ├── body
+       ├── type
+       ├── createdAt
+       ├── isRead
+   ```
+
+3. **Deploy Cloud Functions**:
+   - Located in `functions/` directory
+   - Deploy using: `firebase deploy --only functions`
+
+For complete push notification setup, see [documents/FIREBASE_PUSH_NOTIFICATIONS_COMPLETE.md](documents/FIREBASE_PUSH_NOTIFICATIONS_COMPLETE.md)
 
 ## 🧪 Testing
 
@@ -475,20 +537,28 @@ detailed explanation if needed
 ### Phase 1 - Core Features ✅
 - [x] User authentication system
 - [x] Real-time auction functionality
-- [x] Basic payment processing
+- [x] Basic payment processing with Stripe
 - [x] Seller dashboard
+- [x] Product and auction details screens
+- [x] Admin dashboard for platform management
 
-### Phase 2 - Enhanced Features 🚧
-- [ ] Advanced search and filters
-- [ ] Push notification system
+### Phase 2 - Enhanced Features ✅
+- [x] Push notification system (Firebase Cloud Messaging)
+- [x] Real-time seller notifications
+- [x] Buyer notification system
+- [x] Detailed product views with seller contact info
+- [x] Auction details with countdown timers
+- [x] Admin user and product management
+
+### Phase 3 - Premium Features 🚧
+- [ ] Advanced search and filters with AI
 - [ ] Social sharing features
 - [ ] Multi-language support
-
-### Phase 3 - Premium Features 📅
 - [ ] Video auction streaming
-- [ ] AI-powered recommendations
-- [ ] Advanced analytics
+- [ ] AI-powered recommendation engine
+- [ ] Advanced seller analytics
 - [ ] Enterprise seller tools
+- [ ] Mobile app dark mode
 
 ## 🐛 Known Issues
 
