@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getAllAuctions } from '../services/adminService';
-import { AlertCircle, Clock } from 'lucide-react';
+import { AlertCircle, Clock, DollarSign, CheckCircle, XCircle } from 'lucide-react';
 
 export default function AuctionManagement() {
     const [auctions, setAuctions] = useState([]);
@@ -66,64 +66,144 @@ export default function AuctionManagement() {
                 />
             </div>
 
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border border-gray-700 overflow-hidden shadow-lg">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="bg-gray-900/50 border-b border-gray-700">
-                            <tr>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Title</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Current Bid</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Minimum Increment</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Status</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Ends</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredAuctions.length === 0 ? (
-                                <tr>
-                                    <td colSpan="6" className="px-6 py-12 text-center text-gray-400">
-                                        No auctions found
-                                    </td>
-                                </tr>
-                            ) : (
-                                filteredAuctions.map((auction) => {
-                                    const status = getAuctionStatus(auction);
-                                    const statusColor =
-                                        status === 'Active'
-                                            ? 'bg-green-900/40 text-green-300 border border-green-700'
-                                            : status === 'Ended'
-                                                ? 'bg-gray-700/40 text-gray-300 border border-gray-600'
-                                                : 'bg-blue-900/40 text-blue-300 border border-blue-700';
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border border-gray-700 shadow-lg">
+                <div className="space-y-4 p-6">
+                    {filteredAuctions.length === 0 ? (
+                        <div className="text-center py-12">
+                            <AlertCircle className="w-12 h-12 mx-auto mb-3 text-gray-500" />
+                            <p className="text-gray-400">No auctions found</p>
+                        </div>
+                    ) : (
+                        filteredAuctions.map((auction) => {
+                            const status = getAuctionStatus(auction);
+                            const statusColor =
+                                status === 'Active'
+                                    ? 'bg-green-900/40 text-green-300 border border-green-700'
+                                    : 'bg-gray-700/40 text-gray-300 border border-gray-600';
 
-                                    return (
-                                        <tr key={auction.id} className="border-b border-gray-700 hover:bg-gray-700/20 transition-colors">
-                                            <td className="px-6 py-4 text-white font-medium">
-                                                {auction.title || 'Unknown'}
-                                            </td>
-                                            <td className="px-6 py-4 text-primary font-bold">
-                                                ${auction.currentBid || '0'}
-                                            </td>
-                                            <td className="px-6 py-4 text-white font-bold">
-                                                ${auction.minimumIncrement || '0'}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusColor}`}>
-                                                    {status}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 text-gray-300 text-sm flex items-center gap-2">
-                                                <Clock className="w-4 h-4 text-gray-400" />
-                                                {auction.endTime
-                                                    ? new Date(auction.endTime.seconds ? auction.endTime.seconds * 1000 : auction.endTime).toLocaleDateString()
-                                                    : 'N/A'
-                                                }
-                                            </td>
-                                        </tr>
-                                    );
-                                })
-                            )}
-                        </tbody>
-                    </table>
+                            return (
+                                <div key={auction.id} className="bg-gray-700/30 rounded-lg border border-gray-600/30 p-5 hover:border-gray-500/50 transition">
+                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                        {/* Image & Title */}
+                                        <div className="md:col-span-2">
+                                            {auction.imagePath && (
+                                                <img
+                                                    src={auction.imagePath}
+                                                    alt={auction.title}
+                                                    className="w-full h-40 object-cover rounded-lg mb-3"
+                                                />
+                                            )}
+                                            <div>
+                                                <h3 className="text-lg font-bold text-white mb-2">{auction.title || 'Unknown'}</h3>
+                                                <div className="flex gap-2">
+                                                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusColor}`}>
+                                                        {status}
+                                                    </span>
+                                                    {auction.approvalStatus && (
+                                                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                                                            auction.approvalStatus === 'approved'
+                                                                ? 'bg-blue-900/40 text-blue-300 border border-blue-700'
+                                                                : auction.approvalStatus === 'pending'
+                                                                    ? 'bg-yellow-900/40 text-yellow-300 border border-yellow-700'
+                                                                    : 'bg-red-900/40 text-red-300 border border-red-700'
+                                                        }`}>
+                                                            {auction.approvalStatus}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Bid Information */}
+                                        <div className="space-y-3">
+                                            <div>
+                                                <p className="text-gray-400 text-sm mb-1">Current Bid</p>
+                                                <p className="text-2xl font-bold text-primary flex items-center gap-2">
+                                                    <DollarSign className="w-5 h-5" />
+                                                    {auction.currentBid || '0'}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-400 text-sm mb-1">Min. Increment</p>
+                                                <p className="text-lg font-bold text-white">${auction.minimumIncrement || '0'}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* Timing & Status */}
+                                        <div className="space-y-3">
+                                            <div>
+                                                <p className="text-gray-400 text-sm mb-1 flex items-center gap-2">
+                                                    <Clock className="w-4 h-4" />
+                                                    Ends
+                                                </p>
+                                                <p className="text-white font-semibold text-sm">
+                                                    {auction.endTime
+                                                        ? new Date(auction.endTime.seconds ? auction.endTime.seconds * 1000 : auction.endTime).toLocaleDateString()
+                                                        : 'N/A'
+                                                    }
+                                                </p>
+                                            </div>
+                                            {auction.paymentStatus && (
+                                                <div>
+                                                    <p className="text-gray-400 text-sm mb-1">Payment</p>
+                                                    <p className="text-sm font-semibold text-white flex items-center gap-1">
+                                                        {auction.paymentStatus === 'paid' ? (
+                                                            <>
+                                                                <CheckCircle className="w-4 h-4 text-green-400" />
+                                                                Paid
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <XCircle className="w-4 h-4 text-red-400" />
+                                                                Pending
+                                                            </>
+                                                        )}
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Additional Details */}
+                                    {(auction.winningUserId || auction.lastBidTime || auction.sellerId || auction.deliveryMethods || auction.paymentMethods) && (
+                                        <div className="mt-4 pt-4 border-t border-gray-600/30 grid grid-cols-1 md:grid-cols-4 gap-3 text-sm">
+                                            {auction.winningUserId && (
+                                                <div>
+                                                    <p className="text-gray-400 text-xs mb-1">Winner</p>
+                                                    <p className="text-white font-medium truncate">{auction.winningUserId}</p>
+                                                </div>
+                                            )}
+                                            {auction.lastBidTime && (
+                                                <div>
+                                                    <p className="text-gray-400 text-xs mb-1">Last Bid</p>
+                                                    <p className="text-white font-medium">
+                                                        {new Date(auction.lastBidTime.seconds ? auction.lastBidTime.seconds * 1000 : auction.lastBidTime).toLocaleString()}
+                                                    </p>
+                                                </div>
+                                            )}
+                                            {auction.sellerId && (
+                                                <div>
+                                                    <p className="text-gray-400 text-xs mb-1">Seller</p>
+                                                    <p className="text-white font-medium truncate">{auction.sellerId}</p>
+                                                </div>
+                                            )}
+                                            {auction.deliveryMethods && (
+                                                <div>
+                                                    <p className="text-gray-400 text-xs mb-1">Delivery</p>
+                                                    <p className="text-white font-medium">
+                                                        {Array.isArray(auction.deliveryMethods) 
+                                                            ? auction.deliveryMethods.join(', ')
+                                                            : auction.deliveryMethods
+                                                        }
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })
+                    )}
                 </div>
             </div>
 
