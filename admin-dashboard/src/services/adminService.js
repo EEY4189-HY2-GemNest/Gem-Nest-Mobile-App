@@ -59,41 +59,80 @@ export const getCurrentAdmin = (callback) => {
     });
 };
 
-// Get all users with details
+// Get all users with details (combines buyers and sellers)
 export const getAllUsers = async () => {
     try {
-        const usersRef = collection(db, 'users');
-        const snapshot = await getDocs(usersRef);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const buyersRef = collection(db, 'buyers');
+        const sellersRef = collection(db, 'sellers');
+        
+        const [buyersSnap, sellersSnap] = await Promise.all([
+            getDocs(buyersRef),
+            getDocs(sellersRef)
+        ]);
+        
+        const buyers = buyersSnap.docs.map(doc => ({ 
+            id: doc.id, 
+            type: 'buyer',
+            ...doc.data() 
+        }));
+        
+        const sellers = sellersSnap.docs.map(doc => ({ 
+            id: doc.id, 
+            type: 'seller',
+            ...doc.data() 
+        }));
+        
+        return [...buyers, ...sellers];
     } catch (error) {
-        throw error;
+        console.error('Error fetching users:', error);
+        return [];
     }
 };
 
-// Get user by ID with full details
+// Get user by ID with full details (checks both buyers and sellers)
 export const getUserById = async (userId) => {
     try {
-        const userRef = doc(db, 'users', userId);
-        const userSnap = await getDoc(userRef);
-
-        if (!userSnap.exists()) {
-            throw new Error('User not found');
+        // Try buyers first
+        const buyerRef = doc(db, 'buyers', userId);
+        const buyerSnap = await getDoc(buyerRef);
+        if (buyerSnap.exists()) {
+            return { id: userId, type: 'buyer', ...buyerSnap.data() };
         }
-
-        return { id: userId, ...userSnap.data() };
+        
+        // Try sellers
+        const sellerRef = doc(db, 'sellers', userId);
+        const sellerSnap = await getDoc(sellerRef);
+        if (sellerSnap.exists()) {
+            return { id: userId, type: 'seller', ...sellerSnap.data() };
+        }
+        
+        throw new Error('User not found in buyers or sellers collection');
     } catch (error) {
+        console.error('Error fetching user:', error);
         throw error;
     }
 };
 
-// Deactivate user account
+// Deactivate user account (updates buyers or sellers collection)
 export const deactivateUserAccount = async (userId) => {
     try {
-        const userRef = doc(db, 'users', userId);
-        await updateDoc(userRef, {
-            status: 'deactivated',
-            deactivatedAt: new Date(),
-            isActive: false
+        // Try to update in buyers collection
+        const buyerRef = doc(db, 'buyers', userId);
+        const buyerSnap = await getDoc(buyerRef);
+        
+        if (buyerSnap.exists()) {
+            await updateDoc(buyerRef, {
+                isActive: false,
+                deactivatedAt: new Date()
+            });
+            return true;
+        }
+        
+        // Try sellers collection
+        const sellerRef = doc(db, 'sellers', userId);
+        await updateDoc(sellerRef, {
+            isActive: false,
+            deactivatedAt: new Date()
         });
         return true;
     } catch (error) {
@@ -101,14 +140,26 @@ export const deactivateUserAccount = async (userId) => {
     }
 };
 
-// Activate user account
+// Activate user account (updates buyers or sellers collection)
 export const activateUserAccount = async (userId) => {
     try {
-        const userRef = doc(db, 'users', userId);
-        await updateDoc(userRef, {
-            status: 'active',
+        // Try to update in buyers collection
+        const buyerRef = doc(db, 'buyers', userId);
+        const buyerSnap = await getDoc(buyerRef);
+        
+        if (buyerSnap.exists()) {
+            await updateDoc(buyerRef, {
+                isActive: true,
+                activatedAt: new Date()
+            });
+            return true;
+        }
+        
+        // Try sellers collection
+        const sellerRef = doc(db, 'sellers', userId);
+        await updateDoc(sellerRef, {
             isActive: true,
-            deactivatedAt: null
+            activatedAt: new Date()
         });
         return true;
     } catch (error) {
@@ -123,7 +174,8 @@ export const getAllProducts = async () => {
         const snapshot = await getDocs(productsRef);
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     } catch (error) {
-        throw error;
+        console.error('Error fetching products:', error);
+        return [];
     }
 };
 
@@ -134,7 +186,8 @@ export const getAllAuctions = async () => {
         const snapshot = await getDocs(auctionsRef);
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     } catch (error) {
-        throw error;
+        console.error('Error fetching auctions:', error);
+        return [];
     }
 };
 
@@ -149,19 +202,31 @@ export const removeProduct = async (productId) => {
     }
 };
 
-// Get user statistics
+// Get user statistics (combines buyers and sellers)
 export const getUserStats = async () => {
     try {
-        const usersRef = collection(db, 'users');
-        const snapshot = await getDocs(usersRef);
-
-        const total = snapshot.docs.length;
-        const active = snapshot.docs.filter(doc => doc.data().isActive !== false).length;
+        const buyersRef = collection(db, 'buyers');
+        const sellersRef = collection(db, 'sellers');
+        
+        const [buyersSnap, sellersSnap] = await Promise.all([
+            getDocs(buyersRef),
+            getDocs(sellersRef)
+        ]);
+        
+        const buyers = buyersSnap.docs;
+        const sellers = sellersSnap.docs;
+        
+        const activeBuyers = buyers.filter(doc => doc.data().isActive !== false).length;
+        const activeSellers = sellers.filter(doc => doc.data().isActive === true).length;
+        
+        const total = buyers.length + sellers.length;
+        const active = activeBuyers + activeSellers;
         const inactive = total - active;
 
         return { total, active, inactive };
     } catch (error) {
-        throw error;
+        console.error('Error getting user stats:', error);
+        return { total: 0, active: 0, inactive: 0 };
     }
 };
 
@@ -172,11 +237,14 @@ export const getProductStats = async () => {
         const snapshot = await getDocs(productsRef);
 
         const total = snapshot.docs.length;
-        const active = snapshot.docs.filter(doc => doc.data().isActive !== false).length;
+        const approved = snapshot.docs.filter(doc => doc.data().approvalStatus === 'approved').length;
+        const pending = snapshot.docs.filter(doc => doc.data().approvalStatus === 'pending').length;
+        const rejected = snapshot.docs.filter(doc => doc.data().approvalStatus === 'rejected').length;
 
-        return { total, active };
+        return { total, approved, pending, rejected };
     } catch (error) {
-        throw error;
+        console.error('Error getting product stats:', error);
+        return { total: 0, approved: 0, pending: 0, rejected: 0 };
     }
 };
 
@@ -244,7 +312,8 @@ export const getRevenueAnalytics = async () => {
 
         return { totalRevenue, completedOrders, pendingOrders };
     } catch (error) {
-        throw error;
+        console.error('Error fetching revenue analytics:', error);
+        return { totalRevenue: 0, completedOrders: 0, pendingOrders: 0 };
     }
 };
 
@@ -262,7 +331,8 @@ export const getRecentActivity = async (limit = 10) => {
 
         return activities;
     } catch (error) {
-        throw error;
+        console.error('Error fetching recent activity:', error);
+        return [];
     }
 };
 
@@ -276,6 +346,7 @@ export const verifySeller = async (sellerId) => {
             verificationStatus: 'approved'
         });
     } catch (error) {
+        console.error('Error verifying seller:', error);
         throw error;
     }
 };
@@ -291,6 +362,7 @@ export const rejectSellerVerification = async (sellerId, reason) => {
             rejectedAt: new Date()
         });
     } catch (error) {
+        console.error('Error rejecting seller:', error);
         throw error;
     }
 };
@@ -315,6 +387,12 @@ export const getPlatformStats = async () => {
             timestamp: new Date()
         };
     } catch (error) {
-        throw error;
+        console.error('Error fetching platform stats:', error);
+        return {
+            totalUsers: 0,
+            totalProducts: 0,
+            totalAuctions: 0,
+            timestamp: new Date()
+        };
     }
 };
