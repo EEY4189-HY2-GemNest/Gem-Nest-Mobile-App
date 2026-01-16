@@ -320,13 +320,35 @@ export const getRevenueAnalytics = async () => {
 // Get recent activity
 export const getRecentActivity = async (limit = 10) => {
     try {
-        const usersRef = collection(db, 'users');
-        const snapshot = await getDocs(usersRef);
+        const buyersRef = collection(db, 'buyers');
+        const sellersRef = collection(db, 'sellers');
+        
+        const [buyersSnapshot, sellersSnapshot] = await Promise.all([
+            getDocs(buyersRef),
+            getDocs(sellersRef)
+        ]);
 
-        const activities = snapshot.docs
-            .map(doc => ({ id: doc.id, ...doc.data() }))
-            .filter(user => user.createdAt)
-            .sort((a, b) => (b.createdAt?.toDate?.() || b.createdAt) - (a.createdAt?.toDate?.() || a.createdAt))
+        const buyersActivity = buyersSnapshot.docs.map(doc => ({ 
+            id: doc.id, 
+            type: 'buyer',
+            userType: 'buyer',
+            ...doc.data() 
+        }));
+
+        const sellersActivity = sellersSnapshot.docs.map(doc => ({ 
+            id: doc.id, 
+            type: 'seller',
+            userType: 'seller',
+            ...doc.data() 
+        }));
+
+        const activities = [...buyersActivity, ...sellersActivity]
+            .filter(user => user.createdAt || user.timestamp)
+            .sort((a, b) => {
+                const dateA = (a.createdAt?.toDate?.() || new Date(a.createdAt)) || (a.timestamp?.toDate?.() || new Date(a.timestamp));
+                const dateB = (b.createdAt?.toDate?.() || new Date(b.createdAt)) || (b.timestamp?.toDate?.() || new Date(b.timestamp));
+                return dateB - dateA;
+            })
             .slice(0, limit);
 
         return activities;
