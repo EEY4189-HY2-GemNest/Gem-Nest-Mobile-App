@@ -17,8 +17,8 @@ export default function VerificationDialog({ type, userName, onConfirm, onCancel
     const bgColor = isVerify ? 'from-green-900/20 to-green-900/10' : 'from-red-900/20 to-red-900/10';
     const borderColor = isVerify ? 'border-green-700/30' : 'border-red-700/30';
     const iconColor = isVerify ? 'text-green-400' : 'text-red-400';
-    const buttonColor = isVerify 
-        ? 'bg-green-600 hover:bg-green-700' 
+    const buttonColor = isVerify
+        ? 'bg-green-600 hover:bg-green-700'
         : 'bg-red-600 hover:bg-red-700';
 
     return (
