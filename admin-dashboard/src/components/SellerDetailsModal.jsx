@@ -5,24 +5,35 @@ export default function SellerDetailsModal({ seller, onClose }) {
     const [selectedImage, setSelectedImage] = useState(null);
     const [downloadingId, setDownloadingId] = useState(null);
 
-    const handleDownload = (url, downloadId) => {
+    const getFileExtension = (url) => {
+        try {
+            const urlObj = new URL(url);
+            const pathParts = urlObj.pathname.split('.');
+            return pathParts[pathParts.length - 1].toLowerCase();
+        } catch {
+            return 'pdf';
+        }
+    };
+
+    const handleDownload = (url, downloadId, fileName) => {
         if (!url) return;
-        
+
         setDownloadingId(downloadId);
-        
+
         try {
             // Ensure the URL has alt=media parameter
             const downloadUrl = url.includes('alt=media') ? url : `${url}?alt=media`;
-            
+
             // Create a temporary anchor element to trigger download
             const link = document.createElement('a');
             link.href = downloadUrl;
+            link.download = fileName;
             link.style.display = 'none';
-            
+
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            
+
             // Success feedback
             setTimeout(() => setDownloadingId(null), 500);
         } catch (error) {
@@ -32,6 +43,15 @@ export default function SellerDetailsModal({ seller, onClose }) {
             window.open(downloadUrl, '_blank');
             setDownloadingId(null);
         }
+    };
+
+    const handleViewDocument = (url, name) => {
+        setSelectedImage({
+            url: url.includes('alt=media') ? url : `${url}?alt=media`,
+            name: name,
+            isImage: url.match(/\.(jpg|jpeg|png|gif|webp)$/i) !== null,
+            isPdf: url.match(/\.pdf$/i) !== null
+        });
     };
 
     const getVerificationStatus = () => {
@@ -160,14 +180,14 @@ export default function SellerDetailsModal({ seller, onClose }) {
                                 {/* Action Buttons */}
                                 <div className="flex gap-2">
                                     <button
-                                        onClick={() => window.open(seller.nicDocumentUrl, '_blank')}
+                                        onClick={() => handleViewDocument(seller.nicDocumentUrl, 'NIC Document')}
                                         className="flex-1 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-all"
                                     >
                                         <Eye className="w-4 h-4" />
                                         View
                                     </button>
                                     <button
-                                        onClick={() => handleDownload(seller.nicDocumentUrl, 'nic')}
+                                        onClick={() => handleDownload(seller.nicDocumentUrl, 'nic', `NIC-${seller.nicNumber || seller.firebaseUid}.${getFileExtension(seller.nicDocumentUrl)}`)}
                                         disabled={downloadingId === 'nic'}
                                         className="flex-1 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
                                     >
@@ -230,14 +250,14 @@ export default function SellerDetailsModal({ seller, onClose }) {
                                 {/* Action Buttons */}
                                 <div className="flex gap-2">
                                     <button
-                                        onClick={() => window.open(seller.businessRegistrationUrl, '_blank')}
+                                        onClick={() => handleViewDocument(seller.businessRegistrationUrl, 'Business Registration Document')}
                                         className="flex-1 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-all"
                                     >
                                         <Eye className="w-4 h-4" />
                                         View
                                     </button>
                                     <button
-                                        onClick={() => handleDownload(seller.businessRegistrationUrl, 'br')}
+                                        onClick={() => handleDownload(seller.businessRegistrationUrl, 'br', `BR-${seller.brNumber || seller.firebaseUid}.${getFileExtension(seller.businessRegistrationUrl)}`)}
                                         disabled={downloadingId === 'br'}
                                         className="flex-1 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
                                     >
@@ -276,26 +296,63 @@ export default function SellerDetailsModal({ seller, onClose }) {
                 </div>
             </div>
 
-            {/* Image Viewer Modal */}
+            {/* Document Viewer Modal */}
             {selectedImage && (
                 <div
                     className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4"
                     onClick={() => setSelectedImage(null)}
                 >
                     <div className="max-w-4xl w-full" onClick={(e) => e.stopPropagation()}>
-                        <div className="relative">
+                        <div className="relative bg-gray-900 rounded-lg overflow-hidden">
                             <button
                                 onClick={() => setSelectedImage(null)}
-                                className="absolute -top-12 right-0 text-gray-400 hover:text-gray-200"
+                                className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 z-10 bg-black/50 p-2 rounded-lg transition-colors"
                             >
-                                <X className="w-8 h-8" />
+                                <X className="w-6 h-6" />
                             </button>
-                            <img
-                                src={selectedImage.url}
-                                alt={selectedImage.name}
-                                className="w-full rounded-lg"
-                            />
-                            <p className="text-gray-400 text-sm mt-3 text-center">{selectedImage.name}</p>
+
+                            {selectedImage.isImage ? (
+                                <div className="flex items-center justify-center max-h-[80vh]">
+                                    <img
+                                        src={selectedImage.url}
+                                        alt={selectedImage.name}
+                                        className="w-full h-auto max-h-[80vh] object-contain"
+                                    />
+                                </div>
+                            ) : selectedImage.isPdf ? (
+                                <div className="space-y-3 p-6">
+                                    <p className="text-white font-semibold text-lg mb-4">PDF Document Viewer</p>
+                                    <iframe
+                                        src={`${selectedImage.url}#toolbar=0`}
+                                        className="w-full rounded-lg border border-gray-700"
+                                        style={{ minHeight: '600px' }}
+                                        title={selectedImage.name}
+                                    />
+                                    <a
+                                        href={selectedImage.url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="block text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all"
+                                    >
+                                        Open in New Tab
+                                    </a>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center p-8 min-h-[400px]">
+                                    <FileText className="w-16 h-16 text-gray-500 mb-4" />
+                                    <p className="text-white font-semibold mb-4">{selectedImage.name}</p>
+                                    <a
+                                        href={selectedImage.url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all"
+                                    >
+                                        Open Document
+                                    </a>
+                                </div>
+                            )}
+
+                            <p className="text-gray-400 text-sm text-center py-3 bg-gray-800/50">{selectedImage.name}</p>
                         </div>
                     </div>
                 </div>
