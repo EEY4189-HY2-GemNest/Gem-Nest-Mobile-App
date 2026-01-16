@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../firebase-config';
 import { collection, query, where, getDocs, updateDoc, doc, orderBy } from 'firebase/firestore';
 import { CheckCircle, XCircle, Clock, Download, Eye, Filter } from 'lucide-react';
+import CertificateDialog from './CertificateDialog';
 
 export default function CertificateVerificationDashboard() {
     const [certificates, setCertificates] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState('pending'); // pending, verified, rejected, all
+    const [filter, setFilter] = useState('pending');
     const [selectedCert, setSelectedCert] = useState(null);
-    const [rejectionReason, setRejectionReason] = useState('');
-    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [certDialog, setCertDialog] = useState(null);
+    const [actionLoading, setActionLoading] = useState(false);
 
     useEffect(() => {
         fetchCertificates();
@@ -58,54 +59,60 @@ export default function CertificateVerificationDashboard() {
         }
     };
 
-    const handleVerify = async (cert) => {
-        try {
-            const productRef = doc(db, 'products', cert.productId);
-            await updateDoc(productRef, {
-                certificateVerificationStatus: 'verified',
-                rejectionReason: '',
-            });
+    const handleVerify = (cert) => {
+        setCertDialog({
+            type: 'verify',
+            cert,
+            onConfirm: async () => {
+                try {
+                    setActionLoading(true);
+                    const productRef = doc(db, 'products', cert.productId);
+                    await updateDoc(productRef, {
+                        certificateVerificationStatus: 'verified',
+                        rejectionReason: '',
+                    });
 
-            // Update local state
-            setCertificates(certificates.map(c =>
-                c.productId === cert.productId
-                    ? { ...c, verificationStatus: 'verified', rejectionReason: '' }
-                    : c
-            ));
-            alert('Certificate verified successfully');
-        } catch (error) {
-            console.error('Error verifying certificate:', error);
-            alert('Failed to verify certificate');
-        }
+                    setCertificates(certificates.map(c =>
+                        c.productId === cert.productId
+                            ? { ...c, verificationStatus: 'verified', rejectionReason: '' }
+                            : c
+                    ));
+                    setCertDialog(null);
+                } catch (error) {
+                    console.error('Error verifying certificate:', error);
+                } finally {
+                    setActionLoading(false);
+                }
+            }
+        });
     };
 
-    const handleReject = async () => {
-        if (!rejectionReason.trim()) {
-            alert('Please provide a rejection reason');
-            return;
-        }
+    const handleReject = (cert) => {
+        setCertDialog({
+            type: 'reject',
+            cert,
+            onConfirm: async (reason) => {
+                try {
+                    setActionLoading(true);
+                    const productRef = doc(db, 'products', cert.productId);
+                    await updateDoc(productRef, {
+                        certificateVerificationStatus: 'rejected',
+                        rejectionReason: reason,
+                    });
 
-        try {
-            const productRef = doc(db, 'products', selectedCert.productId);
-            await updateDoc(productRef, {
-                certificateVerificationStatus: 'rejected',
-                rejectionReason: rejectionReason,
-            });
-
-            setCertificates(certificates.map(c =>
-                c.productId === selectedCert.productId
-                    ? { ...c, verificationStatus: 'rejected', rejectionReason: rejectionReason }
-                    : c
-            ));
-
-            setShowRejectModal(false);
-            setRejectionReason('');
-            setSelectedCert(null);
-            alert('Certificate rejected');
-        } catch (error) {
-            console.error('Error rejecting certificate:', error);
-            alert('Failed to reject certificate');
-        }
+                    setCertificates(certificates.map(c =>
+                        c.productId === cert.productId
+                            ? { ...c, verificationStatus: 'rejected', rejectionReason: reason }
+                            : c
+                    ));
+                    setCertDialog(null);
+                } catch (error) {
+                    console.error('Error rejecting certificate:', error);
+                } finally {
+                    setActionLoading(false);
+                }
+            }
+        });
     };
 
     const getStatusIcon = (status) => {
@@ -238,10 +245,7 @@ export default function CertificateVerificationDashboard() {
                                                         <CheckCircle className="w-5 h-5" />
                                                     </button>
                                                     <button
-                                                        onClick={() => {
-                                                            setSelectedCert(cert);
-                                                            setShowRejectModal(true);
-                                                        }}
+                                                        onClick={() => handleReject(cert)}
                                                         className="p-2 hover:bg-red-900/30 rounded-lg text-red-400 transition-colors"
                                                         title="Reject"
                                                     >
@@ -258,43 +262,15 @@ export default function CertificateVerificationDashboard() {
                 </div>
             )}
 
-            {/* Rejection Modal */}
-            {showRejectModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 max-w-md w-full mx-4">
-                        <h3 className="text-xl font-bold text-white mb-4">Reject Certificate</h3>
-                        <p className="text-gray-400 mb-4">
-                            Product: <span className="text-white font-medium">{selectedCert?.productName}</span>
-                        </p>
-
-                        <textarea
-                            value={rejectionReason}
-                            onChange={(e) => setRejectionReason(e.target.value)}
-                            placeholder="Enter rejection reason..."
-                            className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white placeholder-gray-500 mb-4 focus:outline-none focus:border-red-500"
-                            rows="4"
-                        />
-
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => {
-                                    setShowRejectModal(false);
-                                    setRejectionReason('');
-                                    setSelectedCert(null);
-                                }}
-                                className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 rounded-lg transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleReject}
-                                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 rounded-lg transition-colors"
-                            >
-                                Reject
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            {/* Certificate Dialog */}
+            {certDialog && (
+                <CertificateDialog
+                    type={certDialog.type}
+                    productName={certDialog.cert?.productName || 'Product'}
+                    isLoading={actionLoading}
+                    onConfirm={certDialog.onConfirm}
+                    onCancel={() => setCertDialog(null)}
+                />
             )}
 
             {/* Summary Stats */}

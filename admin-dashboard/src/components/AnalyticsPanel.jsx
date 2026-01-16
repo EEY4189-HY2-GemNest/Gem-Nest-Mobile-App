@@ -89,21 +89,21 @@ export default function AnalyticsPanel() {
                             <div key={index} className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30 hover:border-gray-500/50 transition">
                                 <div className="flex items-start justify-between">
                                     <div className="flex-1">
-                                        <p className="text-white font-semibold">{activity.name || activity.email}</p>
+                                        <p className="text-white font-semibold">{activity.displayName || activity.name || activity.email}</p>
                                         <p className="text-gray-400 text-sm mt-1">
                                             Joined as {activity.userType === 'seller' ? '🏪 Seller' : '👤 Buyer'}
                                         </p>
                                     </div>
                                     <span className={`px-3 py-1 rounded-full text-xs font-bold border ${activity.isActive !== false
-                                            ? 'bg-green-900/40 text-green-300 border-green-700'
-                                            : 'bg-red-900/40 text-red-300 border-red-700'
+                                        ? 'bg-green-900/40 text-green-300 border-green-700'
+                                        : 'bg-red-900/40 text-red-300 border-red-700'
                                         }`}>
                                         {activity.isActive !== false ? 'Active' : 'Inactive'}
                                     </span>
                                 </div>
-                                {activity.createdAt && (
+                                {(activity.createdAt || activity.timestamp) && (
                                     <p className="text-gray-500 text-xs mt-2">
-                                        {new Date(activity.createdAt.seconds ? activity.createdAt.seconds * 1000 : activity.createdAt).toLocaleDateString()}
+                                        {new Date(activity.createdAt?.seconds ? activity.createdAt.seconds * 1000 : activity.createdAt || activity.timestamp?.seconds ? activity.timestamp.seconds * 1000 : activity.timestamp).toLocaleDateString()}
                                     </p>
                                 )}
                             </div>
