@@ -3,6 +3,7 @@ import { getAllUsers, activateUserAccount, deactivateUserAccount, verifySeller, 
 import { Check, X, AlertCircle, Loader, Eye, Shield, ShieldAlert } from 'lucide-react';
 import UserDetailModal from './UserDetailModal';
 import ConfirmDialog from './ConfirmDialog';
+import VerificationDialog from './VerificationDialog';
 
 export default function UserManagement() {
     const [users, setUsers] = useState([]);
@@ -12,6 +13,7 @@ export default function UserManagement() {
     const [message, setMessage] = useState('');
     const [selectedUser, setSelectedUser] = useState(null);
     const [confirmDialog, setConfirmDialog] = useState(null);
+    const [verificationDialog, setVerificationDialog] = useState(null);
     const [activeTab, setActiveTab] = useState('sellers');
 
     useEffect(() => {
@@ -78,10 +80,11 @@ export default function UserManagement() {
     };
 
     const handleVerifySeller = async (sellerId) => {
-        setConfirmDialog({
-            title: 'Verify Seller',
-            message: 'Are you sure you want to verify this seller account?',
-            action: 'Verify',
+        const seller = users.find(u => u.id === sellerId);
+        setVerificationDialog({
+            type: 'verify',
+            userId: sellerId,
+            userName: seller?.displayName || seller?.email || 'Seller',
             onConfirm: async () => {
                 try {
                     setActionLoading(sellerId);
@@ -89,10 +92,10 @@ export default function UserManagement() {
                     setUsers(users.map(u => u.id === sellerId ? { ...u, verified: true, verificationStatus: 'approved' } : u));
                     setMessage('Seller account verified');
                     setTimeout(() => setMessage(''), 3000);
-                    setConfirmDialog(null);
+                    setVerificationDialog(null);
                 } catch (error) {
                     setMessage('Error verifying seller: ' + error.message);
-                    setConfirmDialog(null);
+                    setVerificationDialog(null);
                 } finally {
                     setActionLoading(null);
                 }
@@ -101,25 +104,22 @@ export default function UserManagement() {
     };
 
     const handleRejectSeller = async (sellerId) => {
-        const reason = prompt('Enter rejection reason:');
-        if (!reason) return;
-
-        setConfirmDialog({
-            title: 'Reject Seller',
-            message: 'Are you sure you want to reject this seller verification?',
-            action: 'Reject',
-            isDangerous: true,
-            onConfirm: async () => {
+        const seller = users.find(u => u.id === sellerId);
+        setVerificationDialog({
+            type: 'reject',
+            userId: sellerId,
+            userName: seller?.displayName || seller?.email || 'Seller',
+            onConfirm: async (reason) => {
                 try {
                     setActionLoading(sellerId);
                     await rejectSellerVerification(sellerId, reason);
                     setUsers(users.map(u => u.id === sellerId ? { ...u, verified: false, verificationStatus: 'rejected' } : u));
                     setMessage('Seller verification rejected');
                     setTimeout(() => setMessage(''), 3000);
-                    setConfirmDialog(null);
+                    setVerificationDialog(null);
                 } catch (error) {
                     setMessage('Error rejecting seller: ' + error.message);
-                    setConfirmDialog(null);
+                    setVerificationDialog(null);
                 } finally {
                     setActionLoading(null);
                 }
@@ -336,6 +336,17 @@ export default function UserManagement() {
                     isLoading={actionLoading !== null}
                     onConfirm={confirmDialog.onConfirm}
                     onCancel={() => setConfirmDialog(null)}
+                />
+            )}
+
+            {/* Verification Dialog */}
+            {verificationDialog && (
+                <VerificationDialog
+                    type={verificationDialog.type}
+                    userName={verificationDialog.userName}
+                    isLoading={actionLoading !== null}
+                    onConfirm={verificationDialog.onConfirm}
+                    onCancel={() => setVerificationDialog(null)}
                 />
             )}
         </div>
