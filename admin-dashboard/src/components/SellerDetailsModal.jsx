@@ -46,11 +46,16 @@ export default function SellerDetailsModal({ seller, onClose }) {
     };
 
     const handleViewDocument = (url, name) => {
+        const fullUrl = url.includes('alt=media') ? url : `${url}?alt=media`;
+        const ext = getFileExtension(url).toLowerCase();
+        const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+        const isPdf = ext === 'pdf';
+
         setSelectedImage({
-            url: url.includes('alt=media') ? url : `${url}?alt=media`,
+            url: fullUrl,
             name: name,
-            isImage: url.match(/\.(jpg|jpeg|png|gif|webp)$/i) !== null,
-            isPdf: url.match(/\.pdf$/i) !== null
+            isImage: isImage,
+            isPdf: isPdf
         });
     };
 
@@ -156,14 +161,14 @@ export default function SellerDetailsModal({ seller, onClose }) {
                             <div className="space-y-4">
                                 {/* Document Preview */}
                                 <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-600/30">
-                                    {seller.nicDocumentUrl.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+                                    {seller.nicDocumentUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
                                         <div>
                                             <p className="text-gray-400 text-sm mb-3">Document Preview:</p>
                                             <img
                                                 src={seller.nicDocumentUrl}
                                                 alt="NIC Document"
                                                 className="w-full max-h-64 object-contain rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                                                onClick={() => setSelectedImage({ url: seller.nicDocumentUrl, name: 'NIC Document' })}
+                                                onClick={() => handleViewDocument(seller.nicDocumentUrl, 'NIC Document')}
                                             />
                                         </div>
                                     ) : (
@@ -226,14 +231,14 @@ export default function SellerDetailsModal({ seller, onClose }) {
                             <div className="space-y-4">
                                 {/* Document Preview */}
                                 <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-600/30">
-                                    {seller.businessRegistrationUrl.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+                                    {seller.businessRegistrationUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
                                         <div>
                                             <p className="text-gray-400 text-sm mb-3">Document Preview:</p>
                                             <img
                                                 src={seller.businessRegistrationUrl}
                                                 alt="Business Registration Document"
                                                 className="w-full max-h-64 object-contain rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                                                onClick={() => setSelectedImage({ url: seller.businessRegistrationUrl, name: 'Business Registration Document' })}
+                                                onClick={() => handleViewDocument(seller.businessRegistrationUrl, 'Business Registration Document')}
                                             />
                                         </div>
                                     ) : (
