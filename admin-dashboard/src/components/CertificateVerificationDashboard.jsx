@@ -245,10 +245,7 @@ export default function CertificateVerificationDashboard() {
                                                         <CheckCircle className="w-5 h-5" />
                                                     </button>
                                                     <button
-                                                        onClick={() => {
-                                                            setSelectedCert(cert);
-                                                            setShowRejectModal(true);
-                                                        }}
+                                                        onClick={() => handleReject(cert)}
                                                         className="p-2 hover:bg-red-900/30 rounded-lg text-red-400 transition-colors"
                                                         title="Reject"
                                                     >
@@ -265,43 +262,15 @@ export default function CertificateVerificationDashboard() {
                 </div>
             )}
 
-            {/* Rejection Modal */}
-            {showRejectModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 max-w-md w-full mx-4">
-                        <h3 className="text-xl font-bold text-white mb-4">Reject Certificate</h3>
-                        <p className="text-gray-400 mb-4">
-                            Product: <span className="text-white font-medium">{selectedCert?.productName}</span>
-                        </p>
-
-                        <textarea
-                            value={rejectionReason}
-                            onChange={(e) => setRejectionReason(e.target.value)}
-                            placeholder="Enter rejection reason..."
-                            className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white placeholder-gray-500 mb-4 focus:outline-none focus:border-red-500"
-                            rows="4"
-                        />
-
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => {
-                                    setShowRejectModal(false);
-                                    setRejectionReason('');
-                                    setSelectedCert(null);
-                                }}
-                                className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 rounded-lg transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleReject}
-                                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 rounded-lg transition-colors"
-                            >
-                                Reject
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            {/* Certificate Dialog */}
+            {certDialog && (
+                <CertificateDialog
+                    type={certDialog.type}
+                    productName={certDialog.cert?.productName || 'Product'}
+                    isLoading={actionLoading}
+                    onConfirm={certDialog.onConfirm}
+                    onCancel={() => setCertDialog(null)}
+                />
             )}
 
             {/* Summary Stats */}
