@@ -22,14 +22,14 @@ export default function SellerDetailsModal({ seller, onClose }) {
 
         try {
             const downloadUrl = url.includes('alt=media') ? url : `${url}?alt=media`;
-            
+
             // Fetch the file
             const response = await fetch(downloadUrl);
             if (!response.ok) throw new Error('Download failed');
-            
+
             const blob = await response.blob();
             const blobUrl = window.URL.createObjectURL(blob);
-            
+
             // Create and trigger download
             const link = document.createElement('a');
             link.href = blobUrl;
@@ -39,7 +39,7 @@ export default function SellerDetailsModal({ seller, onClose }) {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            
+
             // Cleanup
             window.URL.revokeObjectURL(blobUrl);
             setTimeout(() => setDownloadingId(null), 500);
