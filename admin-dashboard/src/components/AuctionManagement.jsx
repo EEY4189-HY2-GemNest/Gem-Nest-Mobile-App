@@ -101,10 +101,10 @@ export default function AuctionManagement() {
                                                     </span>
                                                     {auction.approvalStatus && (
                                                         <span className={`px-3 py-1 rounded-full text-xs font-bold ${auction.approvalStatus === 'approved'
-                                                                ? 'bg-blue-900/40 text-blue-300 border border-blue-700'
-                                                                : auction.approvalStatus === 'pending'
-                                                                    ? 'bg-yellow-900/40 text-yellow-300 border border-yellow-700'
-                                                                    : 'bg-red-900/40 text-red-300 border border-red-700'
+                                                            ? 'bg-blue-900/40 text-blue-300 border border-blue-700'
+                                                            : auction.approvalStatus === 'pending'
+                                                                ? 'bg-yellow-900/40 text-yellow-300 border border-yellow-700'
+                                                                : 'bg-red-900/40 text-red-300 border border-red-700'
                                                             }`}>
                                                             {auction.approvalStatus}
                                                         </span>
