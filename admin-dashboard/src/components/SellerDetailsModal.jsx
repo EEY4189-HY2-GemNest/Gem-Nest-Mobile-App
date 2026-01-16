@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { X, Download, Eye, AlertCircle, CheckCircle, Clock, FileText } from 'lucide-react';
+import { ref, getBytes } from 'firebase/storage';
+import { storage } from '../firebase-config';
 
 export default function SellerDetailsModal({ seller, onClose }) {
     const [selectedImage, setSelectedImage] = useState(null);
@@ -9,17 +11,42 @@ export default function SellerDetailsModal({ seller, onClose }) {
         if (!url) return;
         try {
             setDownloading(fileName);
-            const response = await fetch(url);
-            const blob = await response.blob();
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = fileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+
+            // Extract the file path from the Firebase Storage URL
+            // URL format: https://firebasestorage.googleapis.com/v0/b/{bucket}/o/{path}?alt=media&token={token}
+            const urlObj = new URL(url);
+            const pathMatch = urlObj.pathname.match(/\/o\/(.+?)$/);
+
+            if (pathMatch) {
+                const filePath = decodeURIComponent(pathMatch[1]);
+                const storageRef = ref(storage, filePath);
+
+                // Get the file bytes using Firebase SDK
+                const bytes = await getBytes(storageRef);
+                const blob = new Blob([bytes]);
+
+                // Create download link
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+            } else {
+                // Fallback: open in new tab for download
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = fileName;
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
         } catch (error) {
             console.error('Download error:', error);
-            alert('Failed to download file');
+            // Fallback: open in new tab if Firebase SDK fails
+            window.open(url, '_blank');
         } finally {
             setDownloading(null);
         }
