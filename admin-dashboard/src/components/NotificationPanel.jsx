@@ -139,9 +139,8 @@ export default function NotificationPanel() {
                                 {notifications.map((notification) => (
                                     <div
                                         key={notification.id}
-                                        className={`p-4 border-l-4 border-l-transparent hover:bg-gray-700/20 transition-all cursor-pointer ${
-                                            getNotificationBgColor(notification.type)
-                                        } ${!notification.read ? 'bg-gray-700/40' : ''}`}
+                                        className={`p-4 border-l-4 border-l-transparent hover:bg-gray-700/20 transition-all cursor-pointer ${getNotificationBgColor(notification.type)
+                                            } ${!notification.read ? 'bg-gray-700/40' : ''}`}
                                     >
                                         <div className="flex items-start gap-3">
                                             {getNotificationIcon(notification.type)}
