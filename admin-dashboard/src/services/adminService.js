@@ -322,24 +322,24 @@ export const getRecentActivity = async (limit = 10) => {
     try {
         const buyersRef = collection(db, 'buyers');
         const sellersRef = collection(db, 'sellers');
-        
+
         const [buyersSnapshot, sellersSnapshot] = await Promise.all([
             getDocs(buyersRef),
             getDocs(sellersRef)
         ]);
 
-        const buyersActivity = buyersSnapshot.docs.map(doc => ({ 
-            id: doc.id, 
+        const buyersActivity = buyersSnapshot.docs.map(doc => ({
+            id: doc.id,
             type: 'buyer',
             userType: 'buyer',
-            ...doc.data() 
+            ...doc.data()
         }));
 
-        const sellersActivity = sellersSnapshot.docs.map(doc => ({ 
-            id: doc.id, 
+        const sellersActivity = sellersSnapshot.docs.map(doc => ({
+            id: doc.id,
             type: 'seller',
             userType: 'seller',
-            ...doc.data() 
+            ...doc.data()
         }));
 
         const activities = [...buyersActivity, ...sellersActivity]
