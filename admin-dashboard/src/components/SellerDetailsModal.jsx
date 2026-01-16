@@ -15,30 +15,37 @@ export default function SellerDetailsModal({ seller, onClose }) {
         }
     };
 
-    const handleDownload = (url, downloadId, fileName) => {
+    const handleDownload = async (url, downloadId, fileName) => {
         if (!url) return;
 
         setDownloadingId(downloadId);
 
         try {
-            // Ensure the URL has alt=media parameter
             const downloadUrl = url.includes('alt=media') ? url : `${url}?alt=media`;
-
-            // Create a temporary anchor element to trigger download
+            
+            // Fetch the file
+            const response = await fetch(downloadUrl);
+            if (!response.ok) throw new Error('Download failed');
+            
+            const blob = await response.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
+            
+            // Create and trigger download
             const link = document.createElement('a');
-            link.href = downloadUrl;
+            link.href = blobUrl;
             link.download = fileName;
             link.style.display = 'none';
 
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-
-            // Success feedback
+            
+            // Cleanup
+            window.URL.revokeObjectURL(blobUrl);
             setTimeout(() => setDownloadingId(null), 500);
         } catch (error) {
             console.error('Download error:', error);
-            // Fallback: open in new tab if direct download fails
+            // Fallback: open in new tab
             const downloadUrl = url.includes('alt=media') ? url : `${url}?alt=media`;
             window.open(downloadUrl, '_blank');
             setDownloadingId(null);
@@ -185,14 +192,22 @@ export default function SellerDetailsModal({ seller, onClose }) {
                                 {/* Action Buttons */}
                                 <div className="flex gap-2">
                                     <button
-                                        onClick={() => handleViewDocument(seller.nicDocumentUrl, 'NIC Document')}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            handleViewDocument(seller.nicDocumentUrl, 'NIC Document');
+                                        }}
                                         className="flex-1 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-all"
                                     >
                                         <Eye className="w-4 h-4" />
                                         View
                                     </button>
                                     <button
-                                        onClick={() => handleDownload(seller.nicDocumentUrl, 'nic', `NIC-${seller.nicNumber || seller.firebaseUid}.${getFileExtension(seller.nicDocumentUrl)}`)}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            handleDownload(seller.nicDocumentUrl, 'nic', `NIC-${seller.nicNumber || seller.firebaseUid}.${getFileExtension(seller.nicDocumentUrl)}`);
+                                        }}
                                         disabled={downloadingId === 'nic'}
                                         className="flex-1 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
                                     >
@@ -255,14 +270,22 @@ export default function SellerDetailsModal({ seller, onClose }) {
                                 {/* Action Buttons */}
                                 <div className="flex gap-2">
                                     <button
-                                        onClick={() => handleViewDocument(seller.businessRegistrationUrl, 'Business Registration Document')}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            handleViewDocument(seller.businessRegistrationUrl, 'Business Registration Document');
+                                        }}
                                         className="flex-1 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-all"
                                     >
                                         <Eye className="w-4 h-4" />
                                         View
                                     </button>
                                     <button
-                                        onClick={() => handleDownload(seller.businessRegistrationUrl, 'br', `BR-${seller.brNumber || seller.firebaseUid}.${getFileExtension(seller.businessRegistrationUrl)}`)}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            handleDownload(seller.businessRegistrationUrl, 'br', `BR-${seller.brNumber || seller.firebaseUid}.${getFileExtension(seller.businessRegistrationUrl)}`);
+                                        }}
                                         disabled={downloadingId === 'br'}
                                         className="flex-1 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
                                     >
