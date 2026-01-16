@@ -418,3 +418,39 @@ export const getPlatformStats = async () => {
         };
     }
 };
+
+// Create a notification
+export const createNotification = async (title, message, type = 'info') => {
+    try {
+        const { addDoc, serverTimestamp } = await import('firebase/firestore');
+        const notificationsRef = collection(db, 'notifications');
+        
+        const notificationDoc = await addDoc(notificationsRef, {
+            title: title,
+            message: message,
+            type: type, // 'info', 'success', 'warning', 'error'
+            read: false,
+            timestamp: serverTimestamp(),
+            createdAt: new Date()
+        });
+        
+        console.log('Notification created:', notificationDoc.id);
+        return notificationDoc.id;
+    } catch (error) {
+        console.error('Error creating notification:', error);
+        throw error;
+    }
+};
+
+// Mark notification as read
+export const markNotificationAsRead = async (notificationId) => {
+    try {
+        const notifRef = doc(db, 'notifications', notificationId);
+        await updateDoc(notifRef, {
+            read: true
+        });
+    } catch (error) {
+        console.error('Error marking notification as read:', error);
+        throw error;
+    }
+};
