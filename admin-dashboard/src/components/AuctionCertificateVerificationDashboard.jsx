@@ -208,8 +208,8 @@ export default function AuctionCertificateVerificationDashboard() {
                         key={status}
                         onClick={() => setFilter(status)}
                         className={`px-4 py-2 font-medium text-sm transition-all ${filter === status
-                                ? 'text-blue-400 border-b-2 border-blue-400'
-                                : 'text-gray-400 hover:text-gray-300'
+                            ? 'text-blue-400 border-b-2 border-blue-400'
+                            : 'text-gray-400 hover:text-gray-300'
                             }`}
                     >
                         {status.charAt(0).toUpperCase() + status.slice(1)}
