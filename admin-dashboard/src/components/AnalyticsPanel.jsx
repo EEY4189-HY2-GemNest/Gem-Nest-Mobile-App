@@ -89,7 +89,7 @@ export default function AnalyticsPanel() {
                             <div key={index} className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30 hover:border-gray-500/50 transition">
                                 <div className="flex items-start justify-between">
                                     <div className="flex-1">
-                                        <p className="text-white font-semibold">{activity.name || activity.email}</p>
+                                        <p className="text-white font-semibold">{activity.displayName || activity.name || activity.email}</p>
                                         <p className="text-gray-400 text-sm mt-1">
                                             Joined as {activity.userType === 'seller' ? '🏪 Seller' : '👤 Buyer'}
                                         </p>
@@ -101,9 +101,9 @@ export default function AnalyticsPanel() {
                                         {activity.isActive !== false ? 'Active' : 'Inactive'}
                                     </span>
                                 </div>
-                                {activity.createdAt && (
+                                {(activity.createdAt || activity.timestamp) && (
                                     <p className="text-gray-500 text-xs mt-2">
-                                        {new Date(activity.createdAt.seconds ? activity.createdAt.seconds * 1000 : activity.createdAt).toLocaleDateString()}
+                                        {new Date(activity.createdAt?.seconds ? activity.createdAt.seconds * 1000 : activity.createdAt || activity.timestamp?.seconds ? activity.timestamp.seconds * 1000 : activity.timestamp).toLocaleDateString()}
                                     </p>
                                 )}
                             </div>
