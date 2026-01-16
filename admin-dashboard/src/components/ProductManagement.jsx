@@ -42,7 +42,7 @@ export default function ProductManagement() {
     };
 
     const filteredProducts = products.filter(product =>
-        product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.description?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -90,13 +90,13 @@ export default function ProductManagement() {
                             {product.imageUrl && (
                                 <img
                                     src={product.imageUrl}
-                                    alt={product.name}
+                                    alt={product.title}
                                     className="w-full h-48 object-cover"
                                 />
                             )}
 
                             <div className="p-5 space-y-4">
-                                <h3 className="font-bold text-white line-clamp-2 text-lg">{product.name}</h3>
+                                <h3 className="font-bold text-white line-clamp-2 text-lg">{product.title}</h3>
 
                                 <p className="text-gray-400 text-sm line-clamp-2">
                                     {product.description || 'No description'}
