@@ -101,10 +101,10 @@ export default function AuctionManagement() {
                                                     </span>
                                                     {auction.approvalStatus && (
                                                         <span className={`px-3 py-1 rounded-full text-xs font-bold ${auction.approvalStatus === 'approved'
-                                                                ? 'bg-blue-900/40 text-blue-300 border border-blue-700'
-                                                                : auction.approvalStatus === 'pending'
-                                                                    ? 'bg-yellow-900/40 text-yellow-300 border border-yellow-700'
-                                                                    : 'bg-red-900/40 text-red-300 border border-red-700'
+                                                            ? 'bg-blue-900/40 text-blue-300 border border-blue-700'
+                                                            : auction.approvalStatus === 'pending'
+                                                                ? 'bg-yellow-900/40 text-yellow-300 border border-yellow-700'
+                                                                : 'bg-red-900/40 text-red-300 border border-red-700'
                                                             }`}>
                                                             {auction.approvalStatus}
                                                         </span>
@@ -118,13 +118,13 @@ export default function AuctionManagement() {
                                             <div>
                                                 <p className="text-gray-400 text-sm mb-1">Current Bid</p>
                                                 <p className="text-2xl font-bold text-primary flex items-center gap-2">
-                                                    <DollarSign className="w-5 h-5" />
+                                                    <span>Rs</span>
                                                     {auction.currentBid || '0'}
                                                 </p>
                                             </div>
                                             <div>
                                                 <p className="text-gray-400 text-sm mb-1">Min. Increment</p>
-                                                <p className="text-lg font-bold text-white">${auction.minimumIncrement || '0'}</p>
+                                                <p className="text-lg font-bold text-white">Rs {auction.minimumIncrement || '0'}</p>
                                             </div>
                                         </div>
 

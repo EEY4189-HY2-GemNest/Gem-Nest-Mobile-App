@@ -115,7 +115,7 @@ export default function ProductManagement() {
                                     <div>
                                         <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Price</p>
                                         <p className="text-primary font-bold text-lg">
-                                            ${product.price || 'N/A'}
+                                            Rs {product.price || 'N/A'}
                                         </p>
                                     </div>
                                     <div>

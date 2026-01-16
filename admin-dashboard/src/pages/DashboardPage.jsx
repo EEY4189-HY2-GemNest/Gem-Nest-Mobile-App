@@ -7,6 +7,7 @@ import ProductManagement from '../components/ProductManagement';
 import AuctionManagement from '../components/AuctionManagement';
 import Dashboard from '../components/Dashboard';
 import AnalyticsPanel from '../components/AnalyticsPanel';
+import NotificationPanel from '../components/NotificationPanel';
 
 export default function DashboardPage() {
     const [currentPage, setCurrentPage] = useState('dashboard');
@@ -110,6 +111,7 @@ export default function DashboardPage() {
                         </h2>
                     </div>
                     <div className="flex items-center gap-4">
+                        <NotificationPanel />
                         <div className="hidden md:flex flex-col items-end">
                             <span className="text-sm font-medium text-gray-200">{admin?.email}</span>
                             <span className="text-xs text-gray-500">Administrator</span>

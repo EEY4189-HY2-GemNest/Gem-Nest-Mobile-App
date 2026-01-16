@@ -64,7 +64,7 @@ export default function AnalyticsPanel() {
                             <DollarSign className="w-5 h-5 text-green-400" />
                         </div>
                     </div>
-                    <p className="text-3xl font-bold text-green-400 mb-2">${revenue.totalRevenue.toLocaleString()}</p>
+                    <p className="text-3xl font-bold text-green-400 mb-2">Rs {revenue.totalRevenue.toLocaleString()}</p>
                     <p className="text-gray-400 text-xs">From completed orders</p>
                 </div>
 
@@ -97,7 +97,7 @@ export default function AnalyticsPanel() {
                             <Zap className="w-5 h-5 text-purple-400" />
                         </div>
                     </div>
-                    <p className="text-3xl font-bold text-purple-400 mb-2">${avgOrderValue}</p>
+                    <p className="text-3xl font-bold text-purple-400 mb-2">Rs {avgOrderValue}</p>
                     <p className="text-gray-400 text-xs">Per transaction</p>
                 </div>
             </div>
@@ -146,7 +146,7 @@ export default function AnalyticsPanel() {
                     <div className="space-y-3">
                         <div className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg border border-gray-600/30">
                             <p className="text-gray-300">Revenue/Order</p>
-                            <p className="text-orange-400 font-bold text-lg">${avgOrderValue}</p>
+                            <p className="text-orange-400 font-bold text-lg">Rs {avgOrderValue}</p>
                         </div>
                         <div className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg border border-gray-600/30">
                             <p className="text-gray-300">Pending Orders</p>
