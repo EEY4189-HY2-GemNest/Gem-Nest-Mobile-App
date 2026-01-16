@@ -1,14 +1,14 @@
 import React from 'react';
 import { X, AlertTriangle, CheckCircle, Trash2 } from 'lucide-react';
 
-export default function ActionConfirmDialog({ 
+export default function ActionConfirmDialog({
     type = 'confirm', // 'confirm', 'warning', 'danger', 'success'
-    title, 
-    message, 
+    title,
+    message,
     actionText = 'Confirm',
-    onConfirm, 
-    onCancel, 
-    isLoading = false 
+    onConfirm,
+    onCancel,
+    isLoading = false
 }) {
     const getConfig = () => {
         switch (type) {
