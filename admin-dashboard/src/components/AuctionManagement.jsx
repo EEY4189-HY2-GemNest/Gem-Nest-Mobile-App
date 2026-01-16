@@ -118,13 +118,13 @@ export default function AuctionManagement() {
                                             <div>
                                                 <p className="text-gray-400 text-sm mb-1">Current Bid</p>
                                                 <p className="text-2xl font-bold text-primary flex items-center gap-2">
-                                                    <DollarSign className="w-5 h-5" />
+                                                    <span>Rs</span>
                                                     {auction.currentBid || '0'}
                                                 </p>
                                             </div>
                                             <div>
                                                 <p className="text-gray-400 text-sm mb-1">Min. Increment</p>
-                                                <p className="text-lg font-bold text-white">${auction.minimumIncrement || '0'}</p>
+                                                <p className="text-lg font-bold text-white">Rs {auction.minimumIncrement || '0'}</p>
                                             </div>
                                         </div>
 
