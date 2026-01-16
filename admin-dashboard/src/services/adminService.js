@@ -64,24 +64,24 @@ export const getAllUsers = async () => {
     try {
         const buyersRef = collection(db, 'buyers');
         const sellersRef = collection(db, 'sellers');
-        
+
         const [buyersSnap, sellersSnap] = await Promise.all([
             getDocs(buyersRef),
             getDocs(sellersRef)
         ]);
-        
-        const buyers = buyersSnap.docs.map(doc => ({ 
-            id: doc.id, 
+
+        const buyers = buyersSnap.docs.map(doc => ({
+            id: doc.id,
             type: 'buyer',
-            ...doc.data() 
+            ...doc.data()
         }));
-        
-        const sellers = sellersSnap.docs.map(doc => ({ 
-            id: doc.id, 
+
+        const sellers = sellersSnap.docs.map(doc => ({
+            id: doc.id,
             type: 'seller',
-            ...doc.data() 
+            ...doc.data()
         }));
-        
+
         return [...buyers, ...sellers];
     } catch (error) {
         console.error('Error fetching users:', error);
@@ -98,14 +98,14 @@ export const getUserById = async (userId) => {
         if (buyerSnap.exists()) {
             return { id: userId, type: 'buyer', ...buyerSnap.data() };
         }
-        
+
         // Try sellers
         const sellerRef = doc(db, 'sellers', userId);
         const sellerSnap = await getDoc(sellerRef);
         if (sellerSnap.exists()) {
             return { id: userId, type: 'seller', ...sellerSnap.data() };
         }
-        
+
         throw new Error('User not found in buyers or sellers collection');
     } catch (error) {
         console.error('Error fetching user:', error);
@@ -119,7 +119,7 @@ export const deactivateUserAccount = async (userId) => {
         // Try to update in buyers collection
         const buyerRef = doc(db, 'buyers', userId);
         const buyerSnap = await getDoc(buyerRef);
-        
+
         if (buyerSnap.exists()) {
             await updateDoc(buyerRef, {
                 isActive: false,
@@ -127,7 +127,7 @@ export const deactivateUserAccount = async (userId) => {
             });
             return true;
         }
-        
+
         // Try sellers collection
         const sellerRef = doc(db, 'sellers', userId);
         await updateDoc(sellerRef, {
@@ -146,7 +146,7 @@ export const activateUserAccount = async (userId) => {
         // Try to update in buyers collection
         const buyerRef = doc(db, 'buyers', userId);
         const buyerSnap = await getDoc(buyerRef);
-        
+
         if (buyerSnap.exists()) {
             await updateDoc(buyerRef, {
                 isActive: true,
@@ -154,7 +154,7 @@ export const activateUserAccount = async (userId) => {
             });
             return true;
         }
-        
+
         // Try sellers collection
         const sellerRef = doc(db, 'sellers', userId);
         await updateDoc(sellerRef, {
@@ -207,18 +207,18 @@ export const getUserStats = async () => {
     try {
         const buyersRef = collection(db, 'buyers');
         const sellersRef = collection(db, 'sellers');
-        
+
         const [buyersSnap, sellersSnap] = await Promise.all([
             getDocs(buyersRef),
             getDocs(sellersRef)
         ]);
-        
+
         const buyers = buyersSnap.docs;
         const sellers = sellersSnap.docs;
-        
+
         const activeBuyers = buyers.filter(doc => doc.data().isActive !== false).length;
         const activeSellers = sellers.filter(doc => doc.data().isActive === true).length;
-        
+
         const total = buyers.length + sellers.length;
         const active = activeBuyers + activeSellers;
         const inactive = total - active;
