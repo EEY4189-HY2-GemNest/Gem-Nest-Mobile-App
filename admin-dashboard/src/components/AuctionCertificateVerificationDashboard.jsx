@@ -77,53 +77,60 @@ export default function AuctionCertificateVerificationDashboard() {
         }
     };
 
-    const handleVerify = async (cert) => {
-        try {
-            const auctionRef = doc(db, 'auctions', cert.auctionId);
-            await updateDoc(auctionRef, {
-                certificateVerificationStatus: 'verified',
-                rejectionReason: '',
-            });
+    const handleVerify = (cert) => {
+        setCertDialog({
+            type: 'verify',
+            cert,
+            onConfirm: async () => {
+                try {
+                    setActionLoading(true);
+                    const auctionRef = doc(db, 'auctions', cert.auctionId);
+                    await updateDoc(auctionRef, {
+                        certificateVerificationStatus: 'verified',
+                        rejectionReason: '',
+                    });
 
-            // Update local state
-            setCertificates(certificates.map(c =>
-                c.auctionId === cert.auctionId
-                    ? { ...c, verificationStatus: 'verified', rejectionReason: '' }
-                    : c
-            ));
-            alert('Auction certificate verified successfully');
-        } catch (error) {
-            console.error('Error verifying auction certificate:', error);
-            alert('Failed to verify auction certificate');
-        }
+                    setCertificates(certificates.map(c =>
+                        c.auctionId === cert.auctionId
+                            ? { ...c, verificationStatus: 'verified', rejectionReason: '' }
+                            : c
+                    ));
+                    setCertDialog(null);
+                } catch (error) {
+                    console.error('Error verifying auction certificate:', error);
+                } finally {
+                    setActionLoading(false);
+                }
+            }
+        });
     };
 
-    const handleReject = async () => {
-        if (!rejectionReason.trim()) {
-            alert('Please provide a rejection reason');
-            return;
-        }
+    const handleReject = (cert) => {
+        setCertDialog({
+            type: 'reject',
+            cert,
+            onConfirm: async (reason) => {
+                try {
+                    setActionLoading(true);
+                    const auctionRef = doc(db, 'auctions', cert.auctionId);
+                    await updateDoc(auctionRef, {
+                        certificateVerificationStatus: 'rejected',
+                        rejectionReason: reason,
+                    });
 
-        try {
-            const auctionRef = doc(db, 'auctions', selectedCert.auctionId);
-            await updateDoc(auctionRef, {
-                certificateVerificationStatus: 'rejected',
-                rejectionReason: rejectionReason,
-            });
-
-            setCertificates(certificates.map(c =>
-                c.auctionId === selectedCert.auctionId
-                    ? { ...c, verificationStatus: 'rejected', rejectionReason: rejectionReason }
-                    : c
-            ));
-            setShowRejectModal(false);
-            setRejectionReason('');
-            setSelectedCert(null);
-            alert('Auction certificate rejected successfully');
-        } catch (error) {
-            console.error('Error rejecting auction certificate:', error);
-            alert('Failed to reject auction certificate');
-        }
+                    setCertificates(certificates.map(c =>
+                        c.auctionId === cert.auctionId
+                            ? { ...c, verificationStatus: 'rejected', rejectionReason: reason }
+                            : c
+                    ));
+                    setCertDialog(null);
+                } catch (error) {
+                    console.error('Error rejecting auction certificate:', error);
+                } finally {
+                    setActionLoading(false);
+                }
+            }
+        });
     };
 
     const getStatusColor = (status) => {
@@ -286,10 +293,7 @@ export default function AuctionCertificateVerificationDashboard() {
                                                 )}
                                                 {cert.verificationStatus !== 'rejected' && (
                                                     <button
-                                                        onClick={() => {
-                                                            setSelectedCert(cert);
-                                                            setShowRejectModal(true);
-                                                        }}
+                                                        onClick={() => handleReject(cert)}
                                                         className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded transition-colors"
                                                         title="Reject"
                                                     >
@@ -306,42 +310,15 @@ export default function AuctionCertificateVerificationDashboard() {
                 )}
             </div>
 
-            {/* Rejection Modal */}
-            {showRejectModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4 border border-gray-700">
-                        <h3 className="text-xl font-bold text-white mb-4">Reject Auction Certificate</h3>
-                        <div className="mb-4">
-                            <p className="text-gray-400 text-sm mb-2">Auction: {selectedCert?.auctionTitle}</p>
-                            <label className="block text-gray-300 text-sm font-medium mb-2">Rejection Reason</label>
-                            <textarea
-                                value={rejectionReason}
-                                onChange={(e) => setRejectionReason(e.target.value)}
-                                placeholder="Provide a reason for rejection..."
-                                className="w-full px-4 py-2 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 focus:outline-none resize-none"
-                                rows="4"
-                            />
-                        </div>
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => {
-                                    setShowRejectModal(false);
-                                    setRejectionReason('');
-                                    setSelectedCert(null);
-                                }}
-                                className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleReject}
-                                className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors font-medium"
-                            >
-                                Reject
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            {/* Certificate Dialog */}
+            {certDialog && (
+                <CertificateDialog
+                    type={certDialog.type}
+                    productName={certDialog.cert?.auctionTitle || 'Auction'}
+                    isLoading={actionLoading}
+                    onConfirm={certDialog.onConfirm}
+                    onCancel={() => setCertDialog(null)}
+                />
             )}
         </div>
     );
