@@ -424,7 +424,7 @@ export const createNotification = async (title, message, type = 'info') => {
     try {
         const { addDoc, serverTimestamp } = await import('firebase/firestore');
         const notificationsRef = collection(db, 'notifications');
-        
+
         const notificationDoc = await addDoc(notificationsRef, {
             title: title,
             message: message,
@@ -433,7 +433,7 @@ export const createNotification = async (title, message, type = 'info') => {
             timestamp: serverTimestamp(),
             createdAt: new Date()
         });
-        
+
         console.log('Notification created:', notificationDoc.id);
         return notificationDoc.id;
     } catch (error) {
