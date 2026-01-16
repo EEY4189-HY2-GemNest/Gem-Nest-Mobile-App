@@ -50,7 +50,7 @@ export default function SellerDetailsModal({ seller, onClose }) {
         const ext = getFileExtension(url).toLowerCase();
         const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
         const isPdf = ext === 'pdf';
-        
+
         setSelectedImage({
             url: fullUrl,
             name: name,
