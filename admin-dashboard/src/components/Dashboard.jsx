@@ -50,12 +50,12 @@ export default function Dashboard() {
             // User stats - Query separate buyers and sellers collections
             const buyersRef = collection(db, 'buyers');
             const sellersRef = collection(db, 'sellers');
-            
+
             const [buyersSnap, sellersSnap] = await Promise.all([
                 getDocs(buyersRef),
                 getDocs(sellersRef)
             ]);
-            
+
             const activeBuyers = buyersSnap.docs.filter(doc => doc.data().isActive !== false).length;
             const activeSellers = sellersSnap.docs.filter(doc => doc.data().isActive === true).length;
             const inactiveSellers = sellersSnap.docs.filter(doc => doc.data().isActive === false).length;
@@ -90,7 +90,7 @@ export default function Dashboard() {
                 } else if (data.approvalStatus === 'pending') {
                     pendingAuctions++;
                 }
-                
+
                 // Check active/ended status
                 const endTime = data.endTime?.toDate?.() || new Date(data.endTime);
                 if (now > endTime) {
