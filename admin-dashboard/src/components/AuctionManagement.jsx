@@ -25,8 +25,7 @@ export default function AuctionManagement() {
     };
 
     const filteredAuctions = auctions.filter(auction =>
-        auction.productName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        auction.description?.toLowerCase().includes(searchTerm.toLowerCase())
+        auction.title?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const getAuctionStatus = (auction) => {
@@ -34,8 +33,7 @@ export default function AuctionManagement() {
         const endTime = auction.endTime?.toDate?.() || new Date(auction.endTime);
 
         if (now > endTime) return 'Ended';
-        if (now > (auction.startTime?.toDate?.() || new Date(auction.startTime))) return 'Active';
-        return 'Upcoming';
+        return 'Active';
     };
 
     if (loading) {
@@ -73,10 +71,9 @@ export default function AuctionManagement() {
                     <table className="w-full">
                         <thead className="bg-gray-900/50 border-b border-gray-700">
                             <tr>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Product</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Starting Price</th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Title</th>
                                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Current Bid</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Bids</th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Minimum Increment</th>
                                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Status</th>
                                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Ends</th>
                             </tr>
@@ -101,16 +98,13 @@ export default function AuctionManagement() {
                                     return (
                                         <tr key={auction.id} className="border-b border-gray-700 hover:bg-gray-700/20 transition-colors">
                                             <td className="px-6 py-4 text-white font-medium">
-                                                {auction.productName || 'Unknown'}
+                                                {auction.title || 'Unknown'}
                                             </td>
                                             <td className="px-6 py-4 text-primary font-bold">
-                                                ${auction.startingPrice || '0'}
+                                                ${auction.currentBid || '0'}
                                             </td>
                                             <td className="px-6 py-4 text-white font-bold">
-                                                ${auction.currentBid || auction.startingPrice || '0'}
-                                            </td>
-                                            <td className="px-6 py-4 text-gray-300 font-semibold">
-                                                {auction.totalBids || 0}
+                                                ${auction.minimumIncrement || '0'}
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusColor}`}>
