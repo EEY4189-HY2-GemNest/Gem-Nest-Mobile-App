@@ -1,53 +1,36 @@
 import React, { useState } from 'react';
 import { X, Download, Eye, AlertCircle, CheckCircle, Clock, FileText } from 'lucide-react';
-import { ref, getBytes } from 'firebase/storage';
-import { storage } from '../firebase-config';
 
 export default function SellerDetailsModal({ seller, onClose }) {
     const [selectedImage, setSelectedImage] = useState(null);
     const [downloading, setDownloading] = useState(null);
 
-    const handleDownload = async (url, fileName) => {
+    const handleDownload = (url, fileName) => {
         if (!url) return;
         try {
             setDownloading(fileName);
-
-            // Extract the file path from the Firebase Storage URL
-            // URL format: https://firebasestorage.googleapis.com/v0/b/{bucket}/o/{path}?alt=media&token={token}
-            const urlObj = new URL(url);
-            const pathMatch = urlObj.pathname.match(/\/o\/(.+?)$/);
-
-            if (pathMatch) {
-                const filePath = decodeURIComponent(pathMatch[1]);
-                const storageRef = ref(storage, filePath);
-
-                // Get the file bytes using Firebase SDK
-                const bytes = await getBytes(storageRef);
-                const blob = new Blob([bytes]);
-
-                // Create download link
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = fileName;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(link.href);
-            } else {
-                // Fallback: open in new tab for download
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = fileName;
-                link.target = '_blank';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
+            
+            // Add ?alt=media parameter if not present to ensure download instead of preview
+            const downloadUrl = url.includes('alt=media') ? url : `${url}?alt=media`;
+            
+            // Create a temporary anchor element to trigger download
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = fileName;
+            link.setAttribute('rel', 'noreferrer noopener');
+            link.style.display = 'none';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Success feedback
+            setTimeout(() => setDownloading(null), 500);
         } catch (error) {
             console.error('Download error:', error);
-            // Fallback: open in new tab if Firebase SDK fails
-            window.open(url, '_blank');
-        } finally {
+            // Fallback: open in new tab if direct download fails
+            const downloadUrl = url.includes('alt=media') ? url : `${url}?alt=media`;
+            window.open(downloadUrl, '_blank');
             setDownloading(null);
         }
     };
