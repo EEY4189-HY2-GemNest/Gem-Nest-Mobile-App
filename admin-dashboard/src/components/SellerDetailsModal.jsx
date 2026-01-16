@@ -9,21 +9,21 @@ export default function SellerDetailsModal({ seller, onClose }) {
         if (!url) return;
         try {
             setDownloading(fileName);
-            
+
             // Add ?alt=media parameter if not present to ensure download instead of preview
             const downloadUrl = url.includes('alt=media') ? url : `${url}?alt=media`;
-            
+
             // Create a temporary anchor element to trigger download
             const link = document.createElement('a');
             link.href = downloadUrl;
             link.download = fileName;
             link.setAttribute('rel', 'noreferrer noopener');
             link.style.display = 'none';
-            
+
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            
+
             // Success feedback
             setTimeout(() => setDownloading(null), 500);
         } catch (error) {
