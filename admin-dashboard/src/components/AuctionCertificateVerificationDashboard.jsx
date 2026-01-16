@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../firebase-config';
 import { collection, query, where, getDocs, updateDoc, doc, orderBy } from 'firebase/firestore';
 import { CheckCircle, XCircle, Clock, Download, Eye, Filter, Gavel } from 'lucide-react';
+import CertificateDialog from './CertificateDialog';
 
 export default function AuctionCertificateVerificationDashboard() {
     const [certificates, setCertificates] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState('pending'); // pending, verified, rejected, all
-    const [selectedCert, setSelectedCert] = useState(null);
-    const [rejectionReason, setRejectionReason] = useState('');
-    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [filter, setFilter] = useState('pending');
+    const [certDialog, setCertDialog] = useState(null);
+    const [actionLoading, setActionLoading] = useState(false);
     const [stats, setStats] = useState({
         pending: 0,
         verified: 0,
@@ -24,9 +24,9 @@ export default function AuctionCertificateVerificationDashboard() {
     const fetchCertificates = async () => {
         try {
             setLoading(true);
-            const auctionsRef = collection(db, 'actions');
+            const auctionsRef = collection(db, 'auctions');
 
-            // Fetch all auctions with certificates (no compound where needed)
+            // Fetch all auctions with certificates
             const q = query(auctionsRef, where('gemCertificates', '!=', null));
             const snapshot = await getDocs(q);
             const certsData = [];
