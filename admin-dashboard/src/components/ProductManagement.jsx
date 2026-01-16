@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getAllProducts, removeProduct } from '../services/adminService';
 import { Trash2, AlertCircle, Loader } from 'lucide-react';
+import ActionConfirmDialog from './ActionConfirmDialog';
 
 export default function ProductManagement() {
     const [products, setProducts] = useState([]);
@@ -8,6 +9,7 @@ export default function ProductManagement() {
     const [searchTerm, setSearchTerm] = useState('');
     const [actionLoading, setActionLoading] = useState(null);
     const [message, setMessage] = useState('');
+    const [removeDialog, setRemoveDialog] = useState(null);
 
     useEffect(() => {
         fetchProducts();
@@ -25,20 +27,27 @@ export default function ProductManagement() {
         }
     };
 
-    const handleRemove = async (productId) => {
-        if (!window.confirm('Are you sure you want to remove this product?')) return;
-
-        try {
-            setActionLoading(productId);
-            await removeProduct(productId);
-            setProducts(products.map(p => p.id === productId ? { ...p, isActive: false } : p));
-            setMessage('Product removed');
-            setTimeout(() => setMessage(''), 3000);
-        } catch (error) {
-            setMessage('Error removing product: ' + error.message);
-        } finally {
-            setActionLoading(null);
-        }
+    const handleRemove = (productId) => {
+        const product = products.find(p => p.id === productId);
+        setRemoveDialog({
+            productId,
+            productName: product?.title || 'Product',
+            onConfirm: async () => {
+                try {
+                    setActionLoading(productId);
+                    await removeProduct(productId);
+                    setProducts(products.map(p => p.id === productId ? { ...p, isActive: false } : p));
+                    setMessage('Product removed');
+                    setTimeout(() => setMessage(''), 3000);
+                    setRemoveDialog(null);
+                } catch (error) {
+                    setMessage('Error removing product: ' + error.message);
+                    setRemoveDialog(null);
+                } finally {
+                    setActionLoading(null);
+                }
+            }
+        });
     };
 
     const filteredProducts = products.filter(product =>
@@ -147,6 +156,19 @@ export default function ProductManagement() {
             <div className="text-gray-400 text-sm font-medium">
                 Showing {filteredProducts.length} products
             </div>
+
+            {/* Remove Product Dialog */}
+            {removeDialog && (
+                <ActionConfirmDialog
+                    type="danger"
+                    title="Remove Product"
+                    message={`Are you sure you want to remove "${removeDialog.productName}"? This action cannot be undone.`}
+                    actionText="Remove Product"
+                    isLoading={actionLoading !== null}
+                    onConfirm={removeDialog.onConfirm}
+                    onCancel={() => setRemoveDialog(null)}
+                />
+            )}
         </div>
     );
 }
