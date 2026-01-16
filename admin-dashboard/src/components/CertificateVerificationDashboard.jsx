@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../firebase-config';
 import { collection, query, where, getDocs, updateDoc, doc, orderBy } from 'firebase/firestore';
 import { CheckCircle, XCircle, Clock, Download, Eye, Filter } from 'lucide-react';
+import CertificateDialog from './CertificateDialog';
 
 export default function CertificateVerificationDashboard() {
     const [certificates, setCertificates] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState('pending'); // pending, verified, rejected, all
+    const [filter, setFilter] = useState('pending');
     const [selectedCert, setSelectedCert] = useState(null);
-    const [rejectionReason, setRejectionReason] = useState('');
-    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [certDialog, setCertDialog] = useState(null);
+    const [actionLoading, setActionLoading] = useState(false);
 
     useEffect(() => {
         fetchCertificates();
@@ -58,54 +59,60 @@ export default function CertificateVerificationDashboard() {
         }
     };
 
-    const handleVerify = async (cert) => {
-        try {
-            const productRef = doc(db, 'products', cert.productId);
-            await updateDoc(productRef, {
-                certificateVerificationStatus: 'verified',
-                rejectionReason: '',
-            });
+    const handleVerify = (cert) => {
+        setCertDialog({
+            type: 'verify',
+            cert,
+            onConfirm: async () => {
+                try {
+                    setActionLoading(true);
+                    const productRef = doc(db, 'products', cert.productId);
+                    await updateDoc(productRef, {
+                        certificateVerificationStatus: 'verified',
+                        rejectionReason: '',
+                    });
 
-            // Update local state
-            setCertificates(certificates.map(c =>
-                c.productId === cert.productId
-                    ? { ...c, verificationStatus: 'verified', rejectionReason: '' }
-                    : c
-            ));
-            alert('Certificate verified successfully');
-        } catch (error) {
-            console.error('Error verifying certificate:', error);
-            alert('Failed to verify certificate');
-        }
+                    setCertificates(certificates.map(c =>
+                        c.productId === cert.productId
+                            ? { ...c, verificationStatus: 'verified', rejectionReason: '' }
+                            : c
+                    ));
+                    setCertDialog(null);
+                } catch (error) {
+                    console.error('Error verifying certificate:', error);
+                } finally {
+                    setActionLoading(false);
+                }
+            }
+        });
     };
 
-    const handleReject = async () => {
-        if (!rejectionReason.trim()) {
-            alert('Please provide a rejection reason');
-            return;
-        }
+    const handleReject = (cert) => {
+        setCertDialog({
+            type: 'reject',
+            cert,
+            onConfirm: async (reason) => {
+                try {
+                    setActionLoading(true);
+                    const productRef = doc(db, 'products', cert.productId);
+                    await updateDoc(productRef, {
+                        certificateVerificationStatus: 'rejected',
+                        rejectionReason: reason,
+                    });
 
-        try {
-            const productRef = doc(db, 'products', selectedCert.productId);
-            await updateDoc(productRef, {
-                certificateVerificationStatus: 'rejected',
-                rejectionReason: rejectionReason,
-            });
-
-            setCertificates(certificates.map(c =>
-                c.productId === selectedCert.productId
-                    ? { ...c, verificationStatus: 'rejected', rejectionReason: rejectionReason }
-                    : c
-            ));
-
-            setShowRejectModal(false);
-            setRejectionReason('');
-            setSelectedCert(null);
-            alert('Certificate rejected');
-        } catch (error) {
-            console.error('Error rejecting certificate:', error);
-            alert('Failed to reject certificate');
-        }
+                    setCertificates(certificates.map(c =>
+                        c.productId === cert.productId
+                            ? { ...c, verificationStatus: 'rejected', rejectionReason: reason }
+                            : c
+                    ));
+                    setCertDialog(null);
+                } catch (error) {
+                    console.error('Error rejecting certificate:', error);
+                } finally {
+                    setActionLoading(false);
+                }
+            }
+        });
     };
 
     const getStatusIcon = (status) => {
