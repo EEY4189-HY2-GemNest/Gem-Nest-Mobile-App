@@ -163,8 +163,8 @@ export default function UserManagement() {
                 <button
                     onClick={() => setActiveTab('sellers')}
                     className={`px-6 py-3 font-semibold transition-all ${activeTab === 'sellers'
-                            ? 'text-primary border-b-2 border-primary'
-                            : 'text-gray-400 hover:text-gray-200'
+                        ? 'text-primary border-b-2 border-primary'
+                        : 'text-gray-400 hover:text-gray-200'
                         }`}
                 >
                     <div className="flex items-center gap-2">
@@ -175,8 +175,8 @@ export default function UserManagement() {
                 <button
                     onClick={() => setActiveTab('buyers')}
                     className={`px-6 py-3 font-semibold transition-all ${activeTab === 'buyers'
-                            ? 'text-primary border-b-2 border-primary'
-                            : 'text-gray-400 hover:text-gray-200'
+                        ? 'text-primary border-b-2 border-primary'
+                        : 'text-gray-400 hover:text-gray-200'
                         }`}
                 >
                     <div className="flex items-center gap-2">
@@ -233,8 +233,8 @@ export default function UserManagement() {
                                         {activeTab === 'sellers' && (
                                             <td className="px-6 py-4">
                                                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${user.verified
-                                                        ? 'bg-green-900/40 text-green-300 border border-green-700'
-                                                        : 'bg-yellow-900/40 text-yellow-300 border border-yellow-700'
+                                                    ? 'bg-green-900/40 text-green-300 border border-green-700'
+                                                    : 'bg-yellow-900/40 text-yellow-300 border border-yellow-700'
                                                     }`}>
                                                     {user.verified ? 'Verified' : 'Pending'}
                                                 </span>
