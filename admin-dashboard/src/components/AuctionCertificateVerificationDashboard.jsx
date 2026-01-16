@@ -24,19 +24,10 @@ export default function AuctionCertificateVerificationDashboard() {
     const fetchCertificates = async () => {
         try {
             setLoading(true);
-            const auctionsRef = collection(db, 'auctions');
+            const auctionsRef = collection(db, 'actions');
 
-            let q;
-            if (filter === 'all') {
-                q = query(auctionsRef, where('gemCertificates', '!=', null));
-            } else {
-                q = query(
-                    auctionsRef,
-                    where('certificateVerificationStatus', '==', filter),
-                    where('gemCertificates', '!=', null)
-                );
-            }
-
+            // Fetch all auctions with certificates (no compound where needed)
+            const q = query(auctionsRef, where('gemCertificates', '!=', null));
             const snapshot = await getDocs(q);
             const certsData = [];
 
@@ -58,24 +49,29 @@ export default function AuctionCertificateVerificationDashboard() {
                 }
             }
 
+            // Filter in-memory instead of in database query
+            let filtered = certsData;
+            if (filter !== 'all') {
+                filtered = certsData.filter(c => c.verificationStatus === filter);
+            }
+
             // Sort by upload date (newest first)
-            certsData.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
-            setCertificates(certsData);
+            filtered.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+            setCertificates(filtered);
 
             // Calculate stats
-            const pendingCount = certsData.filter(c => c.verificationStatus === 'pending').length;
-            const verifiedCount = certsData.filter(c => c.verificationStatus === 'verified').length;
-            const rejectedCount = certsData.filter(c => c.verificationStatus === 'rejected').length;
+            const pendingCount = filtered.filter(c => c.verificationStatus === 'pending').length;
+            const verifiedCount = filtered.filter(c => c.verificationStatus === 'verified').length;
+            const rejectedCount = filtered.filter(c => c.verificationStatus === 'rejected').length;
 
             setStats({
                 pending: pendingCount,
                 verified: verifiedCount,
                 rejected: rejectedCount,
-                total: certsData.length,
+                total: filtered.length,
             });
         } catch (error) {
             console.error('Error fetching auction certificates:', error);
-            alert('Failed to fetch auction certificates');
         } finally {
             setLoading(false);
         }
