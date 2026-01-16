@@ -4,6 +4,7 @@ import { Check, X, AlertCircle, Loader, Eye, Shield, ShieldAlert } from 'lucide-
 import UserDetailModal from './UserDetailModal';
 import ConfirmDialog from './ConfirmDialog';
 import VerificationDialog from './VerificationDialog';
+import SellerDetailsModal from './SellerDetailsModal';
 
 export default function UserManagement() {
     const [users, setUsers] = useState([]);
@@ -12,6 +13,7 @@ export default function UserManagement() {
     const [actionLoading, setActionLoading] = useState(null);
     const [message, setMessage] = useState('');
     const [selectedUser, setSelectedUser] = useState(null);
+    const [selectedSeller, setSelectedSeller] = useState(null);
     const [confirmDialog, setConfirmDialog] = useState(null);
     const [verificationDialog, setVerificationDialog] = useState(null);
     const [activeTab, setActiveTab] = useState('sellers');
@@ -243,11 +245,11 @@ export default function UserManagement() {
                                         <td className="px-6 py-4">
                                             <div className="flex gap-2 flex-wrap">
                                                 <button
-                                                    onClick={() => setSelectedUser(user)}
+                                                    onClick={() => activeTab === 'sellers' ? setSelectedSeller(user) : setSelectedUser(user)}
                                                     className="px-3 py-2 bg-gradient-to-r from-blue-900 to-blue-800 hover:from-blue-800 hover:to-blue-700 text-blue-200 rounded-lg text-xs font-bold flex items-center gap-1 transition-all shadow-lg hover:shadow-blue-900/30"
                                                 >
                                                     <Eye className="w-4 h-4" />
-                                                    View
+                                                    {activeTab === 'sellers' ? 'Details' : 'View'}
                                                 </button>
                                                 {activeTab === 'sellers' && !user.verified ? (
                                                     <>
@@ -347,6 +349,14 @@ export default function UserManagement() {
                     isLoading={actionLoading !== null}
                     onConfirm={verificationDialog.onConfirm}
                     onCancel={() => setVerificationDialog(null)}
+                />
+            )}
+
+            {/* Seller Details Modal */}
+            {selectedSeller && (
+                <SellerDetailsModal
+                    seller={selectedSeller}
+                    onClose={() => setSelectedSeller(null)}
                 />
             )}
         </div>
