@@ -100,13 +100,12 @@ export default function AuctionManagement() {
                                                         {status}
                                                     </span>
                                                     {auction.approvalStatus && (
-                                                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                                                            auction.approvalStatus === 'approved'
+                                                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${auction.approvalStatus === 'approved'
                                                                 ? 'bg-blue-900/40 text-blue-300 border border-blue-700'
                                                                 : auction.approvalStatus === 'pending'
                                                                     ? 'bg-yellow-900/40 text-yellow-300 border border-yellow-700'
                                                                     : 'bg-red-900/40 text-red-300 border border-red-700'
-                                                        }`}>
+                                                            }`}>
                                                             {auction.approvalStatus}
                                                         </span>
                                                     )}
@@ -191,7 +190,7 @@ export default function AuctionManagement() {
                                                 <div>
                                                     <p className="text-gray-400 text-xs mb-1">Delivery</p>
                                                     <p className="text-white font-medium">
-                                                        {Array.isArray(auction.deliveryMethods) 
+                                                        {Array.isArray(auction.deliveryMethods)
                                                             ? auction.deliveryMethods.join(', ')
                                                             : auction.deliveryMethods
                                                         }
