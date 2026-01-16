@@ -563,16 +563,24 @@ detailed explanation if needed
 ## 🐛 Known Issues
 
 ### Current Limitations
-- Image upload size optimization needed
-- Limited offline functionality
-- iOS push notification setup pending
+- Image upload size optimization in progress
+- Offline product caching features in development
+- Web notifications on iOS require PWA setup
+- Admin dashboard mobile responsiveness enhancements pending
+
+### Resolved Issues
+- ✅ Push notifications now working on both Android and iOS
+- ✅ Product details screen fully implemented with seller contact
+- ✅ Auction details with real-time countdown timers complete
+- ✅ Admin dashboard authentication and management features complete
 
 ### Bug Reports
 Please report bugs using GitHub Issues with:
-- Device information
-- Flutter version
-- Steps to reproduce
+- Device information (OS, device model)
+- Flutter/Node version
+- Steps to reproduce the issue
 - Expected vs actual behavior
+- Screenshots or logs if applicable
 
 ## 📄 License
 
