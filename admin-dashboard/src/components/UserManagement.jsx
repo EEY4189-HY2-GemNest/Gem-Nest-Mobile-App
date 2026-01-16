@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { getAllUsers, activateUserAccount, deactivateUserAccount } from '../services/adminService';
-import { Check, X, AlertCircle, Loader, Eye } from 'lucide-react';
+import { getAllUsers, activateUserAccount, deactivateUserAccount, verifySeller, rejectSellerVerification } from '../services/adminService';
+import { Check, X, AlertCircle, Loader, Eye, Shield, ShieldAlert } from 'lucide-react';
 import UserDetailModal from './UserDetailModal';
 import ConfirmDialog from './ConfirmDialog';
 
@@ -12,6 +12,7 @@ export default function UserManagement() {
     const [message, setMessage] = useState('');
     const [selectedUser, setSelectedUser] = useState(null);
     const [confirmDialog, setConfirmDialog] = useState(null);
+    const [activeTab, setActiveTab] = useState('sellers');
 
     useEffect(() => {
         fetchUsers();
@@ -76,10 +77,66 @@ export default function UserManagement() {
         });
     };
 
+    const handleVerifySeller = async (sellerId) => {
+        setConfirmDialog({
+            title: 'Verify Seller',
+            message: 'Are you sure you want to verify this seller account?',
+            action: 'Verify',
+            onConfirm: async () => {
+                try {
+                    setActionLoading(sellerId);
+                    await verifySeller(sellerId);
+                    setUsers(users.map(u => u.id === sellerId ? { ...u, verified: true, verificationStatus: 'approved' } : u));
+                    setMessage('Seller account verified');
+                    setTimeout(() => setMessage(''), 3000);
+                    setConfirmDialog(null);
+                } catch (error) {
+                    setMessage('Error verifying seller: ' + error.message);
+                    setConfirmDialog(null);
+                } finally {
+                    setActionLoading(null);
+                }
+            }
+        });
+    };
+
+    const handleRejectSeller = async (sellerId) => {
+        const reason = prompt('Enter rejection reason:');
+        if (!reason) return;
+
+        setConfirmDialog({
+            title: 'Reject Seller',
+            message: 'Are you sure you want to reject this seller verification?',
+            action: 'Reject',
+            isDangerous: true,
+            onConfirm: async () => {
+                try {
+                    setActionLoading(sellerId);
+                    await rejectSellerVerification(sellerId, reason);
+                    setUsers(users.map(u => u.id === sellerId ? { ...u, verified: false, verificationStatus: 'rejected' } : u));
+                    setMessage('Seller verification rejected');
+                    setTimeout(() => setMessage(''), 3000);
+                    setConfirmDialog(null);
+                } catch (error) {
+                    setMessage('Error rejecting seller: ' + error.message);
+                    setConfirmDialog(null);
+                } finally {
+                    setActionLoading(null);
+                }
+            }
+        });
+    };
+
     const filteredUsers = users.filter(user =>
         user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.name?.toLowerCase().includes(searchTerm.toLowerCase())
+        user.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.firebaseUid?.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    const buyers = filteredUsers.filter(u => u.type === 'buyer' || u.role === 'buyer');
+    const sellers = filteredUsers.filter(u => u.type === 'seller' || u.role === 'seller');
+
+    const displayUsers = activeTab === 'buyers' ? buyers : sellers;
 
     if (loading) {
         return <div className="text-center text-gray-400">Loading users...</div>;
@@ -89,7 +146,7 @@ export default function UserManagement() {
         <div className="space-y-6">
             <div>
                 <h2 className="text-4xl font-bold text-white mb-2">User Management</h2>
-                <p className="text-gray-400 text-lg">Manage user accounts and status</p>
+                <p className="text-gray-400 text-lg">Manage buyers and verify sellers</p>
             </div>
 
             {message && (
@@ -100,6 +157,34 @@ export default function UserManagement() {
                     <p className="text-green-200">{message}</p>
                 </div>
             )}
+
+            {/* Tabs */}
+            <div className="flex gap-2 border-b border-gray-700">
+                <button
+                    onClick={() => setActiveTab('sellers')}
+                    className={`px-6 py-3 font-semibold transition-all ${activeTab === 'sellers'
+                            ? 'text-primary border-b-2 border-primary'
+                            : 'text-gray-400 hover:text-gray-200'
+                        }`}
+                >
+                    <div className="flex items-center gap-2">
+                        <ShieldAlert className="w-5 h-5" />
+                        Sellers ({sellers.length})
+                    </div>
+                </button>
+                <button
+                    onClick={() => setActiveTab('buyers')}
+                    className={`px-6 py-3 font-semibold transition-all ${activeTab === 'buyers'
+                            ? 'text-primary border-b-2 border-primary'
+                            : 'text-gray-400 hover:text-gray-200'
+                        }`}
+                >
+                    <div className="flex items-center gap-2">
+                        <Shield className="w-5 h-5" />
+                        Buyers ({buyers.length})
+                    </div>
+                </button>
+            </div>
 
             <div className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl p-4 border border-gray-700 shadow-lg">
                 <input
@@ -119,22 +204,24 @@ export default function UserManagement() {
                                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Email</th>
                                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Name</th>
                                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Status</th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">User Type</th>
+                                {activeTab === 'sellers' && (
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Verification</th>
+                                )}
                                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-300 uppercase tracking-wide">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredUsers.length === 0 ? (
+                            {displayUsers.length === 0 ? (
                                 <tr>
-                                    <td colSpan="5" className="px-6 py-12 text-center text-gray-400">
-                                        <p className="text-lg">No users found</p>
+                                    <td colSpan={activeTab === 'sellers' ? '5' : '4'} className="px-6 py-12 text-center text-gray-400">
+                                        <p className="text-lg">No {activeTab} found</p>
                                     </td>
                                 </tr>
                             ) : (
-                                filteredUsers.map((user) => (
+                                displayUsers.map((user) => (
                                     <tr key={user.id} className="border-b border-gray-700 hover:bg-gray-700/20 transition-colors">
                                         <td className="px-6 py-4 text-white font-medium">{user.email || 'N/A'}</td>
-                                        <td className="px-6 py-4 text-gray-200">{user.name || 'N/A'}</td>
+                                        <td className="px-6 py-4 text-gray-200">{user.displayName || user.name || 'N/A'}</td>
                                         <td className="px-6 py-4">
                                             <span className={`px-3 py-1 rounded-full text-xs font-bold ${user.isActive !== false
                                                 ? 'bg-green-900/40 text-green-300 border border-green-700'
@@ -143,9 +230,18 @@ export default function UserManagement() {
                                                 {user.status || (user.isActive !== false ? 'active' : 'inactive')}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-gray-300 capitalize">{user.userType || 'buyer'}</td>
+                                        {activeTab === 'sellers' && (
+                                            <td className="px-6 py-4">
+                                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${user.verified
+                                                        ? 'bg-green-900/40 text-green-300 border border-green-700'
+                                                        : 'bg-yellow-900/40 text-yellow-300 border border-yellow-700'
+                                                    }`}>
+                                                    {user.verified ? 'Verified' : 'Pending'}
+                                                </span>
+                                            </td>
+                                        )}
                                         <td className="px-6 py-4">
-                                            <div className="flex gap-2">
+                                            <div className="flex gap-2 flex-wrap">
                                                 <button
                                                     onClick={() => setSelectedUser(user)}
                                                     className="px-3 py-2 bg-gradient-to-r from-blue-900 to-blue-800 hover:from-blue-800 hover:to-blue-700 text-blue-200 rounded-lg text-xs font-bold flex items-center gap-1 transition-all shadow-lg hover:shadow-blue-900/30"
@@ -153,32 +249,63 @@ export default function UserManagement() {
                                                     <Eye className="w-4 h-4" />
                                                     View
                                                 </button>
-                                                {user.isActive !== false ? (
-                                                    <button
-                                                        onClick={() => handleDeactivate(user.id)}
-                                                        disabled={actionLoading === user.id}
-                                                        className="px-3 py-2 bg-gradient-to-r from-red-900 to-red-800 hover:from-red-800 hover:to-red-700 text-red-200 rounded-lg text-xs font-bold flex items-center gap-1 disabled:opacity-50 transition-all shadow-lg hover:shadow-red-900/30"
-                                                    >
-                                                        {actionLoading === user.id ? (
-                                                            <Loader className="w-4 h-4 animate-spin" />
-                                                        ) : (
-                                                            <X className="w-4 h-4" />
-                                                        )}
-                                                        Deactivate
-                                                    </button>
+                                                {activeTab === 'sellers' && !user.verified ? (
+                                                    <>
+                                                        <button
+                                                            onClick={() => handleVerifySeller(user.id)}
+                                                            disabled={actionLoading === user.id}
+                                                            className="px-3 py-2 bg-gradient-to-r from-green-900 to-green-800 hover:from-green-800 hover:to-green-700 text-green-200 rounded-lg text-xs font-bold flex items-center gap-1 disabled:opacity-50 transition-all shadow-lg hover:shadow-green-900/30"
+                                                        >
+                                                            {actionLoading === user.id ? (
+                                                                <Loader className="w-4 h-4 animate-spin" />
+                                                            ) : (
+                                                                <Check className="w-4 h-4" />
+                                                            )}
+                                                            Verify
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleRejectSeller(user.id)}
+                                                            disabled={actionLoading === user.id}
+                                                            className="px-3 py-2 bg-gradient-to-r from-red-900 to-red-800 hover:from-red-800 hover:to-red-700 text-red-200 rounded-lg text-xs font-bold flex items-center gap-1 disabled:opacity-50 transition-all shadow-lg hover:shadow-red-900/30"
+                                                        >
+                                                            {actionLoading === user.id ? (
+                                                                <Loader className="w-4 h-4 animate-spin" />
+                                                            ) : (
+                                                                <X className="w-4 h-4" />
+                                                            )}
+                                                            Reject
+                                                        </button>
+                                                    </>
                                                 ) : (
-                                                    <button
-                                                        onClick={() => handleActivate(user.id)}
-                                                        disabled={actionLoading === user.id}
-                                                        className="px-3 py-2 bg-gradient-to-r from-green-900 to-green-800 hover:from-green-800 hover:to-green-700 text-green-200 rounded-lg text-xs font-bold flex items-center gap-1 disabled:opacity-50 transition-all shadow-lg hover:shadow-green-900/30"
-                                                    >
-                                                        {actionLoading === user.id ? (
-                                                            <Loader className="w-4 h-4 animate-spin" />
+                                                    <>
+                                                        {user.isActive !== false ? (
+                                                            <button
+                                                                onClick={() => handleDeactivate(user.id)}
+                                                                disabled={actionLoading === user.id}
+                                                                className="px-3 py-2 bg-gradient-to-r from-red-900 to-red-800 hover:from-red-800 hover:to-red-700 text-red-200 rounded-lg text-xs font-bold flex items-center gap-1 disabled:opacity-50 transition-all shadow-lg hover:shadow-red-900/30"
+                                                            >
+                                                                {actionLoading === user.id ? (
+                                                                    <Loader className="w-4 h-4 animate-spin" />
+                                                                ) : (
+                                                                    <X className="w-4 h-4" />
+                                                                )}
+                                                                Deactivate
+                                                            </button>
                                                         ) : (
-                                                            <Check className="w-4 h-4" />
+                                                            <button
+                                                                onClick={() => handleActivate(user.id)}
+                                                                disabled={actionLoading === user.id}
+                                                                className="px-3 py-2 bg-gradient-to-r from-green-900 to-green-800 hover:from-green-800 hover:to-green-700 text-green-200 rounded-lg text-xs font-bold flex items-center gap-1 disabled:opacity-50 transition-all shadow-lg hover:shadow-green-900/30"
+                                                            >
+                                                                {actionLoading === user.id ? (
+                                                                    <Loader className="w-4 h-4 animate-spin" />
+                                                                ) : (
+                                                                    <Check className="w-4 h-4" />
+                                                                )}
+                                                                Activate
+                                                            </button>
                                                         )}
-                                                        Activate
-                                                    </button>
+                                                    </>
                                                 )}
                                             </div>
                                         </td>
@@ -191,7 +318,7 @@ export default function UserManagement() {
             </div>
 
             <div className="text-gray-400 text-sm font-medium">
-                Showing {filteredUsers.length} of {users.length} users
+                Showing {displayUsers.length} {activeTab}
             </div>
 
             {/* User Detail Modal */}

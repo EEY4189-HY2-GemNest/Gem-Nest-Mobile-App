@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 // Update this with your Firebase config from Firebase Console
@@ -18,5 +18,13 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+
+// Set Firestore connection settings
+try {
+    // Only connect to emulator in development if needed
+    // connectFirestoreEmulator(db, 'localhost', 8080);
+} catch (error) {
+    // Error connecting to emulator - likely already connected
+}
 
 export default app;

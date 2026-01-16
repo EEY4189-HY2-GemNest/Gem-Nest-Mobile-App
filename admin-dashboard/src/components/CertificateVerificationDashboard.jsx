@@ -20,17 +20,8 @@ export default function CertificateVerificationDashboard() {
             setLoading(true);
             const productsRef = collection(db, 'products');
 
-            let q;
-            if (filter === 'all') {
-                q = query(productsRef, where('gemCertificates', '!=', null));
-            } else {
-                q = query(
-                    productsRef,
-                    where('certificateVerificationStatus', '==', filter),
-                    where('gemCertificates', '!=', null)
-                );
-            }
-
+            // Fetch all products with certificates (no compound where needed)
+            const q = query(productsRef, where('gemCertificates', '!=', null));
             const snapshot = await getDocs(q);
             const certsData = [];
 
@@ -51,12 +42,17 @@ export default function CertificateVerificationDashboard() {
                 }
             }
 
+            // Filter in-memory instead of in database query
+            let filtered = certsData;
+            if (filter !== 'all') {
+                filtered = certsData.filter(c => c.verificationStatus === filter);
+            }
+
             // Sort by upload date (newest first)
-            certsData.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
-            setCertificates(certsData);
+            filtered.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+            setCertificates(filtered);
         } catch (error) {
             console.error('Error fetching certificates:', error);
-            alert('Failed to fetch certificates');
         } finally {
             setLoading(false);
         }
@@ -155,8 +151,8 @@ export default function CertificateVerificationDashboard() {
                             key={status}
                             onClick={() => setFilter(status)}
                             className={`px-4 py-2 rounded-lg font-medium transition-colors ${filter === status
-                                    ? 'bg-purple-600 text-white'
-                                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                ? 'bg-purple-600 text-white'
+                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                                 }`}
                         >
                             {status.charAt(0).toUpperCase() + status.slice(1)}

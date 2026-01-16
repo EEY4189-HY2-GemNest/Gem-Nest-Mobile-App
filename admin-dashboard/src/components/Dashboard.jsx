@@ -45,42 +45,54 @@ export default function Dashboard() {
     const fetchStats = async () => {
         try {
             if (!refreshing) setLoading(true);
+            console.log('Fetching dashboard stats...');
 
-            // User stats
-            const users = await getUserStats();
-            const usersRef = collection(db, 'users');
-            const sellerQuery = query(usersRef, where('userType', '==', 'seller'));
-            const buyerQuery = query(usersRef, where('userType', '==', 'buyer'));
-            const sellerSnap = await getDocs(sellerQuery);
-            const buyerSnap = await getDocs(buyerQuery);
+            // User stats - Query separate buyers and sellers collections
+            const buyersRef = collection(db, 'buyers');
+            const sellersRef = collection(db, 'sellers');
+
+            const [buyersSnap, sellersSnap] = await Promise.all([
+                getDocs(buyersRef),
+                getDocs(sellersRef)
+            ]);
+
+            const activeBuyers = buyersSnap.docs.filter(doc => doc.data().isActive !== false).length;
+            const activeSellers = sellersSnap.docs.filter(doc => doc.data().isActive === true).length;
+            const inactiveSellers = sellersSnap.docs.filter(doc => doc.data().isActive === false).length;
 
             setUserStats({
-                ...users,
-                sellers: sellerSnap.docs.length,
-                buyers: buyerSnap.docs.length
+                total: buyersSnap.docs.length + sellersSnap.docs.length,
+                active: activeBuyers + activeSellers,
+                sellers: sellersSnap.docs.length,
+                buyers: buyersSnap.docs.length,
+                inactiveSellers: inactiveSellers
             });
 
             // Product stats
             const products = await getProductStats();
-            const productsRef = collection(db, 'products');
-            const inactiveProducts = query(productsRef, where('isActive', '==', false));
-            const inactiveSnap = await getDocs(inactiveProducts);
-
-            setProductStats({
-                ...products,
-                inactive: inactiveSnap.docs.length
-            });
+            setProductStats(products);
 
             // Auction stats
             const auctionsRef = collection(db, 'auctions');
             const auctionsSnap = await getDocs(auctionsRef);
             const now = new Date();
 
+            let approvedAuctions = 0;
+            let pendingAuctions = 0;
             let activeCount = 0;
             let endedCount = 0;
 
             auctionsSnap.docs.forEach(doc => {
-                const endTime = doc.data().endTime?.toDate?.() || new Date(doc.data().endTime);
+                const data = doc.data();
+                // Check approval status
+                if (data.approvalStatus === 'approved') {
+                    approvedAuctions++;
+                } else if (data.approvalStatus === 'pending') {
+                    pendingAuctions++;
+                }
+
+                // Check active/ended status
+                const endTime = data.endTime?.toDate?.() || new Date(data.endTime);
                 if (now > endTime) {
                     endedCount++;
                 } else {
@@ -90,19 +102,18 @@ export default function Dashboard() {
 
             setAuctionStats({
                 total: auctionsSnap.docs.length,
+                approved: approvedAuctions,
+                pending: pendingAuctions,
                 active: activeCount,
                 ended: endedCount
             });
 
-            // Seller verification stats
-            const sellersRef = collection(db, 'sellers');
-            const sellersSnap = await getDocs(sellersRef);
-
+            // Seller verification stats (from sellersSnap already fetched above)
             let verified = 0;
             let unverified = 0;
 
             sellersSnap.docs.forEach(doc => {
-                if (doc.data().verified) {
+                if (doc.data().isActive === true) {
                     verified++;
                 } else {
                     unverified++;
