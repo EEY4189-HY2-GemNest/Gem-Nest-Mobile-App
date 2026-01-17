@@ -1,11 +1,9 @@
 # GemNest Mobile App - Complete System Activity Diagram
 
 ```mermaid
-activity
-    title GemNest - Complete System Activity Diagram
-
-    start
-    :User Access Application;
+flowchart TD
+    Start([User Access Application])
+    Start --> Auth{User Exists?}
     
     partition Authentication {
         if (User Exists?) then
