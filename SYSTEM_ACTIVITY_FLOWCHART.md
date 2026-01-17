@@ -3,56 +3,113 @@
 ```mermaid
 flowchart TD
     Start([User Access])
-    Start --> Auth{Login?}
+    Start --> Auth{Account Exists?}
     
-    Auth -->|No| Signup[Register]
+    Auth -->|No| Signup[Register & Select Role]
     Auth -->|Yes| Login[Login]
     
-    Signup --> VerifyRole{Role?}
-    Login --> VerifyRole
+    Signup --> CreateAcc[Create Account]
+    CreateAcc --> Role{Role?}
+    Login --> Role
     
-    VerifyRole -->|Buyer| Buyer[Buyer Dashboard]
-    VerifyRole -->|Seller| Seller[Seller Dashboard]
-    VerifyRole -->|Admin| Admin[Admin Dashboard]
+    Role -->|Buyer| BuyerFlow[Buyer]
+    Role -->|Seller| SellerFlow[Seller]
+    Role -->|Admin| AdminFlow[Admin]
     
-    %% BUYER
-    Buyer --> BuyerAct[Browse Products<br/>Bid Auctions<br/>Shop & Checkout<br/>Track Orders]
-    BuyerAct --> BuyerPay[Stripe Payment]
-    BuyerPay --> BuyerEnd[Orders Created]
-    BuyerEnd --> Notifications[Notifications]
+    %% BUYER FLOW
+    BuyerFlow --> BuyerHome[Home Dashboard]
+    BuyerHome --> Browse{Activity?}
     
-    %% SELLER
-    Seller --> SellerAct[Create Products<br/>Create Auctions<br/>Manage Orders<br/>View Analytics]
-    SellerAct --> SellerSubmit[Submit for Approval]
-    SellerSubmit --> SellerWait[Waiting Approval]
-    SellerWait --> Notifications
+    Browse -->|Products| BrowseProd[View Products]
+    BrowseProd --> CartDecide{Add to Cart?}
+    CartDecide -->|Yes| AddCart[Add Item]
+    CartDecide -->|No| Browse
+    AddCart --> Browse
     
-    %% ADMIN
-    Admin --> AdminAct[Approve Products<br/>Approve Auctions<br/>Manage Users<br/>View Stats]
-    AdminAct --> AdminNotify[Send Notifications]
-    AdminNotify --> Notifications
+    Browse -->|Auctions| BrowseAuc[View Auctions<br/>Place Bids]
+    BrowseAuc --> Browse
+    
+    Browse -->|Checkout| Cart[Cart Review<br/>Apply Coupon]
+    Cart --> Address[Enter Address]
+    Address --> Payment[Stripe Payment]
+    Payment --> PayStatus{Success?}
+    PayStatus -->|No| Retry[Retry]
+    Retry --> Payment
+    PayStatus -->|Yes| OrderCreate[Order Created]
+    OrderCreate --> Browse
+    
+    Browse -->|Orders| ViewOrders[View Orders<br/>Track Status]
+    ViewOrders --> Browse
+    
+    Browse -->|Logout| LogoutBuy[Logout]
+    LogoutBuy --> End([End])
+    
+    %% SELLER FLOW
+    SellerFlow --> SellerHome[Seller Dashboard]
+    SellerHome --> Sell{Activity?}
+    
+    Sell -->|Products| ProdMgmt[Create/Edit Products<br/>Upload Images<br/>Add Certificates]
+    ProdMgmt --> SubmitProd[Submit for Approval]
+    SubmitProd --> Sell
+    
+    Sell -->|Auctions| AucMgmt[Create Auctions<br/>Set Price & Time<br/>Monitor Bids]
+    AucMgmt --> SubmitAuc[Submit for Approval]
+    SubmitAuc --> Sell
+    
+    Sell -->|Orders| OrdMgmt[View Orders<br/>Confirm & Ship<br/>Update Tracking]
+    OrdMgmt --> Sell
+    
+    Sell -->|Analytics| ViewAna[View Sales Stats]
+    ViewAna --> Sell
+    
+    Sell -->|Logout| LogoutSell[Logout]
+    LogoutSell --> End
+    
+    %% ADMIN FLOW
+    AdminFlow --> AdminHome[Admin Dashboard]
+    AdminHome --> Admin{Task?}
+    
+    Admin -->|Products| AppProd[Review Products<br/>Approve/Reject]
+    AppProd --> Admin
+    
+    Admin -->|Auctions| AppAuc[Review Auctions<br/>Approve/Reject]
+    AppAuc --> Admin
+    
+    Admin -->|Users| UserMgmt[Manage Users<br/>Verify Sellers<br/>Activate/Deactivate]
+    UserMgmt --> Admin
+    
+    Admin -->|Analytics| AdminStats[View Platform Stats]
+    AdminStats --> Admin
+    
+    Admin -->|Logout| LogoutAdmin[Logout]
+    LogoutAdmin --> End
     
     %% SERVICES
-    BuyerPay --> Firebase[Firebase Services]
-    SellerSubmit --> Firebase
-    AdminAct --> Firebase
+    BuyerFlow -.->|Uses| Services[Global Services]
+    SellerFlow -.->|Uses| Services
+    AdminFlow -.->|Uses| Services
     
-    Firebase --> Services[Auth - Firestore<br/>Storage - Messaging]
+    Services --> Firebase[Firebase]
+    Firebase --> FBServices[Auth - Firestore<br/>Storage - Messaging]
+    
     Services --> Stripe[Stripe Payments]
-    Services --> NotifEngine[Notification Engine]
-    Stripe --> NotifEngine
+    Services --> Notif[Notification Engine]
     
-    Notifications --> End([Session End])
+    FBServices --> NotifEng[Process Notifications]
+    Stripe --> NotifEng
+    Notif --> NotifEng
+    
+    NotifEng --> NotifType[Approvals - Orders<br/>Payments - Bids]
 ```
 
 ---
 
 ## System Overview
 
-**Buyer**: Browse products → Bid auctions → Shop → Payment → Track orders
+**Buyer**: Register/Login → Browse products & auctions → Add to cart → Checkout with Stripe → Create order → Track delivery
 
-**Seller**: Create products → Create auctions → Submit approval → Manage orders
+**Seller**: Register/Login → Create products & auctions → Submit for admin approval → Manage orders → View analytics
 
-**Admin**: Approve items → Manage users → View stats
+**Admin**: Login → Review & approve products & auctions → Manage users & verify sellers → View platform stats
 
-**Services**: Firebase (Auth, Firestore, Storage, Messaging) + Stripe + Notifications
+**Services**: Firebase (Auth, Firestore, Storage, Messaging) + Stripe (Payments) + Notification Engine
