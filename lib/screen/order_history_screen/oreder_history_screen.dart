@@ -418,7 +418,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
       }
     }
 
-    // Handle deliveryDate - could be String or Timestamp
+    // Handle deliveryDate - could be String, DateTime or Timestamp
     String deliveryDate = 'N/A';
     if (order['deliveryDate'] != null) {
       if (order['deliveryDate'] is String) {
@@ -426,6 +426,9 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
       } else if (order['deliveryDate'] is Timestamp) {
         deliveryDate = DateFormat('MMM dd, yyyy')
             .format((order['deliveryDate'] as Timestamp).toDate());
+      } else if (order['deliveryDate'] is DateTime) {
+        deliveryDate = DateFormat('MMM dd, yyyy')
+            .format(order['deliveryDate'] as DateTime);
       }
     }
 
@@ -452,7 +455,14 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
         paymentMethod = order['paymentMethod'];
       } else if (order['paymentMethod'] is Map) {
         final paymentMap = order['paymentMethod'] as Map<String, dynamic>;
-        paymentMethod = paymentMap['type'] ?? paymentMap['method'] ?? 'N/A';
+        // Try multiple field names for payment method
+        String? methodName = paymentMap['name'];
+        if (methodName == null || methodName.isEmpty) {
+          methodName = paymentMap['type'] ?? paymentMap['method'] ?? paymentMap['id'];
+        }
+        if (methodName != null && methodName.isNotEmpty) {
+          paymentMethod = methodName;
+        }
       }
     }
 
@@ -1229,7 +1239,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'LKR (Rs.) ${order['totalAmount']?.toStringAsFixed(0) ?? '0'}',
+                          'Rs. ${order['totalAmount']?.toStringAsFixed(0) ?? '0'}',
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.w800,
@@ -1378,6 +1388,8 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
       return dateValue;
     } else if (dateValue is Timestamp) {
       return DateFormat('MMM dd, yyyy').format(dateValue.toDate());
+    } else if (dateValue is DateTime) {
+      return DateFormat('MMM dd, yyyy').format(dateValue);
     }
 
     return 'N/A';
@@ -1387,10 +1399,15 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     if (paymentValue == null) return 'N/A';
 
     if (paymentValue is String) {
-      return paymentValue;
+      return paymentValue.isEmpty ? 'N/A' : paymentValue;
     } else if (paymentValue is Map) {
       final paymentMap = paymentValue as Map<String, dynamic>;
-      return paymentMap['type'] ?? paymentMap['method'] ?? 'N/A';
+      // Try multiple field names for payment method
+      String? methodName = paymentMap['name'];
+      if (methodName == null || methodName.isEmpty) {
+        methodName = paymentMap['type'] ?? paymentMap['method'] ?? paymentMap['id'];
+      }
+      return (methodName != null && methodName.isNotEmpty) ? methodName : 'N/A';
     }
 
     return 'N/A';

@@ -97,7 +97,6 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   final TextEditingController _mobileController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
-  final TextEditingController _stateController = TextEditingController();
   final TextEditingController _pincodeController = TextEditingController();
   final TextEditingController _specialInstructionsController =
       TextEditingController();
@@ -392,7 +391,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
       mobile: _mobileController.text,
       address: _addressController.text,
       city: _cityController.text,
-      state: _stateController.text,
+      state: '',
       pincode: _pincodeController.text,
       isDefault: _addresses.isEmpty,
     );
@@ -433,7 +432,6 @@ class _CheckoutScreenState extends State<CheckoutScreen>
     _mobileController.dispose();
     _addressController.dispose();
     _cityController.dispose();
-    _stateController.dispose();
     _pincodeController.dispose();
     _specialInstructionsController.dispose();
     _promoController.dispose();
@@ -874,60 +872,76 @@ class _CheckoutScreenState extends State<CheckoutScreen>
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.grey[50],
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey[300]!),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFF667eea), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF667eea).withOpacity(0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Add New Address',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF2D3748),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF667eea).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.add_location,
+                    color: Color(0xFF667eea),
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Add New Delivery Address',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2D3748),
+                    ),
+                  ),
+                ],
               ),
             ),
+            const SizedBox(height: 18),
+            _buildTextField(
+              _fullNameController,
+              'Full Name',
+              Icons.person_outline,
+              validator: (value) {
+                if (value?.isEmpty ?? true) {
+                  return 'Please enter full name';
+                }
+                return null;
+              },
+            ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildTextField(
-                    _fullNameController,
-                    'Full Name',
-                    Icons.person_outline,
-                    validator: (value) {
-                      if (value?.isEmpty ?? true) {
-                        return 'Please enter full name';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildTextField(
-                    _mobileController,
-                    'Mobile Number',
-                    Icons.phone_outlined,
-                    keyboardType: TextInputType.phone,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(10),
-                    ],
-                    validator: (value) {
-                      if (value?.isEmpty ?? true) {
-                        return 'Please enter mobile number';
-                      }
-                      if (value!.length != 10) {
-                        return 'Please enter valid mobile number';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
+            _buildTextField(
+              _mobileController,
+              'Mobile Number',
+              Icons.phone_outlined,
+              keyboardType: TextInputType.phone,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(10),
               ],
+              validator: (value) {
+                if (value?.isEmpty ?? true) {
+                  return 'Please enter mobile number';
+                }
+                if (value!.length != 10) {
+                  return 'Please enter valid mobile number';
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 16),
             _buildTextField(
@@ -946,6 +960,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
             Row(
               children: [
                 Expanded(
+                  flex: 2,
                   child: _buildTextField(
                     _cityController,
                     'City',
@@ -960,23 +975,10 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: _buildTextField(
-                    _stateController,
-                    'State',
-                    Icons.map_outlined,
-                    validator: (value) {
-                      if (value?.isEmpty ?? true) {
-                        return 'Please enter state';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
+                  flex: 1,
                   child: _buildTextField(
                     _pincodeController,
-                    'Pincode',
+                    'Postal Code',
                     Icons.pin_drop_outlined,
                     keyboardType: TextInputType.number,
                     inputFormatters: [
@@ -985,10 +987,10 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                     ],
                     validator: (value) {
                       if (value?.isEmpty ?? true) {
-                        return 'Please enter pincode';
+                        return 'Please enter postal code';
                       }
                       if (value!.length != 6) {
-                        return 'Please enter valid pincode';
+                        return 'Please enter valid code';
                       }
                       return null;
                     },
