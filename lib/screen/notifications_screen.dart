@@ -28,7 +28,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final userId = _auth.currentUser?.uid;
     if (userId == null) {
       return Scaffold(
-        appBar: const SharedAppBar(title: 'Notifications', showBackButton: false),
+        appBar:
+            const SharedAppBar(title: 'Notifications', showBackButton: false),
         body: const Center(child: Text('Please log in to view notifications')),
       );
     }
