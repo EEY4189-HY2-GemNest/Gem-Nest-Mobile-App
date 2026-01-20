@@ -149,7 +149,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   // Delivery Options - loaded dynamically from Firebase
   List<DeliveryOption> _deliveryOptions = [];
   // Payment Methods - loaded dynamically from Firebase
-  final List<PaymentMethod> _paymentMethods = [];
+  List<PaymentMethod> _paymentMethods = [];
 
   @override
   void initState() {
@@ -333,7 +333,6 @@ class _CheckoutScreenState extends State<CheckoutScreen>
         'cash_on_delivery': '💵',
       };
 
-      final paymentMethods = <PaymentMethod>[];
       final collectedMethods = <String, PaymentMethod>{};
 
       // Collect payment methods from first product in cart
