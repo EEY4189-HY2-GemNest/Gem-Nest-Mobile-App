@@ -1222,6 +1222,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                   'price': item.finalPrice,
                   'quantity': item.quantity,
                   'image': item.image,
+                  'sellerId': item.sellerId,
                 })
             .toList(),
         // Flatten address fields for order history display
