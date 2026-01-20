@@ -12,7 +12,7 @@ import 'package:gemnest_mobile_app/screen/order_history_screen/oreder_history_sc
 import 'package:gemnest_mobile_app/stripe_service_direct.dart';
 import 'package:gemnest_mobile_app/stripe_service_firebase.dart';
 import 'package:gemnest_mobile_app/theme/app_theme.dart';
-import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
+import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:provider/provider.dart';
 
 // Payment Method Model
@@ -353,24 +353,8 @@ class _PaymentScreenState extends State<PaymentScreen>
   }
 
   PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      flexibleSpace: Container(
-        decoration: BoxDecoration(
-          gradient: AppTheme.primaryGradient,
-        ),
-      ),
-      elevation: 0,
-      leading: const ProfessionalAppBarBackButton(),
-      title: const Text(
-        'Payment',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 24,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.5,
-        ),
-      ),
-      centerTitle: true,
+    return const SharedAppBar(
+      title: 'Payment',
     );
   }
 
