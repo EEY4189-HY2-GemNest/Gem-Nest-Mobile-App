@@ -447,10 +447,24 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
                                     children: [
                                       const SizedBox(height: 8),
                                       Text(
-                                        'Customer: ${order['customerName'] ?? 'N/A'}',
+                                        'Customer: ${order['name'] ?? order['customerName'] ?? 'N/A'}',
                                         style: const TextStyle(
                                             color: Colors.white70,
                                             fontSize: 14),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Mobile: ${order['mobile'] ?? 'N/A'}',
+                                        style: const TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 12),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Address: ${order['address'] ?? 'N/A'}',
+                                        style: const TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 12),
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
