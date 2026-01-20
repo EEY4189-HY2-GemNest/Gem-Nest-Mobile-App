@@ -255,7 +255,8 @@ class _CheckoutScreenState extends State<CheckoutScreen>
         if (cartItem.productData.containsKey('deliveryMethods')) {
           final deliveryMethodsData = cartItem.productData['deliveryMethods'];
           print('=== CHECKOUT DELIVERY METHODS ===');
-          print('Raw Delivery Methods Type: ${deliveryMethodsData.runtimeType}');
+          print(
+              'Raw Delivery Methods Type: ${deliveryMethodsData.runtimeType}');
           print('Raw Delivery Methods: $deliveryMethodsData');
 
           if (deliveryMethodsData is Map<String, dynamic>) {
@@ -276,6 +277,21 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                 }
               }
             });
+          } else if (deliveryMethodsData is List) {
+            // Fallback: If data is just a list of method names, create default options
+            print('⚠ Delivery methods is List - creating defaults from names');
+            for (final methodId in deliveryMethodsData.cast<String>()) {
+              if (!collectedMethods.containsKey(methodId)) {
+                collectedMethods[methodId] = DeliveryOption(
+                  id: methodId,
+                  name: methodId[0].toUpperCase() + methodId.substring(1),
+                  description: 'Standard delivery method',
+                  cost: 0.0,
+                  estimatedDays: estimatedDaysMap[methodId] ?? 3,
+                  icon: iconMap[methodId] ?? '📦',
+                );
+              }
+            }
           }
         }
 
@@ -333,6 +349,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
         'bank_transfer': '🏦',
         'crypto': '₿',
         'cash_on_delivery': '💵',
+        'cod': '💵',
       };
 
       final collectedMethods = <String, PaymentMethod>{};
@@ -341,6 +358,9 @@ class _CheckoutScreenState extends State<CheckoutScreen>
       for (final cartItem in cartProvider.cartItems) {
         if (cartItem.productData.containsKey('paymentMethods')) {
           final methodsData = cartItem.productData['paymentMethods'];
+          print('=== CHECKOUT PAYMENT METHODS ===');
+          print('Raw Payment Methods Type: ${methodsData.runtimeType}');
+          print('Raw Payment Methods: $methodsData');
 
           if (methodsData is Map<String, dynamic>) {
             methodsData.forEach((key, value) {
@@ -358,6 +378,27 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                 }
               }
             });
+          } else if (methodsData is List) {
+            // Fallback: If data is just a list of method names, create default options
+            print('⚠ Payment methods is List - creating defaults from names');
+            final nameMap = {
+              'card': 'Credit/Debit Card',
+              'cod': 'Cash on Delivery',
+              'paypal': 'PayPal',
+              'bank_transfer': 'Bank Transfer',
+              'crypto': 'Cryptocurrency',
+            };
+            for (final methodId in methodsData.cast<String>()) {
+              if (!collectedMethods.containsKey(methodId)) {
+                collectedMethods[methodId] = PaymentMethod(
+                  id: methodId,
+                  name: nameMap[methodId] ?? methodId,
+                  description: 'Payment method',
+                  fee: 0.0,
+                  icon: iconMap[methodId] ?? '💰',
+                );
+              }
+            }
           }
         }
 
