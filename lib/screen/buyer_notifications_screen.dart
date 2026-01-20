@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/providers/buyer_notification_provider.dart';
 import 'package:gemnest_mobile_app/screen/notification_settings_screen.dart';
 import 'package:gemnest_mobile_app/widget/buyer_notification_widgets.dart';
+import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:provider/provider.dart';
 
 /// Buyer Notifications Screen - Full notifications view for buyers
@@ -19,12 +20,12 @@ class _BuyerNotificationsScreenState extends State<BuyerNotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Notifications'),
-        elevation: 0,
+      appBar: SharedAppBar(
+        title: 'My Notifications',
+        showBackButton: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings),
+            icon: const Icon(Icons.settings, color: Colors.white),
             onPressed: () {
               Navigator.push(
                 context,
