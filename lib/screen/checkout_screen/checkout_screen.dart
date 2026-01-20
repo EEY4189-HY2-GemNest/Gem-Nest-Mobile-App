@@ -125,7 +125,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   // State Variables
   bool _isLoadingDeliveryMethods = true;
   String? _deliveryLoadError;
-  final bool _isLoadingPaymentMethods = true;
+  bool _isLoadingPaymentMethods = true;
   String? _paymentLoadError;
 
   // Form Keys
@@ -149,7 +149,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   // Delivery Options - loaded dynamically from Firebase
   List<DeliveryOption> _deliveryOptions = [];
   // Payment Methods - loaded dynamically from Firebase
-  List<PaymentMethod> _paymentMethods = [];
+  final List<PaymentMethod> _paymentMethods = [];
 
   @override
   void initState() {
@@ -157,6 +157,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
     _initializeAnimations();
     _loadUserData();
     _loadDeliveryMethods();
+    _loadPaymentMethods();
   }
 
   void _initializeAnimations() {
@@ -247,7 +248,6 @@ class _CheckoutScreenState extends State<CheckoutScreen>
         'overseas': 14,
       };
 
-      final deliveryOptions = <DeliveryOption>[];
       final collectedMethods = <String, DeliveryOption>{};
 
       // Collect delivery methods from first product in cart
@@ -302,6 +302,90 @@ class _CheckoutScreenState extends State<CheckoutScreen>
       setState(() {
         _isLoadingDeliveryMethods = false;
         _deliveryLoadError = 'Failed to load delivery methods';
+      });
+    }
+  }
+
+  Future<void> _loadPaymentMethods() async {
+    setState(() {
+      _isLoadingPaymentMethods = true;
+      _paymentLoadError = null;
+    });
+
+    try {
+      // Get cart provider to access cart items
+      final cartProvider = Provider.of<CartProvider>(context, listen: false);
+
+      if (cartProvider.cartItems.isEmpty) {
+        setState(() {
+          _isLoadingPaymentMethods = false;
+          _paymentLoadError = 'Cart is empty';
+        });
+        return;
+      }
+
+      // Map payment method IDs to emoji icons
+      const iconMap = {
+        'card': '💳',
+        'paypal': '🅿️',
+        'bank_transfer': '🏦',
+        'crypto': '₿',
+        'cash_on_delivery': '💵',
+      };
+
+      final paymentMethods = <PaymentMethod>[];
+      final collectedMethods = <String, PaymentMethod>{};
+
+      // Collect payment methods from first product in cart
+      for (final cartItem in cartProvider.cartItems) {
+        if (cartItem.productData.containsKey('paymentMethods')) {
+          final methods =
+              cartItem.productData['paymentMethods'] as Map<String, dynamic>?;
+
+          if (methods != null) {
+            methods.forEach((key, value) {
+              if (!collectedMethods.containsKey(key) &&
+                  value is Map<String, dynamic>) {
+                final methodData = value;
+                if (methodData['enabled'] == true) {
+                  collectedMethods[key] = PaymentMethod(
+                    id: key,
+                    name: methodData['name'] ?? key,
+                    description: methodData['description'] ?? '',
+                    fee: (methodData['fee'] ?? 0.0).toDouble(),
+                    icon: iconMap[key] ?? '💰',
+                  );
+                }
+              }
+            });
+          }
+        }
+
+        // Only need to check first item if all products have same methods
+        break;
+      }
+
+      if (collectedMethods.isEmpty) {
+        setState(() {
+          _isLoadingPaymentMethods = false;
+          _paymentLoadError =
+              'No payment methods configured for products in cart';
+        });
+        return;
+      }
+
+      setState(() {
+        _paymentMethods = collectedMethods.values.toList();
+        if (_paymentMethods.isNotEmpty) {
+          _selectedPayment = _paymentMethods.first;
+        }
+        _isLoadingPaymentMethods = false;
+      });
+    } catch (e) {
+      print('Error loading payment methods: $e');
+      setState(() {
+        _isLoadingPaymentMethods = false;
+        _paymentLoadError = 'Failed to load payment methods';
       });
     }
   }
@@ -404,6 +488,8 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                           _buildDeliveryAddressSection(),
                           const SizedBox(height: 24),
                           _buildDeliveryOptionsSection(),
+                          const SizedBox(height: 24),
+                          _buildPaymentMethodsSection(),
                           const SizedBox(height: 24),
                           _buildSpecialInstructionsSection(),
                           const SizedBox(height: 24),
@@ -1113,6 +1199,185 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF2D3748),
+                  ),
+                ),
+                if (isSelected)
+                  const Icon(
+                    Icons.check_circle,
+                    color: Color(0xFF667eea),
+                    size: 20,
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPaymentMethodsSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF667eea).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.payment_outlined,
+                  color: Color(0xFF667eea),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Payment Methods',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2D3748),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          if (_isLoadingPaymentMethods)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: CircularProgressIndicator(),
+              ),
+            )
+          else if (_paymentLoadError != null)
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.orange),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.warning_amber, color: Colors.orange),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _paymentLoadError!,
+                      style: const TextStyle(color: Colors.orange),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else if (_paymentMethods.isEmpty)
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.red),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.error_outline, color: Colors.red),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'No payment methods available',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            ..._paymentMethods.map((method) => _buildPaymentMethod(method)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPaymentMethod(PaymentMethod method) {
+    final isSelected = _selectedPayment?.id == method.id;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedPayment = method;
+        });
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? const Color(0xFF667eea).withOpacity(0.1)
+              : Colors.grey[50],
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF667eea) : Colors.grey[300]!,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Text(
+              method.icon,
+              style: const TextStyle(fontSize: 24),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    method.name,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF2D3748),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    method.description,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  method.fee > 0
+                      ? '+Rs.${method.fee.toStringAsFixed(0)}'
+                      : 'FREE',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color:
+                        method.fee > 0 ? Colors.orange[600] : Colors.green[600],
                   ),
                 ),
                 if (isSelected)
