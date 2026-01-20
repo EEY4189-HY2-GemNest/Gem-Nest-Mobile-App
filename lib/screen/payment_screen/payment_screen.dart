@@ -1224,6 +1224,13 @@ class _PaymentScreenState extends State<PaymentScreen>
                   'image': item.image,
                 })
             .toList(),
+        // Flatten address fields for order history display
+        'name': widget.deliveryAddress.fullName,
+        'mobile': widget.deliveryAddress.mobile,
+        'address': widget.deliveryAddress.address,
+        'city': widget.deliveryAddress.city,
+        'postalCode': widget.deliveryAddress.pincode,
+        // Keep nested for detailed access
         'deliveryAddress': widget.deliveryAddress.toMap(),
         'deliveryOption': {
           'id': widget.deliveryOption.id,
@@ -1231,6 +1238,7 @@ class _PaymentScreenState extends State<PaymentScreen>
           'cost': widget.deliveryOption.cost,
           'estimatedDays': widget.deliveryOption.estimatedDays,
         },
+        'deliveryMethod': widget.deliveryOption.name,
         'paymentMethod': {
           'id': _selectedPaymentMethod!.id,
           'name': _selectedPaymentMethod!.name,
@@ -1241,6 +1249,8 @@ class _PaymentScreenState extends State<PaymentScreen>
         'totalAmount': finalTotal,
         'status': 'confirmed',
         'orderDate': FieldValue.serverTimestamp(),
+        'deliveryDate': DateTime.now()
+            .add(Duration(days: widget.deliveryOption.estimatedDays)),
         'estimatedDelivery': DateTime.now()
             .add(Duration(days: widget.deliveryOption.estimatedDays)),
       };
