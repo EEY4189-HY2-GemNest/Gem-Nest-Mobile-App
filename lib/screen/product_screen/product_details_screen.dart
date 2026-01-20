@@ -496,8 +496,25 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               itemCount:
                                   (_product['gemCertificates'] as List).length,
                               itemBuilder: (context, index) {
-                                final cert = (_product['gemCertificates']
+                                final certItem = (_product['gemCertificates']
                                     as List)[index];
+                                
+                                // Handle both string URLs and certificate objects
+                                String certType = 'document';
+                                String certName = 'Certificate ${index + 1}';
+                                
+                                if (certItem is String) {
+                                  // It's a URL string
+                                  certName = certItem.split('/').last;
+                                  if (certName.contains('.')) {
+                                    certType = certName.split('.').last.toLowerCase();
+                                  }
+                                } else if (certItem is Map) {
+                                  // It's a certificate object
+                                  certType = certItem['type'] ?? 'document';
+                                  certName = certItem['fileName'] ?? 'Certificate ${index + 1}';
+                                }
+                                
                                 return Container(
                                   margin: const EdgeInsets.only(bottom: 10),
                                   padding: const EdgeInsets.all(12),
@@ -517,7 +534,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                               BorderRadius.circular(8),
                                         ),
                                         child: Icon(
-                                          _getCertificateIcon(cert['type']),
+                                          _getCertificateIcon(certType),
                                           color: Colors.purple[600],
                                           size: 20,
                                         ),
@@ -529,8 +546,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              cert['fileName'] ??
-                                                  'Certificate $index',
+                                              certName,
                                               style: const TextStyle(
                                                 fontWeight: FontWeight.w600,
                                                 fontSize: 13,
