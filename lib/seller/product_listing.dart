@@ -271,13 +271,11 @@ class _ProductListingState extends State<ProductListing>
       };
 
       // Add product to Firestore
-      final docRef =
-          await _firestore.collection('products').add(productData);
+      final docRef = await _firestore.collection('products').add(productData);
 
       Navigator.pop(context); // Close loading dialog
       _showSuccessDialog(
-          message:
-              'Product listed successfully with ID: ${docRef.id}');
+          message: 'Product listed successfully with ID: ${docRef.id}');
 
       // Clear form
       _formKey.currentState?.reset();
