@@ -1229,7 +1229,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'LKR (Rs.) ${order['totalAmount']?.toStringAsFixed(0) ?? '0'}',
+                          'Rs. ${order['totalAmount']?.toStringAsFixed(0) ?? '0'}',
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.w800,
