@@ -174,7 +174,7 @@ class CartProvider with ChangeNotifier {
                     (product['pricing'] as num? ?? 0))
                 .toDouble(),
             category: product['category'] ?? '',
-            sellerId: product['userId'] ?? '',
+            sellerId: product['sellerId'] ?? '',
             availableStock: (availableStock as num).toInt(),
             productData: product,
             isDiscounted: product['isDiscounted'] ?? false,
@@ -272,7 +272,7 @@ class CartProvider with ChangeNotifier {
                 (product['pricing'] as num? ?? 0))
             .toDouble(),
         category: product['category'] ?? '',
-        sellerId: product['userId'] ?? '',
+        sellerId: product['sellerId'] ?? '',
         availableStock: ((product['quantity'] as num?) ?? 0).toInt(),
         productData: product,
         quantity: 0, // Wishlist items don't have quantity
@@ -340,7 +340,6 @@ class CartProvider with ChangeNotifier {
       return false;
     }
   }
-
 
   void removeCoupon() {
     _appliedCouponCode = null;
