@@ -296,9 +296,7 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
         child: StreamBuilder<QuerySnapshot>(
           // SELLER-SPECIFIC FILTERING - Show orders that contain this seller's products
           stream: _auth.currentUser?.uid != null
-              ? FirebaseFirestore.instance
-                  .collection('orders')
-                  .snapshots()
+              ? FirebaseFirestore.instance.collection('orders').snapshots()
               : const Stream.empty(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
@@ -312,13 +310,13 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
             }
 
             var orders = snapshot.data!.docs;
-            
+
             // Filter orders to only show those containing items from the current seller
             final currentSellerId = _auth.currentUser!.uid;
             orders = orders.where((order) {
               final data = order.data() as Map<String, dynamic>;
               final items = data['items'] as List<dynamic>? ?? [];
-              
+
               // Check if any item has sellerId matching current user
               return items.any((item) {
                 final itemData = item as Map<String, dynamic>;
@@ -547,4 +545,3 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
     );
   }
 }
-
