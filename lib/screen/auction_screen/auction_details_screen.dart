@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AuctionDetailsScreen extends StatefulWidget {
@@ -134,11 +135,9 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        backgroundColor: Colors.blue[700],
-        title: const Text('Auction Details',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        elevation: 0,
+      appBar: SharedAppBar(
+        title: _auction['title'] ?? 'Auction Details',
+        onBackPressed: () => Navigator.pop(context),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
