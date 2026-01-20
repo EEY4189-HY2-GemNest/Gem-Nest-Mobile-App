@@ -27,6 +27,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   void initState() {
     super.initState();
     _product = widget.product;
+    print('=== PRODUCT DETAILS SCREEN INIT ===');
+    print('Product ID: ${_product['id']}');
+    print('Product Title: ${_product['title']}');
+    print('Product Data Keys: ${_product.keys.toList()}');
+    print('Delivery Methods Type: ${_product['deliveryMethods'].runtimeType}');
+    print('Payment Methods Type: ${_product['paymentMethods'].runtimeType}');
+    print('Delivery Methods Data: ${_product['deliveryMethods']}');
+    print('Payment Methods Data: ${_product['paymentMethods']}');
     _fetchSellerData();
   }
 
@@ -369,87 +377,100 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       (_product['deliveryMethods'] as List).isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Container(
-                        padding: const EdgeInsets.all(18),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.local_shipping_outlined,
-                                  color: Colors.blue[600],
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 10),
-                                const Text(
-                                  'Delivery Methods',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                  ),
+                      child: Builder(
+                        builder: (context) {
+                          print('=== DELIVERY METHODS SECTION ===');
+                          print(
+                              'Delivery Methods Type: ${(_product['deliveryMethods']).runtimeType}');
+                          print(
+                              'Delivery Methods Count: ${(_product['deliveryMethods'] as List).length}');
+                          print(
+                              'Delivery Methods: ${_product['deliveryMethods']}');
+
+                          return Container(
+                            padding: const EdgeInsets.all(18),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.08),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 12),
-                            Wrap(
-                              spacing: 10,
-                              runSpacing: 10,
-                              children: ((_product['deliveryMethods'] as List)
-                                      .cast<String>())
-                                  .map(
-                                    (method) => Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 14, vertical: 8),
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue[50],
-                                        border: Border.all(
-                                            color: Colors.blue[300]!,
-                                            width: 1.5),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            Icons.check_circle,
-                                            color: Colors.blue[600],
-                                            size: 16,
-                                          ),
-                                          const SizedBox(width: 6),
-                                          Text(
-                                            method,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.blue[700],
-                                            ),
-                                          ),
-                                        ],
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.local_shipping_outlined,
+                                      color: Colors.blue[600],
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    const Text(
+                                      'Delivery Methods',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
                                       ),
                                     ),
-                                  )
-                                  .toList(),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Wrap(
+                                  spacing: 10,
+                                  runSpacing: 10,
+                                  children: ((_product['deliveryMethods']
+                                              as List)
+                                          .cast<String>())
+                                      .map(
+                                        (method) => Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 14, vertical: 8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.blue[50],
+                                            border: Border.all(
+                                                color: Colors.blue[300]!,
+                                                width: 1.5),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.check_circle,
+                                                color: Colors.blue[600],
+                                                size: 16,
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                method,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.blue[700],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          );
+                        },
                       ),
                     ),
 
                   const SizedBox(height: 20),
-
                   // Gem Certificate Section
                   if (_product['gemCertificates'] != null &&
                       (_product['gemCertificates'] as List).isNotEmpty)
@@ -498,6 +519,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               itemBuilder: (context, index) {
                                 final certItem = (_product['gemCertificates']
                                     as List)[index];
+                                print('=== CERTIFICATE $index ===');
+                                print(
+                                    'Certificate Item Type: ${certItem.runtimeType}');
+                                print('Certificate Item: $certItem');
 
                                 // Handle both string URLs and certificate objects
                                 String certType = 'document';
@@ -581,16 +606,16 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                         ),
                                       ),
                                       GestureDetector(
-                                        onTap: () async {
-                                          final Uri certificateUri =
+                                        onTap: () {
+                                          final String url = certItem is String
+                                              ? certItem
+                                              : certItem['url'] ?? '';
+                                          final String fileName =
                                               certItem is String
-                                                  ? Uri.parse(certItem)
-                                                  : Uri.parse(
-                                                      certItem['url'] ?? '');
-                                          if (await canLaunchUrl(
-                                              certificateUri)) {
-                                            await launchUrl(certificateUri);
-                                          }
+                                                  ? certItem.split('/').last
+                                                  : certItem['fileName'] ??
+                                                      'Certificate';
+                                          _viewCertificate(url, fileName);
                                         },
                                         child: Container(
                                           padding: const EdgeInsets.all(8),
@@ -919,6 +944,150 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         return Icons.image;
       default:
         return Icons.file_present;
+    }
+  }
+
+  void _viewCertificate(String url, String fileName) {
+    final lowerFileName = fileName.toLowerCase();
+    final isImage = lowerFileName.endsWith('.jpg') ||
+        lowerFileName.endsWith('.jpeg') ||
+        lowerFileName.endsWith('.png');
+    final isPdf = lowerFileName.endsWith('.pdf');
+
+    if (isImage) {
+      _showImageViewer(url, fileName);
+    } else if (isPdf) {
+      _showPdfViewer(url, fileName);
+    } else {
+      _launchUrl(url);
+    }
+  }
+
+  void _showImageViewer(String imageUrl, String fileName) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.black87,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AppBar(
+              backgroundColor: Colors.black,
+              automaticallyImplyLeading: true,
+              title: Text(
+                fileName,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.error_outline,
+                              color: Colors.red, size: 48),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Failed to load image',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          const SizedBox(height: 24),
+                          ElevatedButton(
+                            onPressed: () => _launchUrl(imageUrl),
+                            child: const Text('Open in Browser'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showPdfViewer(String pdfUrl, String fileName) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.black87,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AppBar(
+              backgroundColor: Colors.black,
+              automaticallyImplyLeading: true,
+              title: Text(
+                fileName,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.picture_as_pdf,
+                            color: Colors.red[600], size: 80),
+                        const SizedBox(height: 24),
+                        Text(
+                          fileName,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'PDF Document',
+                          style: TextStyle(
+                            color: Colors.grey[400],
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                        ElevatedButton.icon(
+                          onPressed: () => _launchUrl(pdfUrl),
+                          icon: const Icon(Icons.open_in_browser),
+                          label: const Text('Open PDF in Browser'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 16,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
   }
 }
