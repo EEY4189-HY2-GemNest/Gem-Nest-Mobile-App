@@ -97,7 +97,6 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   final TextEditingController _mobileController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
-  final TextEditingController _stateController = TextEditingController();
   final TextEditingController _pincodeController = TextEditingController();
   final TextEditingController _specialInstructionsController =
       TextEditingController();
@@ -392,7 +391,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
       mobile: _mobileController.text,
       address: _addressController.text,
       city: _cityController.text,
-      state: _stateController.text,
+      state: '',
       pincode: _pincodeController.text,
       isDefault: _addresses.isEmpty,
     );
@@ -433,7 +432,6 @@ class _CheckoutScreenState extends State<CheckoutScreen>
     _mobileController.dispose();
     _addressController.dispose();
     _cityController.dispose();
-    _stateController.dispose();
     _pincodeController.dispose();
     _specialInstructionsController.dispose();
     _promoController.dispose();
