@@ -582,9 +582,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                       ),
                                       GestureDetector(
                                         onTap: () async {
-                                          final Uri certificateUri = certItem is String
-                                              ? Uri.parse(certItem)
-                                              : Uri.parse(certItem['url'] ?? '');
+                                          final Uri certificateUri =
+                                              certItem is String
+                                                  ? Uri.parse(certItem)
+                                                  : Uri.parse(
+                                                      certItem['url'] ?? '');
                                           if (await canLaunchUrl(
                                               certificateUri)) {
                                             await launchUrl(certificateUri);
