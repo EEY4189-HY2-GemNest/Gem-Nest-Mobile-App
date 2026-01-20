@@ -659,10 +659,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Text(
                       'Notifications',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            color: AppTheme.primaryBlue,
-                          ),
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: AppTheme.primaryBlue,
+                              ),
                     ),
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
@@ -716,17 +717,20 @@ class _HomeScreenState extends State<HomeScreen> {
                     final notifications = snapshot.data!;
                     return ListView.builder(
                       controller: scrollController,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       itemCount: notifications.length,
                       itemBuilder: (context, index) {
                         final notification = notifications[index];
                         final isRead = notification['read'] as bool;
-                        
+
                         return Container(
                           margin: const EdgeInsets.only(bottom: 10),
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: isRead ? Colors.grey.shade50 : Colors.blue.shade50,
+                            color: isRead
+                                ? Colors.grey.shade50
+                                : Colors.blue.shade50,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: isRead
@@ -738,7 +742,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Expanded(
                                     child: Text(
@@ -797,7 +802,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String _formatNotificationTime(dynamic timestamp) {
     if (timestamp == null) return 'Just now';
-    
+
     if (timestamp is Timestamp) {
       final dateTime = timestamp.toDate();
       final now = DateTime.now();
