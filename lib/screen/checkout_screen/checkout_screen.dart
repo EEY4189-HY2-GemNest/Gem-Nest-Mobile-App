@@ -125,7 +125,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   // State Variables
   bool _isLoadingDeliveryMethods = true;
   String? _deliveryLoadError;
-  bool _isLoadingPaymentMethods = true;
+  final bool _isLoadingPaymentMethods = true;
   String? _paymentLoadError;
 
   // Form Keys
@@ -148,6 +148,8 @@ class _CheckoutScreenState extends State<CheckoutScreen>
 
   // Delivery Options - loaded dynamically from Firebase
   List<DeliveryOption> _deliveryOptions = [];
+  // Payment Methods - loaded dynamically from Firebase
+  List<PaymentMethod> _paymentMethods = [];
 
   @override
   void initState() {
@@ -259,7 +261,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
             deliveryMethods.forEach((key, value) {
               if (!collectedMethods.containsKey(key) &&
                   value is Map<String, dynamic>) {
-                final methodData = value as Map<String, dynamic>;
+                final methodData = value;
                 if (methodData['enabled'] == true) {
                   collectedMethods[key] = DeliveryOption(
                     id: key,
