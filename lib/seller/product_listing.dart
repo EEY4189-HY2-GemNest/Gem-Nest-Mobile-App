@@ -250,8 +250,7 @@ class _ProductListingState extends State<ProductListing>
             : 'jpg';
         final standardFileName =
             '${_titleController.text.replaceAll(' ', '_')}_certificate_${i + 1}.$fileExtension';
-        final fileName =
-            'certificates/$userId/$standardFileName';
+        final fileName = 'certificates/$userId/$standardFileName';
         final uploadTask =
             await storage.ref(fileName).putFile(_certificateFiles[i]);
         final url = await uploadTask.ref.getDownloadURL();
