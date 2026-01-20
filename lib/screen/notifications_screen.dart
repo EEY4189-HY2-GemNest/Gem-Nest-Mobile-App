@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/models/notification_model.dart';
 import 'package:gemnest_mobile_app/services/notification_service.dart';
+import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:intl/intl.dart';
 
 class NotificationsScreen extends StatefulWidget {
@@ -27,7 +28,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final userId = _auth.currentUser?.uid;
     if (userId == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Notifications')),
+        appBar: const SharedAppBar(title: 'Notifications', showBackButton: false),
         body: const Center(child: Text('Please log in to view notifications')),
       );
     }
@@ -47,19 +48,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   PreferredSizeWidget _buildAppBar(String userId) {
-    return AppBar(
-      title: const Text(
-        'Notifications',
-        style: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 1.5,
-          color: Colors.white,
-        ),
-      ),
-      backgroundColor: Colors.blue[700],
-      elevation: 0,
-      centerTitle: true,
+    return SharedAppBar(
+      title: 'Notifications',
+      showBackButton: false,
       actions: [
         StreamBuilder<int>(
           stream: _notificationService.getUnreadNotificationsCount(userId),
