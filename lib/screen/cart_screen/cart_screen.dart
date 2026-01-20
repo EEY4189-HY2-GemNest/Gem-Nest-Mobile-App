@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/checkout_screen/checkout_screen.dart';
 import 'package:gemnest_mobile_app/theme/app_theme.dart';
-import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
+import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
 import 'package:provider/provider.dart';
 
@@ -79,21 +79,8 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
   }
 
   PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      flexibleSpace: Container(
-        decoration: BoxDecoration(
-          gradient: AppTheme.primaryGradient,
-        ),
-      ),
-      elevation: 0,
-      title: Text(
-        'Shopping Cart',
-        style: AppTheme.headingLarge.copyWith(
-          color: Colors.white,
-        ),
-      ),
-      centerTitle: true,
-      leading: const ProfessionalAppBarBackButton(),
+    return SharedAppBar(
+      title: 'Shopping Cart',
       actions: [
         Consumer<CartProvider>(
           builder: (context, cartProvider, child) {
