@@ -944,6 +944,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
             Row(
               children: [
                 Expanded(
+                  flex: 2,
                   child: _buildTextField(
                     _cityController,
                     'City',
@@ -958,23 +959,10 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: _buildTextField(
-                    _stateController,
-                    'State',
-                    Icons.map_outlined,
-                    validator: (value) {
-                      if (value?.isEmpty ?? true) {
-                        return 'Please enter state';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
+                  flex: 1,
                   child: _buildTextField(
                     _pincodeController,
-                    'Pincode',
+                    'Postal Code',
                     Icons.pin_drop_outlined,
                     keyboardType: TextInputType.number,
                     inputFormatters: [
@@ -983,10 +971,10 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                     ],
                     validator: (value) {
                       if (value?.isEmpty ?? true) {
-                        return 'Please enter pincode';
+                        return 'Please enter postal code';
                       }
                       if (value!.length != 6) {
-                        return 'Please enter valid pincode';
+                        return 'Please enter valid code';
                       }
                       return null;
                     },
