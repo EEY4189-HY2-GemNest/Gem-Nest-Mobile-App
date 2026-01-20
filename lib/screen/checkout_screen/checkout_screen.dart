@@ -228,10 +228,12 @@ class _CheckoutScreenState extends State<CheckoutScreen>
       // Get seller delivery configs for each seller in cart
       final sellerDeliveryConfigs = <String, Map<String, dynamic>>{};
       final sellerIds = <String>{};
-      
+
       // Collect seller IDs from cart items - try both sellerId and userId
       for (final item in cartProvider.cartItems) {
-        final sellerId = item.sellerId.isNotEmpty ? item.sellerId : item.productData['userId'] as String?;
+        final sellerId = item.sellerId.isNotEmpty
+            ? item.sellerId
+            : item.productData['userId'] as String?;
         if (sellerId != null && sellerId.isNotEmpty) {
           sellerIds.add(sellerId);
         }
@@ -264,8 +266,10 @@ class _CheckoutScreenState extends State<CheckoutScreen>
             print('⚠ No delivery config document found for seller: $sellerId');
             // Try to list all documents in delivery_configs to debug
             try {
-              final allDocs = await _firestore.collection('delivery_configs').get();
-              print('DEBUG: All delivery_configs docs: ${allDocs.docs.map((d) => d.id).toList()}');
+              final allDocs =
+                  await _firestore.collection('delivery_configs').get();
+              print(
+                  'DEBUG: All delivery_configs docs: ${allDocs.docs.map((d) => d.id).toList()}');
             } catch (e) {
               print('DEBUG: Could not list delivery_configs: $e');
             }
