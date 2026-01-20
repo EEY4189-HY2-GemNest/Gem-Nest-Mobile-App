@@ -125,8 +125,6 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   // State Variables
   bool _isLoadingDeliveryMethods = true;
   String? _deliveryLoadError;
-  bool _isLoadingPaymentMethods = true;
-  String? _paymentLoadError;
 
   // Form Keys
   final GlobalKey<FormState> _addressFormKey = GlobalKey<FormState>();
@@ -135,7 +133,6 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   List<Address> _addresses = [];
   Address? _selectedAddress;
   DeliveryOption? _selectedDelivery;
-  PaymentMethod? _selectedPayment;
   bool _isLoading = false;
   bool _showAddressForm = false;
   bool _saveDetails = true;
@@ -145,19 +142,14 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-
   // Delivery Options - loaded dynamically from Firebase
   List<DeliveryOption> _deliveryOptions = [];
-  // Payment Methods - loaded dynamically from Firebase
-  List<PaymentMethod> _paymentMethods = [];
-
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
     _loadUserData();
     _loadDeliveryMethods();
-    _loadPaymentMethods();
   }
 
   void _initializeAnimations() {
@@ -529,8 +521,6 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                           _buildDeliveryAddressSection(),
                           const SizedBox(height: 24),
                           _buildDeliveryOptionsSection(),
-                          const SizedBox(height: 24),
-                          _buildPaymentMethodsSection(),
                           const SizedBox(height: 24),
                           _buildSpecialInstructionsSection(),
                           const SizedBox(height: 24),
