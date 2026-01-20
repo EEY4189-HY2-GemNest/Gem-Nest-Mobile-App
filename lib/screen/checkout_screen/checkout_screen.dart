@@ -234,10 +234,13 @@ class _CheckoutScreenState extends State<CheckoutScreen>
 
       for (final sellerId in sellerIds) {
         try {
-          final configDoc =
-              await _firestore.collection('delivery_configs').doc(sellerId).get();
+          final configDoc = await _firestore
+              .collection('delivery_configs')
+              .doc(sellerId)
+              .get();
           if (configDoc.exists) {
-            sellerDeliveryConfigs[sellerId] = configDoc.data() as Map<String, dynamic>;
+            sellerDeliveryConfigs[sellerId] =
+                configDoc.data() as Map<String, dynamic>;
             print('✓ Loaded delivery config for seller: $sellerId');
           }
         } catch (e) {
@@ -253,24 +256,30 @@ class _CheckoutScreenState extends State<CheckoutScreen>
           final sellerConfig = sellerDeliveryConfigs[cartItem.sellerId] ?? {};
 
           print('=== CHECKOUT DELIVERY METHODS ===');
-          print('Raw Delivery Methods Type: ${deliveryMethodsData.runtimeType}');
+          print(
+              'Raw Delivery Methods Type: ${deliveryMethodsData.runtimeType}');
           print('Seller Config Keys: ${sellerConfig.keys.toList()}');
 
           if (deliveryMethodsData is Map<String, dynamic>) {
-            print('✓ Delivery methods is Map - processing with seller prices...');
+            print(
+                '✓ Delivery methods is Map - processing with seller prices...');
             deliveryMethodsData.forEach((key, value) {
               if (!collectedMethods.containsKey(key) &&
                   value is Map<String, dynamic>) {
                 final methodData = value;
                 // Try to get price from seller config first
                 final configData = sellerConfig[key] as Map<String, dynamic>?;
-                final price = (configData?['price'] ?? methodData['price'] ?? 0.0).toDouble();
-                
+                final price =
+                    (configData?['price'] ?? methodData['price'] ?? 0.0)
+                        .toDouble();
+
                 if (methodData['enabled'] == true) {
                   collectedMethods[key] = DeliveryOption(
                     id: key,
                     name: methodData['name'] ?? configData?['name'] ?? key,
-                    description: methodData['description'] ?? configData?['description'] ?? '',
+                    description: methodData['description'] ??
+                        configData?['description'] ??
+                        '',
                     cost: price,
                     estimatedDays: estimatedDaysMap[key] ?? 3,
                     icon: iconMap[key] ?? '📦',
@@ -284,12 +293,14 @@ class _CheckoutScreenState extends State<CheckoutScreen>
             print('⚠ Delivery methods is List - creating from config...');
             for (final methodId in deliveryMethodsData.cast<String>()) {
               if (!collectedMethods.containsKey(methodId)) {
-                final configData = sellerConfig[methodId] as Map<String, dynamic>?;
+                final configData =
+                    sellerConfig[methodId] as Map<String, dynamic>?;
                 final price = (configData?['price'] ?? 0.0).toDouble();
-                
+
                 collectedMethods[methodId] = DeliveryOption(
                   id: methodId,
-                  name: configData?['name'] ?? methodId[0].toUpperCase() + methodId.substring(1),
+                  name: configData?['name'] ??
+                      methodId[0].toUpperCase() + methodId.substring(1),
                   description: configData?['description'] ?? '',
                   cost: price,
                   estimatedDays: estimatedDaysMap[methodId] ?? 3,
