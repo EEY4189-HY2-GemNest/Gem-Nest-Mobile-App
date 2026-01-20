@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:gemnest_mobile_app/screen/category_screen/category_card.dart';
 import 'package:gemnest_mobile_app/theme/app_theme.dart';
 import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
-import 'package:gemnest_mobile_app/screen/category_screen/category_card.dart';
 
 class AllCategoriesScreen extends StatefulWidget {
   const AllCategoriesScreen({super.key});
@@ -70,10 +70,9 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
       return allCategories;
     }
     return allCategories
-        .where((category) =>
-            category['title']!
-                .toLowerCase()
-                .contains(_searchQuery.toLowerCase()))
+        .where((category) => category['title']!
+            .toLowerCase()
+            .contains(_searchQuery.toLowerCase()))
         .toList();
   }
 
