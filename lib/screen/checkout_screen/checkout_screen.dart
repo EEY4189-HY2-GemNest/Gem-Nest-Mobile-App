@@ -247,7 +247,6 @@ class _CheckoutScreenState extends State<CheckoutScreen>
         'fast': 1,
         'overseas': 14,
       };
-
       final collectedMethods = <String, DeliveryOption>{};
 
       // Collect delivery methods from first product in cart
@@ -255,8 +254,12 @@ class _CheckoutScreenState extends State<CheckoutScreen>
       for (final cartItem in cartProvider.cartItems) {
         if (cartItem.productData.containsKey('deliveryMethods')) {
           final deliveryMethodsData = cartItem.productData['deliveryMethods'];
+          print('=== CHECKOUT DELIVERY METHODS ===');
+          print('Raw Delivery Methods Type: ${deliveryMethodsData.runtimeType}');
+          print('Raw Delivery Methods: $deliveryMethodsData');
 
           if (deliveryMethodsData is Map<String, dynamic>) {
+            print('✓ Delivery methods is Map - processing...');
             deliveryMethodsData.forEach((key, value) {
               if (!collectedMethods.containsKey(key) &&
                   value is Map<String, dynamic>) {
