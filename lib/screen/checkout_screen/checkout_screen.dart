@@ -912,44 +912,36 @@ class _CheckoutScreenState extends State<CheckoutScreen>
               ),
             ),
             const SizedBox(height: 18),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildTextField(
-                    _fullNameController,
-                    'Full Name',
-                    Icons.person_outline,
-                    validator: (value) {
-                      if (value?.isEmpty ?? true) {
-                        return 'Please enter full name';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildTextField(
-                    _mobileController,
-                    'Mobile Number',
-                    Icons.phone_outlined,
-                    keyboardType: TextInputType.phone,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(10),
-                    ],
-                    validator: (value) {
-                      if (value?.isEmpty ?? true) {
-                        return 'Please enter mobile number';
-                      }
-                      if (value!.length != 10) {
-                        return 'Please enter valid mobile number';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
+            _buildTextField(
+              _fullNameController,
+              'Full Name',
+              Icons.person_outline,
+              validator: (value) {
+                if (value?.isEmpty ?? true) {
+                  return 'Please enter full name';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            _buildTextField(
+              _mobileController,
+              'Mobile Number',
+              Icons.phone_outlined,
+              keyboardType: TextInputType.phone,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(10),
               ],
+              validator: (value) {
+                if (value?.isEmpty ?? true) {
+                  return 'Please enter mobile number';
+                }
+                if (value!.length != 10) {
+                  return 'Please enter valid mobile number';
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 16),
             _buildTextField(
