@@ -254,11 +254,10 @@ class _CheckoutScreenState extends State<CheckoutScreen>
       // All products should have compatible delivery methods
       for (final cartItem in cartProvider.cartItems) {
         if (cartItem.productData.containsKey('deliveryMethods')) {
-          final deliveryMethods =
-              cartItem.productData['deliveryMethods'] as Map<String, dynamic>?;
+          final deliveryMethodsData = cartItem.productData['deliveryMethods'];
 
-          if (deliveryMethods != null) {
-            deliveryMethods.forEach((key, value) {
+          if (deliveryMethodsData is Map<String, dynamic>) {
+            deliveryMethodsData.forEach((key, value) {
               if (!collectedMethods.containsKey(key) &&
                   value is Map<String, dynamic>) {
                 final methodData = value;
@@ -338,11 +337,10 @@ class _CheckoutScreenState extends State<CheckoutScreen>
       // Collect payment methods from first product in cart
       for (final cartItem in cartProvider.cartItems) {
         if (cartItem.productData.containsKey('paymentMethods')) {
-          final methods =
-              cartItem.productData['paymentMethods'] as Map<String, dynamic>?;
+          final methodsData = cartItem.productData['paymentMethods'];
 
-          if (methods != null) {
-            methods.forEach((key, value) {
+          if (methodsData is Map<String, dynamic>) {
+            methodsData.forEach((key, value) {
               if (!collectedMethods.containsKey(key) &&
                   value is Map<String, dynamic>) {
                 final methodData = value;
