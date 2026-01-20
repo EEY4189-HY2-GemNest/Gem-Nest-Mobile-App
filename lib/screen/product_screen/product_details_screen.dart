@@ -567,7 +567,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                                     BorderRadius.circular(4),
                                               ),
                                               child: Text(
-                                                '${cert['status'] ?? 'Pending'}',
+                                                certItem is Map
+                                                    ? '${certItem['status'] ?? 'Pending'}'
+                                                    : 'Verified',
                                                 style: TextStyle(
                                                   fontSize: 11,
                                                   color: Colors.purple[700],
@@ -580,8 +582,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                       ),
                                       GestureDetector(
                                         onTap: () async {
-                                          final Uri certificateUri =
-                                              Uri.parse(cert['url']);
+                                          final Uri certificateUri = certItem is String
+                                              ? Uri.parse(certItem)
+                                              : Uri.parse(certItem['url'] ?? '');
                                           if (await canLaunchUrl(
                                               certificateUri)) {
                                             await launchUrl(certificateUri);
