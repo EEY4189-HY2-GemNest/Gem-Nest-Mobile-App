@@ -10,6 +10,7 @@ import 'package:gemnest_mobile_app/screen/auction_screen/auction_screen.dart';
 import 'package:gemnest_mobile_app/screen/auth_screens/login_screen.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_screen.dart';
 import 'package:gemnest_mobile_app/screen/category_screen/category_card.dart';
+import 'package:gemnest_mobile_app/screen/category_screen/all_categories_screen.dart';
 import 'package:gemnest_mobile_app/screen/order_history_screen/oreder_history_screen.dart';
 import 'package:gemnest_mobile_app/screen/product_screen/product_card.dart';
 import 'package:gemnest_mobile_app/screen/profile_screen/profile_screen.dart';
@@ -319,13 +320,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => Scaffold(
-                                  appBar: AppBar(
-                                      title: const Text('All Categories')),
-                                  body: const Center(
-                                      child: Text(
-                                          'All categories will be displayed here.')),
-                                ),
+                                builder: (context) =>
+                                    const AllCategoriesScreen(),
                               ),
                             );
                           },
