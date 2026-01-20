@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:gemnest_mobile_app/models/notification_model.dart';
 import 'package:gemnest_mobile_app/services/notification_service.dart';
 
@@ -86,15 +87,14 @@ class _NotificationSettingsScreenState
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Notification Settings')),
+        appBar: const SharedAppBar(title: 'Notification Settings'),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Notification Settings'),
-        elevation: 0,
+      appBar: const SharedAppBar(
+        title: 'Notification Settings',
       ),
       body: SingleChildScrollView(
         child: Column(
