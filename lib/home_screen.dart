@@ -235,6 +235,40 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             centerTitle: true,
             actions: [
+              Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications_none, color: Colors.white, size: 24),
+                    onPressed: _showNotifications,
+                  ),
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: StreamBuilder<int>(
+                      stream: _getNotificationCount(),
+                      builder: (context, snapshot) {
+                        int count = snapshot.data ?? 0;
+                        if (count == 0) return const SizedBox();
+                        return Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFFF6B6B),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            count > 9 ? '9+' : count.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
               IconButton(
                 icon: const Icon(Icons.logout, color: Colors.white, size: 24),
                 onPressed: _onWillPop,
