@@ -93,6 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         setState(() {
           popularProducts = randomProducts;
+          _isLoadingGems = false;
         });
       }
     } catch (e) {
@@ -100,6 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         setState(() {
           popularProducts = [];
+          _isLoadingGems = false;
         });
       }
     }
@@ -423,32 +425,73 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SliverToBoxAdapter(child: SizedBox(height: 12)),
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  sliver: SliverGrid(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.68,
-                      mainAxisSpacing: 12,
-                      crossAxisSpacing: 12,
-                    ),
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        if (popularProducts.isNotEmpty) {
-                          final product = popularProducts[index];
-                          return ProductCard(
-                            id: product['id'] as String,
-                            imagePath: product['imageUrl'] as String,
-                            title: product['title'] as String,
-                            price:
-                                'LKR ${(product['pricing'] as num).toStringAsFixed(0)}',
-                            product: product,
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                      childCount: popularProducts.length,
-                    ),
-                  ),
+                  sliver: _isLoadingGems
+                      ? SliverToBoxAdapter(
+                          child: SizedBox(
+                            height: 300,
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      AppTheme.primaryBlue,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    'Loading gems...',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        )
+                      : popularProducts.isEmpty
+                          ? SliverToBoxAdapter(
+                              child: SizedBox(
+                                height: 150,
+                                child: Center(
+                                  child: Text(
+                                    'No gems available',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          : SliverGrid(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                childAspectRatio: 0.68,
+                                mainAxisSpacing: 12,
+                                crossAxisSpacing: 12,
+                              ),
+                              delegate: SliverChildBuilderDelegate(
+                                (context, index) {
+                                  if (index < popularProducts.length) {
+                                    final product = popularProducts[index];
+                                    return ProductCard(
+                                      id: product['id'] as String,
+                                      imagePath: product['imageUrl'] as String,
+                                      title: product['title'] as String,
+                                      price:
+                                          'LKR ${(product['pricing'] as num).toStringAsFixed(0)}',
+                                      product: product,
+                                    );
+                                  }
+                                  return const SizedBox.shrink();
+                                },
+                                childCount: popularProducts.length,
+                              ),
+                            ),
                 ),
                 const SliverToBoxAdapter(child: SizedBox(height: 30)),
               ],
