@@ -498,23 +498,25 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               itemBuilder: (context, index) {
                                 final certItem = (_product['gemCertificates']
                                     as List)[index];
-                                
+
                                 // Handle both string URLs and certificate objects
                                 String certType = 'document';
                                 String certName = 'Certificate ${index + 1}';
-                                
+
                                 if (certItem is String) {
                                   // It's a URL string
                                   certName = certItem.split('/').last;
                                   if (certName.contains('.')) {
-                                    certType = certName.split('.').last.toLowerCase();
+                                    certType =
+                                        certName.split('.').last.toLowerCase();
                                   }
                                 } else if (certItem is Map) {
                                   // It's a certificate object
                                   certType = certItem['type'] ?? 'document';
-                                  certName = certItem['fileName'] ?? 'Certificate ${index + 1}';
+                                  certName = certItem['fileName'] ??
+                                      'Certificate ${index + 1}';
                                 }
-                                
+
                                 return Container(
                                   margin: const EdgeInsets.only(bottom: 10),
                                   padding: const EdgeInsets.all(12),
