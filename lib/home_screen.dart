@@ -66,29 +66,35 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final productsSnapshot = await FirebaseFirestore.instance
           .collection('products')
-          .where('approvalStatus', isEqualTo: 'approved')
           .get();
 
       final List<Map<String, dynamic>> products = [];
       for (var doc in productsSnapshot.docs) {
-        products.add({
-          'id': doc.id,
-          'imageUrl': doc['imageUrl'] ?? '',
-          'title': doc['title'] ?? 'Gem',
-          'pricing': doc['pricing'] ?? 0,
-          'category': doc['category'] ?? 'Gems',
-          'description': doc['description'] ?? '',
-          'quantity': doc['quantity'] ?? 0,
-          'sellerId': doc['sellerId'] ?? '',
-          'gemCertificates': doc['gemCertificates'] ?? [],
-          'deliveryMethods': doc['deliveryMethods'] ?? [],
-        });
+        // Only include approved products
+        if (doc['approvalStatus'] == 'approved') {
+          products.add({
+            'id': doc.id,
+            'imageUrl': doc['imageUrl'] ?? '',
+            'title': doc['title'] ?? 'Gem',
+            'pricing': doc['pricing'] ?? 0,
+            'category': doc['category'] ?? 'Gems',
+            'description': doc['description'] ?? '',
+            'quantity': doc['quantity'] ?? 0,
+            'sellerId': doc['sellerId'] ?? '',
+            'gemCertificates': doc['gemCertificates'] ?? [],
+            'deliveryMethods': doc['deliveryMethods'] ?? [],
+          });
+        }
       }
+
+      debugPrint('Found ${products.length} approved products');
 
       // Shuffle and take 4 random products, or all if less than 4
       products.shuffle();
       final randomProducts =
           products.take(products.length >= 4 ? 4 : products.length).toList();
+
+      debugPrint('Selected ${randomProducts.length} random products');
 
       if (mounted) {
         setState(() {
