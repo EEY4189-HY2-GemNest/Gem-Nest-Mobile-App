@@ -4,8 +4,6 @@ import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
 import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:io';
-import 'package:http/http.dart' as http;
 
 class ProductDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> product;
