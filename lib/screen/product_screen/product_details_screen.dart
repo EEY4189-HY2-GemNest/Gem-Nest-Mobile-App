@@ -923,8 +923,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   void _viewCertificate(String url, String fileName) {
-    final isImage = fileName.toLowerCase().endsWith(('.jpg', '.jpeg', '.png'));
-    final isPdf = fileName.toLowerCase().endsWith('.pdf');
+    final lowerFileName = fileName.toLowerCase();
+    final isImage = lowerFileName.endsWith('.jpg') ||
+        lowerFileName.endsWith('.jpeg') ||
+        lowerFileName.endsWith('.png');
+    final isPdf = lowerFileName.endsWith('.pdf');
 
     if (isImage) {
       _showImageViewer(url, fileName);
