@@ -93,8 +93,8 @@ class _AuctionScreenState extends State<AuctionScreen> {
                       decoration: InputDecoration(
                         labelText: 'Search auctions...',
                         labelStyle: TextStyle(color: Colors.grey.shade600),
-                        prefixIcon: const Icon(Icons.search,
-                            color: Color(0xFF1E88E5)),
+                        prefixIcon:
+                            const Icon(Icons.search, color: Color(0xFF1E88E5)),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
