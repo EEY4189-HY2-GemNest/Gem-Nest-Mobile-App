@@ -27,6 +27,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   void initState() {
     super.initState();
     _product = widget.product;
+    print('=== PRODUCT DETAILS SCREEN INIT ===');
+    print('Product ID: ${_product['id']}');
+    print('Product Title: ${_product['title']}');
+    print('Product Data Keys: ${_product.keys.toList()}');
+    print('Delivery Methods Type: ${_product['deliveryMethods'].runtimeType}');
+    print('Payment Methods Type: ${_product['paymentMethods'].runtimeType}');
+    print('Delivery Methods Data: ${_product['deliveryMethods']}');
+    print('Payment Methods Data: ${_product['paymentMethods']}');
     _fetchSellerData();
   }
 
@@ -369,52 +377,59 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       (_product['deliveryMethods'] as List).isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Container(
-                        padding: const EdgeInsets.all(18),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.local_shipping_outlined,
-                                  color: Colors.blue[600],
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 10),
-                                const Text(
-                                  'Delivery Methods',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                  ),
+                      child: Builder(
+                        builder: (context) {
+                          print('=== DELIVERY METHODS SECTION ===');
+                          print('Delivery Methods Type: ${(_product['deliveryMethods']).runtimeType}');
+                          print('Delivery Methods Count: ${(_product['deliveryMethods'] as List).length}');
+                          print('Delivery Methods: ${_product['deliveryMethods']}');
+                          
+                          return Container(
+                            padding: const EdgeInsets.all(18),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.08),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 12),
-                            Wrap(
-                              spacing: 10,
-                              runSpacing: 10,
-                              children: ((_product['deliveryMethods'] as List)
-                                      .cast<String>())
-                                  .map(
-                                    (method) => Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 14, vertical: 8),
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue[50],
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.local_shipping_outlined,
+                                      color: Colors.blue[600],
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    const Text(
+                                      'Delivery Methods',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Wrap(
+                                  spacing: 10,
+                                  runSpacing: 10,
+                                  children: ((_product['deliveryMethods'] as List)
+                                          .cast<String>())
+                                      .map(
+                                        (method) => Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 14, vertical: 8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.blue[50],
                                         border: Border.all(
                                             color: Colors.blue[300]!,
                                             width: 1.5),
@@ -445,11 +460,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                             ),
                           ],
                         ),
+                          );
+                        },
                       ),
                     ),
 
                   const SizedBox(height: 20),
-
                   // Gem Certificate Section
                   if (_product['gemCertificates'] != null &&
                       (_product['gemCertificates'] as List).isNotEmpty)
@@ -498,6 +514,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               itemBuilder: (context, index) {
                                 final certItem = (_product['gemCertificates']
                                     as List)[index];
+                                print('=== CERTIFICATE $index ===');
+                                print('Certificate Item Type: ${certItem.runtimeType}');
+                                print('Certificate Item: $certItem');
 
                                 // Handle both string URLs and certificate objects
                                 String certType = 'document';
