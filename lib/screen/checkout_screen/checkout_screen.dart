@@ -1123,8 +1123,6 @@ class _CheckoutScreenState extends State<CheckoutScreen>
     );
   }
 
-
-
   Widget _buildSpecialInstructionsSection() {
     return Container(
       padding: const EdgeInsets.all(16),
