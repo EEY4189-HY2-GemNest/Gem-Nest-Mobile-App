@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:image_picker/image_picker.dart';
@@ -168,13 +169,133 @@ class _ProductListingState extends State<ProductListing>
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              _showSuccessDialog();
+              _uploadProductToFirebase();
             },
             child: const Text('Confirm'),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _uploadProductToFirebase() async {
+    if (!_formKey.currentState!.validate()) {
+      _showErrorDialog('Please fill all required fields');
+      return;
+    }
+
+    if (_images.first == null) {
+      _showErrorDialog('Please upload at least one product image');
+      return;
+    }
+
+    if (_certificateFiles.isEmpty) {
+      _showErrorDialog('Please upload at least one gem certificate');
+      return;
+    }
+
+    if (_selectedDeliveryMethods.isEmpty) {
+      _showErrorDialog('Please select at least one delivery method');
+      return;
+    }
+
+    if (_selectedPaymentMethods.isEmpty) {
+      _showErrorDialog('Please select at least one payment method');
+      return;
+    }
+
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Uploading product...'),
+            ],
+          ),
+        ),
+      );
+
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) {
+        Navigator.pop(context);
+        _showErrorDialog('User not authenticated');
+        return;
+      }
+
+      final storage = FirebaseStorage.instance;
+      List<String> imageUrls = [];
+      List<String> certificateUrls = [];
+
+      // Upload images
+      for (int i = 0; i < _images.length; i++) {
+        if (_images[i] != null) {
+          final fileName =
+              'products/$userId/${DateTime.now().millisecondsSinceEpoch}_image_$i.jpg';
+          final uploadTask = await storage.ref(fileName).putFile(_images[i]!);
+          final url = await uploadTask.ref.getDownloadURL();
+          imageUrls.add(url);
+        }
+      }
+
+      // Upload certificates
+      for (int i = 0; i < _certificateFiles.length; i++) {
+        final fileName =
+            'certificates/$userId/${DateTime.now().millisecondsSinceEpoch}_cert_$i.jpg';
+        final uploadTask =
+            await storage.ref(fileName).putFile(_certificateFiles[i]);
+        final url = await uploadTask.ref.getDownloadURL();
+        certificateUrls.add(url);
+      }
+
+      // Create product document
+      final productData = {
+        'sellerId': userId,
+        'title': _titleController.text,
+        'category': _selectedCategory,
+        'pricing': double.parse(_pricingController.text),
+        'quantity': int.parse(_quantityController.text),
+        'description': _descriptionController.text,
+        'imageUrl': imageUrls.isNotEmpty ? imageUrls.first : '',
+        'imageUrls': imageUrls,
+        'gemCertificates': certificateUrls,
+        'deliveryMethods': _selectedDeliveryMethods.toList(),
+        'paymentMethods': _selectedPaymentMethods.toList(),
+        'approvalStatus': 'pending',
+        'timestamp': FieldValue.serverTimestamp(),
+        'createdAt': DateTime.now().toIso8601String(),
+      };
+
+      // Add product to Firestore
+      final docRef =
+          await _firestore.collection('products').add(productData);
+
+      Navigator.pop(context); // Close loading dialog
+      _showSuccessDialog(
+          message:
+              'Product listed successfully with ID: ${docRef.id}');
+
+      // Clear form
+      _formKey.currentState?.reset();
+      _titleController.clear();
+      _pricingController.clear();
+      _quantityController.clear();
+      _descriptionController.clear();
+      _selectedCategory = null;
+      _certificateFiles.clear();
+      _selectedDeliveryMethods.clear();
+      _selectedPaymentMethods.clear();
+      setState(() {
+        _images.fillRange(0, 3, null);
+      });
+    } catch (e) {
+      Navigator.pop(context); // Close loading dialog
+      _showErrorDialog('Error uploading product: $e');
+    }
   }
 
   void _handleBulkUpload() {
@@ -204,17 +325,8 @@ class _ProductListingState extends State<ProductListing>
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              if (message == null) {
-                Navigator.pop(
-                  context,
-                  {
-                    'title': _titleController.text,
-                    'quantity': int.tryParse(_quantityController.text) ?? 0,
-                    'imagePath':
-                        _images.firstWhere((image) => image != null)?.path,
-                    'type': 'product',
-                  },
-                );
+              if (message != null) {
+                Navigator.pop(context);
               }
             },
             style: ElevatedButton.styleFrom(
