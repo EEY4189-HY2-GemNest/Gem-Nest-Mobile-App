@@ -4,6 +4,8 @@ import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
 import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;
 
 class ProductDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> product;
@@ -581,16 +583,16 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                         ),
                                       ),
                                       GestureDetector(
-                                        onTap: () async {
-                                          final Uri certificateUri =
+                                        onTap: () {
+                                          final String url = certItem is String
+                                              ? certItem
+                                              : certItem['url'] ?? '';
+                                          final String fileName =
                                               certItem is String
-                                                  ? Uri.parse(certItem)
-                                                  : Uri.parse(
-                                                      certItem['url'] ?? '');
-                                          if (await canLaunchUrl(
-                                              certificateUri)) {
-                                            await launchUrl(certificateUri);
-                                          }
+                                                  ? certItem.split('/').last
+                                                  : certItem['fileName'] ??
+                                                      'Certificate';
+                                          _viewCertificate(url, fileName);
                                         },
                                         child: Container(
                                           padding: const EdgeInsets.all(8),
@@ -919,6 +921,147 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         return Icons.image;
       default:
         return Icons.file_present;
+    }
+  }
+
+  void _viewCertificate(String url, String fileName) {
+    final isImage = fileName.toLowerCase().endsWith(('.jpg', '.jpeg', '.png'));
+    final isPdf = fileName.toLowerCase().endsWith('.pdf');
+
+    if (isImage) {
+      _showImageViewer(url, fileName);
+    } else if (isPdf) {
+      _showPdfViewer(url, fileName);
+    } else {
+      _launchUrl(url);
+    }
+  }
+
+  void _showImageViewer(String imageUrl, String fileName) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.black87,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AppBar(
+              backgroundColor: Colors.black,
+              automaticallyImplyLeading: true,
+              title: Text(
+                fileName,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.error_outline,
+                              color: Colors.red, size: 48),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Failed to load image',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          const SizedBox(height: 24),
+                          ElevatedButton(
+                            onPressed: () => _launchUrl(imageUrl),
+                            child: const Text('Open in Browser'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showPdfViewer(String pdfUrl, String fileName) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.black87,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AppBar(
+              backgroundColor: Colors.black,
+              automaticallyImplyLeading: true,
+              title: Text(
+                fileName,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.picture_as_pdf,
+                            color: Colors.red[600], size: 80),
+                        const SizedBox(height: 24),
+                        Text(
+                          fileName,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'PDF Document',
+                          style: TextStyle(
+                            color: Colors.grey[400],
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                        ElevatedButton.icon(
+                          onPressed: () => _launchUrl(pdfUrl),
+                          icon: const Icon(Icons.open_in_browser),
+                          label: const Text('Open PDF in Browser'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 16,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
   }
 }
