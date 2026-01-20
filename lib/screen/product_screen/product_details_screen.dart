@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
+import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -125,38 +126,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        backgroundColor: Colors.blue[700],
-        elevation: 0,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Product Details',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.white70,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              productName.length > 30
-                  ? '${productName.substring(0, 27)}...'
-                  : productName,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
+      appBar: SharedAppBar(
+        title: productName.length > 30
+            ? '${productName.substring(0, 27)}...'
+            : productName,
+        onBackPressed: () => Navigator.pop(context),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
