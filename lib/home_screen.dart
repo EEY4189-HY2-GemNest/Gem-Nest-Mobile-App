@@ -9,8 +9,8 @@ import 'package:gemnest_mobile_app/providers/banner_provider.dart';
 import 'package:gemnest_mobile_app/screen/auction_screen/auction_screen.dart';
 import 'package:gemnest_mobile_app/screen/auth_screens/login_screen.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_screen.dart';
-import 'package:gemnest_mobile_app/screen/category_screen/category_card.dart';
 import 'package:gemnest_mobile_app/screen/category_screen/all_categories_screen.dart';
+import 'package:gemnest_mobile_app/screen/category_screen/category_card.dart';
 import 'package:gemnest_mobile_app/screen/order_history_screen/oreder_history_screen.dart';
 import 'package:gemnest_mobile_app/screen/product_screen/product_card.dart';
 import 'package:gemnest_mobile_app/screen/profile_screen/profile_screen.dart';
@@ -34,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
   String userName = 'Guest';
   List<Map<String, dynamic>> popularProducts = [];
+  bool _isLoadingGems = true;
 
   @override
   void initState() {
@@ -72,26 +73,35 @@ class _HomeScreenState extends State<HomeScreen> {
       for (var doc in productsSnapshot.docs) {
         products.add({
           'id': doc.id,
-          'imageUrl': doc['imageUrl'],
-          'title': doc['title'],
-          'pricing': doc['pricing'],
-          'category': doc['category'],
-          'description': doc['description'],
-          'quantity': doc['quantity'],
-          'sellerId': doc['sellerId'],
-          'gemCertificates': doc['gemCertificates'],
-          'deliveryMethods': doc['deliveryMethods'],
+          'imageUrl': doc['imageUrl'] ?? '',
+          'title': doc['title'] ?? 'Gem',
+          'pricing': doc['pricing'] ?? 0,
+          'category': doc['category'] ?? 'Gems',
+          'description': doc['description'] ?? '',
+          'quantity': doc['quantity'] ?? 0,
+          'sellerId': doc['sellerId'] ?? '',
+          'gemCertificates': doc['gemCertificates'] ?? [],
+          'deliveryMethods': doc['deliveryMethods'] ?? [],
         });
       }
 
+      // Shuffle and take 4 random products, or all if less than 4
       products.shuffle();
-      final randomProducts = products.take(4).toList();
+      final randomProducts =
+          products.take(products.length >= 4 ? 4 : products.length).toList();
 
-      setState(() {
-        popularProducts = randomProducts;
-      });
+      if (mounted) {
+        setState(() {
+          popularProducts = randomProducts;
+        });
+      }
     } catch (e) {
       debugPrint('Error fetching products: $e');
+      if (mounted) {
+        setState(() {
+          popularProducts = [];
+        });
+      }
     }
   }
 
@@ -361,23 +371,65 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                    child: const Text(
-                      'Popular Gems',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Popular Gems',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w800,
+                                color: AppTheme.darkGray,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Trending this week',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[500],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppTheme.lightBlue,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Text(
+                            'View All',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppTheme.primaryBlue,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
+                const SliverToBoxAdapter(child: SizedBox(height: 12)),
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   sliver: SliverGrid(
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      childAspectRatio: 0.7,
-                      mainAxisSpacing: 8,
-                      crossAxisSpacing: 8,
+                      childAspectRatio: 0.68,
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 12,
                     ),
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
