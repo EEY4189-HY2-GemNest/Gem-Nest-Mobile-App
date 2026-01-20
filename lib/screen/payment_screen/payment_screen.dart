@@ -1240,11 +1240,11 @@ class _PaymentScreenState extends State<PaymentScreen>
         },
         'deliveryMethod': widget.deliveryOption.name,
         'paymentMethod': {
-          'id': _selectedPaymentMethod!.id,
-          'name': _selectedPaymentMethod!.name,
+          'id': _selectedPaymentMethod?.id ?? 'unknown',
+          'name': _selectedPaymentMethod?.name ?? 'Payment',
           'processingFee': processingFee,
         },
-        'stripePaymentIntentId': _stripePaymentIntentId,
+        'stripePaymentIntentId': _stripePaymentIntentId ?? '',
         'specialInstructions': widget.specialInstructions,
         'totalAmount': finalTotal,
         'status': 'confirmed',
@@ -1254,6 +1254,18 @@ class _PaymentScreenState extends State<PaymentScreen>
         'estimatedDelivery': DateTime.now()
             .add(Duration(days: widget.deliveryOption.estimatedDays)),
       };
+
+      // Log the order data being saved
+      print('SAVING ORDER DATA: ${orderData.toString()}');
+      print('Name: ${orderData['name']}');
+      print('Mobile: ${orderData['mobile']}');
+      print('Address: ${orderData['address']}');
+      print('Payment Method Object: ${orderData['paymentMethod']}');
+      if (orderData['paymentMethod'] is Map) {
+        final pm = orderData['paymentMethod'] as Map;
+        print('  - Payment Method Name: ${pm['name']}');
+        print('  - Payment Method ID: ${pm['id']}');
+      }
 
       await FirebaseFirestore.instance
           .collection('orders')
