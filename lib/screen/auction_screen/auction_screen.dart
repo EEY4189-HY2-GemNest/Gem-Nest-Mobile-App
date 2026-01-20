@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/auction_screen/auction_details_screen.dart';
 import 'package:gemnest_mobile_app/screen/auction_screen/auction_payment_screen.dart';
-import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
+import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
 
 class AuctionScreen extends StatefulWidget {
@@ -23,9 +23,8 @@ class _AuctionScreenState extends State<AuctionScreen> {
   bool _isFilterExpanded = false;
   String _searchQuery = '';
   String _selectedStatus = 'all';
-  String _selectedCategory = 'all';
   double _minPrice = 0;
-  double _maxPrice = 10000;
+  double _maxPrice = 1000000;
 
   @override
   void dispose() {
@@ -34,30 +33,9 @@ class _AuctionScreenState extends State<AuctionScreen> {
   }
 
   PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      flexibleSpace: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-      ),
-      elevation: 0,
-      title: const Text(
-        'Auctions',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 24,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.5,
-        ),
-      ),
-      centerTitle: true,
-      leading: ProfessionalAppBarBackButton(
-        onPressed: () => Navigator.pop(context),
-      ),
+    return SharedAppBar(
+      title: 'Auctions',
+      onBackPressed: () => Navigator.pop(context),
       actions: [
         IconButton(
           icon: Icon(
@@ -78,17 +56,21 @@ class _AuctionScreenState extends State<AuctionScreen> {
   Widget _buildFiltersSection() {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      height: _isFilterExpanded ? 320 : 0,
+      height: _isFilterExpanded ? 340 : 0,
       child: _isFilterExpanded
           ? Container(
-              padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                color: Colors.white,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.blue.shade50, Colors.white],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 4,
-                    offset: Offset(0, 2),
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
@@ -97,12 +79,45 @@ class _AuctionScreenState extends State<AuctionScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Search Filter
+                    Text(
+                      'Filters',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.blue.shade900,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     TextField(
                       controller: _filterController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Search auctions...',
-                        prefixIcon: Icon(Icons.search),
-                        border: OutlineInputBorder(),
+                        labelStyle: TextStyle(color: Colors.grey.shade600),
+                        prefixIcon:
+                            const Icon(Icons.search, color: Color(0xFF1E88E5)),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.blue.shade200,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.blue.shade200,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF1E88E5),
+                            width: 2,
+                          ),
+                        ),
+                        contentPadding:
+                            const EdgeInsets.symmetric(vertical: 12),
                       ),
                       onChanged: (value) {
                         setState(() {
@@ -110,82 +125,83 @@ class _AuctionScreenState extends State<AuctionScreen> {
                         });
                       },
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
 
                     // Status Filter
-                    Row(
-                      children: [
-                        const Text('Status: ',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Expanded(
-                          child: Wrap(
-                            spacing: 8,
-                            children:
-                                ['all', 'live', 'ended', 'won'].map((status) {
-                              final isSelected = _selectedStatus == status;
-                              return FilterChip(
-                                label: Text(status.toUpperCase()),
-                                selected: isSelected,
-                                onSelected: (selected) {
-                                  setState(() {
-                                    _selectedStatus = status;
-                                  });
-                                },
-                                selectedColor: Colors.blue.shade100,
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ],
+                    Text(
+                      'Auction Status',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade800,
+                      ),
                     ),
-                    const SizedBox(height: 12),
-
-                    // Category Filter
-                    Row(
-                      children: [
-                        const Text('Category: ',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Expanded(
-                          child: DropdownButton<String>(
-                            value: _selectedCategory,
-                            isExpanded: true,
-                            items: [
-                              'all',
-                              'electronics',
-                              'jewelry',
-                              'art',
-                              'collectibles',
-                              'antiques',
-                              'other'
-                            ]
-                                .map((category) => DropdownMenuItem(
-                                      value: category,
-                                      child: Text(category.toUpperCase()),
-                                    ))
-                                .toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedCategory = value!;
-                              });
-                            },
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 8,
+                      children: ['all', 'live', 'ended', 'won'].map((status) {
+                        final isSelected = _selectedStatus == status;
+                        return FilterChip(
+                          label: Text(
+                            status.toUpperCase(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                              color: isSelected
+                                  ? const Color(0xFF1E88E5)
+                                  : Colors.grey.shade700,
+                            ),
                           ),
-                        ),
-                      ],
+                          selected: isSelected,
+                          onSelected: (selected) {
+                            setState(() {
+                              _selectedStatus = status;
+                            });
+                          },
+                          backgroundColor: Colors.white,
+                          selectedColor: Colors.blue.shade100,
+                          side: BorderSide(
+                            color: isSelected
+                                ? const Color(0xFF1E88E5)
+                                : Colors.grey.shade300,
+                            width: isSelected ? 1.5 : 1,
+                          ),
+                        );
+                      }).toList(),
                     ),
+                    const SizedBox(height: 20),
 
                     // Price Range Filter
-                    Row(
-                      children: [
-                        const Text('Price Range: ',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Expanded(
-                          child: RangeSlider(
+                    Text(
+                      'Price Range',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Column(
+                        children: [
+                          Text(
+                            'Rs. ${_minPrice.toInt()} - Rs. ${_maxPrice.toInt()}',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF1E88E5),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          RangeSlider(
                             values: RangeValues(_minPrice, _maxPrice),
                             min: 0,
-                            max: 10000,
+                            max: 1000000,
                             divisions: 100,
-                            labels: RangeLabels('₹${_minPrice.toInt()}',
-                                '₹${_maxPrice.toInt()}'),
+                            activeColor: const Color(0xFF1E88E5),
+                            inactiveColor: Colors.grey.shade300,
                             onChanged: (values) {
                               setState(() {
                                 _minPrice = values.start;
@@ -193,8 +209,8 @@ class _AuctionScreenState extends State<AuctionScreen> {
                               });
                             },
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -209,18 +225,9 @@ class _AuctionScreenState extends State<AuctionScreen> {
         .collection('auctions')
         .where('approvalStatus', isEqualTo: 'approved');
 
-    // Apply category filter
-    if (_selectedCategory != 'all') {
-      query = query.where('category', isEqualTo: _selectedCategory);
-    }
-
-    // Apply price range filter
-    query = query
-        .where('currentBid', isGreaterThanOrEqualTo: _minPrice)
-        .where('currentBid', isLessThanOrEqualTo: _maxPrice);
-
-    // Only order by currentBid to avoid composite index requirement
-    return query.orderBy('currentBid').snapshots();
+    // NOTE: All filters moved to client-side in _filterAuctionsByStatus
+    // to avoid Firestore composite index requirement
+    return query.snapshots();
   }
 
   List<QueryDocumentSnapshot> _filterAuctionsByStatus(
@@ -234,6 +241,7 @@ class _AuctionScreenState extends State<AuctionScreen> {
       final endTime = _parseEndTime(data['endTime']);
       final title = (data['title'] ?? '').toLowerCase();
       final description = (data['description'] ?? '').toLowerCase();
+      final currentBid = (data['currentBid'] ?? 0).toDouble();
 
       // Apply search filter
       if (_searchQuery.isNotEmpty) {
@@ -241,6 +249,11 @@ class _AuctionScreenState extends State<AuctionScreen> {
             !description.contains(_searchQuery)) {
           return false;
         }
+      }
+
+      // Apply price range filter (client-side)
+      if (currentBid < _minPrice || currentBid > _maxPrice) {
+        return false;
       }
 
       // Apply status filter

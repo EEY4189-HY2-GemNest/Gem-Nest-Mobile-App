@@ -2,6 +2,7 @@ import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/stripe_service.dart';
+import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 
 class PaymentScreen extends StatefulWidget {
   final double amount;
@@ -107,10 +108,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Payment'),
-        centerTitle: true,
-        elevation: 0,
+      appBar: const SharedAppBar(
+        title: 'Payment',
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),

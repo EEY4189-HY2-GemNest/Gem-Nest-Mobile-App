@@ -233,7 +233,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Image.asset(
-                    "assets/images/logo_new.png",
+                    "assets/images/gemnest.png",
                     height: 120,
                     fit: BoxFit.contain,
                   ),
@@ -349,4 +349,3 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 }
-

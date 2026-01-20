@@ -407,7 +407,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Image.asset('assets/images/logo_new.png', height: 90),
+                Image.asset('assets/images/gemnest.png', height: 90),
                 const SizedBox(height: 20),
                 const Text(
                   'Create an Account',
@@ -720,4 +720,3 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 }
-

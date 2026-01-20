@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
 import 'package:gemnest_mobile_app/screen/payment_screen/payment_screen.dart';
 import 'package:gemnest_mobile_app/theme/app_theme.dart';
-import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
+import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -410,24 +410,8 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   }
 
   PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      flexibleSpace: Container(
-        decoration: BoxDecoration(
-          gradient: AppTheme.primaryGradient,
-        ),
-      ),
-      elevation: 0,
-      leading: const ProfessionalAppBarBackButton(),
-      title: const Text(
-        'Checkout',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 24,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.5,
-        ),
-      ),
-      centerTitle: true,
+    return const SharedAppBar(
+      title: 'Checkout',
     );
   }
 

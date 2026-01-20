@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/order_history_screen/oreder_history_screen.dart';
+import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 
 class AuctionPaymentScreen extends StatefulWidget {
   final String auctionId;
@@ -293,28 +294,8 @@ class _AuctionPaymentScreenState extends State<AuctionPaymentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        title: const Text(
-          'Payment',
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: 26,
-            letterSpacing: 1.5,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.blue[900]!, Colors.blue[700]!],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-          ),
-        ),
+      appBar: const SharedAppBar(
+        title: 'Payment',
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

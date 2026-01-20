@@ -5,6 +5,7 @@ import 'package:gemnest_mobile_app/screen/auction_screen/auction_screen.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_screen.dart';
 import 'package:gemnest_mobile_app/screen/order_history_screen/oreder_history_screen.dart';
 import 'package:gemnest_mobile_app/screen/profile_screen/profile_screen.dart';
+import 'package:gemnest_mobile_app/theme/app_theme.dart';
 
 class SharedBottomNavigation extends StatelessWidget {
   final int currentIndex;
@@ -60,8 +61,9 @@ class SharedBottomNavigation extends StatelessWidget {
       gapLocation: GapLocation.center,
       notchSmoothness: NotchSmoothness.smoothEdge,
       onTap: (index) => _onItemTapped(context, index),
-      backgroundColor: const Color.fromARGB(255, 173, 216, 230),
-      activeColor: const Color.fromARGB(255, 0, 0, 139),
+      backgroundColor: AppTheme.lightBlue,
+      activeColor: AppTheme.primaryBlue,
+      inactiveColor: AppTheme.darkGray,
       leftCornerRadius: 32,
       rightCornerRadius: 32,
     );
@@ -78,7 +80,8 @@ class SharedBottomNavigation extends StatelessWidget {
           MaterialPageRoute(builder: (context) => const AuctionScreen()),
         );
       },
-      backgroundColor: const Color.fromARGB(255, 173, 216, 230),
+      backgroundColor: AppTheme.primaryBlue,
+      foregroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       elevation: 8,
       child: const Icon(Icons.gavel),

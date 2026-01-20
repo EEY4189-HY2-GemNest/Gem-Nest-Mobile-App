@@ -268,7 +268,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   children: [
                     const SizedBox(height: 60),
                     Image.asset(
-                      "assets/images/logo_new.png",
+                      "assets/images/gemnest.png",
                       height: 120,
                     ),
                     const SizedBox(height: 32),
@@ -481,4 +481,3 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     );
   }
 }
-
