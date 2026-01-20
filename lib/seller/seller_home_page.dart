@@ -365,7 +365,7 @@ class _SellerHomePageState extends State<SellerHomePage>
               //   child: ClipRRect(
               //     borderRadius: BorderRadius.circular(18),
               //     child: Image.asset(
-              //       'assets/images/logo_new.png',
+              //       'assets/images/gemnest.png',
               //       fit: BoxFit.cover,
               //     ),
               //   ),

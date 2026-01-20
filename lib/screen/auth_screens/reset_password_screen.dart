@@ -218,8 +218,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       //     ),
                       //   ],
                       // ),
-                      child: Image.asset("assets/images/logo_new.png",
-                          height: 120),
+                      child:
+                          Image.asset("assets/images/gemnest.png", height: 120),
                     ),
                     const SizedBox(height: 32),
                     const Text(
@@ -309,4 +309,3 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     );
   }
 }
-

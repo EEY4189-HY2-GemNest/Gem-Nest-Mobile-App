@@ -204,7 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
             title: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset('assets/images/logo_new.png', height: 35),
+                Image.asset('assets/images/gemnest.png', height: 35),
                 const SizedBox(width: 8),
                 Text(
                   'GemNest Mobile App',

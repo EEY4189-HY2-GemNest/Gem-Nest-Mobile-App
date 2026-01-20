@@ -63,7 +63,7 @@ class _SplashScreenState extends State<SplashScreen>
             children: [
               FadeTransition(
                 opacity: _animation,
-                child: Image.asset("assets/images/logo.png"),
+                child: Image.asset("assets/images/gemnest.png"),
               ),
               const SizedBox(height: 20),
               const CupertinoActivityIndicator(

@@ -430,7 +430,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
                   radius: 60,
                   backgroundImage: _profileImageUrl != null
                       ? NetworkImage(_profileImageUrl!)
-                      : const AssetImage('assets/images/logo_new.png')
+                      : const AssetImage('assets/images/gemnest.png')
                           as ImageProvider,
                   backgroundColor: Colors.grey[800],
                 ),
@@ -967,4 +967,3 @@ class DashboardPatternPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
-
