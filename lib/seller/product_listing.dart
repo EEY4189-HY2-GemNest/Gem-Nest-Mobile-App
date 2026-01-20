@@ -229,7 +229,6 @@ class _ProductListingState extends State<ProductListing>
 
       final storage = FirebaseStorage.instance;
       List<String> imageUrls = [];
-      List<String> certificateUrls = [];
 
       // Upload images
       for (int i = 0; i < _images.length; i++) {
@@ -242,15 +241,49 @@ class _ProductListingState extends State<ProductListing>
         }
       }
 
-      // Upload certificates
+      // Upload certificates with standardized naming
+      List<Map<String, String>> certificateMetadata = [];
       for (int i = 0; i < _certificateFiles.length; i++) {
+        final originalFileName = _certificateFiles[i].path.split('/').last;
+        final fileExtension = originalFileName.contains('.')
+            ? originalFileName.split('.').last
+            : 'jpg';
+        final standardFileName =
+            '${_titleController.text.replaceAll(' ', '_')}_certificate_${i + 1}.$fileExtension';
         final fileName =
-            'certificates/$userId/${DateTime.now().millisecondsSinceEpoch}_cert_$i.jpg';
+            'certificates/$userId/$standardFileName';
         final uploadTask =
             await storage.ref(fileName).putFile(_certificateFiles[i]);
         final url = await uploadTask.ref.getDownloadURL();
-        certificateUrls.add(url);
+        certificateMetadata.add({
+          'url': url,
+          'fileName': standardFileName,
+          'type': fileExtension.toLowerCase(),
+        });
       }
+
+      // Build full delivery method details with prices
+      final deliveryMethodsData = <String, dynamic>{};
+      for (final methodId in _selectedDeliveryMethods) {
+        if (_availableDeliveryMethods.containsKey(methodId)) {
+          deliveryMethodsData[methodId] = _availableDeliveryMethods[methodId];
+        }
+      }
+      print('=== SELLER PRODUCT LISTING ===');
+      print('Selected Delivery Methods: $_selectedDeliveryMethods');
+      print('Available Delivery Methods: $_availableDeliveryMethods');
+      print('Delivery Methods Data to Save: $deliveryMethodsData');
+
+      // Build full payment method details
+      final paymentMethodsData = <String, dynamic>{};
+      for (final methodId in _selectedPaymentMethods) {
+        if (_availablePaymentMethods.containsKey(methodId)) {
+          paymentMethodsData[methodId] = _availablePaymentMethods[methodId];
+        }
+      }
+      print('Selected Payment Methods: $_selectedPaymentMethods');
+      print('Available Payment Methods: $_availablePaymentMethods');
+      print('Payment Methods Data to Save: $paymentMethodsData');
 
       // Create product document
       final productData = {
@@ -262,9 +295,9 @@ class _ProductListingState extends State<ProductListing>
         'description': _descriptionController.text,
         'imageUrl': imageUrls.isNotEmpty ? imageUrls.first : '',
         'imageUrls': imageUrls,
-        'gemCertificates': certificateUrls,
-        'deliveryMethods': _selectedDeliveryMethods.toList(),
-        'paymentMethods': _selectedPaymentMethods.toList(),
+        'gemCertificates': certificateMetadata,
+        'deliveryMethods': deliveryMethodsData,
+        'paymentMethods': paymentMethodsData,
         'approvalStatus': 'pending',
         'timestamp': FieldValue.serverTimestamp(),
         'createdAt': DateTime.now().toIso8601String(),
