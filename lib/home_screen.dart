@@ -72,8 +72,9 @@ class _HomeScreenState extends State<HomeScreen> {
         try {
           // Safely get the approval status - default to 'approved' if not present
           final data = doc.data();
-          final approvalStatus = data['approvalStatus'] as String? ?? 'approved';
-          
+          final approvalStatus =
+              data['approvalStatus'] as String? ?? 'approved';
+
           // Include products that are approved
           if (approvalStatus == 'approved') {
             products.add({
@@ -99,15 +100,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
       // Shuffle products to get random selection
       products.shuffle();
-      
+
       // Always try to get at least 4 products, or all if less than 4 available
       final minProducts = 4;
-      final randomProducts = products.take(
-        products.length >= minProducts ? minProducts : products.length
-      ).toList();
+      final randomProducts = products
+          .take(products.length >= minProducts ? minProducts : products.length)
+          .toList();
 
-      debugPrint('Selected ${randomProducts.length} random products for display');
-      
+      debugPrint(
+          'Selected ${randomProducts.length} random products for display');
+
       // Log each product
       for (var p in randomProducts) {
         debugPrint('  - ${p['title']}: ${p['pricing']}');
