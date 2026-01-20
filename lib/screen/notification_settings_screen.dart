@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:gemnest_mobile_app/models/notification_model.dart';
 import 'package:gemnest_mobile_app/services/notification_service.dart';
+import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 
 /// Notification Settings/Preferences Screen for users
 class NotificationSettingsScreen extends StatefulWidget {
