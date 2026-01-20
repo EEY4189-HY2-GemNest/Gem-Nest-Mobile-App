@@ -8,7 +8,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/auth_screens/login_screen.dart';
 import 'package:gemnest_mobile_app/theme/app_theme.dart';
-import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
+import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -423,26 +423,9 @@ class _ProfileScreenState extends State<ProfileScreen>
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
-        appBar: AppBar(
-          flexibleSpace: Container(
-            decoration: BoxDecoration(
-              gradient: AppTheme.primaryGradient,
-            ),
-          ),
-          elevation: 0,
-          title: const Text(
-            'My Profile',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.5,
-            ),
-          ),
-          centerTitle: true,
-          leading: ProfessionalAppBarBackButton(
-            onPressed: () => Navigator.of(context).maybePop(),
-          ),
+        appBar: SharedAppBar(
+          title: 'My Profile',
+          onBackPressed: () => Navigator.of(context).maybePop(),
           actions: [
             IconButton(
               icon: const Icon(Icons.edit_outlined,
