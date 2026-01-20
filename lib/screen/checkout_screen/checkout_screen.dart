@@ -82,6 +82,23 @@ class DeliveryOption {
   });
 }
 
+// Payment Method Model
+class PaymentMethod {
+  final String id;
+  final String name;
+  final String description;
+  final double fee;
+  final String icon;
+
+  PaymentMethod({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.fee,
+    required this.icon,
+  });
+}
+
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
 
@@ -108,6 +125,8 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   // State Variables
   bool _isLoadingDeliveryMethods = true;
   String? _deliveryLoadError;
+  bool _isLoadingPaymentMethods = true;
+  String? _paymentLoadError;
 
   // Form Keys
   final GlobalKey<FormState> _addressFormKey = GlobalKey<FormState>();
@@ -116,6 +135,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
   List<Address> _addresses = [];
   Address? _selectedAddress;
   DeliveryOption? _selectedDelivery;
+  PaymentMethod? _selectedPayment;
   bool _isLoading = false;
   bool _showAddressForm = false;
   bool _saveDetails = true;
@@ -207,39 +227,6 @@ class _CheckoutScreenState extends State<CheckoutScreen>
         return;
       }
 
-      // Get unique seller IDs from cart items
-      final sellerIds = cartProvider.cartItems
-          .map((item) => item.sellerId)
-          .where((id) => id.isNotEmpty)
-          .toSet();
-
-      if (sellerIds.isEmpty) {
-        setState(() {
-          _isLoadingDeliveryMethods = false;
-          _deliveryLoadError = 'No seller information found';
-        });
-        return;
-      }
-
-      // For simplicity, use the first seller's delivery config
-      // In a multi-seller cart, you might need different logic
-      final sellerId = sellerIds.first;
-
-      // Fetch delivery config from Firebase
-      final doc =
-          await _firestore.collection('delivery_configs').doc(sellerId).get();
-
-      if (!doc.exists) {
-        setState(() {
-          _isLoadingDeliveryMethods = false;
-          _deliveryLoadError = 'Seller has not configured delivery methods';
-        });
-        return;
-      }
-
-      final data = doc.data()!;
-      final deliveryOptions = <DeliveryOption>[];
-
       // Map delivery method IDs to emoji icons
       const iconMap = {
         'pickup': '🏪',
@@ -258,26 +245,51 @@ class _CheckoutScreenState extends State<CheckoutScreen>
         'overseas': 14,
       };
 
-      data.forEach((key, value) {
-        if (key != 'sellerId' && key != 'updatedAt') {
-          final methodData = value as Map<String, dynamic>;
-          if (methodData['enabled'] == true) {
-            deliveryOptions.add(
-              DeliveryOption(
-                id: key,
-                name: methodData['name'] ?? key,
-                description: methodData['description'] ?? '',
-                cost: (methodData['price'] ?? 0.0).toDouble(),
-                estimatedDays: estimatedDaysMap[key] ?? 3,
-                icon: iconMap[key] ?? '📦',
-              ),
-            );
+      final deliveryOptions = <DeliveryOption>[];
+      final collectedMethods = <String, DeliveryOption>{};
+
+      // Collect delivery methods from first product in cart
+      // All products should have compatible delivery methods
+      for (final cartItem in cartProvider.cartItems) {
+        if (cartItem.productData.containsKey('deliveryMethods')) {
+          final deliveryMethods =
+              cartItem.productData['deliveryMethods'] as Map<String, dynamic>?;
+
+          if (deliveryMethods != null) {
+            deliveryMethods.forEach((key, value) {
+              if (!collectedMethods.containsKey(key) &&
+                  value is Map<String, dynamic>) {
+                final methodData = value as Map<String, dynamic>;
+                if (methodData['enabled'] == true) {
+                  collectedMethods[key] = DeliveryOption(
+                    id: key,
+                    name: methodData['name'] ?? key,
+                    description: methodData['description'] ?? '',
+                    cost: (methodData['price'] ?? 0.0).toDouble(),
+                    estimatedDays: estimatedDaysMap[key] ?? 3,
+                    icon: iconMap[key] ?? '📦',
+                  );
+                }
+              }
+            });
           }
         }
-      });
+
+        // Only need to check first item if all products have same methods
+        break;
+      }
+
+      if (collectedMethods.isEmpty) {
+        setState(() {
+          _isLoadingDeliveryMethods = false;
+          _deliveryLoadError =
+              'No delivery methods configured for products in cart';
+        });
+        return;
+      }
 
       setState(() {
-        _deliveryOptions = deliveryOptions;
+        _deliveryOptions = collectedMethods.values.toList();
         if (_deliveryOptions.isNotEmpty) {
           _selectedDelivery = _deliveryOptions.first;
         }
