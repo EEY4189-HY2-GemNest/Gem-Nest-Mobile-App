@@ -227,13 +227,29 @@ class _CheckoutScreenState extends State<CheckoutScreen>
 
       // Get seller delivery configs for each seller in cart
       final sellerDeliveryConfigs = <String, Map<String, dynamic>>{};
-      final sellerIds = cartProvider.cartItems
-          .map((item) => item.sellerId)
-          .where((id) => id.isNotEmpty)
-          .toSet();
+      final sellerIds = <String>{};
+      
+      // Collect seller IDs from cart items - try both sellerId and userId
+      for (final item in cartProvider.cartItems) {
+        final sellerId = item.sellerId.isNotEmpty ? item.sellerId : item.productData['userId'] as String?;
+        if (sellerId != null && sellerId.isNotEmpty) {
+          sellerIds.add(sellerId);
+        }
+      }
+
+      print('DEBUG: Cart items count: ${cartProvider.cartItems.length}');
+      for (var i = 0; i < cartProvider.cartItems.length; i++) {
+        final item = cartProvider.cartItems[i];
+        print('DEBUG: Item $i');
+        print('  - sellerId: "${item.sellerId}"');
+        print('  - productData userId: "${item.productData['userId']}"');
+        print('  - productData keys: ${item.productData.keys.toList()}');
+      }
+      print('DEBUG: Unique seller IDs: ${sellerIds.toList()}');
 
       for (final sellerId in sellerIds) {
         try {
+          print('DEBUG: Loading delivery config for seller: $sellerId');
           final configDoc = await _firestore
               .collection('delivery_configs')
               .doc(sellerId)
@@ -242,6 +258,17 @@ class _CheckoutScreenState extends State<CheckoutScreen>
             sellerDeliveryConfigs[sellerId] =
                 configDoc.data() as Map<String, dynamic>;
             print('✓ Loaded delivery config for seller: $sellerId');
+            print('DEBUG: Config keys: ${configDoc.data()!.keys.toList()}');
+            print('DEBUG: Config data: ${configDoc.data()}');
+          } else {
+            print('⚠ No delivery config document found for seller: $sellerId');
+            // Try to list all documents in delivery_configs to debug
+            try {
+              final allDocs = await _firestore.collection('delivery_configs').get();
+              print('DEBUG: All delivery_configs docs: ${allDocs.docs.map((d) => d.id).toList()}');
+            } catch (e) {
+              print('DEBUG: Could not list delivery_configs: $e');
+            }
           }
         } catch (e) {
           print('Error loading delivery config for seller $sellerId: $e');
