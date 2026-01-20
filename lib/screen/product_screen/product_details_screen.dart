@@ -380,10 +380,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       child: Builder(
                         builder: (context) {
                           print('=== DELIVERY METHODS SECTION ===');
-                          print('Delivery Methods Type: ${(_product['deliveryMethods']).runtimeType}');
-                          print('Delivery Methods Count: ${(_product['deliveryMethods'] as List).length}');
-                          print('Delivery Methods: ${_product['deliveryMethods']}');
-                          
+                          print(
+                              'Delivery Methods Type: ${(_product['deliveryMethods']).runtimeType}');
+                          print(
+                              'Delivery Methods Count: ${(_product['deliveryMethods'] as List).length}');
+                          print(
+                              'Delivery Methods: ${_product['deliveryMethods']}');
+
                           return Container(
                             padding: const EdgeInsets.all(18),
                             decoration: BoxDecoration(
@@ -422,7 +425,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                 Wrap(
                                   spacing: 10,
                                   runSpacing: 10,
-                                  children: ((_product['deliveryMethods'] as List)
+                                  children: ((_product['deliveryMethods']
+                                              as List)
                                           .cast<String>())
                                       .map(
                                         (method) => Container(
@@ -430,36 +434,37 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                               horizontal: 14, vertical: 8),
                                           decoration: BoxDecoration(
                                             color: Colors.blue[50],
-                                        border: Border.all(
-                                            color: Colors.blue[300]!,
-                                            width: 1.5),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            Icons.check_circle,
-                                            color: Colors.blue[600],
-                                            size: 16,
+                                            border: Border.all(
+                                                color: Colors.blue[300]!,
+                                                width: 1.5),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
                                           ),
-                                          const SizedBox(width: 6),
-                                          Text(
-                                            method,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.blue[700],
-                                            ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.check_circle,
+                                                color: Colors.blue[600],
+                                                size: 16,
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                method,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.blue[700],
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
-                                    ),
-                                  )
-                                  .toList(),
+                                        ),
+                                      )
+                                      .toList(),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
                           );
                         },
                       ),
@@ -515,7 +520,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                 final certItem = (_product['gemCertificates']
                                     as List)[index];
                                 print('=== CERTIFICATE $index ===');
-                                print('Certificate Item Type: ${certItem.runtimeType}');
+                                print(
+                                    'Certificate Item Type: ${certItem.runtimeType}');
                                 print('Certificate Item: $certItem');
 
                                 // Handle both string URLs and certificate objects
