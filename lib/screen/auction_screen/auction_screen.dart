@@ -168,7 +168,6 @@ class _AuctionScreenState extends State<AuctionScreen> {
                         );
                       }).toList(),
                     ),
-
                   ],
                 ),
               ),
