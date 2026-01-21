@@ -194,9 +194,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                               ],
                             ),
                             const SizedBox(height: 12),
-                            _buildInfoRow(
-                                Icons.person,
-                                'Customer:',
+                            _buildInfoRow(Icons.person, 'Customer:',
                                 order['name'] ?? order['customerName']),
                             _buildInfoRow(
                                 Icons.phone,
@@ -460,4 +458,3 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     super.dispose();
   }
 }
-
