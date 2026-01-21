@@ -185,13 +185,14 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                                   if (loadingProgress == null) return child;
                                   return Center(
                                     child: CircularProgressIndicator(
-                                      value: loadingProgress.expectedTotalBytes !=
-                                              null
-                                          ? loadingProgress
-                                                  .cumulativeBytesLoaded /
-                                              loadingProgress
-                                                  .expectedTotalBytes!
-                                          : null,
+                                      value:
+                                          loadingProgress.expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
                                     ),
                                   );
                                 },
@@ -202,13 +203,12 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(Icons.image_not_supported,
-                                          size: 80,
-                                          color: Colors.grey[400]),
+                                          size: 80, color: Colors.grey[400]),
                                       const SizedBox(height: 12),
                                       Text(
                                         'Image not available',
-                                        style: TextStyle(
-                                            color: Colors.grey[600]),
+                                        style:
+                                            TextStyle(color: Colors.grey[600]),
                                       ),
                                     ],
                                   ),
@@ -224,8 +224,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                                     const SizedBox(height: 12),
                                     Text(
                                       'No image provided',
-                                      style: TextStyle(
-                                          color: Colors.grey[600]),
+                                      style: TextStyle(color: Colors.grey[600]),
                                     ),
                                   ],
                                 ),
@@ -333,10 +332,9 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: (isAuctionEnded
-                                    ? Colors.grey
-                                    : Colors.orange)
-                                .withOpacity(0.3),
+                            color:
+                                (isAuctionEnded ? Colors.grey : Colors.orange)
+                                    .withOpacity(0.3),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -666,7 +664,10 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                           child: Container(
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [Colors.green[500]!, Colors.green[600]!],
+                                colors: [
+                                  Colors.green[500]!,
+                                  Colors.green[600]!
+                                ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),
