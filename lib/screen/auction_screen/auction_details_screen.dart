@@ -110,9 +110,13 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
 
   Duration? _getTimeRemaining() {
     try {
-      if (_auction['endDate'] is Timestamp) {
-        final endDate = (_auction['endDate'] as Timestamp).toDate();
-        final remaining = endDate.difference(DateTime.now());
+      if (_auction['endTime'] is Timestamp) {
+        final endTime = (_auction['endTime'] as Timestamp).toDate();
+        final remaining = endTime.difference(DateTime.now());
+        return remaining.isNegative ? Duration.zero : remaining;
+      } else if (_auction['endTime'] is String) {
+        final endTime = DateTime.parse(_auction['endTime']);
+        final remaining = endTime.difference(DateTime.now());
         return remaining.isNegative ? Duration.zero : remaining;
       }
     } catch (e) {
