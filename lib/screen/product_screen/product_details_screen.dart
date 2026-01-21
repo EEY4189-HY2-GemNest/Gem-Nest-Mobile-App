@@ -378,8 +378,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Builder(
                         builder: (context) {
-                          final deliveryMethods =
-                              _product['deliveryMethods'] as Map<String, dynamic>;
+                          final deliveryMethods = _product['deliveryMethods']
+                              as Map<String, dynamic>;
                           final enabledMethods = deliveryMethods.entries
                               .where((entry) =>
                                   entry.value['enabled'] == true ||
