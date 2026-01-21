@@ -373,19 +373,22 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   const SizedBox(height: 20),
 
                   // Delivery Methods
-                  if (_product['deliveryMethods'] != null &&
-                      (_product['deliveryMethods'] as List).isNotEmpty)
+                  if (_product['deliveryMethods'] != null)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Builder(
                         builder: (context) {
-                          print('=== DELIVERY METHODS SECTION ===');
-                          print(
-                              'Delivery Methods Type: ${(_product['deliveryMethods']).runtimeType}');
-                          print(
-                              'Delivery Methods Count: ${(_product['deliveryMethods'] as List).length}');
-                          print(
-                              'Delivery Methods: ${_product['deliveryMethods']}');
+                          final deliveryMethods = _product['deliveryMethods']
+                              as Map<String, dynamic>;
+                          final enabledMethods = deliveryMethods.entries
+                              .where((entry) =>
+                                  entry.value['enabled'] == true ||
+                                  entry.value['enabled'] == null)
+                              .toList();
+
+                          if (enabledMethods.isEmpty) {
+                            return const SizedBox.shrink();
+                          }
 
                           return Container(
                             padding: const EdgeInsets.all(18),
@@ -425,11 +428,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                 Wrap(
                                   spacing: 10,
                                   runSpacing: 10,
-                                  children: ((_product['deliveryMethods']
-                                              as List)
-                                          .cast<String>())
+                                  children: enabledMethods
                                       .map(
-                                        (method) => Container(
+                                        (entry) => Container(
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 14, vertical: 8),
                                           decoration: BoxDecoration(
@@ -450,7 +451,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                               ),
                                               const SizedBox(width: 6),
                                               Text(
-                                                method,
+                                                entry.value['name'] ??
+                                                    entry.key,
                                                 style: TextStyle(
                                                   fontSize: 12,
                                                   fontWeight: FontWeight.w600,

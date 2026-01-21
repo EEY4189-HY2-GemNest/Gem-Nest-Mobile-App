@@ -23,8 +23,6 @@ class _AuctionScreenState extends State<AuctionScreen> {
   bool _isFilterExpanded = false;
   String _searchQuery = '';
   String _selectedStatus = 'all';
-  double _minPrice = 0;
-  double _maxPrice = 1000000;
 
   @override
   void dispose() {
@@ -170,48 +168,6 @@ class _AuctionScreenState extends State<AuctionScreen> {
                         );
                       }).toList(),
                     ),
-                    const SizedBox(height: 20),
-
-                    // Price Range Filter
-                    Text(
-                      'Price Range',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade800,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Column(
-                        children: [
-                          Text(
-                            'Rs. ${_minPrice.toInt()} - Rs. ${_maxPrice.toInt()}',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFF1E88E5),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          RangeSlider(
-                            values: RangeValues(_minPrice, _maxPrice),
-                            min: 0,
-                            max: 1000000,
-                            divisions: 100,
-                            activeColor: const Color(0xFF1E88E5),
-                            inactiveColor: Colors.grey.shade300,
-                            onChanged: (values) {
-                              setState(() {
-                                _minPrice = values.start;
-                                _maxPrice = values.end;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -223,7 +179,7 @@ class _AuctionScreenState extends State<AuctionScreen> {
   Stream<QuerySnapshot> _getFilteredAuctionsStream() {
     Query query = FirebaseFirestore.instance
         .collection('auctions')
-        .where('approvalStatus', isEqualTo: 'approved');
+        .where('approvalStatus', whereIn: ['approved', 'pending']);
 
     // NOTE: All filters moved to client-side in _filterAuctionsByStatus
     // to avoid Firestore composite index requirement
@@ -249,11 +205,6 @@ class _AuctionScreenState extends State<AuctionScreen> {
             !description.contains(_searchQuery)) {
           return false;
         }
-      }
-
-      // Apply price range filter (client-side)
-      if (currentBid < _minPrice || currentBid > _maxPrice) {
-        return false;
       }
 
       // Apply status filter
