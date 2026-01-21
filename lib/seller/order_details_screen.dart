@@ -194,14 +194,24 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                               ],
                             ),
                             const SizedBox(height: 12),
+                            _buildInfoRow(
+                                Icons.person,
+                                'Customer:',
+                                order['name'] ?? order['customerName']),
+                            _buildInfoRow(
+                                Icons.phone,
+                                'Phone:',
+                                order['mobile'] ??
+                                    order['phone'] ??
+                                    order['phoneNumber']),
                             _buildInfoRow(Icons.calendar_today, 'Order Date:',
                                 order['orderDate']),
                             _buildEditableDateRow(
                                 Icons.local_shipping, 'Delivery Date:'),
                             _buildInfoRow(Icons.location_on, 'Address:',
-                                order['address']),
-                            _buildInfoRow(Icons.payment, 'Payment:',
-                                order['paymentMethod']),
+                                order['address'] ?? order['shippingAddress']),
+                            _buildInfoRow(Icons.payment, 'Payment Method:',
+                                order['paymentMethod'] ?? order['paymentType']),
                             _buildEditableStatusRow(Icons.update, 'Status:'),
                           ],
                         ),
@@ -333,7 +343,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value) {
+  Widget _buildInfoRow(IconData icon, String label, dynamic value) {
+    final displayValue = (value ?? 'N/A').toString();
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -343,7 +354,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           Text('$label ',
               style: const TextStyle(color: Colors.white60, fontSize: 14)),
           Expanded(
-            child: Text(value,
+            child: Text(displayValue,
                 style: const TextStyle(fontSize: 14, color: Colors.white)),
           ),
         ],
