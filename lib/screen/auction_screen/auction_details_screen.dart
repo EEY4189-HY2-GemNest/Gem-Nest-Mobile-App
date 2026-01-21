@@ -145,7 +145,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
   Widget build(BuildContext context) {
     final imageUrl = _auction['imageUrl'];
     final timeRemaining = _getTimeRemaining();
-    final isAuctionEnded = timeRemaining?.inSeconds ?? 0 <= 0;
+    final isAuctionEnded = (timeRemaining?.inSeconds ?? 0) <= 0;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
