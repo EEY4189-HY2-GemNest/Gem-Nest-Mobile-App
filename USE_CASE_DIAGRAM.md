@@ -5,266 +5,207 @@ This document contains the complete and corrected use case diagram for the GemNe
 
 ---
 
-## Complete Use Case Diagram (UML Standard Style - Vertical)
+## Complete Use Case Diagram (Classical UML Format)
 
 ```mermaid
-graph LR
-    %% ACTORS
-    Buyer["👤<br/>BUYER"]
-    Seller["🏪<br/>SELLER"]
-    Admin["👨‍💼<br/>ADMIN"]
-
-    %% SYSTEM BOUNDARY
-    subgraph System["🔲 GemNest E-Commerce System"]
+graph TB
+    subgraph System["<b>GemNest E-Commerce System</b>"]
+        direction TB
         
-        %% Authentication & Account Management
-        subgraph Auth["AUTHENTICATION & ACCOUNT"]
-            Register[("Register")]
-            Login[("Login")]
-            Logout[("Logout")]
-            UpdateProfile[("Update Profile")]
-            ViewAccount[("View Account")]
-            ResetPassword[("Reset Password")]
-            TwoFactorAuth[("Enable 2FA")]
-            UpdatePaymentInfo[("Update Payment")]
-        end
-
-        %% Buyer Use Cases
-        subgraph BuyerUC["👤 BUYER USE CASES"]
-            BrowseProducts[("Browse Products")]
-            BrowseAuctions[("Browse Auctions")]
-            SearchFilter[("Search & Filter")]
-            ViewProductDetails[("View Details")]
-            ViewAuctionDetails[("Auction Details")]
-            AddToCart[("Add to Cart")]
-            RemoveFromCart[("Remove from Cart")]
-            ViewCart[("View Cart")]
-            ManageFavorites[("Manage Favorites")]
-            PlaceBid[("Place Bid")]
-            ViewBidHistory[("View Bid History")]
-            DirectCheckout[("Direct Checkout")]
-            AuctionCheckout[("Auction Checkout")]
-            TrackOrder[("Track Order")]
-            ViewOrders[("View Orders")]
-            LeaveReview[("Leave Review")]
-            ViewReviews[("View Reviews")]
-            ViewChat[("Chat with Seller")]
-            ViewNotifications[("View Notifications")]
-        end
-
-        %% Seller Use Cases
-        subgraph SellerUC["🏪 SELLER USE CASES"]
-            CreateProduct[("Create Product")]
-            EditProduct[("Edit Product")]
-            DeleteProduct[("Delete Product")]
-            UploadCertificate[("Upload Certificate")]
-            SetProductPrice[("Set Price")]
-            ManageInventory[("Manage Inventory")]
-            CreateAuction[("Create Auction")]
-            EditAuction[("Edit Auction")]
-            SetAuctionPrice[("Set Auction Price")]
-            SetAuctionDuration[("Set Duration")]
-            MonitorBids[("Monitor Bids")]
-            EndAuction[("End Auction")]
-            ViewWinner[("View Winner")]
-            SellerViewOrders[("View Orders")]
-            UpdateOrderStatus[("Update Status")]
-            ManageShipping[("Manage Shipping")]
-            ViewAnalytics[("View Analytics")]
-            ViewRevenue[("View Revenue")]
-            ViewRatings[("View Ratings")]
-            SellerViewChat[("Chat Buyers")]
-            RespondQuestions[("Respond")]
-            ManagePromotions[("Manage Promotions")]
-        end
-
-        %% Admin Use Cases
-        subgraph AdminUC["👨‍💼 ADMIN USE CASES"]
-            ViewAllUsers[("View All Users")]
-            ViewAllSellers[("View All Sellers")]
-            ViewAllBuyers[("View All Buyers")]
-            VerifySeller[("Verify Seller")]
-            ApproveSellerDocs[("Approve Docs")]
-            RejectSellerDocs[("Reject Docs")]
-            SuspendSeller[("Suspend Seller")]
-            BanUser[("Ban User")]
-            UnbanUser[("Unban User")]
-            ApproveProduct[("Approve Product")]
-            RejectProduct[("Reject Product")]
-            ReviewCompliance[("Review Compliance")]
-            RemoveProduct[("Remove Product")]
-            ApproveAuction[("Approve Auction")]
-            RejectAuction[("Reject Auction")]
-            ReviewAuctionDetails[("Review Auction")]
-            ResolveDisputes[("Resolve Disputes")]
-            ResolveRefunds[("Process Refunds")]
-            HandleComplaints[("Handle Complaints")]
-            ViewSystemAnalytics[("System Analytics")]
-            GenerateReports[("Generate Reports")]
-            ViewTransactions[("View Transactions")]
-            ViewPayments[("View Payments")]
-            ManageContent[("Manage Content")]
-            SendAnnouncements[("Send Announcements")]
-            ManageUsers[("Manage Users")]
-            UploadCertTypes[("Certificate Types")]
-        end
-
-        %% System Processes
-        subgraph SysProc["💻 SYSTEM PROCESSES (Automatic)"]
-            AutoCheckout[("Calculate Totals")]
-            AutoTax[("Calculate Tax")]
-            AutoShipping[("Calculate Shipping")]
-            AutoPayment[("Process Payment")]
-            AutoInventory[("Update Inventory")]
-            AutoNotifyBuyer[("Notify Buyer")]
-            AutoNotifySeller[("Notify Seller")]
-            AutoAuctionEnd[("End Auction")]
-            AutoWinner[("Determine Winner")]
-            AutoOrderCreate[("Create Order")]
-            AutoEmail[("Send Email")]
-        end
+        %% Row 1: Authentication
+        Login[("Login")]
+        Register[("Register")]
+        Logout[("Logout")]
+        2FA[("Enable 2FA")]
+        
+        %% Row 2: Browse & Search
+        Browse[("Browse Products")]
+        BrowseAuc[("Browse Auctions")]
+        Search[("Search & Filter")]
+        
+        %% Row 3: Product Details
+        ViewProdDet[("View Product Details")]
+        ViewAucDet[("View Auction Details")]
+        
+        %% Row 4: Cart Management
+        AddCart[("Add to Cart")]
+        RemoveCart[("Remove from Cart")]
+        ViewCart[("View Cart")]
+        
+        %% Row 5: Bidding
+        PlaceBid[("Place Bid")]
+        ViewBidHist[("View Bid History")]
+        MonitorBids[("Monitor Bids")]
+        ViewWinner[("View Winner")]
+        
+        %% Row 6: Checkout & Payment
+        DirectCheckout[("Direct Checkout")]
+        AucCheckout[("Auction Checkout")]
+        ProcessPayment[("Process Payment")]
+        
+        %% Row 7: Order Management
+        TrackOrder[("Track Order")]
+        ViewOrders[("View Orders")]
+        UpdateStatus[("Update Order Status")]
+        ManageShip[("Manage Shipping")]
+        
+        %% Row 8: Reviews & Feedback
+        LeaveReview[("Leave Review")]
+        ViewReviews[("View Reviews")]
+        ViewRatings[("View Ratings")]
+        
+        %% Row 9: Products & Auctions (Seller)
+        CreateProduct[("Create Product")]
+        EditProduct[("Edit Product")]
+        DeleteProduct[("Delete Product")]
+        CreateAuc[("Create Auction")]
+        EditAuc[("Edit Auction")]
+        EndAuc[("End Auction")]
+        
+        %% Row 10: Seller Inventory & Analytics
+        ManageInv[("Manage Inventory")]
+        SetPrice[("Set Price")]
+        ViewAnalytics[("View Analytics")]
+        ViewRevenue[("View Revenue")]
+        ManagePromo[("Manage Promotions")]
+        
+        %% Row 11: Certificates & Documentation
+        UploadCert[("Upload Certificate")]
+        UploadDocs[("Upload Documents")]
+        
+        %% Row 12: Admin User Management
+        ViewUsers[("View All Users")]
+        ViewSellers[("View All Sellers")]
+        ViewBuyers[("View All Buyers")]
+        VerifySeller[("Verify Seller")]
+        ApproveDocs[("Approve Seller Docs")]
+        RejectDocs[("Reject Seller Docs")]
+        BanUser[("Ban User")]
+        SuspendSeller[("Suspend Seller")]
+        
+        %% Row 13: Admin Content Management
+        ApproveProduct[("Approve Product")]
+        RejectProduct[("Reject Product")]
+        ApproveAuc[("Approve Auction")]
+        RejectAuc[("Reject Auction")]
+        
+        %% Row 14: Admin Dispute & Issue Resolution
+        ResolveDisputes[("Resolve Disputes")]
+        ProcessRefund[("Process Refunds")]
+        HandleComplaints[("Handle Complaints")]
+        
+        %% Row 15: Admin Analytics & Reports
+        ViewAnalyticsAdmin[("View System Analytics")]
+        GenerateReports[("Generate Reports")]
+        ViewTransactions[("View Transactions")]
+        ManageCertTypes[("Manage Certificate Types")]
+        
+        %% Row 16: Additional
+        UpdateProfile[("Update Profile")]
+        ViewAccount[("View Account")]
+        Chat[("Chat")]
+        Favorites[("Manage Favorites")]
+        Notify[("View Notifications")]
     end
 
+    %% Actors
+    Buyer["👤 BUYER"]
+    Seller["🏪 SELLER"]  
+    Admin["👨‍💼 ADMIN"]
+
     %% BUYER CONNECTIONS
-    Buyer --> Register
     Buyer --> Login
+    Buyer --> Register
+    Buyer --> Logout
     Buyer --> UpdateProfile
-    Buyer --> UpdatePaymentInfo
     Buyer --> ViewAccount
-    Buyer --> BrowseProducts
-    Buyer --> BrowseAuctions
-    Buyer --> SearchFilter
-    Buyer --> ViewProductDetails
-    Buyer --> ViewAuctionDetails
-    Buyer --> AddToCart
-    Buyer --> RemoveFromCart
+    Buyer --> Browse
+    Buyer --> BrowseAuc
+    Buyer --> Search
+    Buyer --> ViewProdDet
+    Buyer --> ViewAucDet
+    Buyer --> AddCart
+    Buyer --> RemoveCart
     Buyer --> ViewCart
-    Buyer --> ManageFavorites
+    Buyer --> Favorites
     Buyer --> PlaceBid
-    Buyer --> ViewBidHistory
+    Buyer --> ViewBidHist
     Buyer --> DirectCheckout
-    Buyer --> AuctionCheckout
+    Buyer --> AucCheckout
     Buyer --> TrackOrder
     Buyer --> ViewOrders
     Buyer --> LeaveReview
     Buyer --> ViewReviews
-    Buyer --> ViewChat
-    Buyer --> ViewNotifications
-    Buyer --> Logout
+    Buyer --> Chat
+    Buyer --> Notify
 
     %% SELLER CONNECTIONS
-    Seller --> Register
     Seller --> Login
+    Seller --> Register
+    Seller --> Logout
     Seller --> UpdateProfile
     Seller --> ViewAccount
-    Seller --> TwoFactorAuth
+    Seller --> 2FA
     Seller --> CreateProduct
     Seller --> EditProduct
     Seller --> DeleteProduct
-    Seller --> UploadCertificate
-    Seller --> SetProductPrice
-    Seller --> ManageInventory
-    Seller --> CreateAuction
-    Seller --> EditAuction
-    Seller --> SetAuctionPrice
-    Seller --> SetAuctionDuration
+    Seller --> UploadCert
+    Seller --> UploadDocs
+    Seller --> SetPrice
+    Seller --> ManageInv
+    Seller --> CreateAuc
+    Seller --> EditAuc
     Seller --> MonitorBids
-    Seller --> EndAuction
+    Seller --> EndAuc
     Seller --> ViewWinner
-    Seller --> SellerViewOrders
-    Seller --> UpdateOrderStatus
-    Seller --> ManageShipping
+    Seller --> ViewOrders
+    Seller --> UpdateStatus
+    Seller --> ManageShip
     Seller --> ViewAnalytics
     Seller --> ViewRevenue
     Seller --> ViewRatings
-    Seller --> SellerViewChat
-    Seller --> RespondQuestions
-    Seller --> ManagePromotions
-    Seller --> Logout
+    Seller --> ManagePromo
+    Seller --> Chat
 
     %% ADMIN CONNECTIONS
     Admin --> Login
-    Admin --> ViewAllUsers
-    Admin --> ViewAllSellers
-    Admin --> ViewAllBuyers
+    Admin --> Logout
+    Admin --> ViewUsers
+    Admin --> ViewSellers
+    Admin --> ViewBuyers
     Admin --> VerifySeller
-    Admin --> ApproveSellerDocs
-    Admin --> RejectSellerDocs
+    Admin --> ApproveDocs
+    Admin --> RejectDocs
     Admin --> SuspendSeller
     Admin --> BanUser
-    Admin --> UnbanUser
     Admin --> ApproveProduct
     Admin --> RejectProduct
-    Admin --> ReviewCompliance
-    Admin --> RemoveProduct
-    Admin --> ApproveAuction
-    Admin --> RejectAuction
-    Admin --> ReviewAuctionDetails
+    Admin --> ApproveAuc
+    Admin --> RejectAuc
     Admin --> ResolveDisputes
-    Admin --> ResolveRefunds
+    Admin --> ProcessRefund
     Admin --> HandleComplaints
-    Admin --> ViewSystemAnalytics
+    Admin --> ViewAnalyticsAdmin
     Admin --> GenerateReports
     Admin --> ViewTransactions
-    Admin --> ViewPayments
-    Admin --> ManageContent
-    Admin --> SendAnnouncements
-    Admin --> ManageUsers
-    Admin --> UploadCertTypes
-    Admin --> Logout
+    Admin --> ManageCertTypes
 
-    %% INCLUDE RELATIONSHIPS (System Processes)
-    DirectCheckout -.->|includes| AutoCheckout
-    DirectCheckout -.->|includes| AutoTax
-    DirectCheckout -.->|includes| AutoShipping
-    DirectCheckout -.->|includes| AutoPayment
-    DirectCheckout -.->|includes| AutoInventory
-    DirectCheckout -.->|includes| AutoNotifyBuyer
-    DirectCheckout -.->|includes| AutoNotifySeller
-    DirectCheckout -.->|includes| AutoOrderCreate
-    DirectCheckout -.->|includes| AutoEmail
+    %% INCLUDES (System Automatic Processes)
+    DirectCheckout -.->|includes| ProcessPayment
+    AucCheckout -.->|includes| ProcessPayment
 
-    AuctionCheckout -.->|includes| AutoCheckout
-    AuctionCheckout -.->|includes| AutoTax
-    AuctionCheckout -.->|includes| AutoShipping
-    AuctionCheckout -.->|includes| AutoPayment
-    AuctionCheckout -.->|includes| AutoInventory
-    AuctionCheckout -.->|includes| AutoNotifyBuyer
-    AuctionCheckout -.->|includes| AutoNotifySeller
-    AuctionCheckout -.->|includes| AutoOrderCreate
-    AuctionCheckout -.->|includes| AutoEmail
-
-    CreateAuction -.->|extends| AutoAuctionEnd
-    MonitorBids -.->|extends| AutoWinner
-
-    %% STYLES
-    style Buyer fill:#e1f5ff,stroke:#01579b,stroke-width:3px,color:#000
-    style Seller fill:#f3e5f5,stroke:#4a148c,stroke-width:3px,color:#000
-    style Admin fill:#fff3e0,stroke:#e65100,stroke-width:3px,color:#000
-
-    style System fill:#f5f5f5,stroke:#333,stroke-width:2px
-
-    style Auth fill:#fff9c4,stroke:#f57f17,stroke-width:2px
-    style BuyerUC fill:#c8e6c9,stroke:#1b5e20,stroke-width:2px
-    style SellerUC fill:#e1bee7,stroke:#4a148c,stroke-width:2px
-    style AdminUC fill:#ffe0b2,stroke:#e65100,stroke-width:2px
-    style SysProc fill:#ffebee,stroke:#d32f2f,stroke-width:2px,stroke-dasharray: 5 5
-
-    style Register fill:#fff,stroke:#f57f17,stroke-width:1.5px
-    style Login fill:#fff,stroke:#f57f17,stroke-width:1.5px
-    style Logout fill:#fff,stroke:#f57f17,stroke-width:1.5px
-
-    style AutoCheckout fill:#ffebee,stroke:#d32f2f,stroke-width:2px
-    style AutoTax fill:#ffebee,stroke:#d32f2f,stroke-width:2px
-    style AutoShipping fill:#ffebee,stroke:#d32f2f,stroke-width:2px
-    style AutoPayment fill:#ffebee,stroke:#d32f2f,stroke-width:2px
-    style AutoInventory fill:#ffebee,stroke:#d32f2f,stroke-width:2px
-    style AutoNotifyBuyer fill:#ffebee,stroke:#d32f2f,stroke-width:2px
-    style AutoNotifySeller fill:#ffebee,stroke:#d32f2f,stroke-width:2px
-    style AutoAuctionEnd fill:#ffebee,stroke:#d32f2f,stroke-width:2px
-    style AutoWinner fill:#ffebee,stroke:#d32f2f,stroke-width:2px
-    style AutoOrderCreate fill:#ffebee,stroke:#d32f2f,stroke-width:2px
-    style AutoEmail fill:#ffebee,stroke:#d32f2f,stroke-width:2px
+    %% STYLING
+    style System fill:#f0f0f0,stroke:#333,stroke-width:3px
+    
+    style Buyer fill:#c3e9ff,stroke:#0066cc,stroke-width:3px,color:#000
+    style Seller fill:#f0d9ff,stroke:#9900cc,stroke-width:3px,color:#000
+    style Admin fill:#fff4d9,stroke:#ff9900,stroke-width:3px,color:#000
+    
+    style Login fill:#fff,stroke:#666,stroke-width:2px
+    style Register fill:#fff,stroke:#666,stroke-width:2px
+    style Logout fill:#fff,stroke:#666,stroke-width:2px
+    
+    style ProcessPayment fill:#ffe6e6,stroke:#cc0000,stroke-width:2px,color:#000
 ```
 
 ---
