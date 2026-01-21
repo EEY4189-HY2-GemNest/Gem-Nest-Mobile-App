@@ -75,8 +75,8 @@ class _HomeScreenState extends State<HomeScreen> {
           final approvalStatus =
               data['approvalStatus'] as String? ?? 'approved';
 
-          // Include products that are approved
-          if (approvalStatus == 'approved') {
+          // Include products that are approved OR pending (show all approved products)
+          if (approvalStatus == 'approved' || approvalStatus == 'pending') {
             products.add({
               'id': doc.id,
               'imageUrl': (data['imageUrl'] ?? '') as String,
@@ -86,8 +86,8 @@ class _HomeScreenState extends State<HomeScreen> {
               'description': (data['description'] ?? '') as String,
               'quantity': (data['quantity'] ?? 0) as num,
               'sellerId': (data['sellerId'] ?? '') as String,
-              'gemCertificates': (data['gemCertificates'] ?? []) as List,
-              'deliveryMethods': (data['deliveryMethods'] ?? []) as List,
+              'gemCertificates': (data['gemCertificates'] ?? {}) as dynamic,
+              'deliveryMethods': (data['deliveryMethods'] ?? {}) as dynamic,
             });
           }
         } catch (e) {
