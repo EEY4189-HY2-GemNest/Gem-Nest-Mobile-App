@@ -5,147 +5,152 @@ This document contains the complete and corrected use case diagram for the GemNe
 
 ---
 
-## Complete Use Case Diagram (Classical UML Format)
+## Complete Use Case Diagram (Classical UML Format - Vertical)
 
 ```mermaid
 graph TB
     subgraph System["<b>GemNest E-Commerce System</b>"]
         direction TB
         
-        %% Row 1: Authentication
+        %% Authentication Layer
         Login[("Login")]
         Register[("Register")]
         Logout[("Logout")]
-        2FA[("Enable 2FA")]
-        
-        %% Row 2: Browse & Search
-        Browse[("Browse Products")]
-        BrowseAuc[("Browse Auctions")]
-        Search[("Search & Filter")]
-        
-        %% Row 3: Product Details
-        ViewProdDet[("View Product Details")]
-        ViewAucDet[("View Auction Details")]
-        
-        %% Row 4: Cart Management
-        AddCart[("Add to Cart")]
-        RemoveCart[("Remove from Cart")]
-        ViewCart[("View Cart")]
-        
-        %% Row 5: Bidding
-        PlaceBid[("Place Bid")]
-        ViewBidHist[("View Bid History")]
-        MonitorBids[("Monitor Bids")]
-        ViewWinner[("View Winner")]
-        
-        %% Row 6: Checkout & Payment
-        DirectCheckout[("Direct Checkout")]
-        AucCheckout[("Auction Checkout")]
-        ProcessPayment[("Process Payment")]
-        
-        %% Row 7: Order Management
-        TrackOrder[("Track Order")]
-        ViewOrders[("View Orders")]
-        UpdateStatus[("Update Order Status")]
-        ManageShip[("Manage Shipping")]
-        
-        %% Row 8: Reviews & Feedback
-        LeaveReview[("Leave Review")]
-        ViewReviews[("View Reviews")]
-        ViewRatings[("View Ratings")]
-        
-        %% Row 9: Products & Auctions (Seller)
-        CreateProduct[("Create Product")]
-        EditProduct[("Edit Product")]
-        DeleteProduct[("Delete Product")]
-        CreateAuc[("Create Auction")]
-        EditAuc[("Edit Auction")]
-        EndAuc[("End Auction")]
-        
-        %% Row 10: Seller Inventory & Analytics
-        ManageInv[("Manage Inventory")]
-        SetPrice[("Set Price")]
-        ViewAnalytics[("View Analytics")]
-        ViewRevenue[("View Revenue")]
-        ManagePromo[("Manage Promotions")]
-        
-        %% Row 11: Certificates & Documentation
-        UploadCert[("Upload Certificate")]
-        UploadDocs[("Upload Documents")]
-        
-        %% Row 12: Admin User Management
-        ViewUsers[("View All Users")]
-        ViewSellers[("View All Sellers")]
-        ViewBuyers[("View All Buyers")]
-        VerifySeller[("Verify Seller")]
-        ApproveDocs[("Approve Seller Docs")]
-        RejectDocs[("Reject Seller Docs")]
-        BanUser[("Ban User")]
-        SuspendSeller[("Suspend Seller")]
-        
-        %% Row 13: Admin Content Management
-        ApproveProduct[("Approve Product")]
-        RejectProduct[("Reject Product")]
-        ApproveAuc[("Approve Auction")]
-        RejectAuc[("Reject Auction")]
-        
-        %% Row 14: Admin Dispute & Issue Resolution
-        ResolveDisputes[("Resolve Disputes")]
-        ProcessRefund[("Process Refunds")]
-        HandleComplaints[("Handle Complaints")]
-        
-        %% Row 15: Admin Analytics & Reports
-        ViewAnalyticsAdmin[("View System Analytics")]
-        GenerateReports[("Generate Reports")]
-        ViewTransactions[("View Transactions")]
-        ManageCertTypes[("Manage Certificate Types")]
-        
-        %% Row 16: Additional
         UpdateProfile[("Update Profile")]
         ViewAccount[("View Account")]
+        2FA[("Enable 2FA")]
+        
+        %% Browse & Discovery Layer
+        Browse[("Browse<br/>Products")]
+        BrowseAuc[("Browse<br/>Auctions")]
+        Search[("Search &<br/>Filter")]
+        ViewProdDet[("View Product<br/>Details")]
+        ViewAucDet[("View Auction<br/>Details")]
+        
+        %% Shopping Cart & Wishlist
+        AddCart[("Add to<br/>Cart")]
+        RemoveCart[("Remove from<br/>Cart")]
+        ViewCart[("View<br/>Cart")]
+        Favorites[("Manage<br/>Favorites")]
+        
+        %% Bidding & Auction
+        PlaceBid[("Place<br/>Bid")]
+        ViewBidHist[("View Bid<br/>History")]
+        MonitorBids[("Monitor<br/>Bids")]
+        ViewWinner[("View<br/>Winner")]
+        
+        %% Checkout & Payment
+        DirectCheckout[("Direct<br/>Checkout")]
+        AucCheckout[("Auction<br/>Checkout")]
+        ProcessPayment[("Process<br/>Payment")]
+        
+        %% Order Management
+        TrackOrder[("Track<br/>Order")]
+        ViewOrders[("View<br/>Orders")]
+        UpdateStatus[("Update Order<br/>Status")]
+        ManageShip[("Manage<br/>Shipping")]
+        
+        %% Reviews & Feedback
+        LeaveReview[("Leave<br/>Review")]
+        ViewReviews[("View<br/>Reviews")]
+        ViewRatings[("View<br/>Ratings")]
+        
+        %% Product Management (Seller)
+        CreateProduct[("Create<br/>Product")]
+        EditProduct[("Edit<br/>Product")]
+        DeleteProduct[("Delete<br/>Product")]
+        SetPrice[("Set<br/>Price")]
+        ManageInv[("Manage<br/>Inventory")]
+        UploadCert[("Upload<br/>Certificate")]
+        UploadDocs[("Upload<br/>Documents")]
+        
+        %% Auction Management (Seller)
+        CreateAuc[("Create<br/>Auction")]
+        EditAuc[("Edit<br/>Auction")]
+        EndAuc[("End<br/>Auction")]
+        
+        %% Analytics & Reports (Seller)
+        ViewAnalytics[("View<br/>Analytics")]
+        ViewRevenue[("View<br/>Revenue")]
+        ViewRatings2[("View<br/>Ratings")]
+        ManagePromo[("Manage<br/>Promotions")]
+        
+        %% Communication
         Chat[("Chat")]
-        Favorites[("Manage Favorites")]
-        Notify[("View Notifications")]
+        Notify[("View<br/>Notifications")]
+        
+        %% Admin - User Management
+        ViewUsers[("View All<br/>Users")]
+        ViewSellers[("View All<br/>Sellers")]
+        ViewBuyers[("View All<br/>Buyers")]
+        VerifySeller[("Verify<br/>Seller")]
+        ApproveDocs[("Approve Seller<br/>Docs")]
+        RejectDocs[("Reject Seller<br/>Docs")]
+        BanUser[("Ban<br/>User")]
+        SuspendSeller[("Suspend<br/>Seller")]
+        
+        %% Admin - Content Management
+        ApproveProduct[("Approve<br/>Product")]
+        RejectProduct[("Reject<br/>Product")]
+        ApproveAuc[("Approve<br/>Auction")]
+        RejectAuc[("Reject<br/>Auction")]
+        
+        %% Admin - Dispute Resolution
+        ResolveDisputes[("Resolve<br/>Disputes")]
+        ProcessRefund[("Process<br/>Refunds")]
+        HandleComplaints[("Handle<br/>Complaints")]
+        
+        %% Admin - Reports & Analytics
+        ViewAnalyticsAdmin[("View System<br/>Analytics")]
+        GenerateReports[("Generate<br/>Reports")]
+        ViewTransactions[("View<br/>Transactions")]
+        ManageCertTypes[("Manage<br/>Certificate Types")]
     end
 
-    %% Actors
-    Buyer["👤 BUYER"]
-    Seller["🏪 SELLER"]  
-    Admin["👨‍💼 ADMIN"]
+    %% ACTORS - Positioned Outside System
+    Buyer["👤<br/><b>BUYER</b>"]
+    Seller["🏪<br/><b>SELLER</b>"]
+    Admin["👨‍💼<br/><b>ADMIN</b>"]
 
-    %% BUYER CONNECTIONS
+    %% ===== BUYER USE CASES =====
     Buyer --> Login
     Buyer --> Register
     Buyer --> Logout
     Buyer --> UpdateProfile
     Buyer --> ViewAccount
+    
     Buyer --> Browse
     Buyer --> BrowseAuc
     Buyer --> Search
     Buyer --> ViewProdDet
     Buyer --> ViewAucDet
+    
     Buyer --> AddCart
     Buyer --> RemoveCart
     Buyer --> ViewCart
     Buyer --> Favorites
+    
     Buyer --> PlaceBid
     Buyer --> ViewBidHist
     Buyer --> DirectCheckout
     Buyer --> AucCheckout
+    
     Buyer --> TrackOrder
     Buyer --> ViewOrders
     Buyer --> LeaveReview
     Buyer --> ViewReviews
+    
     Buyer --> Chat
     Buyer --> Notify
 
-    %% SELLER CONNECTIONS
+    %% ===== SELLER USE CASES =====
     Seller --> Login
     Seller --> Register
     Seller --> Logout
     Seller --> UpdateProfile
     Seller --> ViewAccount
     Seller --> 2FA
+    
     Seller --> CreateProduct
     Seller --> EditProduct
     Seller --> DeleteProduct
@@ -153,23 +158,28 @@ graph TB
     Seller --> UploadDocs
     Seller --> SetPrice
     Seller --> ManageInv
+    
     Seller --> CreateAuc
     Seller --> EditAuc
     Seller --> MonitorBids
     Seller --> EndAuc
     Seller --> ViewWinner
+    
     Seller --> ViewOrders
     Seller --> UpdateStatus
     Seller --> ManageShip
+    
     Seller --> ViewAnalytics
     Seller --> ViewRevenue
-    Seller --> ViewRatings
+    Seller --> ViewRatings2
     Seller --> ManagePromo
+    
     Seller --> Chat
 
-    %% ADMIN CONNECTIONS
+    %% ===== ADMIN USE CASES =====
     Admin --> Login
     Admin --> Logout
+    
     Admin --> ViewUsers
     Admin --> ViewSellers
     Admin --> ViewBuyers
@@ -178,24 +188,27 @@ graph TB
     Admin --> RejectDocs
     Admin --> SuspendSeller
     Admin --> BanUser
+    
     Admin --> ApproveProduct
     Admin --> RejectProduct
     Admin --> ApproveAuc
     Admin --> RejectAuc
+    
     Admin --> ResolveDisputes
     Admin --> ProcessRefund
     Admin --> HandleComplaints
+    
     Admin --> ViewAnalyticsAdmin
     Admin --> GenerateReports
     Admin --> ViewTransactions
     Admin --> ManageCertTypes
 
-    %% INCLUDES (System Automatic Processes)
+    %% INCLUDE RELATIONSHIPS
     DirectCheckout -.->|includes| ProcessPayment
     AucCheckout -.->|includes| ProcessPayment
 
     %% STYLING
-    style System fill:#f0f0f0,stroke:#333,stroke-width:3px
+    style System fill:#f5f5f5,stroke:#333,stroke-width:3px
     
     style Buyer fill:#c3e9ff,stroke:#0066cc,stroke-width:3px,color:#000
     style Seller fill:#f0d9ff,stroke:#9900cc,stroke-width:3px,color:#000
@@ -204,6 +217,9 @@ graph TB
     style Login fill:#fff,stroke:#666,stroke-width:2px
     style Register fill:#fff,stroke:#666,stroke-width:2px
     style Logout fill:#fff,stroke:#666,stroke-width:2px
+    style UpdateProfile fill:#fff,stroke:#666,stroke-width:2px
+    style ViewAccount fill:#fff,stroke:#666,stroke-width:2px
+    style 2FA fill:#fff,stroke:#666,stroke-width:2px
     
     style ProcessPayment fill:#ffe6e6,stroke:#cc0000,stroke-width:2px,color:#000
 ```
