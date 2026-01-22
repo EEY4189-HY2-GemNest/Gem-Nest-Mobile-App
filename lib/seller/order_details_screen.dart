@@ -55,12 +55,14 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         'status': _selectedStatus,
         'lastUpdated': DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now()),
       });
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text('Order updated successfully',
                 style: TextStyle(color: Colors.white))),
       );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text('Failed to update order: $e',
