@@ -528,7 +528,7 @@ class _EditEndTimeDialogState extends State<EditEndTimeDialog> {
 
   Future<void> _selectDateTime(BuildContext context) async {
     final pickerContext = context;
-    
+
     final DateTime? pickedDate = await showDatePicker(
       context: pickerContext,
       initialDate: selectedDateTime,
@@ -615,4 +615,3 @@ class _EditEndTimeDialogState extends State<EditEndTimeDialog> {
     );
   }
 }
-
