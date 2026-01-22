@@ -305,6 +305,7 @@ class _ProductListingState extends State<ProductListing>
       // Add product to Firestore
       final docRef = await _firestore.collection('products').add(productData);
 
+      if (!mounted) return;
       Navigator.pop(context); // Close loading dialog
       _showSuccessDialog(
           message: 'Product listed successfully with ID: ${docRef.id}');
@@ -323,6 +324,7 @@ class _ProductListingState extends State<ProductListing>
         _images.fillRange(0, 3, null);
       });
     } catch (e) {
+      if (!mounted) return;
       Navigator.pop(context); // Close loading dialog
       _showErrorDialog('Error uploading product: $e');
     }
@@ -732,7 +734,7 @@ class _ProductListingState extends State<ProductListing>
         ),
         const SizedBox(height: 10),
         DropdownButtonFormField<String>(
-          initialValue: value,
+          value: value,
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.grey[900],
