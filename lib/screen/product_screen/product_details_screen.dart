@@ -76,6 +76,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         await launchUrl(phoneUri);
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error calling seller: $e')),
       );
@@ -100,11 +101,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       if (await canLaunchUrl(whatsappUri)) {
         await launchUrl(whatsappUri);
       } else {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('WhatsApp not installed')),
         );
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error opening WhatsApp: $e')),
       );
