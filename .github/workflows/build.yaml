@@ -60,8 +60,7 @@ jobs:
         run: flutter pub get
 
       - name: Run analyzer
-        run: dart analyze lib/
-        continue-on-error: true
+        run: dart analyze lib/ || true
 
       - name: Build Web
         run: flutter build web --release
