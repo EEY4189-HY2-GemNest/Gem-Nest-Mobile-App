@@ -10,7 +10,7 @@
         android:maxSdkVersion="28" />
     
     <application
-        android:label="gemnest_mobile_app"
+        android:label="GemNest"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:enableOnBackInvokedCallback="true">
