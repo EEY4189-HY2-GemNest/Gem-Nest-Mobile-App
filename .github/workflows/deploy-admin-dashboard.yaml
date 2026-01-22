@@ -1,0 +1,65 @@
+name: Deploy Admin Dashboard to Hostinger
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'admin-dashboard/**'
+      - '.github/workflows/deploy-admin-dashboard.yaml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'admin-dashboard/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: admin-dashboard
+        run: npm install
+
+      - name: Build project
+        working-directory: admin-dashboard
+        run: npm run build
+
+      - name: Deploy to Hostinger via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.HOSTINGER_FTP_SERVER }}
+          username: ${{ secrets.HOSTINGER_FTP_USERNAME }}
+          password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
+          local-dir: './admin-dashboard/dist/'
+          server-dir: './public_html/'
+          state-name: '.ftp-deploy-sync-state.json'
+          dangerous-clean-slate: false
+
+      - name: Deployment Status
+        run: |
+          echo "✅ Admin Dashboard deployed to Hostinger successfully!"
+          echo "Build directory: ./admin-dashboard/dist/"
+          echo "Server directory: ./public_html/"
+
+  notify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Deployment Result
+        run: |
+          if [ "${{ needs.deploy.result }}" == "success" ]; then
+            echo "✅ Admin Dashboard deployment completed successfully"
+          else
+            echo "❌ Admin Dashboard deployment failed"
+            exit 1
+          fi
