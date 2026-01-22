@@ -197,7 +197,6 @@ class _AuctionScreenState extends State<AuctionScreen> {
       final endTime = _parseEndTime(data['endTime']);
       final title = (data['title'] ?? '').toLowerCase();
       final description = (data['description'] ?? '').toLowerCase();
-      final currentBid = (data['currentBid'] ?? 0).toDouble();
 
       // Apply search filter
       if (_searchQuery.isNotEmpty) {
@@ -498,10 +497,11 @@ class _AuctionItemCardState extends State<AuctionItemCard>
       return;
     }
 
+    final dialogContext = context;
     final confirm = await showDialog<bool>(
-      context: context,
+      context: dialogContext,
       barrierColor: Colors.black.withOpacity(0.6),
-      builder: (context) => Dialog(
+      builder: (dialogContext) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         elevation: 16,
         child: Container(
@@ -562,7 +562,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   TextButton(
-                    onPressed: () => Navigator.pop(context, false),
+                    onPressed: () => Navigator.pop(dialogContext, false),
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 12),
@@ -581,7 +581,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: () => Navigator.pop(context, true),
+                    onPressed: () => Navigator.pop(dialogContext, true),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 12),
