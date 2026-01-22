@@ -119,21 +119,6 @@ jobs:
           path: ${{ steps.apk-name.outputs.path }}
           retention-days: 30
 
-      - name: Build iOS (Archive)
-        if: github.ref == 'refs/heads/qa' || github.ref == 'refs/heads/main'
-        run: |
-          flutter build ios --release --no-codesign
-          cd ios
-          xcodebuild -workspace Runner.xcworkspace -scheme Runner -configuration Release -derivedDataPath ../build/ios_build -archivePath ../build/ios_build/Runner.xcarchive archive
-
-      - name: Upload iOS Build
-        if: github.ref == 'refs/heads/qa' || github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v4
-        with:
-          name: gem-nest-ios-archive-${{ github.sha }}
-          path: build/ios_build/Runner.xcarchive
-          retention-days: 30
-
   build-admin-dashboard:
     name: Build Admin Dashboard
     runs-on: ubuntu-latest
