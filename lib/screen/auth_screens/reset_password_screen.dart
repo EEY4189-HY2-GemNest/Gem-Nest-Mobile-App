@@ -182,6 +182,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       showAlertDialog("Success", "Password reset successfully!",
           isSuccess: true);
       await Future.delayed(const Duration(seconds: 2));
+      if (!mounted) return;
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -206,21 +207,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 child: Column(
                   children: [
                     const SizedBox(height: 60),
-                    Container(
-                      // decoration: BoxDecoration(
-                      //   shape: BoxShape.circle,
-                      //   boxShadow: [
-                      //     BoxShadow(
-                      //       color: Colors.grey.withOpacity(0.3),
-                      //       spreadRadius: 2,
-                      //       blurRadius: 8,
-                      //       offset: const Offset(0, 3),
-                      //     ),
-                      //   ],
-                      // ),
-                      child:
-                          Image.asset("assets/images/gemnest.png", height: 120),
-                    ),
+                    Image.asset("assets/images/gemnest.png", height: 120),
                     const SizedBox(height: 32),
                     const Text(
                       'Reset Password',

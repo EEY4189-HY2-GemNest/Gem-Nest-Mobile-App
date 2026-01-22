@@ -34,7 +34,9 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
 
     // Load cart from local storage - handled by CartProvider constructor now
     Future.microtask(() {
-      context.read<CartProvider>().validateCartStock();
+      if (mounted) {
+        context.read<CartProvider>().validateCartStock();
+      }
     });
   }
 

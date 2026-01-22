@@ -230,9 +230,11 @@ class _PaymentConfigScreenState extends State<PaymentConfigScreen> {
           ),
           ElevatedButton(
             onPressed: () async {
-              Navigator.pop(context, false);
+              final saveContext = context;
+              Navigator.pop(saveContext, false);
               await _savePaymentConfig();
-              if (mounted) Navigator.pop(context);
+              if (!mounted) return;
+              Navigator.pop(saveContext);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blueAccent,

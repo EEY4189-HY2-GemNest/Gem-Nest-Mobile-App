@@ -318,9 +318,10 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   void _logout() {
+    final logoutContext = context;
     showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+      context: logoutContext,
+      builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
@@ -337,7 +338,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         content: const Text('Are you sure you want to logout?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: const Text(
               'Cancel',
               style: TextStyle(color: Colors.grey),
@@ -346,7 +347,9 @@ class _ProfileScreenState extends State<ProfileScreen>
           ElevatedButton(
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
-              Navigator.of(context).pushReplacement(
+              if (!mounted) return;
+              Navigator.of(dialogContext).pop();
+              Navigator.of(logoutContext).pushReplacement(
                 MaterialPageRoute(
                   builder: (context) => const LoginScreen(),
                 ),

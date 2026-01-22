@@ -527,8 +527,10 @@ class _EditEndTimeDialogState extends State<EditEndTimeDialog> {
   }
 
   Future<void> _selectDateTime(BuildContext context) async {
+    final pickerContext = context;
+
     final DateTime? pickedDate = await showDatePicker(
-      context: context,
+      context: pickerContext,
       initialDate: selectedDateTime,
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
@@ -536,7 +538,7 @@ class _EditEndTimeDialogState extends State<EditEndTimeDialog> {
 
     if (pickedDate != null) {
       final TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
+        context: pickerContext,
         initialTime: TimeOfDay.fromDateTime(selectedDateTime),
       );
 
@@ -564,11 +566,13 @@ class _EditEndTimeDialogState extends State<EditEndTimeDialog> {
           .update({
         'endTime': selectedDateTime.toIso8601String(),
       });
+      if (!mounted) return;
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('End time updated successfully')),
       );
     } catch (e) {
+      if (!mounted) return;
       print('Error updating end time: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error updating end time: $e')),
@@ -611,4 +615,3 @@ class _EditEndTimeDialogState extends State<EditEndTimeDialog> {
     );
   }
 }
-

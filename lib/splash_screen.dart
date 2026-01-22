@@ -36,6 +36,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     // Navigate to the LoginScreen after 1 second
     Future.delayed(const Duration(seconds: 2), () {
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -53,24 +54,19 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      body: Container(
-        // decoration: BoxDecoration(
-        //   gradient: AppTheme.primaryGradient,
-        // ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              FadeTransition(
-                opacity: _animation,
-                child: Image.asset("assets/images/gemnest.png"),
-              ),
-              const SizedBox(height: 20),
-              const CupertinoActivityIndicator(
-                color: Colors.white,
-              ),
-            ],
-          ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FadeTransition(
+              opacity: _animation,
+              child: Image.asset("assets/images/gemnest.png"),
+            ),
+            const SizedBox(height: 20),
+            const CupertinoActivityIndicator(
+              color: Colors.white,
+            ),
+          ],
         ),
       ),
     );

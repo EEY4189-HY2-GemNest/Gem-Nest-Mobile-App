@@ -325,6 +325,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Future<void> _markAllAsRead(String userId) async {
     await _notificationService.markAllNotificationsAsRead(userId);
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('All notifications marked as read'),
@@ -335,6 +336,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Future<void> _deleteNotification(String notificationId, String userId) async {
     await _notificationService.deleteNotification(userId, notificationId);
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Notification deleted'),
@@ -344,21 +346,23 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   void _showDeleteAllDialog(String userId) {
+    final snackContext = context;
     showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+      context: snackContext,
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Delete All Notifications?'),
         content: const Text('This action cannot be undone.'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () async {
               await _notificationService.deleteAllNotifications(userId);
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
+              Navigator.pop(dialogContext);
+              if (!mounted) return;
+              ScaffoldMessenger.of(snackContext).showSnackBar(
                 const SnackBar(
                   content: Text('All notifications deleted'),
                   duration: Duration(seconds: 2),

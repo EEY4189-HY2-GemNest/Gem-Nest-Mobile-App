@@ -42,6 +42,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
       setState(() {
         _isLoading = false;
       });
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error fetching products: $error')),
       );
