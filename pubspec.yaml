@@ -62,7 +62,6 @@ flutter:
 
   assets:
     - assets/images/
-    - .env
 
 flutter_launcher_icons:
   image_path: "assets/images/gemnest.png"
