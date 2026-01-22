@@ -142,9 +142,10 @@ class _SellerHomePageState extends State<SellerHomePage>
   }
 
   Future<bool> _onWillPop() async {
+    final logoutContext = context;
     return (await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
+          context: logoutContext,
+          builder: (dialogContext) => AlertDialog(
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             backgroundColor: Colors.black87,
@@ -161,16 +162,17 @@ class _SellerHomePageState extends State<SellerHomePage>
                 style: TextStyle(fontSize: 16, color: Colors.white70)),
             actions: [
               TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
+                onPressed: () => Navigator.of(dialogContext).pop(false),
                 child: const Text('Cancel',
                     style: TextStyle(color: Colors.grey, fontSize: 16)),
               ),
               ElevatedButton(
                 onPressed: () async {
                   await FirebaseAuth.instance.signOut();
-                  Navigator.of(context).pop(true);
+                  if (!mounted) return;
+                  Navigator.of(dialogContext).pop(true);
                   Navigator.pushAndRemoveUntil(
-                    context,
+                    logoutContext,
                     MaterialPageRoute(
                         builder: (context) => const LoginScreen()),
                     (route) => false,
