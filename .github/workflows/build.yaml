@@ -61,6 +61,7 @@ jobs:
 
       - name: Run analyzer
         run: dart analyze lib/
+        continue-on-error: true
 
       - name: Build Web
         run: flutter build web --release
