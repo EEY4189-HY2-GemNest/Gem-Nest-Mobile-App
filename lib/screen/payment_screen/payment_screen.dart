@@ -131,6 +131,27 @@ class _PaymentScreenState extends State<PaymentScreen>
   // Payment Methods - loaded dynamically from Firebase
   List<PaymentMethod> _paymentMethods = [];
 
+  // Helper methods for tax/service charge calculations
+  double _getSubtotal() {
+    // Total passed in already includes delivery + tax + service charge
+    // We back-calculate the subtotal
+    final deliveryCost = widget.deliveryOption.cost;
+    final taxRate = _taxService.taxRate;
+    final serviceRate = _taxService.serviceChargeRate;
+    // total = subtotal + subtotal*taxRate + subtotal*serviceRate + delivery
+    // total - delivery = subtotal * (1 + taxRate + serviceRate)
+    final factor = 1.0 + taxRate + serviceRate;
+    return (widget.totalAmount - deliveryCost) / factor;
+  }
+
+  double _getTaxAmount() {
+    return _getSubtotal() * _taxService.taxRate;
+  }
+
+  double _getServiceChargeAmount() {
+    return _getSubtotal() * _taxService.serviceChargeRate;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -220,7 +241,7 @@ class _PaymentScreenState extends State<PaymentScreen>
               name: 'Cash on Delivery',
               description: 'Pay when you receive your order',
               icon: '💵',
-              processingFee: 50.0,
+              processingFee: _taxService.codProcessingFee,
             ),
           ];
           if (_paymentMethods.isNotEmpty) {
@@ -251,7 +272,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                 name: methodData['name'] ?? key,
                 description: methodData['description'] ?? '',
                 icon: iconMap[key] ?? '💳',
-                processingFee: key == 'cod' ? 50.0 : null,
+                processingFee: key == 'cod' ? _taxService.codProcessingFee : null,
               ),
             );
           }
@@ -287,7 +308,7 @@ class _PaymentScreenState extends State<PaymentScreen>
             name: 'Cash on Delivery',
             description: 'Pay when you receive your order',
             icon: '💵',
-            processingFee: 50.0,
+            processingFee: _taxService.codProcessingFee,
           ),
         ];
         // Ensure card is always selected first
