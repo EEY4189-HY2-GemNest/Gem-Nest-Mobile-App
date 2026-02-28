@@ -26,7 +26,7 @@ class _SubmitReportScreenState extends State<SubmitReportScreen>
 
   ReportCategory _selectedCategory = ReportCategory.other;
   ReportPriority _selectedPriority = ReportPriority.medium;
-  List<File> _selectedImages = [];
+  final List<File> _selectedImages = [];
   bool _isSubmitting = false;
 
   late AnimationController _animController;
@@ -57,8 +57,8 @@ class _SubmitReportScreenState extends State<SubmitReportScreen>
     final images = await picker.pickMultiImage(imageQuality: 70);
     if (images.isNotEmpty) {
       setState(() {
-        _selectedImages
-            .addAll(images.map((e) => File(e.path)).take(5 - _selectedImages.length));
+        _selectedImages.addAll(
+            images.map((e) => File(e.path)).take(5 - _selectedImages.length));
       });
     }
   }
@@ -145,8 +145,8 @@ class _SubmitReportScreenState extends State<SubmitReportScreen>
                       ],
                     ),
                     borderRadius: BorderRadius.circular(16),
-                    border:
-                        Border.all(color: AppTheme.primaryBlue.withOpacity(0.2)),
+                    border: Border.all(
+                        color: AppTheme.primaryBlue.withOpacity(0.2)),
                   ),
                   child: Row(
                     children: [
@@ -205,8 +205,9 @@ class _SubmitReportScreenState extends State<SubmitReportScreen>
                     labelText: 'Brief subject of the issue',
                     prefixIcon: Icons.title,
                   ),
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Subject is required' : null,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Subject is required'
+                      : null,
                   maxLength: 100,
                 ),
                 const SizedBox(height: 16),
@@ -316,14 +317,10 @@ class _SubmitReportScreenState extends State<SubmitReportScreen>
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: isSelected
-                  ? AppTheme.primaryBlue
-                  : Colors.white,
+              color: isSelected ? AppTheme.primaryBlue : Colors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isSelected
-                    ? AppTheme.primaryBlue
-                    : AppTheme.borderGray,
+                color: isSelected ? AppTheme.primaryBlue : AppTheme.borderGray,
                 width: isSelected ? 2 : 1,
               ),
               boxShadow: isSelected
@@ -340,15 +337,13 @@ class _SubmitReportScreenState extends State<SubmitReportScreen>
               children: [
                 Icon(_getCategoryIcon(cat),
                     size: 16,
-                    color:
-                        isSelected ? Colors.white : AppTheme.mediumGray),
+                    color: isSelected ? Colors.white : AppTheme.mediumGray),
                 const SizedBox(width: 6),
                 Text(cat.label,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color:
-                          isSelected ? Colors.white : AppTheme.mediumGray,
+                      color: isSelected ? Colors.white : AppTheme.mediumGray,
                     )),
               ],
             ),
@@ -389,14 +384,11 @@ class _SubmitReportScreenState extends State<SubmitReportScreen>
               margin: const EdgeInsets.symmetric(horizontal: 3),
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
-                color: isSelected
-                    ? _getPriorityColor(p)
-                    : Colors.white,
+                color: isSelected ? _getPriorityColor(p) : Colors.white,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: isSelected
-                      ? _getPriorityColor(p)
-                      : AppTheme.borderGray,
+                  color:
+                      isSelected ? _getPriorityColor(p) : AppTheme.borderGray,
                   width: isSelected ? 2 : 1,
                 ),
                 boxShadow: isSelected
@@ -412,16 +404,13 @@ class _SubmitReportScreenState extends State<SubmitReportScreen>
                 children: [
                   Icon(Icons.flag,
                       size: 18,
-                      color: isSelected
-                          ? Colors.white
-                          : _getPriorityColor(p)),
+                      color: isSelected ? Colors.white : _getPriorityColor(p)),
                   const SizedBox(height: 4),
                   Text(p.label,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color:
-                            isSelected ? Colors.white : _getPriorityColor(p),
+                        color: isSelected ? Colors.white : _getPriorityColor(p),
                       )),
                 ],
               ),
