@@ -347,6 +347,7 @@ class NotificationPreferences {
   final bool interestBasedNotifications;
   final bool bidNotifications;
   final bool digestNotifications;
+  final bool reportNotifications;
   final bool soundEnabled;
   final bool vibrationEnabled;
   final String notificationFrequency; // 'instant', 'hourly', 'daily'
@@ -365,6 +366,7 @@ class NotificationPreferences {
     this.interestBasedNotifications = true,
     this.bidNotifications = true,
     this.digestNotifications = false,
+    this.reportNotifications = true,
     this.soundEnabled = true,
     this.vibrationEnabled = true,
     this.notificationFrequency = 'instant',
@@ -385,6 +387,7 @@ class NotificationPreferences {
       'interestBasedNotifications': interestBasedNotifications,
       'bidNotifications': bidNotifications,
       'digestNotifications': digestNotifications,
+      'reportNotifications': reportNotifications,
       'soundEnabled': soundEnabled,
       'vibrationEnabled': vibrationEnabled,
       'notificationFrequency': notificationFrequency,
@@ -408,6 +411,7 @@ class NotificationPreferences {
           map['interestBasedNotifications'] as bool? ?? true,
       bidNotifications: map['bidNotifications'] as bool? ?? true,
       digestNotifications: map['digestNotifications'] as bool? ?? false,
+      reportNotifications: map['reportNotifications'] as bool? ?? true,
       soundEnabled: map['soundEnabled'] as bool? ?? true,
       vibrationEnabled: map['vibrationEnabled'] as bool? ?? true,
       notificationFrequency:
@@ -429,6 +433,7 @@ class NotificationPreferences {
     bool? interestBasedNotifications,
     bool? bidNotifications,
     bool? digestNotifications,
+    bool? reportNotifications,
     bool? soundEnabled,
     bool? vibrationEnabled,
     String? notificationFrequency,
@@ -450,6 +455,7 @@ class NotificationPreferences {
           interestBasedNotifications ?? this.interestBasedNotifications,
       bidNotifications: bidNotifications ?? this.bidNotifications,
       digestNotifications: digestNotifications ?? this.digestNotifications,
+      reportNotifications: reportNotifications ?? this.reportNotifications,
       soundEnabled: soundEnabled ?? this.soundEnabled,
       vibrationEnabled: vibrationEnabled ?? this.vibrationEnabled,
       notificationFrequency:
