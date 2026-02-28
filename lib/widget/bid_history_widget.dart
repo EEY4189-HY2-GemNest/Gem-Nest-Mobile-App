@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:gemnest_mobile_app/widget/no_data_widget.dart';
 import 'package:intl/intl.dart';
 
 /// A reusable widget that displays bid history for an auction.
@@ -145,10 +146,11 @@ class BidHistoryWidget extends StatelessWidget {
         }
 
         if (!snapshot.hasData || !snapshot.data!.exists) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(32),
-              child: Text('No auction data available'),
+          return const Padding(
+            padding: EdgeInsets.all(32),
+            child: NoDataWidget(
+              title: 'No auction data available',
+              iconSize: 48,
             ),
           );
         }
@@ -157,24 +159,12 @@ class BidHistoryWidget extends StatelessWidget {
         final bidHistory = (data['bidHistory'] as List<dynamic>?) ?? [];
 
         if (bidHistory.isEmpty) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.gavel_outlined, size: 48, color: Colors.grey[400]),
-                  const SizedBox(height: 12),
-                  Text(
-                    'No bids yet',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
+          return const Padding(
+            padding: EdgeInsets.all(32),
+            child: NoDataWidget(
+              title: 'No bids yet',
+              icon: Icons.gavel_outlined,
+              iconSize: 48,
             ),
           );
         }
