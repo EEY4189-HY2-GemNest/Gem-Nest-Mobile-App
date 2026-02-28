@@ -17,31 +17,8 @@ class ReportHistoryScreen extends StatefulWidget {
   State<ReportHistoryScreen> createState() => _ReportHistoryScreenState();
 }
 
-class _ReportHistoryScreenState extends State<ReportHistoryScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
   final ReportService _reportService = ReportService();
-
-  final List<ReportStatus?> _statusFilters = [
-    null, // All
-    ReportStatus.submitted,
-    ReportStatus.review,
-    ReportStatus.inProgress,
-    ReportStatus.done,
-    ReportStatus.rejected,
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: _statusFilters.length, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,24 +32,6 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen>
         ),
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
-        bottom: TabBar(
-          controller: _tabController,
-          isScrollable: true,
-          indicatorColor: Colors.white,
-          indicatorWeight: 3,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
-          labelStyle:
-              const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
-          tabs: const [
-            Tab(text: 'All'),
-            Tab(text: 'Submitted'),
-            Tab(text: 'Review'),
-            Tab(text: 'In Progress'),
-            Tab(text: 'Done'),
-            Tab(text: 'Rejected'),
-          ],
-        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
@@ -84,7 +43,7 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen>
             ),
           );
           if (result == true) {
-            setState(() {}); // Refresh
+            setState(() {});
           }
         },
         backgroundColor: AppTheme.primaryBlue,
@@ -92,83 +51,101 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen>
         label: const Text('New Report',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: _statusFilters.map((statusFilter) {
-          return _buildReportList(statusFilter);
-        }).toList(),
+      body: StreamBuilder<List<ReportProblem>>(
+        stream: _reportService.getUserReports(roleFilter: widget.userRole),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+                child: CircularProgressIndicator(color: AppTheme.primaryBlue));
+          }
+
+          if (snapshot.hasError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.cloud_off_rounded,
+                      size: 64, color: AppTheme.lightGray.withOpacity(0.5)),
+                  const SizedBox(height: 16),
+                  Text('Something went wrong',
+                      style: TextStyle(
+                          color: AppTheme.mediumGray.withOpacity(0.8),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500)),
+                  const SizedBox(height: 8),
+                  Text('Please try again later',
+                      style: TextStyle(
+                          color: AppTheme.lightGray.withOpacity(0.6),
+                          fontSize: 13)),
+                ],
+              ),
+            );
+          }
+
+          final reports = snapshot.data ?? [];
+
+          if (reports.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.report_off_outlined,
+                      size: 72, color: AppTheme.lightGray.withOpacity(0.4)),
+                  const SizedBox(height: 16),
+                  Text('No Reports Found',
+                      style: TextStyle(
+                          color: AppTheme.mediumGray.withOpacity(0.8),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  Text('You haven\'t submitted any reports yet',
+                      style: TextStyle(
+                          color: AppTheme.lightGray.withOpacity(0.6),
+                          fontSize: 14)),
+                  const SizedBox(height: 24),
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              SubmitReportScreen(userRole: widget.userRole),
+                        ),
+                      );
+                      if (result == true) setState(() {});
+                    },
+                    icon: const Icon(Icons.add_circle_outline, size: 18),
+                    label: const Text('Submit a Report'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppTheme.primaryBlue,
+                      side: const BorderSide(color: AppTheme.primaryBlue),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 10),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 80),
+            itemCount: reports.length,
+            itemBuilder: (context, index) {
+              return _buildReportCard(reports[index], index);
+            },
+          );
+        },
       ),
     );
   }
 
-  Widget _buildReportList(ReportStatus? statusFilter) {
-    return StreamBuilder<List<ReportProblem>>(
-      stream: _reportService.getUserReports(roleFilter: widget.userRole),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-              child: CircularProgressIndicator(color: AppTheme.primaryBlue));
-        }
-
-        if (snapshot.hasError) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline,
-                    size: 48, color: AppTheme.errorRed),
-                const SizedBox(height: 12),
-                Text('Error loading reports',
-                    style: TextStyle(
-                        color: AppTheme.mediumGray.withOpacity(0.8),
-                        fontSize: 15)),
-              ],
-            ),
-          );
-        }
-
-        List<ReportProblem> reports = snapshot.data ?? [];
-
-        // Apply status filter
-        if (statusFilter != null) {
-          reports = reports.where((r) => r.status == statusFilter).toList();
-        }
-
-        if (reports.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.inbox_outlined,
-                    size: 64, color: AppTheme.lightGray.withOpacity(0.5)),
-                const SizedBox(height: 12),
-                Text('No reports found',
-                    style: TextStyle(
-                        color: AppTheme.mediumGray.withOpacity(0.7),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500)),
-                const SizedBox(height: 6),
-                Text('Tap + to submit a new report',
-                    style: TextStyle(
-                        color: AppTheme.lightGray.withOpacity(0.6),
-                        fontSize: 13)),
-              ],
-            ),
-          );
-        }
-
-        return ListView.builder(
-          padding: const EdgeInsets.all(12),
-          itemCount: reports.length,
-          itemBuilder: (context, index) {
-            return _buildReportCard(reports[index], index);
-          },
-        );
-      },
-    );
-  }
-
   Widget _buildReportCard(ReportProblem report, int index) {
+    final statusColor = _getStatusColor(report.status);
+    final statusIcon = _getStatusIcon(report.status);
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -178,8 +155,7 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen>
           ),
         );
       },
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 300 + (index * 50)),
+      child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -193,153 +169,200 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen>
             ),
           ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Top row: Status + Priority
-              Row(
-                children: [
-                  _buildStatusChip(report.status),
-                  const Spacer(),
-                  _buildPriorityIndicator(report.priority),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              // Subject
-              Text(
-                report.subject,
-                style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.darkGray),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 6),
-
-              // Category chip
-              Container(
+        child: Stack(
+          children: [
+            // Status badge in top-right corner
+            Positioned(
+              top: 0,
+              right: 0,
+              child: Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryBlue.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  report.category.label,
-                  style: const TextStyle(
-                      fontSize: 11,
-                      color: AppTheme.primaryBlue,
-                      fontWeight: FontWeight.w500),
-                ),
-              ),
-              const SizedBox(height: 10),
-
-              // Description preview
-              Text(
-                report.description,
-                style: const TextStyle(
-                    fontSize: 13, color: AppTheme.mediumGray, height: 1.4),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 12),
-
-              // Bottom: Date + Responses count
-              Row(
-                children: [
-                  Icon(Icons.access_time,
-                      size: 14, color: AppTheme.lightGray.withOpacity(0.7)),
-                  const SizedBox(width: 4),
-                  Text(
-                    DateFormat('MMM dd, yyyy – hh:mm a')
-                        .format(report.createdAt),
-                    style: TextStyle(
-                        fontSize: 11,
-                        color: AppTheme.lightGray.withOpacity(0.8)),
+                  color: statusColor.withOpacity(0.12),
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(16),
+                    bottomLeft: Radius.circular(14),
                   ),
-                  const Spacer(),
-                  if (report.adminResponses.isNotEmpty) ...[
-                    Icon(Icons.reply,
-                        size: 14,
-                        color: AppTheme.successGreen.withOpacity(0.8)),
+                  border: Border(
+                    left: BorderSide(
+                        color: statusColor.withOpacity(0.2), width: 1),
+                    bottom: BorderSide(
+                        color: statusColor.withOpacity(0.2), width: 1),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(statusIcon, size: 12, color: statusColor),
                     const SizedBox(width: 4),
                     Text(
-                      '${report.adminResponses.length} response(s)',
+                      report.status.label,
                       style: TextStyle(
                           fontSize: 11,
-                          color: AppTheme.successGreen.withOpacity(0.8),
-                          fontWeight: FontWeight.w500),
+                          color: statusColor,
+                          fontWeight: FontWeight.w700),
                     ),
                   ],
-                  if (report.imageUrls.isNotEmpty) ...[
-                    const SizedBox(width: 10),
-                    Icon(Icons.image,
-                        size: 14, color: AppTheme.lightGray.withOpacity(0.6)),
-                    const SizedBox(width: 2),
-                    Text('${report.imageUrls.length}',
+                ),
+              ),
+            ),
+            // Card content
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Category + Priority row
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryBlue.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(_getCategoryIcon(report.category),
+                                size: 12, color: AppTheme.primaryBlue),
+                            const SizedBox(width: 5),
+                            Text(
+                              report.category.label,
+                              style: const TextStyle(
+                                  fontSize: 11,
+                                  color: AppTheme.primaryBlue,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildPriorityIndicator(report.priority),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Subject
+                  Text(
+                    report.subject,
+                    style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.darkGray),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 6),
+
+                  // Description preview
+                  Text(
+                    report.description,
+                    style: const TextStyle(
+                        fontSize: 13, color: AppTheme.mediumGray, height: 1.4),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Bottom: Date + Responses
+                  Row(
+                    children: [
+                      Icon(Icons.access_time,
+                          size: 14, color: AppTheme.lightGray.withOpacity(0.7)),
+                      const SizedBox(width: 4),
+                      Text(
+                        DateFormat('MMM dd, yyyy – hh:mm a')
+                            .format(report.createdAt),
                         style: TextStyle(
                             fontSize: 11,
-                            color: AppTheme.lightGray.withOpacity(0.6))),
-                  ],
+                            color: AppTheme.lightGray.withOpacity(0.8)),
+                      ),
+                      const Spacer(),
+                      if (report.adminResponses.isNotEmpty) ...[
+                        Icon(Icons.reply,
+                            size: 14,
+                            color: AppTheme.successGreen.withOpacity(0.8)),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${report.adminResponses.length} response(s)',
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: AppTheme.successGreen.withOpacity(0.8),
+                              fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                      if (report.imageUrls.isNotEmpty) ...[
+                        const SizedBox(width: 10),
+                        Icon(Icons.image,
+                            size: 14,
+                            color: AppTheme.lightGray.withOpacity(0.6)),
+                        const SizedBox(width: 2),
+                        Text('${report.imageUrls.length}',
+                            style: TextStyle(
+                                fontSize: 11,
+                                color: AppTheme.lightGray.withOpacity(0.6))),
+                      ],
+                    ],
+                  ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildStatusChip(ReportStatus status) {
-    Color color;
-    IconData icon;
+  Color _getStatusColor(ReportStatus status) {
     switch (status) {
       case ReportStatus.submitted:
-        color = AppTheme.infoBlue;
-        icon = Icons.send;
-        break;
+        return AppTheme.infoBlue;
       case ReportStatus.review:
-        color = AppTheme.warningOrange;
-        icon = Icons.visibility;
-        break;
+        return AppTheme.warningOrange;
       case ReportStatus.inProgress:
-        color = const Color(0xFF8B5CF6);
-        icon = Icons.engineering;
-        break;
+        return const Color(0xFF8B5CF6);
       case ReportStatus.done:
-        color = AppTheme.successGreen;
-        icon = Icons.check_circle;
-        break;
+        return AppTheme.successGreen;
       case ReportStatus.rejected:
-        color = AppTheme.errorRed;
-        icon = Icons.cancel;
-        break;
+        return AppTheme.errorRed;
     }
+  }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 13, color: color),
-          const SizedBox(width: 5),
-          Text(
-            status.label,
-            style: TextStyle(
-                fontSize: 11, color: color, fontWeight: FontWeight.w600),
-          ),
-        ],
-      ),
-    );
+  IconData _getStatusIcon(ReportStatus status) {
+    switch (status) {
+      case ReportStatus.submitted:
+        return Icons.send;
+      case ReportStatus.review:
+        return Icons.visibility;
+      case ReportStatus.inProgress:
+        return Icons.engineering;
+      case ReportStatus.done:
+        return Icons.check_circle;
+      case ReportStatus.rejected:
+        return Icons.cancel;
+    }
+  }
+
+  IconData _getCategoryIcon(ReportCategory category) {
+    switch (category) {
+      case ReportCategory.payment:
+        return Icons.payment;
+      case ReportCategory.delivery:
+        return Icons.local_shipping;
+      case ReportCategory.product:
+        return Icons.diamond;
+      case ReportCategory.account:
+        return Icons.person;
+      case ReportCategory.auction:
+        return Icons.gavel;
+      case ReportCategory.technical:
+        return Icons.build;
+      case ReportCategory.other:
+        return Icons.more_horiz;
+    }
   }
 
   Widget _buildPriorityIndicator(ReportPriority priority) {
