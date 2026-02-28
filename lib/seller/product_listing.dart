@@ -365,8 +365,7 @@ class _ProductListingState extends State<ProductListing>
                 result.failureCount == 0
                     ? Icons.check_circle
                     : Icons.warning_amber,
-                color:
-                    result.failureCount == 0 ? Colors.green : Colors.orange,
+                color: result.failureCount == 0 ? Colors.green : Colors.orange,
                 size: 28,
               ),
               const SizedBox(width: 10),
@@ -407,8 +406,7 @@ class _ProductListingState extends State<ProductListing>
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child:
-                  const Text('OK', style: TextStyle(color: Colors.blue)),
+              child: const Text('OK', style: TextStyle(color: Colors.blue)),
             ),
           ],
         ),
