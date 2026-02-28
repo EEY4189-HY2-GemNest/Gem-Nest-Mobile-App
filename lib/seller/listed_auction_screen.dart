@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gemnest_mobile_app/widget/bid_history_widget.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:intl/intl.dart';
 
@@ -441,22 +442,40 @@ class AuctionCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Ends: ${_formatEndTime(endTime)}',
-                        style: const TextStyle(
-                          color: Colors.white60,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
+                      Expanded(
+                        child: Text(
+                          'Ends: ${_formatEndTime(endTime)}',
+                          style: const TextStyle(
+                            color: Colors.white60,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                      if (isSeller)
-                        IconButton(
-                          icon: const Icon(Icons.edit,
-                              color: Colors.blueAccent, size: 20),
-                          onPressed: () => _showEditDialog(context),
-                        ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.history,
+                                color: Colors.orangeAccent, size: 20),
+                            tooltip: 'Bid History',
+                            onPressed: () =>
+                                BidHistoryWidget.showBidHistorySheet(
+                              context,
+                              auctionId,
+                              isSeller: true,
+                            ),
+                          ),
+                          if (isSeller)
+                            IconButton(
+                              icon: const Icon(Icons.edit,
+                                  color: Colors.blueAccent, size: 20),
+                              onPressed: () => _showEditDialog(context),
+                            ),
+                        ],
+                      ),
                     ],
                   ),
                   const SizedBox(height: 12),
