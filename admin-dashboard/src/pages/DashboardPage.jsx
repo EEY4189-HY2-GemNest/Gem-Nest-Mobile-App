@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Package, Gavel, LogOut, Menu, X, BarChart3 } from 'lucide-react';
+import { Users, Package, Gavel, LogOut, Menu, X, BarChart3, AlertTriangle } from 'lucide-react';
 import { logoutAdmin } from '../services/adminService';
 import { auth } from '../services/firebase';
 import UserManagement from '../components/UserManagement';
@@ -8,6 +8,7 @@ import AuctionManagement from '../components/AuctionManagement';
 import Dashboard from '../components/Dashboard';
 import AnalyticsPanel from '../components/AnalyticsPanel';
 import NotificationPanel from '../components/NotificationPanel';
+import ReportManagement from '../components/ReportManagement';
 
 export default function DashboardPage() {
     const [currentPage, setCurrentPage] = useState('dashboard');
@@ -41,6 +42,7 @@ export default function DashboardPage() {
         { id: 'users', label: 'Users', icon: Users },
         { id: 'products', label: 'Products', icon: Package },
         { id: 'auctions', label: 'Auctions', icon: Gavel },
+        { id: 'reports', label: 'Reports', icon: AlertTriangle },
     ];
 
     return (
@@ -131,6 +133,7 @@ export default function DashboardPage() {
                     {currentPage === 'users' && <UserManagement />}
                     {currentPage === 'products' && <ProductManagement />}
                     {currentPage === 'auctions' && <AuctionManagement />}
+                    {currentPage === 'reports' && <ReportManagement />}
                 </div>
             </div>
         </div>
