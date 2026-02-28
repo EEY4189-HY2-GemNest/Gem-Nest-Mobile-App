@@ -459,7 +459,8 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
         // Try multiple field names for payment method
         String? methodName = paymentMap['name'];
         if (methodName == null || methodName.isEmpty) {
-          methodName = paymentMap['type'] ?? paymentMap['method'] ?? paymentMap['id'];
+          methodName =
+              paymentMap['type'] ?? paymentMap['method'] ?? paymentMap['id'];
         }
         if (methodName != null && methodName.isNotEmpty) {
           paymentMethod = methodName;
@@ -977,7 +978,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                   ),
                 ),
               ),
-              
+
               // Compact header
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
@@ -1029,12 +1030,13 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                   ],
                 ),
               ),
-              
+
               // Content
               Expanded(
                 child: SingleChildScrollView(
                   controller: scrollController,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -1101,7 +1103,8 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                       const SizedBox(height: 12),
 
                       // Items section
-                      if (order['items'] != null && (order['items'] as List).isNotEmpty)
+                      if (order['items'] != null &&
+                          (order['items'] as List).isNotEmpty)
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
@@ -1179,7 +1182,8 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
 
               // Total amount footer
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 decoration: const BoxDecoration(),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1222,7 +1226,8 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                       ),
                       child: const Row(
                         children: [
-                          Icon(Icons.check_circle, color: Colors.white, size: 18),
+                          Icon(Icons.check_circle,
+                              color: Colors.white, size: 18),
                           SizedBox(width: 6),
                           Text(
                             'Complete',
@@ -1363,7 +1368,8 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
       // Try multiple field names for payment method
       String? methodName = paymentMap['name'];
       if (methodName == null || methodName.isEmpty) {
-        methodName = paymentMap['type'] ?? paymentMap['method'] ?? paymentMap['id'];
+        methodName =
+            paymentMap['type'] ?? paymentMap['method'] ?? paymentMap['id'];
       }
       return (methodName != null && methodName.isNotEmpty) ? methodName : 'N/A';
     }
