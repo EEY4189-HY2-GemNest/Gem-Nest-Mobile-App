@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/models/report_model.dart';
+import 'package:gemnest_mobile_app/services/notification_trigger_service.dart';
 
 class ReportService {
   static final ReportService _instance = ReportService._internal();
@@ -118,6 +119,15 @@ class ReportService {
       );
 
       final docRef = await _reportsCollection.add(report.toMap());
+
+      // Trigger notification for report submission
+      await NotificationTriggerService().triggerReportSubmittedNotification(
+        reportId: docRef.id,
+        subject: subject,
+        category: category.value,
+        userId: userInfo['uid'],
+      );
+
       return docRef.id;
     } catch (e) {
       debugPrint('Error submitting report: $e');
@@ -186,10 +196,24 @@ class ReportService {
 
   /// Update report status (admin)
   Future<void> updateReportStatus(String reportId, ReportStatus status) async {
+    // Get report data for notification
+    final reportDoc = await _reportsCollection.doc(reportId).get();
+    final reportData = reportDoc.data() as Map<String, dynamic>?;
+
     await _reportsCollection.doc(reportId).update({
       'status': status.value,
       'updatedAt': Timestamp.fromDate(DateTime.now()),
     });
+
+    // Trigger notification for status change
+    if (reportData != null) {
+      await NotificationTriggerService().triggerReportStatusChangeNotification(
+        reportId: reportId,
+        userId: reportData['userId'] ?? '',
+        newStatus: status.value,
+        subject: reportData['subject'] ?? 'Report',
+      );
+    }
   }
 
   /// Add admin response
@@ -209,6 +233,18 @@ class ReportService {
       'adminResponses': FieldValue.arrayUnion([response.toMap()]),
       'updatedAt': Timestamp.fromDate(DateTime.now()),
     });
+
+    // Trigger notification for admin response
+    final reportDoc = await _reportsCollection.doc(reportId).get();
+    final reportData = reportDoc.data() as Map<String, dynamic>?;
+    if (reportData != null) {
+      await NotificationTriggerService().triggerReportResponseNotification(
+        reportId: reportId,
+        userId: reportData['userId'] ?? '',
+        subject: reportData['subject'] ?? 'Report',
+        adminName: adminName,
+      );
+    }
   }
 
   /// Set admin solution & optionally update status

@@ -4,6 +4,12 @@ import 'package:flutter/material.dart';
 
 /// Notification types for the GemNest app
 enum NotificationType {
+  // Registration
+  welcomeRegistration,
+  sellerRegistrationPending,
+  sellerAccountActivated,
+  newSellerRegistration, // Admin notification
+
   // Product/Auction Approval
   productApproved,
   productRejected,
@@ -16,6 +22,7 @@ enum NotificationType {
   auctionEnded,
   auctionWon,
   auctionNotificationBuyerInterested,
+  bidReminder, // 5 min before auction ends
 
   // Orders & Payments
   orderCreated,
@@ -37,6 +44,12 @@ enum NotificationType {
   bidOutbidNotification,
   auctionWonNotification,
   productInStock,
+
+  // Report Notifications
+  reportSubmitted,
+  reportStatusChanged,
+  reportResponseAdded,
+  newReportAdmin, // Admin notification
 
   // General
   systemMessage,
@@ -167,6 +180,14 @@ class GemNestNotification {
   /// Get display icon for notification type
   IconData getIcon() {
     switch (type) {
+      case NotificationType.welcomeRegistration:
+        return Icons.celebration;
+      case NotificationType.sellerRegistrationPending:
+        return Icons.hourglass_top;
+      case NotificationType.sellerAccountActivated:
+        return Icons.verified_user;
+      case NotificationType.newSellerRegistration:
+        return Icons.person_add;
       case NotificationType.productApproved:
       case NotificationType.auctionApproved:
       case NotificationType.itemApprovedNotification:
@@ -180,6 +201,8 @@ class GemNestNotification {
       case NotificationType.outbid:
       case NotificationType.bidOutbidNotification:
         return Icons.trending_up;
+      case NotificationType.bidReminder:
+        return Icons.alarm;
       case NotificationType.auctionEnded:
       case NotificationType.auctionWon:
       case NotificationType.auctionWonNotification:
@@ -207,6 +230,14 @@ class GemNestNotification {
         return Icons.schedule;
       case NotificationType.productInStock:
         return Icons.inventory;
+      case NotificationType.reportSubmitted:
+        return Icons.report;
+      case NotificationType.reportStatusChanged:
+        return Icons.update;
+      case NotificationType.reportResponseAdded:
+        return Icons.reply;
+      case NotificationType.newReportAdmin:
+        return Icons.report_problem;
       case NotificationType.systemMessage:
         return Icons.info;
       case NotificationType.unknown:
@@ -217,6 +248,12 @@ class GemNestNotification {
   /// Get color for notification type
   Color getColor() {
     switch (type) {
+      case NotificationType.welcomeRegistration:
+      case NotificationType.sellerAccountActivated:
+        return Colors.teal;
+      case NotificationType.sellerRegistrationPending:
+      case NotificationType.newSellerRegistration:
+        return Colors.indigo;
       case NotificationType.productApproved:
       case NotificationType.auctionApproved:
       case NotificationType.orderConfirmed:
@@ -236,10 +273,19 @@ class GemNestNotification {
       case NotificationType.outbid:
       case NotificationType.bidOutbidNotification:
         return Colors.orange;
+      case NotificationType.bidReminder:
+        return Colors.deepOrange;
       case NotificationType.orderShipped:
         return Colors.blue;
       case NotificationType.paymentReceived:
         return Colors.green;
+      case NotificationType.reportSubmitted:
+        return Colors.blue;
+      case NotificationType.reportStatusChanged:
+      case NotificationType.reportResponseAdded:
+        return Colors.purple;
+      case NotificationType.newReportAdmin:
+        return Colors.deepOrange;
       case NotificationType.lowStockAlert:
       case NotificationType.productListingExpiring:
       case NotificationType.auctionEndingsoon:

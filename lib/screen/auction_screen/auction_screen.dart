@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/auction_screen/auction_details_screen.dart';
 import 'package:gemnest_mobile_app/screen/auction_screen/auction_payment_screen.dart';
+import 'package:gemnest_mobile_app/services/notification_trigger_service.dart';
 import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
 
@@ -629,6 +630,13 @@ class _AuctionItemCardState extends State<AuctionItemCard>
         });
         _bidController.clear();
         _showSnackBar('Bid placed successfully!');
+
+        // Schedule bid reminder notification (5 min before auction ends)
+        NotificationTriggerService().scheduleBidReminder(
+          auctionId: widget.auctionId,
+          auctionTitle: widget.title,
+          endTime: widget.endTime,
+        );
       } catch (e) {
         print("Bid placement error: $e");
         setState(() => _isLoading = false);

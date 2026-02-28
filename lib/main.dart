@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -23,6 +24,9 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+
+    // Register background message handler BEFORE runApp
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
     // For development: Sign in anonymously to avoid authentication issues
     if (kDebugMode) {
@@ -82,12 +86,12 @@ Future<void> signInAnonymously() async {
   try {
     UserCredential userCredential =
         await FirebaseAuth.instance.signInAnonymously();
-    print('Signed in anonymously with UID: ${userCredential.user?.uid}');
+    debugPrint('Signed in anonymously with UID: ${userCredential.user?.uid}');
   } on FirebaseAuthException catch (e) {
-    print('Failed to sign in anonymously: ${e.message}');
-    rethrow; // Optionally rethrow to handle this error elsewhere
+    debugPrint('Failed to sign in anonymously: ${e.message}');
+    rethrow;
   } catch (e) {
-    print('Unexpected error during anonymous sign-in: $e');
+    debugPrint('Unexpected error during anonymous sign-in: $e');
     rethrow;
   }
 }
@@ -98,6 +102,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       title: 'GemNest Mobile App',
       theme: AppTheme.lightTheme,
