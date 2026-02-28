@@ -29,6 +29,7 @@ class _AuctionProductState extends State<AuctionProduct>
   final TextEditingController _minimumIncrementController =
       TextEditingController();
   final TextEditingController _endTimeController = TextEditingController();
+  final TextEditingController _certificateUrlController = TextEditingController();
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -67,6 +68,7 @@ class _AuctionProductState extends State<AuctionProduct>
     _currentBidController.dispose();
     _minimumIncrementController.dispose();
     _endTimeController.dispose();
+    _certificateUrlController.dispose();
     super.dispose();
   }
 
@@ -266,6 +268,7 @@ class _AuctionProductState extends State<AuctionProduct>
             certificates != null && certificates.isNotEmpty
                 ? 'pending'
                 : 'none',
+        'certificateUrl': _certificateUrlController.text.trim(),
         'approvalStatus': 'pending', // Auction listing approval status
         'sellerId': userId,
         'timestamp': FieldValue.serverTimestamp(),
@@ -554,6 +557,14 @@ class _AuctionProductState extends State<AuctionProduct>
                   _buildPaymentMethodsSection(),
                   const SizedBox(height: 32),
                   _buildCertificateSection(),
+                  const SizedBox(height: 20),
+                  _buildInputField(
+                    label: 'Certificate URL (Optional)',
+                    hint: 'Enter certificate verification URL',
+                    controller: _certificateUrlController,
+                    validator: (value) => null,
+                    keyboardType: TextInputType.url,
+                  ),
                   const SizedBox(height: 32),
                   Center(
                     child: SizedBox(
