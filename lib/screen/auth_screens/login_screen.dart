@@ -5,6 +5,7 @@ import 'package:gemnest_mobile_app/Seller/seller_home_page.dart';
 import 'package:gemnest_mobile_app/home_screen.dart';
 import 'package:gemnest_mobile_app/screen/auth_screens/forgot_password_screen.dart';
 import 'package:gemnest_mobile_app/screen/auth_screens/signup_screen.dart';
+import 'package:gemnest_mobile_app/services/notification_service.dart';
 import 'package:gemnest_mobile_app/theme/app_theme.dart';
 import 'package:gemnest_mobile_app/widget/custom_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -85,6 +86,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (buyerSnapshot.exists) {
         await _saveCredentials();
+        // Save FCM token and subscribe to buyer topics on login
+        if (userId != null) {
+          await NotificationService().updateFCMToken(userId);
+          await NotificationService().subscribeToRoleTopics('buyer');
+        }
         _navigateTo(const HomeScreen());
       } else if (sellerSnapshot.exists) {
         Map<String, dynamic> sellerData =
@@ -99,6 +105,11 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         } else {
           await _saveCredentials();
+          // Save FCM token and subscribe to seller topics on login
+          if (userId != null) {
+            await NotificationService().updateFCMToken(userId);
+            await NotificationService().subscribeToRoleTopics('seller');
+          }
           _navigateTo(const SellerHomePage());
         }
       } else {

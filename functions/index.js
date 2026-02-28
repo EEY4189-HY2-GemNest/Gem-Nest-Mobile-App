@@ -1,7 +1,8 @@
 /**
- * Firebase Cloud Functions for Stripe Payment Integration
+ * Firebase Cloud Functions for GemNest
  * 
- * This replaces the Node.js backend and uses Firebase Cloud Functions instead.
+ * This is the main entry point for all Cloud Functions.
+ * Includes: Stripe Payment Integration + Push Notification Functions
  * 
  * Installation:
  * 1. Install Firebase CLI: npm install -g firebase-tools
@@ -19,9 +20,32 @@ const stripe = require("stripe");
 const cors = require("cors")({ origin: true });
 const express = require("express");
 
-// Initialize Firebase Admin
+// Initialize Firebase Admin (single initialization for all modules)
 admin.initializeApp();
 const db = admin.firestore();
+
+// ============================================================================
+// IMPORT AND RE-EXPORT NOTIFICATION FUNCTIONS
+// ============================================================================
+const notifications = require("./notifications");
+
+// Re-export all notification functions
+exports.onNotificationTrigger = notifications.onNotificationTrigger;
+exports.onProductApprovalChanged = notifications.onProductApprovalChanged;
+exports.onAuctionApprovalChanged = notifications.onAuctionApprovalChanged;
+exports.onNewBid = notifications.onNewBid;
+exports.notifyAuctionEnded = notifications.notifyAuctionEnded;
+exports.processBidReminders = notifications.processBidReminders;
+exports.scheduledAuctionCheck = notifications.scheduledAuctionCheck;
+exports.onOrderCreated = notifications.onOrderCreated;
+exports.onOrderStatusChanged = notifications.onOrderStatusChanged;
+exports.onPaymentReceived = notifications.onPaymentReceived;
+exports.onReportCreated = notifications.onReportCreated;
+exports.onReportStatusChanged = notifications.onReportStatusChanged;
+exports.onSellerActivated = notifications.onSellerActivated;
+exports.notifyAdminsNewProduct = notifications.notifyAdminsNewProduct;
+exports.notifyAdminsNewAuction = notifications.notifyAdminsNewAuction;
+exports.broadcastProductApprovedByCategory = notifications.broadcastProductApprovedByCategory;
 
 // Initialize Stripe lazily (only when needed)
 let stripeInstance = null;

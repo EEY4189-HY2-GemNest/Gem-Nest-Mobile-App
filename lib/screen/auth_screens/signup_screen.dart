@@ -6,6 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/auth_screens/login_screen.dart';
+import 'package:gemnest_mobile_app/services/notification_service.dart';
+import 'package:gemnest_mobile_app/services/notification_trigger_service.dart';
 import 'package:gemnest_mobile_app/widget/custom_dialog.dart'; // Import the new dialog
 import 'package:image_picker/image_picker.dart';
 
@@ -335,6 +337,35 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       final String collectionName = isBuyer ? 'buyers' : 'sellers';
       await _firestore.collection(collectionName).doc(userId).set(userData);
+
+      // Also create a users document for notifications with FCM token
+      await _firestore.collection('users').doc(userId).set({
+        'email': emailController.text.trim(),
+        'role': isBuyer ? 'buyer' : 'seller',
+        'createdAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      // Save FCM token for the new user
+      await NotificationService().updateFCMToken(userId);
+
+      // Subscribe to role-based notification topics
+      await NotificationService()
+          .subscribeToRoleTopics(isBuyer ? 'buyer' : 'seller');
+
+      // Trigger registration notifications
+      if (isBuyer) {
+        await NotificationTriggerService().triggerBuyerRegistrationNotification(
+          userId: userId,
+          email: emailController.text.trim(),
+        );
+      } else {
+        await NotificationTriggerService()
+            .triggerSellerRegistrationNotification(
+          userId: userId,
+          email: emailController.text.trim(),
+          businessName: businessNameController.text.trim(),
+        );
+      }
 
       if (!isBuyer) {
         _showActivationDialog();

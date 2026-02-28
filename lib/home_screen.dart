@@ -598,7 +598,7 @@ class _HomeScreenState extends State<HomeScreen> {
         .collection('users')
         .doc(user.uid)
         .collection('notifications')
-        .where('read', isEqualTo: false)
+        .where('isRead', isEqualTo: false)
         .snapshots()
         .map((snapshot) => snapshot.docs.length);
   }
@@ -612,7 +612,7 @@ class _HomeScreenState extends State<HomeScreen> {
           .collection('users')
           .doc(user.uid)
           .collection('notifications')
-          .orderBy('timestamp', descending: true)
+          .orderBy('createdAt', descending: true)
           .limit(10)
           .get();
 
@@ -620,9 +620,9 @@ class _HomeScreenState extends State<HomeScreen> {
           .map((doc) => {
                 'id': doc.id,
                 'title': doc['title'] ?? 'Notification',
-                'message': doc['message'] ?? '',
-                'read': doc['read'] ?? false,
-                'timestamp': doc['timestamp'],
+                'message': doc['body'] ?? doc['message'] ?? '',
+                'read': doc['isRead'] ?? doc['read'] ?? false,
+                'timestamp': doc['createdAt'] ?? doc['timestamp'],
                 'type': doc['type'] ?? 'general',
               })
           .toList();
