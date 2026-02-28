@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/providers/seller_notification_provider.dart';
 import 'package:gemnest_mobile_app/screen/notification_settings_screen.dart';
-import 'package:gemnest_mobile_app/widget/seller_notification_widgets.dart';
 import 'package:gemnest_mobile_app/widget/no_data_widget.dart';
+import 'package:gemnest_mobile_app/widget/seller_notification_widgets.dart';
 import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:provider/provider.dart';
 
