@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:gemnest_mobile_app/widget/no_data_widget.dart';
 import 'package:gemnest_mobile_app/screen/product_screen/product_card.dart';
 
 class CategoryScreen extends StatefulWidget {
@@ -139,7 +140,11 @@ class _CategoryScreenState extends State<CategoryScreen> {
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : _filteredProducts.isEmpty
-                      ? const Center(child: Text('No products found.'))
+                      ? const NoDataWidget(
+                          title: 'No products found',
+                          icon: Icons.search_off,
+                          subtitle: 'Try a different search term',
+                        )
                       : GridView.builder(
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
