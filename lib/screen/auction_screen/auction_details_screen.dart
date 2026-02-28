@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:gemnest_mobile_app/widget/certificate_viewer.dart';
 import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -541,11 +542,25 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                                     ),
                                   ),
                                   trailing: GestureDetector(
-                                    onTap: () async {
-                                      final Uri certificateUri =
-                                          Uri.parse(cert['url'] ?? '');
-                                      if (await canLaunchUrl(certificateUri)) {
-                                        await launchUrl(certificateUri);
+                                    onTap: () {
+                                      final String url = cert['url'] ?? '';
+                                      final String certFileName =
+                                          cert['fileName'] ??
+                                              'Certificate ${index + 1}';
+                                      final String certType =
+                                          cert['type'] ?? '';
+                                      if (url.isNotEmpty) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                CertificateViewerScreen(
+                                              url: url,
+                                              fileName: certFileName,
+                                              type: certType,
+                                            ),
+                                          ),
+                                        );
                                       }
                                     },
                                     child: Container(
