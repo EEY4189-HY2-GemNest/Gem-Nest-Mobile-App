@@ -104,8 +104,7 @@ class BulkUploadService {
     final csvData = const ListToCsvConverter().convert(rows);
 
     final directory = await getApplicationDocumentsDirectory();
-    final filePath =
-        '${directory.path}/gemnest_bulk_upload_template.csv';
+    final filePath = '${directory.path}/gemnest_bulk_upload_template.csv';
     final file = File(filePath);
     await file.writeAsString(csvData);
 
@@ -135,8 +134,7 @@ class BulkUploadService {
 
     final file = File(filePath);
     final csvString = await file.readAsString();
-    final rows =
-        const CsvToListConverter(eol: '\n').convert(csvString);
+    final rows = const CsvToListConverter(eol: '\n').convert(csvString);
 
     return rows;
   }
@@ -157,8 +155,7 @@ class BulkUploadService {
         'Yellow Sapphires'
       ];
       if (!validCategories.contains(row['category']!.trim())) {
-        errors.add(
-            'category must be one of: ${validCategories.join(', ')}');
+        errors.add('category must be one of: ${validCategories.join(', ')}');
       }
     }
     if ((row['pricing'] ?? '').trim().isEmpty) {
@@ -204,8 +201,10 @@ class BulkUploadService {
 
     // Resolve delivery methods
     final deliveryMethodsData = <String, dynamic>{};
-    final deliveryIds =
-        (row['delivery_methods'] ?? '').split('|').map((s) => s.trim()).where((s) => s.isNotEmpty);
+    final deliveryIds = (row['delivery_methods'] ?? '')
+        .split('|')
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty);
     for (final id in deliveryIds) {
       if (sellerDeliveryMethods.containsKey(id)) {
         deliveryMethodsData[id] = sellerDeliveryMethods[id];
@@ -218,8 +217,10 @@ class BulkUploadService {
 
     // Resolve payment methods
     final paymentMethodsData = <String, dynamic>{};
-    final paymentIds =
-        (row['payment_methods'] ?? '').split('|').map((s) => s.trim()).where((s) => s.isNotEmpty);
+    final paymentIds = (row['payment_methods'] ?? '')
+        .split('|')
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty);
     for (final id in paymentIds) {
       if (sellerPaymentMethods.containsKey(id)) {
         paymentMethodsData[id] = sellerPaymentMethods[id];
@@ -352,8 +353,8 @@ class BulkUploadService {
         continue;
       }
       // Skip empty rows
-      if (rows[i].every(
-          (cell) => cell == null || cell.toString().trim().isEmpty)) {
+      if (rows[i]
+          .every((cell) => cell == null || cell.toString().trim().isEmpty)) {
         continue;
       }
       dataRows.add(rows[i]);
