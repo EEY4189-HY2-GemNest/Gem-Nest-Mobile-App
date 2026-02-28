@@ -1,5 +1,6 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+const emailService = require('./email_service');
 
 // NOTE: Do NOT call admin.initializeApp() here!
 // It's already called in index.js which imports this module.
@@ -155,6 +156,12 @@ exports.onNotificationTrigger = functions.firestore
                             userId: userId,
                         },
                     });
+
+                    // Send welcome email
+                    await emailService.sendWelcomeEmail(userId, {
+                        email: triggerData.email,
+                        displayName: triggerData.displayName || triggerData.name,
+                    });
                     break;
                 }
                 case 'sellerRegistrationPending': {
@@ -186,6 +193,19 @@ exports.onNotificationTrigger = functions.firestore
                             },
                         });
                     }
+
+                    // Send seller registration details email to admin
+                    await emailService.sendSellerRegistrationToAdmin({
+                        displayName: triggerData.displayName || triggerData.name,
+                        email: triggerData.email,
+                        phoneNumber: triggerData.phoneNumber,
+                        businessName: triggerData.businessName,
+                        brNumber: triggerData.brNumber,
+                        nicNumber: triggerData.nicNumber,
+                        address: triggerData.address,
+                        businessRegistrationUrl: triggerData.businessRegistrationUrl,
+                        nicDocumentUrl: triggerData.nicDocumentUrl,
+                    }, userId);
                     break;
                 }
                 case 'sellerAccountActivated': {
@@ -198,6 +218,13 @@ exports.onNotificationTrigger = functions.firestore
                             type: 'sellerAccountActivated',
                             userId: userId,
                         },
+                    });
+
+                    // Send seller approval email
+                    await emailService.sendSellerApprovalEmail(userId, {
+                        email: triggerData.email,
+                        displayName: triggerData.displayName,
+                        businessName: triggerData.businessName,
                     });
                     break;
                 }
