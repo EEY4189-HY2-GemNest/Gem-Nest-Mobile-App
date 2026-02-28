@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -39,11 +40,7 @@ class _CertificateViewerScreenState extends State<CertificateViewerScreen> {
 
   bool get _isImage {
     final t = _resolvedType;
-    return t == 'jpg' ||
-        t == 'jpeg' ||
-        t == 'png' ||
-        t == 'gif' ||
-        t == 'webp';
+    return t == 'jpg' || t == 'jpeg' || t == 'png' || t == 'gif' || t == 'webp';
   }
 
   bool get _isPdf {
@@ -134,8 +131,7 @@ class _CertificateViewerScreenState extends State<CertificateViewerScreen> {
         ],
       ),
       body: _loading
-          ? const Center(
-              child: CircularProgressIndicator(color: Colors.white))
+          ? const Center(child: CircularProgressIndicator(color: Colors.white))
           : _isImage
               ? _buildImageViewer(context)
               : _isPdf
