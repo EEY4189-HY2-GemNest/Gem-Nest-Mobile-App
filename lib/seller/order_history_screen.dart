@@ -362,7 +362,8 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
                   child: orders.isEmpty
                       ? const NoDataWidget(
                           title: 'No orders found',
-                          subtitle: 'Orders will appear here when customers place them',
+                          subtitle:
+                              'Orders will appear here when customers place them',
                           icon: Icons.inbox_outlined,
                         )
                       : ListView.builder(
