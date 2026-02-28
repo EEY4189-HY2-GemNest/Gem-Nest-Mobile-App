@@ -27,7 +27,8 @@ class _ProductListingState extends State<ProductListing>
   final TextEditingController _pricingController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _certificateUrlController = TextEditingController();
+  final TextEditingController _certificateUrlController =
+      TextEditingController();
 
   String? _selectedCategory;
   final bool _isBulkUploading = false;
