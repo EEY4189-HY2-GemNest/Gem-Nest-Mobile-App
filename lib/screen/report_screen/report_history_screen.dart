@@ -56,8 +56,7 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
-                child:
-                    CircularProgressIndicator(color: AppTheme.primaryBlue));
+                child: CircularProgressIndicator(color: AppTheme.primaryBlue));
           }
 
           if (snapshot.hasError) {
@@ -272,8 +271,7 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                   Row(
                     children: [
                       Icon(Icons.access_time,
-                          size: 14,
-                          color: AppTheme.lightGray.withOpacity(0.7)),
+                          size: 14, color: AppTheme.lightGray.withOpacity(0.7)),
                       const SizedBox(width: 4),
                       Text(
                         DateFormat('MMM dd, yyyy – hh:mm a')
