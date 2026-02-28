@@ -261,9 +261,11 @@ class _AuctionPaymentScreenState extends State<AuctionPaymentScreen> {
         'taxPercentage': _taxService.taxPercentage,
         'taxAmount': _taxService.calculateTax(widget.itemPrice),
         'serviceChargePercentage': _taxService.serviceChargePercentage,
-        'serviceChargeAmount': _taxService.calculateServiceCharge(widget.itemPrice),
+        'serviceChargeAmount':
+            _taxService.calculateServiceCharge(widget.itemPrice),
         'subtotalBeforeTax': widget.itemPrice,
-        'deliveryCharge': _selectedDeliveryOption == 'delivery' ? _deliveryCharge : 0.0,
+        'deliveryCharge':
+            _selectedDeliveryOption == 'delivery' ? _deliveryCharge : 0.0,
         'status': 'Pending',
         'createdAt': FieldValue.serverTimestamp(),
       };
