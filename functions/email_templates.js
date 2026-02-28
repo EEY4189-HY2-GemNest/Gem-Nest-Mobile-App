@@ -899,10 +899,10 @@ const productApprovalTemplate = (data) => {
 
             <div class="greeting">Hi ${sellerName},</div>
             <div class="subtitle">
-                ${isApproved 
-                    ? `Your ${typeLabel.toLowerCase()} <strong>"${productTitle}"</strong> has been approved and is now ${type === 'auction' ? 'live' : 'visible to customers'}!`
-                    : `Your ${typeLabel.toLowerCase()} <strong>"${productTitle}"</strong> was not approved.`
-                }
+                ${isApproved
+            ? `Your ${typeLabel.toLowerCase()} <strong>"${productTitle}"</strong> has been approved and is now ${type === 'auction' ? 'live' : 'visible to customers'}!`
+            : `Your ${typeLabel.toLowerCase()} <strong>"${productTitle}"</strong> was not approved.`
+        }
             </div>
 
             ${!isApproved && rejectionReason ? `
