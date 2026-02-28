@@ -272,7 +272,8 @@ class _PaymentScreenState extends State<PaymentScreen>
                 name: methodData['name'] ?? key,
                 description: methodData['description'] ?? '',
                 icon: iconMap[key] ?? '💳',
-                processingFee: key == 'cod' ? _taxService.codProcessingFee : null,
+                processingFee:
+                    key == 'cod' ? _taxService.codProcessingFee : null,
               ),
             );
           }
