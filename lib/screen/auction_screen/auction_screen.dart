@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/auction_screen/auction_details_screen.dart';
 import 'package:gemnest_mobile_app/screen/auction_screen/auction_payment_screen.dart';
 import 'package:gemnest_mobile_app/services/notification_trigger_service.dart';
+import 'package:gemnest_mobile_app/widget/no_data_widget.dart';
 import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
 
@@ -267,31 +268,10 @@ class _AuctionScreenState extends State<AuctionScreen> {
         final filteredAuctions = _filterAuctionsByStatus(allAuctions);
 
         if (filteredAuctions.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.gavel_outlined,
-                    size: 64, color: Colors.grey.shade400),
-                const SizedBox(height: 16),
-                Text(
-                  'No auctions found',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.grey.shade600,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Try adjusting your filters',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade500,
-                  ),
-                ),
-              ],
-            ),
+          return const NoDataWidget(
+            title: 'No auctions found',
+            subtitle: 'Try adjusting your filters',
+            icon: Icons.gavel_outlined,
           );
         }
 
