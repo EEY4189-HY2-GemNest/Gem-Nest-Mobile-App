@@ -162,6 +162,9 @@ class _SellerNotificationsListState extends State<SellerNotificationsList> {
             case 'orders':
               notifications = provider.getOrderNotifications();
               break;
+            case 'reports':
+              notifications = provider.getReportNotifications();
+              break;
             case 'unread':
               notifications = provider.getUnreadNotifications();
               break;
@@ -342,7 +345,7 @@ class _SellerNotificationFilterBarState
 
   @override
   Widget build(BuildContext context) {
-    final filters = ['all', 'unread', 'approvals', 'bids', 'orders'];
+    final filters = ['all', 'unread', 'approvals', 'bids', 'orders', 'reports'];
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
