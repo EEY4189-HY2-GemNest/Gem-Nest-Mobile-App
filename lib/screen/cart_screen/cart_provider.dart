@@ -133,7 +133,11 @@ class CartProvider with ChangeNotifier {
   double get serviceChargeAmount =>
       (subtotal - _couponDiscount) * _taxService.serviceChargeRate;
   double get totalAmount =>
-      subtotal - _couponDiscount + _shippingCost + taxAmount + serviceChargeAmount;
+      subtotal -
+      _couponDiscount +
+      _shippingCost +
+      taxAmount +
+      serviceChargeAmount;
 
   // Additional computed properties
   double get savings => _couponDiscount;
