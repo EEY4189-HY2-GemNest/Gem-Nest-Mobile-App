@@ -524,13 +524,14 @@ class _PaymentScreenState extends State<PaymentScreen>
             ),
           ),
           const SizedBox(height: 16),
-          _buildPriceRow('Subtotal',
-              'Rs.${_getSubtotal().toStringAsFixed(2)}'),
+          _buildPriceRow('Subtotal', 'Rs.${_getSubtotal().toStringAsFixed(2)}'),
           _buildPriceRow('Delivery Charges',
               'Rs.${widget.deliveryOption.cost.toStringAsFixed(2)}'),
-          _buildPriceRow('Tax (${_taxService.taxPercentage.toStringAsFixed(1)}%)',
+          _buildPriceRow(
+              'Tax (${_taxService.taxPercentage.toStringAsFixed(1)}%)',
               'Rs.${_getTaxAmount().toStringAsFixed(2)}'),
-          _buildPriceRow('Service Charge (${_taxService.serviceChargePercentage.toStringAsFixed(1)}%)',
+          _buildPriceRow(
+              'Service Charge (${_taxService.serviceChargePercentage.toStringAsFixed(1)}%)',
               'Rs.${_getServiceChargeAmount().toStringAsFixed(2)}'),
           if (processingFee > 0)
             _buildPriceRow(
