@@ -62,7 +62,8 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen>
           indicatorWeight: 3,
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
-          labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+          labelStyle:
+              const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
           tabs: const [
             Tab(text: 'All'),
             Tab(text: 'Submitted'),
@@ -130,8 +131,7 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen>
 
         // Apply status filter
         if (statusFilter != null) {
-          reports =
-              reports.where((r) => r.status == statusFilter).toList();
+          reports = reports.where((r) => r.status == statusFilter).toList();
         }
 
         if (reports.isEmpty) {
@@ -366,8 +366,8 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen>
         const SizedBox(width: 3),
         Text(
           priority.label,
-          style:
-              TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w500),
+          style: TextStyle(
+              fontSize: 11, color: color, fontWeight: FontWeight.w500),
         ),
       ],
     );
