@@ -349,7 +349,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       await NotificationService().updateFCMToken(userId);
 
       // Subscribe to role-based notification topics
-      await NotificationService().subscribeToRoleTopics(isBuyer ? 'buyer' : 'seller');
+      await NotificationService()
+          .subscribeToRoleTopics(isBuyer ? 'buyer' : 'seller');
 
       // Trigger registration notifications
       if (isBuyer) {
@@ -358,7 +359,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
           email: emailController.text.trim(),
         );
       } else {
-        await NotificationTriggerService().triggerSellerRegistrationNotification(
+        await NotificationTriggerService()
+            .triggerSellerRegistrationNotification(
           userId: userId,
           email: emailController.text.trim(),
           businessName: businessNameController.text.trim(),
