@@ -133,9 +133,8 @@ class ReportService {
     Query query = _reportsCollection.where('userId', isEqualTo: user.uid);
 
     return query.snapshots().map((snapshot) {
-      List<ReportProblem> reports = snapshot.docs
-          .map((doc) => ReportProblem.fromFirestore(doc))
-          .toList();
+      List<ReportProblem> reports =
+          snapshot.docs.map((doc) => ReportProblem.fromFirestore(doc)).toList();
 
       // Filter by role client-side to avoid composite index requirement
       if (roleFilter != null) {
