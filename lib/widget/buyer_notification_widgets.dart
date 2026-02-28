@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/models/notification_model.dart';
 import 'package:gemnest_mobile_app/providers/buyer_notification_provider.dart';
+import 'package:gemnest_mobile_app/widget/no_data_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -156,19 +157,9 @@ class _BuyerNotificationsListState extends State<BuyerNotificationsList> {
         }
 
         if (notifications.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.notifications_none,
-                    size: 48, color: Colors.grey[300]),
-                const SizedBox(height: 16),
-                Text(
-                  'No notifications yet',
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
-              ],
-            ),
+          return const NoDataWidget(
+            title: 'No notifications yet',
+            icon: Icons.notifications_none,
           );
         }
 
