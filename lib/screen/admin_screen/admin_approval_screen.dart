@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gemnest_mobile_app/widget/no_data_widget.dart';
 
 class AdminApprovalScreen extends StatefulWidget {
   const AdminApprovalScreen({super.key});
@@ -97,11 +98,9 @@ class _AdminApprovalScreenState extends State<AdminApprovalScreen>
         }
 
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return const Center(
-            child: Text(
-              'No pending products for approval',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-            ),
+          return const NoDataWidget(
+            title: 'No pending products for approval',
+            icon: Icons.check_circle_outline,
           );
         }
 
@@ -240,11 +239,9 @@ class _AdminApprovalScreenState extends State<AdminApprovalScreen>
         }
 
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return const Center(
-            child: Text(
-              'No pending auctions for approval',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-            ),
+          return const NoDataWidget(
+            title: 'No pending auctions for approval',
+            icon: Icons.check_circle_outline,
           );
         }
 
