@@ -188,7 +188,8 @@ class _ListedAuctionScreenState extends State<ListedAuctionScreen> {
 
             if (filteredAuctions.isEmpty) {
               return NoDataWidget(
-                title: 'No ${_statusFilter == 'all' ? '' : _statusFilter} auctions found',
+                title:
+                    'No ${_statusFilter == 'all' ? '' : _statusFilter} auctions found',
                 icon: Icons.filter_list_off,
               );
             }
