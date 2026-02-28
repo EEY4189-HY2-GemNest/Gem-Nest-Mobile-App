@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/Seller/order_details_screen.dart';
+import 'package:gemnest_mobile_app/widget/no_data_widget.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:intl/intl.dart';
 
@@ -359,22 +360,10 @@ class _SellerOrderHistoryScreenState extends State<SellerOrderHistoryScreen> {
                 // Orders list
                 Expanded(
                   child: orders.isEmpty
-                      ? const Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.inbox_outlined,
-                                  size: 80, color: Colors.white54),
-                              SizedBox(height: 16),
-                              Text('No orders found',
-                                  style: TextStyle(
-                                      color: Colors.white70, fontSize: 18)),
-                              Text(
-                                  'Orders will appear here when customers place them',
-                                  style: TextStyle(
-                                      color: Colors.white54, fontSize: 14)),
-                            ],
-                          ),
+                      ? const NoDataWidget(
+                          title: 'No orders found',
+                          subtitle: 'Orders will appear here when customers place them',
+                          icon: Icons.inbox_outlined,
                         )
                       : ListView.builder(
                           padding: const EdgeInsets.all(16),
