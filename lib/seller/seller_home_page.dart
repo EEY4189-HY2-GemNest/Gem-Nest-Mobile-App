@@ -14,6 +14,7 @@ import 'package:gemnest_mobile_app/screen/auth_screens/login_screen.dart';
 import 'auction_product.dart';
 import 'notifications_page.dart';
 import 'product_listing.dart';
+import 'package:gemnest_mobile_app/screen/report_screen/report_history_screen.dart';
 
 class SellerHomePage extends StatefulWidget {
   const SellerHomePage({super.key});
@@ -566,6 +567,19 @@ class _SellerHomePageState extends State<SellerHomePage>
                 Colors.purple,
                 () => _navigateToPaymentConfig(),
                 1000.ms,
+              ),
+              _buildActionCard(
+                'Report Problem',
+                Icons.report_problem_outlined,
+                Colors.redAccent,
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const ReportHistoryScreen(userRole: 'seller'),
+                  ),
+                ),
+                1200.ms,
               ),
             ],
           ),
