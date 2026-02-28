@@ -7,6 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gemnest_mobile_app/firebase_options.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
 import 'package:gemnest_mobile_app/services/notification_service.dart';
+import 'package:gemnest_mobile_app/services/tax_service_charge_service.dart';
 import 'package:gemnest_mobile_app/splash_screen.dart';
 import 'package:gemnest_mobile_app/stripe_service.dart';
 import 'package:gemnest_mobile_app/stripe_service_direct.dart';
@@ -45,6 +46,9 @@ void main() async {
 
     // Initialize notification service
     await NotificationService().initialize();
+
+    // Initialize tax & service charge config from Firebase
+    await TaxServiceChargeService().loadConfig();
 
     runApp(
       MultiProvider(
