@@ -363,6 +363,9 @@ class _AuctionScreenState extends State<AuctionScreen> {
           ),
         ],
       ),
+      floatingActionButton:
+          SharedBottomNavigation.buildFloatingActionButton(context, 4),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const SharedBottomNavigation(currentIndex: 4),
     );
   }
