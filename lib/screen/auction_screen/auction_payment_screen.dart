@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/order_history_screen/oreder_history_screen.dart';
+import 'package:gemnest_mobile_app/services/tax_service_charge_service.dart';
 import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 
 class AuctionPaymentScreen extends StatefulWidget {
@@ -28,6 +29,7 @@ class _AuctionPaymentScreenState extends State<AuctionPaymentScreen> {
   String _selectedDeliveryOption = 'pickup';
   String? _selectedPaymentMethod;
   final double _deliveryCharge = 1000.0;
+  final TaxServiceChargeService _taxService = TaxServiceChargeService();
   bool _isLoading = false;
 
   // Controllers for delivery details
@@ -255,6 +257,13 @@ class _AuctionPaymentScreenState extends State<AuctionPaymentScreen> {
             ? 'cash'
             : _selectedPaymentMethod,
         'totalAmount': _calculateTotalPrice(),
+        // Tax & service charge breakdown
+        'taxPercentage': _taxService.taxPercentage,
+        'taxAmount': _taxService.calculateTax(widget.itemPrice),
+        'serviceChargePercentage': _taxService.serviceChargePercentage,
+        'serviceChargeAmount': _taxService.calculateServiceCharge(widget.itemPrice),
+        'subtotalBeforeTax': widget.itemPrice,
+        'deliveryCharge': _selectedDeliveryOption == 'delivery' ? _deliveryCharge : 0.0,
         'status': 'Pending',
         'createdAt': FieldValue.serverTimestamp(),
       };
