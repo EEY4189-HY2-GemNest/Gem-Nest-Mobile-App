@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/home_screen.dart';
+import 'package:gemnest_mobile_app/widget/no_data_widget.dart';
 import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
 import 'package:intl/intl.dart';
@@ -778,65 +779,22 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     return Center(
       child: FadeTransition(
         opacity: _fadeAnimation,
-        child: Padding(
-          padding: const EdgeInsets.all(40),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF667eea).withOpacity(0.1),
-                  shape: BoxShape.circle,
+        child: icon == Icons.shopping_bag_outlined
+            ? NoDataWidget(
+                title: title,
+                subtitle: message,
+                icon: icon,
+                actionLabel: 'Start Shopping',
+                onAction: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomeScreen()),
                 ),
-                child: Icon(
-                  icon,
-                  size: 64,
-                  color: const Color(0xFF667eea),
-                ),
+              )
+            : NoDataWidget(
+                title: title,
+                subtitle: message,
+                icon: icon,
               ),
-              const SizedBox(height: 24),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2C3E50),
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                message,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey.shade600,
-                  height: 1.4,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-              if (icon == Icons.shopping_bag_outlined)
-                ElevatedButton.icon(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HomeScreen()),
-                  ),
-                  icon: const Icon(Icons.shopping_cart),
-                  label: const Text('Start Shopping'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF667eea),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 32, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
       ),
     );
   }
