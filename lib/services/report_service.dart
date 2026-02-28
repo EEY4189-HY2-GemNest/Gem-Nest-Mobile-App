@@ -130,18 +130,21 @@ class ReportService {
     final user = _auth.currentUser;
     if (user == null) return Stream.value([]);
 
-    Query query = _reportsCollection
-        .where('userId', isEqualTo: user.uid)
-        .orderBy('createdAt', descending: true);
-
-    if (roleFilter != null) {
-      query = query.where('userRole', isEqualTo: roleFilter);
-    }
+    Query query = _reportsCollection.where('userId', isEqualTo: user.uid);
 
     return query.snapshots().map((snapshot) {
-      return snapshot.docs
+      List<ReportProblem> reports = snapshot.docs
           .map((doc) => ReportProblem.fromFirestore(doc))
           .toList();
+
+      // Filter by role client-side to avoid composite index requirement
+      if (roleFilter != null) {
+        reports = reports.where((r) => r.userRole == roleFilter).toList();
+      }
+
+      // Sort client-side by createdAt descending
+      reports.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return reports;
     });
   }
 
