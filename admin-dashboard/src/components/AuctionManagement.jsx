@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getAllAuctions } from '../services/adminService';
-import { AlertCircle, Clock, DollarSign, CheckCircle, XCircle } from 'lucide-react';
+import { AlertCircle, Clock, DollarSign, CheckCircle, XCircle, ExternalLink } from 'lucide-react';
 
 export default function AuctionManagement() {
     const [auctions, setAuctions] = useState([]);
@@ -162,6 +162,23 @@ export default function AuctionManagement() {
                                             )}
                                         </div>
                                     </div>
+
+                                    {/* Certificate URL */}
+                                    {auction.certificateUrl && (
+                                        <div className="mt-4 pt-4 border-t border-gray-600/30">
+                                            <div className="flex items-center gap-2 bg-teal-900/20 border border-teal-700/30 rounded-lg px-3 py-2 w-fit">
+                                                <ExternalLink className="w-4 h-4 text-teal-400 flex-shrink-0" />
+                                                <a
+                                                    href={auction.certificateUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-teal-400 text-sm hover:text-teal-300 truncate max-w-md transition-colors"
+                                                >
+                                                    View Certificate URL
+                                                </a>
+                                            </div>
+                                        </div>
+                                    )}
 
                                     {/* Additional Details */}
                                     {(auction.winningUserId || auction.lastBidTime || auction.sellerId || auction.deliveryMethods || auction.paymentMethods) && (

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase-config';
 import { collection, query, where, getDocs, updateDoc, doc, orderBy } from 'firebase/firestore';
-import { CheckCircle, XCircle, Clock, Download, Eye, Filter } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Download, Eye, Filter, ExternalLink } from 'lucide-react';
 import CertificateDialog from './CertificateDialog';
 
 export default function CertificateVerificationDashboard() {
@@ -36,6 +36,7 @@ export default function CertificateVerificationDashboard() {
                             sellerId: product.sellerId,
                             sellerName: product.sellerName || 'Unknown',
                             ...cert,
+                            certificateUrl: product.certificateUrl || '',
                             verificationStatus: product.certificateVerificationStatus || 'pending',
                             rejectionReason: product.rejectionReason || '',
                         });
@@ -190,6 +191,7 @@ export default function CertificateVerificationDashboard() {
                                 <th className="text-left py-3 px-4 text-gray-300 font-semibold">Seller</th>
                                 <th className="text-left py-3 px-4 text-gray-300 font-semibold">Certificate</th>
                                 <th className="text-left py-3 px-4 text-gray-300 font-semibold">Type</th>
+                                <th className="text-left py-3 px-4 text-gray-300 font-semibold">Cert URL</th>
                                 <th className="text-left py-3 px-4 text-gray-300 font-semibold">Uploaded</th>
                                 <th className="text-left py-3 px-4 text-gray-300 font-semibold">Status</th>
                                 <th className="text-left py-3 px-4 text-gray-300 font-semibold">Actions</th>
@@ -209,6 +211,21 @@ export default function CertificateVerificationDashboard() {
                                     </td>
                                     <td className="py-4 px-4">
                                         <span className="text-gray-400 text-sm uppercase">{cert.type}</span>
+                                    </td>
+                                    <td className="py-4 px-4">
+                                        {cert.certificateUrl ? (
+                                            <a
+                                                href={cert.certificateUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-1 text-teal-400 hover:text-teal-300 text-sm transition-colors"
+                                            >
+                                                <ExternalLink className="w-3 h-3" />
+                                                View
+                                            </a>
+                                        ) : (
+                                            <span className="text-gray-500 text-sm">—</span>
+                                        )}
                                     </td>
                                     <td className="py-4 px-4">
                                         <p className="text-gray-400 text-sm">

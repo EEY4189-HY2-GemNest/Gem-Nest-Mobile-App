@@ -1,6 +1,9 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
+import 'package:gemnest_mobile_app/widget/certificate_viewer.dart';
+import 'package:gemnest_mobile_app/widget/certificate_webview.dart';
 import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -22,6 +25,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   Map<String, dynamic>? _sellerData;
   int _quantity = 1;
   bool _isLoading = true;
+  int _currentImageIndex = 0;
 
   @override
   void initState() {
@@ -149,84 +153,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Enhanced Product Image Section with Badge
-                  Stack(
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        height: 380,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: _product['imageUrl'] != null
-                            ? Image.network(
-                                _product['imageUrl'],
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Container(
-                                  color: Colors.grey[200],
-                                  child: const Icon(Icons.image_not_supported,
-                                      size: 100, color: Colors.grey),
-                                ),
-                              )
-                            : Container(
-                                color: Colors.grey[200],
-                                child: const Icon(Icons.image_not_supported,
-                                    size: 100, color: Colors.grey),
-                              ),
-                      ),
-                      // Stock Badge
-                      Positioned(
-                        top: 16,
-                        right: 16,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 14, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: (_product['quantity'] ?? 0) > 0
-                                ? Colors.green
-                                : Colors.red,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
-                                blurRadius: 6,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                (_product['quantity'] ?? 0) > 0
-                                    ? Icons.check_circle
-                                    : Icons.cancel,
-                                color: Colors.white,
-                                size: 16,
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                '${_product['quantity'] ?? 0} in stock',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  // Enhanced Product Image Carousel with Badge
+                  _buildImageCarousel(),
 
                   const SizedBox(height: 20),
 
@@ -648,6 +576,130 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
                   const SizedBox(height: 20),
 
+                  // Certificate URL Section
+                  if (_product['certificateUrl'] != null &&
+                      (_product['certificateUrl'] as String).isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Container(
+                        padding: const EdgeInsets.all(18),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.link_rounded,
+                                  color: Colors.teal[600],
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 10),
+                                const Text(
+                                  'Certificate Verification',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => CertificateWebViewScreen(
+                                      url: _product['certificateUrl'],
+                                      title: 'Certificate Verification',
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.teal[50],
+                                  border: Border.all(
+                                      color: Colors.teal[200]!, width: 1),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.teal[100],
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Icon(
+                                        Icons.verified_outlined,
+                                        color: Colors.teal[600],
+                                        size: 20,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            'View Certificate Online',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 13,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            _product['certificateUrl'],
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.teal[700],
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.teal[600],
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: const Icon(
+                                        Icons.open_in_new,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                  const SizedBox(height: 20),
+
                   // Seller Information
                   if (_sellerData != null)
                     Padding(
@@ -953,134 +1005,188 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   void _viewCertificate(String url, String fileName) {
-    final lowerFileName = fileName.toLowerCase();
-    final isImage = lowerFileName.endsWith('.jpg') ||
-        lowerFileName.endsWith('.jpeg') ||
-        lowerFileName.endsWith('.png');
-    final isPdf = lowerFileName.endsWith('.pdf');
-
-    if (isImage) {
-      _showImageViewer(url, fileName);
-    } else if (isPdf) {
-      _showPdfViewer(url, fileName);
-    } else {
-      _launchUrl(url);
-    }
-  }
-
-  void _showImageViewer(String imageUrl, String fileName) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.black87,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppBar(
-              backgroundColor: Colors.black,
-              automaticallyImplyLeading: true,
-              title: Text(
-                fileName,
-                style: const TextStyle(fontSize: 16),
-              ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Image.network(
-                  imageUrl,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.error_outline,
-                              color: Colors.red, size: 48),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Failed to load image',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          const SizedBox(height: 24),
-                          ElevatedButton(
-                            onPressed: () => _launchUrl(imageUrl),
-                            child: const Text('Open in Browser'),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ],
+    final ext = fileName.split('.').last.toLowerCase();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CertificateViewerScreen(
+          url: url,
+          fileName: fileName,
+          type: ext,
         ),
       ),
     );
   }
 
-  void _showPdfViewer(String pdfUrl, String fileName) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.black87,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppBar(
-              backgroundColor: Colors.black,
-              automaticallyImplyLeading: true,
-              title: Text(
-                fileName,
-                style: const TextStyle(fontSize: 16),
+  /// Builds a carousel slider when multiple images exist, or a single image view.
+  Widget _buildImageCarousel() {
+    // Collect all image URLs
+    final List<String> imageUrls = [];
+    if (_product['imageUrls'] != null && _product['imageUrls'] is List) {
+      for (var url in _product['imageUrls']) {
+        if (url != null && url.toString().isNotEmpty) {
+          imageUrls.add(url.toString());
+        }
+      }
+    }
+    // Fallback to single imageUrl
+    if (imageUrls.isEmpty &&
+        _product['imageUrl'] != null &&
+        _product['imageUrl'].toString().isNotEmpty) {
+      imageUrls.add(_product['imageUrl'].toString());
+    }
+
+    if (imageUrls.isEmpty) {
+      return Stack(
+        children: [
+          Container(
+            width: double.infinity,
+            height: 380,
+            color: Colors.grey[200],
+            child: const Icon(Icons.image_not_supported,
+                size: 100, color: Colors.grey),
+          ),
+          _buildStockBadge(),
+        ],
+      );
+    }
+
+    // Single image — no carousel needed
+    if (imageUrls.length == 1) {
+      return Stack(
+        children: [
+          Container(
+            width: double.infinity,
+            height: 380,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Image.network(
+              imageUrls.first,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                color: Colors.grey[200],
+                child: const Icon(Icons.image_not_supported,
+                    size: 100, color: Colors.grey),
               ),
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.picture_as_pdf,
-                            color: Colors.red[600], size: 80),
-                        const SizedBox(height: 24),
-                        Text(
-                          fileName,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'PDF Document',
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-                        ElevatedButton.icon(
-                          onPressed: () => _launchUrl(pdfUrl),
-                          icon: const Icon(Icons.open_in_browser),
-                          label: const Text('Open PDF in Browser'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 16,
-                            ),
-                          ),
-                        ),
-                      ],
+          ),
+          _buildStockBadge(),
+        ],
+      );
+    }
+
+    // Multiple images — use carousel slider
+    return Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              CarouselSlider.builder(
+                itemCount: imageUrls.length,
+                itemBuilder: (context, index, realIndex) {
+                  return Image.network(
+                    imageUrls[index],
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: Colors.grey[200],
+                      child: const Icon(Icons.image_not_supported,
+                          size: 80, color: Colors.grey),
                     ),
-                  ),
+                  );
+                },
+                options: CarouselOptions(
+                  height: 380,
+                  viewportFraction: 1.0,
+                  enableInfiniteScroll: imageUrls.length > 1,
+                  autoPlay: false,
+                  enlargeCenterPage: false,
+                  onPageChanged: (index, reason) {
+                    setState(() {
+                      _currentImageIndex = index;
+                    });
+                  },
                 ),
+              ),
+              const SizedBox(height: 12),
+              // Dot indicators
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: imageUrls.asMap().entries.map((entry) {
+                  return Container(
+                    width: _currentImageIndex == entry.key ? 24 : 8,
+                    height: 8,
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      color: _currentImageIndex == entry.key
+                          ? Colors.blue[600]
+                          : Colors.grey[300],
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+        _buildStockBadge(),
+      ],
+    );
+  }
+
+  Widget _buildStockBadge() {
+    return Positioned(
+      top: 16,
+      right: 16,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: (_product['quantity'] ?? 0) > 0 ? Colors.green : Colors.red,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              (_product['quantity'] ?? 0) > 0
+                  ? Icons.check_circle
+                  : Icons.cancel,
+              color: Colors.white,
+              size: 16,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              '${_product['quantity'] ?? 0} in stock',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
               ),
             ),
           ],

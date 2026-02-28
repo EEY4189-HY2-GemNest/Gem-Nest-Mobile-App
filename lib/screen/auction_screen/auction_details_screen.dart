@@ -2,6 +2,8 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:gemnest_mobile_app/widget/certificate_viewer.dart';
+import 'package:gemnest_mobile_app/widget/certificate_webview.dart';
 import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -541,11 +543,25 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                                     ),
                                   ),
                                   trailing: GestureDetector(
-                                    onTap: () async {
-                                      final Uri certificateUri =
-                                          Uri.parse(cert['url'] ?? '');
-                                      if (await canLaunchUrl(certificateUri)) {
-                                        await launchUrl(certificateUri);
+                                    onTap: () {
+                                      final String url = cert['url'] ?? '';
+                                      final String certFileName =
+                                          cert['fileName'] ??
+                                              'Certificate ${index + 1}';
+                                      final String certType =
+                                          cert['type'] ?? '';
+                                      if (url.isNotEmpty) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                CertificateViewerScreen(
+                                              url: url,
+                                              fileName: certFileName,
+                                              type: certType,
+                                            ),
+                                          ),
+                                        );
                                       }
                                     },
                                     child: Container(
@@ -570,6 +586,130 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                             ),
                           ),
                         ],
+                      ),
+                    ),
+
+                  const SizedBox(height: 24),
+
+                  // Certificate URL Section
+                  if (_auction['certificateUrl'] != null &&
+                      (_auction['certificateUrl'] as String).isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Container(
+                        padding: const EdgeInsets.all(18),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.link_rounded,
+                                  color: Colors.teal[600],
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 10),
+                                const Text(
+                                  'Certificate Verification',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => CertificateWebViewScreen(
+                                      url: _auction['certificateUrl'],
+                                      title: 'Certificate Verification',
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.teal[50],
+                                  border: Border.all(
+                                      color: Colors.teal[200]!, width: 1),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.teal[100],
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Icon(
+                                        Icons.verified_outlined,
+                                        color: Colors.teal[600],
+                                        size: 20,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            'View Certificate Online',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 13,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            _auction['certificateUrl'],
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.teal[700],
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.teal[600],
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: const Icon(
+                                        Icons.open_in_new,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
 

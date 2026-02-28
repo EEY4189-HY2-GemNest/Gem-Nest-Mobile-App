@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase-config';
 import { collection, query, where, getDocs, updateDoc, doc, orderBy } from 'firebase/firestore';
-import { CheckCircle, XCircle, Clock, Download, Eye, Filter, Gavel } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Download, Eye, Filter, Gavel, ExternalLink } from 'lucide-react';
 import CertificateDialog from './CertificateDialog';
 
 export default function AuctionCertificateVerificationDashboard() {
@@ -42,6 +42,7 @@ export default function AuctionCertificateVerificationDashboard() {
                             sellerName: auction.sellerName || 'Unknown',
                             currentBid: auction.currentBid || 0,
                             ...cert,
+                            certificateUrl: auction.certificateUrl || '',
                             verificationStatus: auction.certificateVerificationStatus || 'pending',
                             rejectionReason: auction.rejectionReason || '',
                         });
@@ -244,6 +245,7 @@ export default function AuctionCertificateVerificationDashboard() {
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Seller</th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Current Bid</th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Certificate</th>
+                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Cert URL</th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Upload Date</th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Status</th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Actions</th>
@@ -264,6 +266,21 @@ export default function AuctionCertificateVerificationDashboard() {
                                         <td className="px-6 py-4 text-sm text-gray-300">{cert.sellerName}</td>
                                         <td className="px-6 py-4 text-sm text-gray-300">Rs. {cert.currentBid.toFixed(2)}</td>
                                         <td className="px-6 py-4 text-sm text-gray-300">{cert.fileName}</td>
+                                        <td className="px-6 py-4 text-sm">
+                                            {cert.certificateUrl ? (
+                                                <a
+                                                    href={cert.certificateUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex items-center gap-1 text-teal-400 hover:text-teal-300 text-sm transition-colors"
+                                                >
+                                                    <ExternalLink className="w-3 h-3" />
+                                                    View
+                                                </a>
+                                            ) : (
+                                                <span className="text-gray-500 text-sm">—</span>
+                                            )}
+                                        </td>
                                         <td className="px-6 py-4 text-sm text-gray-400">
                                             {new Date(cert.uploadedAt).toLocaleDateString()}
                                         </td>

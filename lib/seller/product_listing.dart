@@ -27,6 +27,8 @@ class _ProductListingState extends State<ProductListing>
   final TextEditingController _pricingController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _certificateUrlController =
+      TextEditingController();
 
   String? _selectedCategory;
   final bool _isBulkUploading = false;
@@ -117,6 +119,7 @@ class _ProductListingState extends State<ProductListing>
     _pricingController.dispose();
     _quantityController.dispose();
     _descriptionController.dispose();
+    _certificateUrlController.dispose();
     super.dispose();
   }
 
@@ -295,6 +298,7 @@ class _ProductListingState extends State<ProductListing>
         'imageUrl': imageUrls.isNotEmpty ? imageUrls.first : '',
         'imageUrls': imageUrls,
         'gemCertificates': certificateMetadata,
+        'certificateUrl': _certificateUrlController.text.trim(),
         'deliveryMethods': deliveryMethodsData,
         'paymentMethods': paymentMethodsData,
         'approvalStatus': 'pending',
@@ -316,6 +320,7 @@ class _ProductListingState extends State<ProductListing>
       _pricingController.clear();
       _quantityController.clear();
       _descriptionController.clear();
+      _certificateUrlController.clear();
       _selectedCategory = null;
       _certificateFiles.clear();
       _selectedDeliveryMethods.clear();
@@ -543,6 +548,14 @@ class _ProductListingState extends State<ProductListing>
                   ),
                   const SizedBox(height: 20),
                   _buildCertificateSection(),
+                  const SizedBox(height: 20),
+                  _buildInputField(
+                    label: 'Certificate URL (Optional)',
+                    hint: 'Enter certificate verification URL',
+                    controller: _certificateUrlController,
+                    validator: (value) => null,
+                    keyboardType: TextInputType.url,
+                  ),
                   const SizedBox(height: 20),
                   _buildDeliveryMethodsSection(),
                   const SizedBox(height: 20),

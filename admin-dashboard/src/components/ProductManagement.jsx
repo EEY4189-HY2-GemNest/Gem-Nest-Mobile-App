@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getAllProducts, removeProduct } from '../services/adminService';
-import { Trash2, AlertCircle, Loader } from 'lucide-react';
+import { Trash2, AlertCircle, Loader, ExternalLink } from 'lucide-react';
 import ActionConfirmDialog from './ActionConfirmDialog';
 
 export default function ProductManagement() {
@@ -126,6 +126,20 @@ export default function ProductManagement() {
                                         </p>
                                     </div>
                                 </div>
+
+                                {product.certificateUrl && (
+                                    <div className="flex items-center gap-2 bg-teal-900/20 border border-teal-700/30 rounded-lg px-3 py-2">
+                                        <ExternalLink className="w-4 h-4 text-teal-400 flex-shrink-0" />
+                                        <a
+                                            href={product.certificateUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-teal-400 text-xs hover:text-teal-300 truncate transition-colors"
+                                        >
+                                            Certificate URL
+                                        </a>
+                                    </div>
+                                )}
 
                                 <div className="pt-3 border-t border-gray-700">
                                     <p className="text-gray-500 text-xs">
