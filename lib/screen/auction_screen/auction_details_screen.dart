@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:gemnest_mobile_app/widget/bid_history_widget.dart';
 import 'package:gemnest_mobile_app/widget/certificate_viewer.dart';
 import 'package:gemnest_mobile_app/widget/certificate_webview.dart';
 import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
@@ -436,6 +437,56 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                                 Colors.blue[600]!,
                               ),
                             ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Bid History Section
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Bid History',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            Icon(Icons.history,
+                                color: Colors.blue[600], size: 22),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Container(
+                          constraints: const BoxConstraints(maxHeight: 300),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.grey[200]!),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: BidHistoryWidget(
+                              auctionId: _auction['id'] ?? '',
+                              isSeller: false,
+                            ),
                           ),
                         ),
                       ],
