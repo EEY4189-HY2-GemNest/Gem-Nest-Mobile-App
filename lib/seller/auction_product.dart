@@ -29,7 +29,8 @@ class _AuctionProductState extends State<AuctionProduct>
   final TextEditingController _minimumIncrementController =
       TextEditingController();
   final TextEditingController _endTimeController = TextEditingController();
-  final TextEditingController _certificateUrlController = TextEditingController();
+  final TextEditingController _certificateUrlController =
+      TextEditingController();
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
