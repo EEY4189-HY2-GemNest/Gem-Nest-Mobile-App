@@ -72,8 +72,7 @@ class NotificationTriggerService {
       // Notify all admins about new seller registration
       await _notificationService.notifyAdmins(
         title: '👤 New Seller Registration',
-        body:
-            'New seller "$businessName" ($email) needs account verification.',
+        body: 'New seller "$businessName" ($email) needs account verification.',
         type: 'newSellerRegistration',
         actionUrl: 'admin/sellers',
         extraData: {
@@ -191,7 +190,8 @@ class NotificationTriggerService {
           break;
         default:
           title = '📋 Report Updated';
-          body = 'Your report "$subject" status has been updated to $newStatus.';
+          body =
+              'Your report "$subject" status has been updated to $newStatus.';
       }
 
       await _notificationService.createNotification(
@@ -219,8 +219,7 @@ class NotificationTriggerService {
       debugPrint(
           'Report status change notification triggered for $reportId -> $newStatus');
     } catch (e) {
-      debugPrint(
-          'Error triggering report status change notification: $e');
+      debugPrint('Error triggering report status change notification: $e');
     }
   }
 
@@ -273,8 +272,7 @@ class NotificationTriggerService {
     required DateTime endTime,
   }) async {
     try {
-      final reminderTime =
-          endTime.subtract(const Duration(minutes: 5));
+      final reminderTime = endTime.subtract(const Duration(minutes: 5));
 
       // Only schedule if the reminder time is in the future
       if (reminderTime.isAfter(DateTime.now())) {
@@ -287,7 +285,8 @@ class NotificationTriggerService {
           'createdAt': FieldValue.serverTimestamp(),
         }, SetOptions(merge: true));
 
-        debugPrint('Bid reminder scheduled for auction $auctionId at $reminderTime');
+        debugPrint(
+            'Bid reminder scheduled for auction $auctionId at $reminderTime');
       }
     } catch (e) {
       debugPrint('Error scheduling bid reminder: $e');
