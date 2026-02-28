@@ -113,6 +113,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             _buildFilterChip('Orders', 'orders'),
             const SizedBox(width: 8),
             _buildFilterChip('Bids', 'bids'),
+            const SizedBox(width: 8),
+            _buildFilterChip('Reports', 'reports'),
           ],
         ),
       ),
@@ -205,7 +207,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             .where((n) =>
                 n.type == NotificationType.bidPlaced ||
                 n.type == NotificationType.outbid ||
-                n.type == NotificationType.auctionWon)
+                n.type == NotificationType.auctionWon ||
+                n.type == NotificationType.bidReminder)
+            .toList();
+      case 'reports':
+        return notifications
+            .where((n) =>
+                n.type == NotificationType.reportSubmitted ||
+                n.type == NotificationType.reportStatusChanged ||
+                n.type == NotificationType.reportResponseAdded)
             .toList();
       default:
         return notifications;
