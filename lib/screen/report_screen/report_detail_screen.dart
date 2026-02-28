@@ -166,9 +166,9 @@ class ReportDetailScreen extends StatelessWidget {
                               boxShadow: isActive
                                   ? [
                                       BoxShadow(
-                                        color: _getStatusColor(
-                                                allStatuses[index])
-                                            .withOpacity(0.4),
+                                        color:
+                                            _getStatusColor(allStatuses[index])
+                                                .withOpacity(0.4),
                                         blurRadius: 8,
                                         offset: const Offset(0, 2),
                                       )
@@ -188,8 +188,7 @@ class ReportDetailScreen extends StatelessWidget {
                               child: Container(
                                 height: 3,
                                 color: index < currentStep
-                                    ? _getStatusColor(
-                                        allStatuses[index + 1])
+                                    ? _getStatusColor(allStatuses[index + 1])
                                     : AppTheme.borderGray,
                               ),
                             ),
@@ -286,8 +285,7 @@ class ReportDetailScreen extends StatelessWidget {
               DateFormat('MMM dd, yyyy – hh:mm a').format(report.createdAt)),
           if (report.orderId != null && report.orderId!.isNotEmpty) ...[
             const Divider(height: 20, color: AppTheme.borderGray),
-            _buildInfoRow(
-                Icons.receipt, 'Order ID', report.orderId!),
+            _buildInfoRow(Icons.receipt, 'Order ID', report.orderId!),
           ],
           const Divider(height: 20, color: AppTheme.borderGray),
           _buildInfoRow(Icons.update, 'Last Updated',
@@ -308,8 +306,8 @@ class ReportDetailScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(label,
-                  style: const TextStyle(
-                      fontSize: 13, color: AppTheme.lightGray)),
+                  style:
+                      const TextStyle(fontSize: 13, color: AppTheme.lightGray)),
               Flexible(
                 child: Text(
                   value,
@@ -361,9 +359,7 @@ class ReportDetailScreen extends StatelessWidget {
           Text(
             report.description,
             style: const TextStyle(
-                fontSize: 14,
-                color: AppTheme.mediumGray,
-                height: 1.6),
+                fontSize: 14, color: AppTheme.mediumGray, height: 1.6),
           ),
         ],
       ),
@@ -516,9 +512,7 @@ class ReportDetailScreen extends StatelessWidget {
             child: Text(
               report.adminSolution!,
               style: const TextStyle(
-                  fontSize: 14,
-                  color: AppTheme.darkGray,
-                  height: 1.6),
+                  fontSize: 14, color: AppTheme.darkGray, height: 1.6),
             ),
           ),
         ],
@@ -550,8 +544,7 @@ class ReportDetailScreen extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                  color: AppTheme.primaryBlue.withOpacity(0.15)),
+              border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.15)),
               boxShadow: [
                 BoxShadow(
                     color: Colors.grey.shade50,
@@ -596,9 +589,7 @@ class ReportDetailScreen extends StatelessWidget {
                 Text(
                   response.message,
                   style: const TextStyle(
-                      fontSize: 14,
-                      color: AppTheme.mediumGray,
-                      height: 1.5),
+                      fontSize: 14, color: AppTheme.mediumGray, height: 1.5),
                 ),
               ],
             ),
