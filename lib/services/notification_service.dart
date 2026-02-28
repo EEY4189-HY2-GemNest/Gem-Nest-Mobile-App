@@ -300,7 +300,8 @@ class NotificationService {
             .collection('users')
             .doc(user.uid)
             .collection('notifications')
-            .doc(message.messageId ?? DateTime.now().millisecondsSinceEpoch.toString())
+            .doc(message.messageId ??
+                DateTime.now().millisecondsSinceEpoch.toString())
             .set(notification.toMap());
       }
     } catch (e) {
