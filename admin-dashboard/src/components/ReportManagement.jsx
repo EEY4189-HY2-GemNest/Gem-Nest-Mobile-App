@@ -282,9 +282,8 @@ export default function ReportManagement() {
                                         setSelectedReport(report);
                                         setShowDetailPanel(true);
                                     }}
-                                    className={`bg-gray-900 rounded-xl p-5 border cursor-pointer transition-all hover:border-gray-600 ${
-                                        isSelected ? 'border-primary ring-1 ring-primary/20' : 'border-gray-800'
-                                    }`}
+                                    className={`bg-gray-900 rounded-xl p-5 border cursor-pointer transition-all hover:border-gray-600 ${isSelected ? 'border-primary ring-1 ring-primary/20' : 'border-gray-800'
+                                        }`}
                                 >
                                     <div className="flex items-start justify-between gap-4">
                                         <div className="flex-1 min-w-0">
@@ -309,11 +308,10 @@ export default function ReportManagement() {
                                                     <Flag className="w-3 h-3" />
                                                     {priorityCfg.label}
                                                 </span>
-                                                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                                                    report.userRole === 'seller'
+                                                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${report.userRole === 'seller'
                                                         ? 'bg-purple-900/40 text-purple-300 border border-purple-700/30'
                                                         : 'bg-blue-900/40 text-blue-300 border border-blue-700/30'
-                                                }`}>
+                                                    }`}>
                                                     {report.userRole === 'seller' ? 'Seller' : 'Buyer'}
                                                 </span>
                                             </div>
@@ -476,11 +474,10 @@ export default function ReportManagement() {
                                             <button
                                                 key={s.value}
                                                 onClick={() => updateStatus(selectedReport.id, s.value)}
-                                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
-                                                    isActive
+                                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${isActive
                                                         ? 'ring-2 ring-offset-1 ring-offset-gray-900'
                                                         : 'opacity-60 hover:opacity-100'
-                                                }`}
+                                                    }`}
                                                 style={{
                                                     backgroundColor: isActive ? s.bg : 'transparent',
                                                     color: s.color,
