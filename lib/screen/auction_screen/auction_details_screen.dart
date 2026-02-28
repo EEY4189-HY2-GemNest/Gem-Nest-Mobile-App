@@ -657,8 +657,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                                       padding: const EdgeInsets.all(8),
                                       decoration: BoxDecoration(
                                         color: Colors.teal[100],
-                                        borderRadius:
-                                            BorderRadius.circular(8),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Icon(
                                         Icons.verified_outlined,
@@ -697,8 +696,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                                       padding: const EdgeInsets.all(8),
                                       decoration: BoxDecoration(
                                         color: Colors.teal[600],
-                                        borderRadius:
-                                            BorderRadius.circular(8),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: const Icon(
                                         Icons.open_in_new,
