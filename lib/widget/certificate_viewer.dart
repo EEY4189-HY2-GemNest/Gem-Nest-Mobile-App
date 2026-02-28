@@ -47,6 +47,13 @@ class CertificateViewerScreen extends StatelessWidget {
           icon: const Icon(Icons.close, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.open_in_browser, color: Colors.white),
+            tooltip: 'Open in Browser',
+            onPressed: () => _openInBrowser(url),
+          ),
+        ],
       ),
       body: _isImage
           ? _buildImageViewer(context)
@@ -207,20 +214,12 @@ class CertificateViewerScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _openInBrowser(String url) async {
-    // Use url_launcher from the calling context
-    // This is handled via the calling screen's _launchUrl method
-    // For standalone usage, import url_launcher
+  Future<void> _openInBrowser(String urlStr) async {
     try {
-      final uri = Uri.parse(url);
-      // ignore: deprecated_member_use
-      await launchUrl(uri);
+      final uri = Uri.parse(urlStr);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
     } catch (_) {}
   }
-}
-
-// Re-export for convenience
-Future<void> launchUrl(Uri uri) async {
-  // This will be overridden by the real url_launcher import in calling files
-  throw UnimplementedError('Import url_launcher to use this');
 }
