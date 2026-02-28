@@ -364,6 +364,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
           userId: userId,
           email: emailController.text.trim(),
           businessName: businessNameController.text.trim(),
+          displayName: displayNameController.text.trim(),
+          phoneNumber: phoneNumberController.text.trim(),
+          nicNumber: nicController.text.trim(),
+          brNumber: brNumberController.text.trim(),
+          address: addressController.text.trim(),
+          businessRegistrationUrl: userData['businessRegistrationUrl'],
+          nicDocumentUrl: userData['nicDocumentUrl'],
         );
       }
 
