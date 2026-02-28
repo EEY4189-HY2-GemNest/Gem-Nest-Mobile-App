@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/models/notification_model.dart';
 import 'package:gemnest_mobile_app/services/notification_service.dart';
+import 'package:gemnest_mobile_app/widget/no_data_widget.dart';
 import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:intl/intl.dart';
 
@@ -149,19 +150,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         }
 
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.notifications_none,
-                    size: 64, color: Colors.grey[400]),
-                const SizedBox(height: 16),
-                Text(
-                  'No notifications yet',
-                  style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                ),
-              ],
-            ),
+          return const NoDataWidget(
+            title: 'No notifications yet',
+            icon: Icons.notifications_none,
           );
         }
 

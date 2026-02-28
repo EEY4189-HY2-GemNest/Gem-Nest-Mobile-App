@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/widget/bid_history_widget.dart';
+import 'package:gemnest_mobile_app/widget/no_data_widget.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:intl/intl.dart';
 
@@ -163,22 +164,9 @@ class _ListedAuctionScreenState extends State<ListedAuctionScreen> {
             }
 
             if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-              return const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.gavel_outlined, color: Colors.white70, size: 60),
-                    SizedBox(height: 16),
-                    Text(
-                      'No auctions listed yet',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
+              return const NoDataWidget(
+                title: 'No auctions listed yet',
+                icon: Icons.gavel_outlined,
               );
             }
 
@@ -199,23 +187,10 @@ class _ListedAuctionScreenState extends State<ListedAuctionScreen> {
             }).toList();
 
             if (filteredAuctions.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.filter_list_off,
-                        color: Colors.white70, size: 60),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No ${_statusFilter == 'all' ? '' : _statusFilter} auctions found',
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
+              return NoDataWidget(
+                title:
+                    'No ${_statusFilter == 'all' ? '' : _statusFilter} auctions found',
+                icon: Icons.filter_list_off,
               );
             }
 

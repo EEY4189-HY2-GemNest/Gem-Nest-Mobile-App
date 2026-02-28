@@ -15,6 +15,7 @@ import 'package:gemnest_mobile_app/screen/order_history_screen/oreder_history_sc
 import 'package:gemnest_mobile_app/screen/product_screen/product_card.dart';
 import 'package:gemnest_mobile_app/screen/profile_screen/profile_screen.dart';
 import 'package:gemnest_mobile_app/theme/app_theme.dart';
+import 'package:gemnest_mobile_app/widget/no_data_widget.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -331,11 +332,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       if (bannerProvider.bannerList.isEmpty) {
                         return const SizedBox(
                           height: 150,
-                          child: Center(
-                            child: Text(
-                              'No banners available',
-                              style: TextStyle(color: Colors.grey),
-                            ),
+                          child: NoDataWidget(
+                            title: 'No banners available',
+                            iconSize: 40,
                           ),
                         );
                       }
@@ -502,14 +501,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           ? SliverToBoxAdapter(
                               child: SizedBox(
                                 height: 150,
-                                child: Center(
-                                  child: Text(
-                                    'No gems available',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
+                                child: NoDataWidget(
+                                  title: 'No gems available',
+                                  iconSize: 40,
                                 ),
                               ),
                             )
@@ -699,25 +693,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       return const Center(child: CircularProgressIndicator());
                     }
                     if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.notifications_off,
-                              size: 48,
-                              color: Colors.grey.shade400,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No notifications yet',
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        ),
+                      return const NoDataWidget(
+                        title: 'No notifications yet',
+                        icon: Icons.notifications_off,
                       );
                     }
 

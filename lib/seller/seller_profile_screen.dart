@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:gemnest_mobile_app/widget/no_data_widget.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -320,12 +321,9 @@ class _SellerProfileScreenState extends State<SellerProfileScreen>
                             CircularProgressIndicator(color: Colors.blueAccent),
                       )
                     : sellerData == null
-                        ? const Center(
-                            child: Text(
-                              'No Data Available',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 18),
-                            ),
+                        ? const NoDataWidget(
+                            title: 'No Data Available',
+                            subtitle: 'Profile information could not be loaded',
                           )
                         : FadeTransition(
                             opacity: _fadeAnimation,

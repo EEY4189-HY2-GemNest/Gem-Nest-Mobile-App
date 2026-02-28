@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart'; // Add this package for animations
+import 'package:gemnest_mobile_app/widget/no_data_widget.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 
 class NotificationsPage extends StatefulWidget {
@@ -111,15 +112,9 @@ class _NotificationsPageState extends State<NotificationsPage>
           child: FadeTransition(
             opacity: _fadeAnimation,
             child: _notifications.isEmpty
-                ? const Center(
-                    child: Text(
-                      'No notifications yet.',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 20,
-                        fontFamily: 'Roboto',
-                      ),
-                    ),
+                ? const NoDataWidget(
+                    title: 'No notifications yet',
+                    icon: Icons.notifications_none,
                   )
                 : ListView.builder(
                     padding: const EdgeInsets.all(16),

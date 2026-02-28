@@ -6,6 +6,7 @@ import 'package:gemnest_mobile_app/screen/report_screen/report_detail_screen.dar
 import 'package:gemnest_mobile_app/screen/report_screen/submit_report_screen.dart';
 import 'package:gemnest_mobile_app/services/report_service.dart';
 import 'package:gemnest_mobile_app/theme/app_theme.dart';
+import 'package:gemnest_mobile_app/widget/no_data_widget.dart';
 import 'package:intl/intl.dart';
 
 class ReportHistoryScreen extends StatefulWidget {
@@ -85,48 +86,21 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
           final reports = snapshot.data ?? [];
 
           if (reports.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.report_off_outlined,
-                      size: 72, color: AppTheme.lightGray.withOpacity(0.4)),
-                  const SizedBox(height: 16),
-                  Text('No Reports Found',
-                      style: TextStyle(
-                          color: AppTheme.mediumGray.withOpacity(0.8),
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 8),
-                  Text('You haven\'t submitted any reports yet',
-                      style: TextStyle(
-                          color: AppTheme.lightGray.withOpacity(0.6),
-                          fontSize: 14)),
-                  const SizedBox(height: 24),
-                  OutlinedButton.icon(
-                    onPressed: () async {
-                      final result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              SubmitReportScreen(userRole: widget.userRole),
-                        ),
-                      );
-                      if (result == true) setState(() {});
-                    },
-                    icon: const Icon(Icons.add_circle_outline, size: 18),
-                    label: const Text('Submit a Report'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppTheme.primaryBlue,
-                      side: const BorderSide(color: AppTheme.primaryBlue),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 10),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ),
+            return NoDataWidget(
+              title: 'No Reports Found',
+              subtitle: 'You haven\'t submitted any reports yet',
+              icon: Icons.report_off_outlined,
+              actionLabel: 'Submit a Report',
+              onAction: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        SubmitReportScreen(userRole: widget.userRole),
                   ),
-                ],
-              ),
+                );
+                if (result == true) setState(() {});
+              },
             );
           }
 

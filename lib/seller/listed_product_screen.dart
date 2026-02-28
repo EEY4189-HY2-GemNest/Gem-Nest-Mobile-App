@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:gemnest_mobile_app/widget/no_data_widget.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
@@ -365,22 +366,9 @@ class _ListedProductScreenState extends State<ListedProductScreen> {
             }
 
             if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-              return const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.inventory_2_outlined,
-                        color: Colors.white70, size: 60),
-                    SizedBox(height: 16),
-                    Text(
-                      'No products listed yet',
-                      style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500),
-                    ),
-                  ],
-                ),
+              return const NoDataWidget(
+                title: 'No products listed yet',
+                icon: Icons.inventory_2_outlined,
               );
             }
 
