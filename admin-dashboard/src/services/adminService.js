@@ -362,10 +362,27 @@ export const getRecentActivity = async (limit = 10) => {
 export const verifySeller = async (sellerId) => {
     try {
         const sellerRef = doc(db, 'sellers', sellerId);
+        const sellerSnap = await getDoc(sellerRef);
+        const sellerData = sellerSnap.exists() ? sellerSnap.data() : {};
+
         await updateDoc(sellerRef, {
             verified: true,
+            isActive: true,
             verifiedAt: new Date(),
             verificationStatus: 'approved'
+        });
+
+        // Trigger email notification to seller
+        const { addDoc, serverTimestamp } = await import('firebase/firestore');
+        const triggersRef = collection(db, 'notification_triggers');
+        await addDoc(triggersRef, {
+            type: 'seller_activated',
+            userId: sellerId,
+            email: sellerData.email || '',
+            businessName: sellerData.businessName || '',
+            status: 'approved',
+            timestamp: serverTimestamp(),
+            processed: false,
         });
     } catch (error) {
         console.error('Error verifying seller:', error);
@@ -377,11 +394,28 @@ export const verifySeller = async (sellerId) => {
 export const rejectSellerVerification = async (sellerId, reason) => {
     try {
         const sellerRef = doc(db, 'sellers', sellerId);
+        const sellerSnap = await getDoc(sellerRef);
+        const sellerData = sellerSnap.exists() ? sellerSnap.data() : {};
+
         await updateDoc(sellerRef, {
             verified: false,
             verificationStatus: 'rejected',
             rejectionReason: reason,
             rejectedAt: new Date()
+        });
+
+        // Trigger email notification to seller
+        const { addDoc, serverTimestamp } = await import('firebase/firestore');
+        const triggersRef = collection(db, 'notification_triggers');
+        await addDoc(triggersRef, {
+            type: 'seller_activated',
+            userId: sellerId,
+            email: sellerData.email || '',
+            businessName: sellerData.businessName || '',
+            status: 'rejected',
+            rejectionReason: reason || '',
+            timestamp: serverTimestamp(),
+            processed: false,
         });
     } catch (error) {
         console.error('Error rejecting seller:', error);
