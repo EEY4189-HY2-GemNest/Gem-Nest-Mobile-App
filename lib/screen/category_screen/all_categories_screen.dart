@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/category_screen/category_card.dart';
 import 'package:gemnest_mobile_app/theme/app_theme.dart';
+import 'package:gemnest_mobile_app/widget/no_data_widget.dart';
 import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 
 class AllCategoriesScreen extends StatefulWidget {
@@ -156,41 +157,10 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
             // Categories Grid
             Expanded(
               child: filteredCategories.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(24),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[100],
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.search_off,
-                              size: 80,
-                              color: Colors.grey[400],
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'No categories found',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Try searching with different keywords',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[500],
-                            ),
-                          ),
-                        ],
-                      ),
+                  ? const NoDataWidget(
+                      title: 'No categories found',
+                      subtitle: 'Try searching with different keywords',
+                      icon: Icons.search_off,
                     )
                   : GridView.builder(
                       padding: const EdgeInsets.symmetric(
