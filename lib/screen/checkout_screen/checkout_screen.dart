@@ -1280,7 +1280,8 @@ class _CheckoutScreenState extends State<CheckoutScreen>
     final discount = cartProvider.discountAmount;
     final taxableAmount = subtotal - discount;
     final taxes = cartProvider.taxService.calculateTax(taxableAmount);
-    final serviceCharge = cartProvider.taxService.calculateServiceCharge(taxableAmount);
+    final serviceCharge =
+        cartProvider.taxService.calculateServiceCharge(taxableAmount);
     final total = taxableAmount + deliveryCharges + taxes + serviceCharge;
 
     return Container(
@@ -1331,8 +1332,12 @@ class _CheckoutScreenState extends State<CheckoutScreen>
                 textColor: const Color(0xFF38A169)),
           _buildPriceRow(
               'Delivery Charges', 'Rs.${deliveryCharges.toStringAsFixed(2)}'),
-          _buildPriceRow('Tax (${cartProvider.taxPercentage.toStringAsFixed(1)}%)', 'Rs.${taxes.toStringAsFixed(2)}'),
-          _buildPriceRow('Service Charge (${cartProvider.serviceChargePercentage.toStringAsFixed(1)}%)', 'Rs.${serviceCharge.toStringAsFixed(2)}'),
+          _buildPriceRow(
+              'Tax (${cartProvider.taxPercentage.toStringAsFixed(1)}%)',
+              'Rs.${taxes.toStringAsFixed(2)}'),
+          _buildPriceRow(
+              'Service Charge (${cartProvider.serviceChargePercentage.toStringAsFixed(1)}%)',
+              'Rs.${serviceCharge.toStringAsFixed(2)}'),
           const Divider(thickness: 1.5),
           _buildPriceRow('Total Amount', 'Rs.${total.toStringAsFixed(2)}',
               isBold: true, textSize: 18),
@@ -1417,7 +1422,8 @@ class _CheckoutScreenState extends State<CheckoutScreen>
         final discount = cartProvider.discountAmount;
         final taxableAmount = subtotal - discount;
         final taxes = cartProvider.taxService.calculateTax(taxableAmount);
-        final serviceCharge = cartProvider.taxService.calculateServiceCharge(taxableAmount);
+        final serviceCharge =
+            cartProvider.taxService.calculateServiceCharge(taxableAmount);
         final total = taxableAmount + deliveryCharges + taxes + serviceCharge;
 
         return Container(
@@ -1506,7 +1512,8 @@ class _CheckoutScreenState extends State<CheckoutScreen>
       final discount = cartProvider.discountAmount;
       final taxableAmount = subtotal - discount;
       final taxes = cartProvider.taxService.calculateTax(taxableAmount);
-      final serviceCharge = cartProvider.taxService.calculateServiceCharge(taxableAmount);
+      final serviceCharge =
+          cartProvider.taxService.calculateServiceCharge(taxableAmount);
       final total = taxableAmount + deliveryCharges + taxes + serviceCharge;
 
       // Navigate to payment screen
