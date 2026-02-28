@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:gemnest_mobile_app/services/tax_service_charge_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CartItem {
@@ -88,8 +89,10 @@ class CartProvider with ChangeNotifier {
   String? _appliedCouponCode;
   double _couponDiscount = 0.0;
   double _shippingCost = 0.0;
-  final double _taxRate = 0.1; // 10% tax
   bool _isLoading = false;
+
+  // Tax & service charge from Firebase config
+  final TaxServiceChargeService _taxService = TaxServiceChargeService();
 
   // Constructor - automatically load from local storage
   CartProvider() {
@@ -97,6 +100,7 @@ class CartProvider with ChangeNotifier {
   }
 
   Future<void> _initializeCart() async {
+    await _taxService.loadConfig();
     await loadCartFromLocal();
   }
 
@@ -108,8 +112,12 @@ class CartProvider with ChangeNotifier {
   String? get appliedCouponCode => _appliedCouponCode;
   double get couponDiscount => _couponDiscount;
   double get shippingCost => _shippingCost;
-  double get taxRate => _taxRate;
+  double get taxRate => _taxService.taxRate;
+  double get serviceChargeRate => _taxService.serviceChargeRate;
+  double get taxPercentage => _taxService.taxPercentage;
+  double get serviceChargePercentage => _taxService.serviceChargePercentage;
   bool get isLoading => _isLoading;
+  TaxServiceChargeService get taxService => _taxService;
 
   int get cartItemCount => _cartItems.fold(
       0, (total, item) => total + (item.isSelected ? item.quantity : 0));
@@ -121,9 +129,11 @@ class CartProvider with ChangeNotifier {
   double get originalSubtotal => selectedCartItems.fold(
       0.0, (total, item) => total + item.originalTotalPrice);
   double get totalSavings => originalSubtotal - subtotal + _couponDiscount;
-  double get taxAmount => (subtotal - _couponDiscount) * _taxRate;
+  double get taxAmount => (subtotal - _couponDiscount) * _taxService.taxRate;
+  double get serviceChargeAmount =>
+      (subtotal - _couponDiscount) * _taxService.serviceChargeRate;
   double get totalAmount =>
-      subtotal - _couponDiscount + _shippingCost + taxAmount;
+      subtotal - _couponDiscount + _shippingCost + taxAmount + serviceChargeAmount;
 
   // Additional computed properties
   double get savings => _couponDiscount;
