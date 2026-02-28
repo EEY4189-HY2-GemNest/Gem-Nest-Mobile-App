@@ -275,8 +275,7 @@ class ReportProblem {
       category: ReportCategoryExtension.fromString(data['category'] ?? 'other'),
       priority:
           ReportPriorityExtension.fromString(data['priority'] ?? 'medium'),
-      status:
-          ReportStatusExtension.fromString(data['status'] ?? 'submitted'),
+      status: ReportStatusExtension.fromString(data['status'] ?? 'submitted'),
       imageUrls: List<String>.from(data['imageUrls'] ?? []),
       orderId: data['orderId'],
       productId: data['productId'],
