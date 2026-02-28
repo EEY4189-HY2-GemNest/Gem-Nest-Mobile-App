@@ -161,8 +161,7 @@ class ReportService {
     String? roleFilter,
     String? categoryFilter,
   }) {
-    Query query =
-        _reportsCollection.orderBy('createdAt', descending: true);
+    Query query = _reportsCollection.orderBy('createdAt', descending: true);
 
     if (statusFilter != null) {
       query = query.where('status', isEqualTo: statusFilter.value);
@@ -184,8 +183,7 @@ class ReportService {
   }
 
   /// Update report status (admin)
-  Future<void> updateReportStatus(
-      String reportId, ReportStatus status) async {
+  Future<void> updateReportStatus(String reportId, ReportStatus status) async {
     await _reportsCollection.doc(reportId).update({
       'status': status.value,
       'updatedAt': Timestamp.fromDate(DateTime.now()),
