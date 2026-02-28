@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/auth_screens/login_screen.dart';
+import 'package:gemnest_mobile_app/screen/report_screen/report_history_screen.dart';
 import 'package:gemnest_mobile_app/theme/app_theme.dart';
 import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
@@ -944,6 +945,37 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
             ),
           if (_isEditing) const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.warningOrange,
+                foregroundColor: Colors.white,
+                elevation: 8,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                shadowColor: AppTheme.warningOrange.withOpacity(0.3),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ReportHistoryScreen(
+                      userRole: _userRole ?? 'buyer',
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.report_problem_outlined, size: 24),
+              label: const Text(
+                'Report a Problem',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             height: 56,
