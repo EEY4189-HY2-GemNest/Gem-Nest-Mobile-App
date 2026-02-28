@@ -393,9 +393,23 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             );
                           },
-                          child: const Text(
-                            'See All',
-                            style: TextStyle(fontSize: 14, color: Colors.blue),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppTheme.lightBlue,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const Text(
+                              'See All',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppTheme.primaryBlue,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -430,48 +444,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Popular Gems',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w800,
-                                color: AppTheme.darkGray,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Trending this week',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[500],
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
+                        const Text(
+                          'Popular Gems',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            color: AppTheme.darkGray,
+                            letterSpacing: 0.5,
+                          ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppTheme.lightBlue,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Text(
-                            'View All',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppTheme.primaryBlue,
-                              fontWeight: FontWeight.w600,
-                            ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Trending this week',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[500],
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
