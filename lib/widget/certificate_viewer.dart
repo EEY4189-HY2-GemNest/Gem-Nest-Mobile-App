@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Full-screen in-app viewer for certificate images and PDFs.
 /// Supports pinch-to-zoom for images and shows a styled PDF placeholder
