@@ -341,6 +341,9 @@ exports.onProductApprovalChanged = functions.firestore
             };
             await sendNotification(tokens, notification);
             await saveNotification(sellerId, notification);
+
+            // Send product approval email
+            await emailService.sendProductApprovalEmail(sellerId, after, context.params.productId, 'product', 'approved');
         } else if (after.approvalStatus === 'rejected') {
             const notification = {
                 title: '✗ Product Rejected',
@@ -355,6 +358,9 @@ exports.onProductApprovalChanged = functions.firestore
             };
             await sendNotification(tokens, notification);
             await saveNotification(sellerId, notification);
+
+            // Send product rejection email
+            await emailService.sendProductApprovalEmail(sellerId, after, context.params.productId, 'product', 'rejected', after.rejectionReason);
         }
     });
 
@@ -390,6 +396,9 @@ exports.onAuctionApprovalChanged = functions.firestore
             };
             await sendNotification(tokens, notification);
             await saveNotification(sellerId, notification);
+
+            // Send auction approval email
+            await emailService.sendProductApprovalEmail(sellerId, after, context.params.auctionId, 'auction', 'approved');
         } else if (after.approvalStatus === 'rejected') {
             const notification = {
                 title: '✗ Auction Rejected',
@@ -404,6 +413,9 @@ exports.onAuctionApprovalChanged = functions.firestore
             };
             await sendNotification(tokens, notification);
             await saveNotification(sellerId, notification);
+
+            // Send auction rejection email
+            await emailService.sendProductApprovalEmail(sellerId, after, context.params.auctionId, 'auction', 'rejected', after.rejectionReason);
         }
     });
 
@@ -463,6 +475,9 @@ exports.onNewBid = functions.firestore
             };
             await sendNotification(previousBidderTokens, outbidNotification);
             await saveNotification(before.winningUserId, outbidNotification);
+
+            // Send outbid email
+            await emailService.sendOutbidEmail(before.winningUserId, after, auctionId);
         }
     });
 
