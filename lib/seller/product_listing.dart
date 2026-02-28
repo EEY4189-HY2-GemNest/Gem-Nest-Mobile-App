@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:gemnest_mobile_app/seller/bulk_upload_service.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -31,8 +32,8 @@ class _ProductListingState extends State<ProductListing>
       TextEditingController();
 
   String? _selectedCategory;
-  final bool _isBulkUploading = false;
-  final bool _isDownloadingTemplate = false;
+  bool _isBulkUploading = false;
+  bool _isDownloadingTemplate = false;
   bool _isDeliveryExpanded = false;
   bool _isPaymentExpanded = false;
 
@@ -335,12 +336,114 @@ class _ProductListingState extends State<ProductListing>
     }
   }
 
-  void _handleBulkUpload() {
-    _showErrorDialog('Bulk upload feature coming soon!');
+  final BulkUploadService _bulkUploadService = BulkUploadService();
+
+  void _handleBulkUpload() async {
+    setState(() => _isBulkUploading = true);
+    try {
+      final result = await _bulkUploadService.processBulkUpload();
+
+      if (!mounted) return;
+      setState(() => _isBulkUploading = false);
+
+      if (result.totalRows == 0 && result.errors.isNotEmpty) {
+        _showErrorDialog(result.errors.first);
+        return;
+      }
+
+      if (result.totalRows == 0) return; // user cancelled picker
+
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: Colors.grey[900],
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              Icon(
+                result.failureCount == 0
+                    ? Icons.check_circle
+                    : Icons.warning_amber,
+                color: result.failureCount == 0 ? Colors.green : Colors.orange,
+                size: 28,
+              ),
+              const SizedBox(width: 10),
+              const Text('Bulk Upload Complete',
+                  style: TextStyle(color: Colors.white, fontSize: 18)),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildResultRow('Total rows', '${result.totalRows}'),
+                _buildResultRow(
+                    'Uploaded', '${result.successCount}', Colors.green),
+                if (result.failureCount > 0)
+                  _buildResultRow(
+                      'Failed', '${result.failureCount}', Colors.red),
+                if (result.errors.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  const Divider(color: Colors.white24),
+                  const SizedBox(height: 8),
+                  const Text('Errors:',
+                      style: TextStyle(
+                          color: Colors.redAccent,
+                          fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 6),
+                  ...result.errors.map((e) => Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Text('• $e',
+                            style: const TextStyle(
+                                color: Colors.white70, fontSize: 12)),
+                      )),
+                ],
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK', style: TextStyle(color: Colors.blue)),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isBulkUploading = false);
+        _showErrorDialog('Bulk upload error: $e');
+      }
+    }
+  }
+
+  Widget _buildResultRow(String label, String value, [Color? valueColor]) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(color: Colors.white70)),
+          Text(value,
+              style: TextStyle(
+                  color: valueColor ?? Colors.white,
+                  fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
   }
 
   Future<void> _downloadCsvTemplate() async {
-    _showErrorDialog('CSV template download coming soon!');
+    setState(() => _isDownloadingTemplate = true);
+    try {
+      await _bulkUploadService.shareTemplate();
+    } catch (e) {
+      if (mounted) _showErrorDialog('Error generating template: $e');
+    } finally {
+      if (mounted) setState(() => _isDownloadingTemplate = false);
+    }
   }
 
   void _showSuccessDialog({String? message}) {

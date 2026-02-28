@@ -145,12 +145,14 @@ class Bid {
   final double bidAmount;
   final DateTime timestamp;
   final String bidderName;
+  final String bidderEmail;
 
   Bid({
     required this.bidderId,
     required this.bidAmount,
     required this.timestamp,
     required this.bidderName,
+    this.bidderEmail = '',
   });
 
   Map<String, dynamic> toMap() {
@@ -159,6 +161,7 @@ class Bid {
       'bidAmount': bidAmount,
       'timestamp': timestamp,
       'bidderName': bidderName,
+      'bidderEmail': bidderEmail,
     };
   }
 
@@ -168,6 +171,7 @@ class Bid {
       bidAmount: (map['bidAmount'] ?? 0).toDouble(),
       timestamp: (map['timestamp'] as dynamic).toDate() ?? DateTime.now(),
       bidderName: map['bidderName'] ?? 'Unknown',
+      bidderEmail: map['bidderEmail'] ?? '',
     );
   }
 }
