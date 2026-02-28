@@ -7,6 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gemnest_mobile_app/firebase_options.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
 import 'package:gemnest_mobile_app/services/notification_service.dart';
+import 'package:gemnest_mobile_app/services/tax_service_charge_service.dart';
 import 'package:gemnest_mobile_app/splash_screen.dart';
 import 'package:gemnest_mobile_app/stripe_service.dart';
 import 'package:gemnest_mobile_app/stripe_service_direct.dart';
@@ -17,7 +18,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Load environment variables from .env file
-  await dotenv.load(fileName: ".env");
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint('Warning: Could not load .env file: $e');
+    // Set fallback values so the app can still run
+  }
 
   try {
     // Initialize Firebase
@@ -45,6 +51,9 @@ void main() async {
 
     // Initialize notification service
     await NotificationService().initialize();
+
+    // Initialize tax & service charge config from Firebase
+    await TaxServiceChargeService().loadConfig();
 
     runApp(
       MultiProvider(

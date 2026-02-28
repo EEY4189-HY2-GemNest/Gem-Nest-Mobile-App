@@ -9,6 +9,7 @@ import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
 import 'package:gemnest_mobile_app/screen/checkout_screen/checkout_screen.dart'
     as checkout;
 import 'package:gemnest_mobile_app/screen/order_history_screen/oreder_history_screen.dart';
+import 'package:gemnest_mobile_app/services/tax_service_charge_service.dart';
 import 'package:gemnest_mobile_app/stripe_service_direct.dart';
 import 'package:gemnest_mobile_app/stripe_service_firebase.dart';
 import 'package:gemnest_mobile_app/theme/app_theme.dart';
@@ -118,6 +119,7 @@ class _PaymentScreenState extends State<PaymentScreen>
   // Stripe Integration
   final StripeService _stripeService = StripeService();
   final StripeServiceDirect _stripeServiceDirect = StripeServiceDirect();
+  final TaxServiceChargeService _taxService = TaxServiceChargeService();
   String? _paymentIntentClientSecret;
   String? _stripePaymentIntentId;
   final bool _useDirectStripe = true; // Use direct Stripe for development
@@ -128,6 +130,27 @@ class _PaymentScreenState extends State<PaymentScreen>
 
   // Payment Methods - loaded dynamically from Firebase
   List<PaymentMethod> _paymentMethods = [];
+
+  // Helper methods for tax/service charge calculations
+  double _getSubtotal() {
+    // Total passed in already includes delivery + tax + service charge
+    // We back-calculate the subtotal
+    final deliveryCost = widget.deliveryOption.cost;
+    final taxRate = _taxService.taxRate;
+    final serviceRate = _taxService.serviceChargeRate;
+    // total = subtotal + subtotal*taxRate + subtotal*serviceRate + delivery
+    // total - delivery = subtotal * (1 + taxRate + serviceRate)
+    final factor = 1.0 + taxRate + serviceRate;
+    return (widget.totalAmount - deliveryCost) / factor;
+  }
+
+  double _getTaxAmount() {
+    return _getSubtotal() * _taxService.taxRate;
+  }
+
+  double _getServiceChargeAmount() {
+    return _getSubtotal() * _taxService.serviceChargeRate;
+  }
 
   @override
   void initState() {
@@ -218,7 +241,7 @@ class _PaymentScreenState extends State<PaymentScreen>
               name: 'Cash on Delivery',
               description: 'Pay when you receive your order',
               icon: '💵',
-              processingFee: 50.0,
+              processingFee: _taxService.codProcessingFee,
             ),
           ];
           if (_paymentMethods.isNotEmpty) {
@@ -249,7 +272,8 @@ class _PaymentScreenState extends State<PaymentScreen>
                 name: methodData['name'] ?? key,
                 description: methodData['description'] ?? '',
                 icon: iconMap[key] ?? '💳',
-                processingFee: key == 'cod' ? 50.0 : null,
+                processingFee:
+                    key == 'cod' ? _taxService.codProcessingFee : null,
               ),
             );
           }
@@ -285,7 +309,7 @@ class _PaymentScreenState extends State<PaymentScreen>
             name: 'Cash on Delivery',
             description: 'Pay when you receive your order',
             icon: '💵',
-            processingFee: 50.0,
+            processingFee: _taxService.codProcessingFee,
           ),
         ];
         // Ensure card is always selected first
@@ -522,12 +546,15 @@ class _PaymentScreenState extends State<PaymentScreen>
             ),
           ),
           const SizedBox(height: 16),
-          _buildPriceRow('Subtotal',
-              'Rs.${(widget.totalAmount - widget.deliveryOption.cost - (widget.totalAmount * 0.18)).toStringAsFixed(2)}'),
+          _buildPriceRow('Subtotal', 'Rs.${_getSubtotal().toStringAsFixed(2)}'),
           _buildPriceRow('Delivery Charges',
               'Rs.${widget.deliveryOption.cost.toStringAsFixed(2)}'),
-          _buildPriceRow('Taxes (GST)',
-              'Rs.${(widget.totalAmount * 0.18).toStringAsFixed(2)}'),
+          _buildPriceRow(
+              'Tax (${_taxService.taxPercentage.toStringAsFixed(1)}%)',
+              'Rs.${_getTaxAmount().toStringAsFixed(2)}'),
+          _buildPriceRow(
+              'Service Charge (${_taxService.serviceChargePercentage.toStringAsFixed(1)}%)',
+              'Rs.${_getServiceChargeAmount().toStringAsFixed(2)}'),
           if (processingFee > 0)
             _buildPriceRow(
                 'Processing Fee', 'Rs.${processingFee.toStringAsFixed(2)}',
@@ -904,10 +931,10 @@ class _PaymentScreenState extends State<PaymentScreen>
               color: Colors.orange.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                const Row(
                   children: [
                     Icon(
                       Icons.info_outline,
@@ -925,13 +952,13 @@ class _PaymentScreenState extends State<PaymentScreen>
                     ),
                   ],
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
-                  '• Additional Rs.25 processing fee applies\n'
+                  '• Additional Rs.${_taxService.codProcessingFee.toStringAsFixed(0)} processing fee applies\n'
                   '• Please keep exact change ready\n'
                   '• Payment due upon delivery\n'
                   '• Cash accepted at doorstep',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 14,
                     color: Colors.orange,
                     height: 1.5,
@@ -1248,6 +1275,13 @@ class _PaymentScreenState extends State<PaymentScreen>
         'stripePaymentIntentId': _stripePaymentIntentId ?? '',
         'specialInstructions': widget.specialInstructions,
         'totalAmount': finalTotal,
+        // Tax & service charge breakdown
+        'taxPercentage': _taxService.taxPercentage,
+        'taxAmount': _getTaxAmount(),
+        'serviceChargePercentage': _taxService.serviceChargePercentage,
+        'serviceChargeAmount': _getServiceChargeAmount(),
+        'subtotalBeforeTax': _getSubtotal(),
+        'deliveryCharge': widget.deliveryOption.cost,
         'status': 'confirmed',
         'orderDate': FieldValue.serverTimestamp(),
         'deliveryDate': DateTime.now()
