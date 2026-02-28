@@ -536,6 +536,9 @@ exports.notifyAuctionEnded = functions.https.onRequest(async (req, res) => {
                 };
                 await sendNotification(winnerTokens, winnerNotification);
                 await saveNotification(winnerId, winnerNotification);
+
+                // Send auction win email to winner
+                await emailService.sendAuctionWinEmail(auctionData, null, doc.id);
             }
 
             // Mark as notified
