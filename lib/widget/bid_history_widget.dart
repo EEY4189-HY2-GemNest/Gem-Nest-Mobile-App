@@ -204,8 +204,7 @@ class BidHistoryWidget extends StatelessWidget {
   // Single bid tile
   // ---------------------------------------------------------------------------
 
-  Widget _buildBidTile(
-      Map<String, dynamic> bid, bool isHighest, int rank) {
+  Widget _buildBidTile(Map<String, dynamic> bid, bool isHighest, int rank) {
     final displayName = getDisplayName(bid, isSeller: isSeller);
     final amount = (bid['bidAmount'] as num?)?.toDouble() ?? 0;
 
@@ -229,8 +228,7 @@ class BidHistoryWidget extends StatelessWidget {
         ),
       ),
       child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         leading: Container(
           width: 36,
           height: 36,
@@ -285,8 +283,7 @@ class BidHistoryWidget extends StatelessWidget {
             if (isHighest)
               Container(
                 margin: const EdgeInsets.only(top: 4),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: Colors.green[600],
                   borderRadius: BorderRadius.circular(4),
