@@ -266,7 +266,7 @@ class _BuyerNotificationFilterBarState
 
   @override
   Widget build(BuildContext context) {
-    final filters = ['all', 'unread', 'orders', 'bids', 'approvals'];
+    final filters = ['all', 'unread', 'orders', 'bids', 'approvals', 'reports'];
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,

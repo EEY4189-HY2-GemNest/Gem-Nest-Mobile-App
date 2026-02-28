@@ -11,8 +11,6 @@
 migrate_working_dir/
 
 # Environment variables - DO NOT COMMIT
-.env
-.env.local
 .env*.local
 
 # IntelliJ related
@@ -46,3 +44,5 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+config.bat
+node_modules

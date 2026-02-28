@@ -302,6 +302,17 @@ class _NotificationSettingsScreenState
                 });
               },
             ),
+            const Divider(height: 1),
+            _buildPreferenceSwitch(
+              'Reports & Feedback',
+              _preferences.reportNotifications,
+              (value) {
+                setState(() {
+                  _preferences =
+                      _preferences.copyWith(reportNotifications: value);
+                });
+              },
+            ),
           ],
         ),
       ),

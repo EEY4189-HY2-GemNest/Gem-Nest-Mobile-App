@@ -96,7 +96,7 @@ class SellerNotificationProvider extends ChangeNotifier {
         );
   }
 
-  /// Get seller-specific notifications (approval, bids, orders)
+  /// Get seller-specific notifications (approval, bids, orders, reports, account)
   List<GemNestNotification> getSellerNotifications() {
     return _notifications
         .where((n) => [
@@ -108,6 +108,12 @@ class SellerNotificationProvider extends ChangeNotifier {
               NotificationType.auctionEndingsoon,
               NotificationType.orderCreated,
               NotificationType.paymentReceived,
+              NotificationType.sellerRegistrationPending,
+              NotificationType.sellerAccountActivated,
+              NotificationType.reportSubmitted,
+              NotificationType.reportStatusChanged,
+              NotificationType.reportResponseAdded,
+              NotificationType.bidReminder,
             ].contains(n.type))
         .toList();
   }
@@ -130,6 +136,7 @@ class SellerNotificationProvider extends ChangeNotifier {
         .where((n) => [
               NotificationType.newBidOnAuction,
               NotificationType.auctionEndingsoon,
+              NotificationType.bidReminder,
             ].contains(n.type))
         .toList();
   }
@@ -140,6 +147,17 @@ class SellerNotificationProvider extends ChangeNotifier {
         .where((n) => [
               NotificationType.orderCreated,
               NotificationType.paymentReceived,
+            ].contains(n.type))
+        .toList();
+  }
+
+  /// Get report notifications
+  List<GemNestNotification> getReportNotifications() {
+    return _notifications
+        .where((n) => [
+              NotificationType.reportSubmitted,
+              NotificationType.reportStatusChanged,
+              NotificationType.reportResponseAdded,
             ].contains(n.type))
         .toList();
   }

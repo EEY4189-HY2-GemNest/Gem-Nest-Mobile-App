@@ -90,6 +90,7 @@ class BuyerNotificationProvider extends ChangeNotifier {
                   NotificationType.bidPlaced,
                   NotificationType.outbid,
                   NotificationType.auctionWon,
+                  NotificationType.bidReminder,
                 ].contains(n.type))
             .toList();
       case 'approvals':
@@ -97,6 +98,20 @@ class BuyerNotificationProvider extends ChangeNotifier {
             .where((n) => [
                   NotificationType.productApproved,
                   NotificationType.auctionApproved,
+                ].contains(n.type))
+            .toList();
+      case 'reports':
+        return _notifications
+            .where((n) => [
+                  NotificationType.reportSubmitted,
+                  NotificationType.reportStatusChanged,
+                  NotificationType.reportResponseAdded,
+                ].contains(n.type))
+            .toList();
+      case 'account':
+        return _notifications
+            .where((n) => [
+                  NotificationType.welcomeRegistration,
                 ].contains(n.type))
             .toList();
       case 'all':
