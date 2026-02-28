@@ -612,6 +612,25 @@ class _AuctionItemCardState extends State<AuctionItemCard>
     if (confirm ?? false) {
       setState(() => _isLoading = true);
       try {
+        // Fetch current user's name and email for bid history
+        String bidderName = '';
+        String bidderEmail = currentUser.email ?? '';
+        try {
+          final userDoc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(currentUser.uid)
+              .get();
+          if (userDoc.exists) {
+            final userData = userDoc.data();
+            bidderName = userData?['name'] ?? '';
+            if (bidderEmail.isEmpty) {
+              bidderEmail = userData?['email'] ?? '';
+            }
+          }
+        } catch (e) {
+          debugPrint('Error fetching user data for bid: $e');
+        }
+
         print(
             "Updating Firestore with: {currentBid: $enteredBid, winningUserId: ${currentUser.uid}}");
         await FirebaseFirestore.instance
@@ -621,6 +640,15 @@ class _AuctionItemCardState extends State<AuctionItemCard>
           'currentBid': enteredBid,
           'winningUserId': currentUser.uid,
           'lastBidTime': FieldValue.serverTimestamp(),
+          'bidHistory': FieldValue.arrayUnion([
+            {
+              'bidderId': currentUser.uid,
+              'bidAmount': enteredBid,
+              'timestamp': Timestamp.now(),
+              'bidderName': bidderName,
+              'bidderEmail': bidderEmail,
+            }
+          ]),
         });
         print("Bid update successful");
         setState(() {
