@@ -891,7 +891,7 @@ export default function AnalyticsPanel() {
             <div className="flex flex-wrap gap-3">
                 <button
                     onClick={() => generatePDFReport('complete')}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white rounded-xl hover:from-cyan-500 hover:to-cyan-600 transition-all shadow-lg shadow-cyan-900/20 font-medium text-sm"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-500 hover:to-blue-600 transition-all shadow-lg shadow-blue-900/20 font-medium text-sm"
                 >
                     <Download className="w-4 h-4" />
                     Download Complete Report (PDF)
