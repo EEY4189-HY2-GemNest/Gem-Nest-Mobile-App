@@ -57,6 +57,13 @@ class NotificationTriggerService {
     required String userId,
     required String email,
     required String businessName,
+    String? displayName,
+    String? phoneNumber,
+    String? nicNumber,
+    String? brNumber,
+    String? address,
+    String? businessRegistrationUrl,
+    String? nicDocumentUrl,
   }) async {
     try {
       // Create pending notification for the seller
@@ -82,12 +89,19 @@ class NotificationTriggerService {
         },
       );
 
-      // Write trigger document for Cloud Function
+      // Write trigger document for Cloud Function (includes all seller info for email)
       await _firestore.collection('notification_triggers').add({
         'type': 'sellerRegistrationPending',
         'userId': userId,
         'email': email,
+        'displayName': displayName ?? '',
+        'phoneNumber': phoneNumber ?? '',
         'businessName': businessName,
+        'brNumber': brNumber ?? '',
+        'nicNumber': nicNumber ?? '',
+        'address': address ?? '',
+        'businessRegistrationUrl': businessRegistrationUrl ?? '',
+        'nicDocumentUrl': nicDocumentUrl ?? '',
         'role': 'seller',
         'createdAt': FieldValue.serverTimestamp(),
         'processed': false,
@@ -301,6 +315,8 @@ class NotificationTriggerService {
   Future<void> triggerSellerActivatedNotification({
     required String sellerId,
     required String displayName,
+    String? email,
+    String? businessName,
   }) async {
     try {
       await _notificationService.createNotification(
@@ -311,11 +327,13 @@ class NotificationTriggerService {
         type: 'sellerAccountActivated',
       );
 
-      // Write trigger for Cloud Function
+      // Write trigger for Cloud Function (includes seller info for email)
       await _firestore.collection('notification_triggers').add({
         'type': 'sellerAccountActivated',
         'userId': sellerId,
         'displayName': displayName,
+        'email': email ?? '',
+        'businessName': businessName ?? '',
         'createdAt': FieldValue.serverTimestamp(),
         'processed': false,
       });

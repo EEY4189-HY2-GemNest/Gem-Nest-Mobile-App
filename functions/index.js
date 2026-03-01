@@ -28,6 +28,7 @@ const db = admin.firestore();
 // IMPORT AND RE-EXPORT NOTIFICATION FUNCTIONS
 // ============================================================================
 const notifications = require("./notifications");
+const emailService = require("./email_service");
 
 // Re-export all notification functions
 exports.onNotificationTrigger = notifications.onNotificationTrigger;
@@ -210,10 +211,15 @@ exports.confirmPayment = functions.https.onCall(async (data, context) => {
             );
 
             // You can add additional logic here:
-            // - Send confirmation email
             // - Create invoice
             // - Update inventory
             // - Trigger order fulfillment
+
+            // Send order confirmation email
+            const orderSnap = await db.collection("orders").doc(orderId || intentId).get();
+            if (orderSnap.exists) {
+                await emailService.sendOrderConfirmationEmail(orderSnap.data(), orderId || intentId);
+            }
 
             return {
                 success: true,
@@ -296,8 +302,10 @@ exports.stripeWebhook = functions.https.onRequest((req, res) => {
                         });
                     }
 
-                    // Send confirmation email (implement as needed)
-                    // await sendConfirmationEmail(succeededPayment);
+                    // Send confirmation email for successful payment
+                    for (const doc of succeededOrders.docs) {
+                        await emailService.sendOrderConfirmationEmail(doc.data(), doc.id);
+                    }
 
                     break;
 

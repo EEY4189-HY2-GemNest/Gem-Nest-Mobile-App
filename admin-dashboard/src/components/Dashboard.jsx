@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart3, Users, Package, TrendingUp, Activity, AlertCircle, Download, RefreshCw, TrendingDown, Award } from 'lucide-react';
+import { BarChart3, Users, Package, TrendingUp, Activity, AlertCircle, Download, RefreshCw, TrendingDown, Award, FileText } from 'lucide-react';
 import { getUserStats, getProductStats } from '../services/adminService';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../services/firebase';
@@ -26,20 +26,121 @@ export default function Dashboard() {
     };
 
     const exportStats = () => {
-        const data = {
-            exportDate: new Date().toLocaleString(),
-            users: userStats,
-            products: productStats,
-            auctions: auctionStats,
-            sellers: sellerStats
+        const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>GemNest Dashboard Overview Report</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1a1a2e; background: #fff; padding: 40px; }
+    .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #667eea; padding-bottom: 20px; }
+    .header h1 { font-size: 28px; color: #667eea; margin-bottom: 5px; }
+    .header h2 { font-size: 18px; color: #4a5568; font-weight: normal; }
+    .header .date { font-size: 12px; color: #999; margin-top: 8px; }
+    .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 30px; }
+    .summary-card { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; text-align: center; }
+    .summary-card .label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 1px; }
+    .summary-card .value { font-size: 26px; font-weight: bold; color: #2d3748; margin-top: 4px; }
+    .summary-card .sub { font-size: 11px; color: #718096; margin-top: 2px; }
+    .section { margin-bottom: 30px; }
+    .section h3 { font-size: 16px; color: #2d3748; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #e2e8f0; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: #667eea; color: white; padding: 10px 12px; text-align: left; font-weight: 600; }
+    td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; }
+    tr:nth-child(even) { background: #f7fafc; }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+    .footer { margin-top: 40px; text-align: center; font-size: 11px; color: #999; border-top: 1px solid #e2e8f0; padding-top: 15px; }
+    @media print { body { padding: 20px; } }
+</style>
+</head>
+<body>
+<div class="header">
+    <h1>GemNest Platform</h1>
+    <h2>Dashboard Overview Report</h2>
+    <p class="date">Generated on ${new Date().toLocaleString()}</p>
+</div>
+
+<div class="summary-grid">
+    <div class="summary-card">
+        <div class="label">Total Users</div>
+        <div class="value">${userStats.total}</div>
+        <div class="sub">${userStats.active} active</div>
+    </div>
+    <div class="summary-card">
+        <div class="label">Sellers</div>
+        <div class="value">${userStats.sellers}</div>
+        <div class="sub">${sellerStats.verified} verified</div>
+    </div>
+    <div class="summary-card">
+        <div class="label">Total Products</div>
+        <div class="value">${productStats.total}</div>
+        <div class="sub">${productStats.approved || 0} approved</div>
+    </div>
+    <div class="summary-card">
+        <div class="label">Auctions</div>
+        <div class="value">${auctionStats.total}</div>
+        <div class="sub">${auctionStats.active} active</div>
+    </div>
+</div>
+
+<div class="section">
+    <h3>User Statistics</h3>
+    <table>
+        <thead><tr><th>Metric</th><th class="text-right">Count</th></tr></thead>
+        <tbody>
+            <tr><td>Total Users</td><td class="text-right">${userStats.total}</td></tr>
+            <tr><td>Active Users</td><td class="text-right">${userStats.active}</td></tr>
+            <tr><td>Total Buyers</td><td class="text-right">${userStats.buyers}</td></tr>
+            <tr><td>Total Sellers</td><td class="text-right">${userStats.sellers}</td></tr>
+            <tr><td>Verified Sellers</td><td class="text-right">${sellerStats.verified}</td></tr>
+            <tr><td>Unverified Sellers</td><td class="text-right">${sellerStats.unverified}</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="section">
+    <h3>Product Statistics</h3>
+    <table>
+        <thead><tr><th>Metric</th><th class="text-right">Count</th></tr></thead>
+        <tbody>
+            <tr><td>Total Products</td><td class="text-right">${productStats.total}</td></tr>
+            <tr><td>Approved</td><td class="text-right">${productStats.approved || 0}</td></tr>
+            <tr><td>Pending</td><td class="text-right">${productStats.pending || 0}</td></tr>
+            <tr><td>Rejected</td><td class="text-right">${productStats.rejected || 0}</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="section">
+    <h3>Auction Statistics</h3>
+    <table>
+        <thead><tr><th>Metric</th><th class="text-right">Count</th></tr></thead>
+        <tbody>
+            <tr><td>Total Auctions</td><td class="text-right">${auctionStats.total}</td></tr>
+            <tr><td>Active</td><td class="text-right">${auctionStats.active}</td></tr>
+            <tr><td>Ended</td><td class="text-right">${auctionStats.ended}</td></tr>
+            <tr><td>Approved</td><td class="text-right">${auctionStats.approved || 0}</td></tr>
+            <tr><td>Pending Approval</td><td class="text-right">${auctionStats.pending || 0}</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="footer">
+    <p>This is an auto-generated report from GemNest Admin Dashboard.</p>
+    <p>Report Type: Dashboard Overview</p>
+</div>
+</body>
+</html>`;
+
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
+        printWindow.onload = () => {
+            printWindow.print();
         };
-        const element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(data, null, 2)));
-        element.setAttribute('download', `gemnest-stats-${new Date().getTime()}.json`);
-        element.style.display = 'none';
-        document.body.appendChild(element);
-        element.click();
-        document.body.removeChild(element);
     };
 
     const fetchStats = async () => {
@@ -180,10 +281,10 @@ export default function Dashboard() {
                     </button>
                     <button
                         onClick={exportStats}
-                        className="px-4 py-2 bg-gradient-to-r from-blue-900 to-blue-800 hover:from-blue-800 hover:to-blue-700 text-blue-200 rounded-lg font-bold flex items-center gap-2 transition-all shadow-lg hover:shadow-blue-900/30"
+                        className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-500 hover:to-blue-600 transition-all shadow-lg shadow-blue-900/20 font-medium text-sm"
                     >
                         <Download className="w-4 h-4" />
-                        Export
+                        Download Report (PDF)
                     </button>
                 </div>
             </div>

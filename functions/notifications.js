@@ -1,5 +1,6 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+const emailService = require('./email_service');
 
 // NOTE: Do NOT call admin.initializeApp() here!
 // It's already called in index.js which imports this module.
@@ -155,6 +156,12 @@ exports.onNotificationTrigger = functions.firestore
                             userId: userId,
                         },
                     });
+
+                    // Send welcome email
+                    await emailService.sendWelcomeEmail(userId, {
+                        email: triggerData.email,
+                        displayName: triggerData.displayName || triggerData.name,
+                    });
                     break;
                 }
                 case 'sellerRegistrationPending': {
@@ -186,6 +193,70 @@ exports.onNotificationTrigger = functions.firestore
                             },
                         });
                     }
+
+                    // Send seller registration details email to admin
+                    await emailService.sendSellerRegistrationToAdmin({
+                        displayName: triggerData.displayName || triggerData.name,
+                        email: triggerData.email,
+                        phoneNumber: triggerData.phoneNumber,
+                        businessName: triggerData.businessName,
+                        brNumber: triggerData.brNumber,
+                        nicNumber: triggerData.nicNumber,
+                        address: triggerData.address,
+                        businessRegistrationUrl: triggerData.businessRegistrationUrl,
+                        nicDocumentUrl: triggerData.nicDocumentUrl,
+                    }, userId);
+                    break;
+                }
+                case 'seller_activated': {
+                    const userId = triggerData.userId;
+                    const tokens = await getUserFCMTokens(userId);
+
+                    if (triggerData.status === 'rejected') {
+                        // Seller was rejected
+                        await sendNotification(tokens, {
+                            title: '❌ Account Verification Rejected',
+                            body: `Your seller account verification has been rejected.${triggerData.rejectionReason ? ' Reason: ' + triggerData.rejectionReason : ''}`,
+                            data: {
+                                type: 'sellerAccountRejected',
+                                userId: userId,
+                            },
+                        });
+                        await saveNotification(userId, {
+                            title: '❌ Account Verification Rejected',
+                            body: `Your seller account verification has been rejected.${triggerData.rejectionReason ? ' Reason: ' + triggerData.rejectionReason : ''}`,
+                            type: 'sellerAccountRejected',
+                        });
+
+                        // Send seller rejection email
+                        await emailService.sendSellerRejectionEmail(userId, {
+                            email: triggerData.email,
+                            displayName: triggerData.displayName,
+                            businessName: triggerData.businessName,
+                        }, triggerData.rejectionReason);
+                    } else {
+                        // Seller was approved
+                        await sendNotification(tokens, {
+                            title: '🎉 Account Activated!',
+                            body: `Congratulations! Your seller account "${triggerData.businessName}" has been verified and activated.`,
+                            data: {
+                                type: 'sellerAccountActivated',
+                                userId: userId,
+                            },
+                        });
+                        await saveNotification(userId, {
+                            title: '🎉 Account Activated!',
+                            body: `Congratulations! Your seller account "${triggerData.businessName}" has been verified and activated.`,
+                            type: 'sellerAccountActivated',
+                        });
+
+                        // Send seller approval email
+                        await emailService.sendSellerApprovalEmail(userId, {
+                            email: triggerData.email,
+                            displayName: triggerData.displayName,
+                            businessName: triggerData.businessName,
+                        });
+                    }
                     break;
                 }
                 case 'sellerAccountActivated': {
@@ -198,6 +269,13 @@ exports.onNotificationTrigger = functions.firestore
                             type: 'sellerAccountActivated',
                             userId: userId,
                         },
+                    });
+
+                    // Send seller approval email
+                    await emailService.sendSellerApprovalEmail(userId, {
+                        email: triggerData.email,
+                        displayName: triggerData.displayName,
+                        businessName: triggerData.businessName,
                     });
                     break;
                 }
@@ -314,6 +392,9 @@ exports.onProductApprovalChanged = functions.firestore
             };
             await sendNotification(tokens, notification);
             await saveNotification(sellerId, notification);
+
+            // Send product approval email
+            await emailService.sendProductApprovalEmail(sellerId, after, context.params.productId, 'product', 'approved');
         } else if (after.approvalStatus === 'rejected') {
             const notification = {
                 title: '✗ Product Rejected',
@@ -328,6 +409,9 @@ exports.onProductApprovalChanged = functions.firestore
             };
             await sendNotification(tokens, notification);
             await saveNotification(sellerId, notification);
+
+            // Send product rejection email
+            await emailService.sendProductApprovalEmail(sellerId, after, context.params.productId, 'product', 'rejected', after.rejectionReason);
         }
     });
 
@@ -363,6 +447,9 @@ exports.onAuctionApprovalChanged = functions.firestore
             };
             await sendNotification(tokens, notification);
             await saveNotification(sellerId, notification);
+
+            // Send auction approval email
+            await emailService.sendProductApprovalEmail(sellerId, after, context.params.auctionId, 'auction', 'approved');
         } else if (after.approvalStatus === 'rejected') {
             const notification = {
                 title: '✗ Auction Rejected',
@@ -377,6 +464,9 @@ exports.onAuctionApprovalChanged = functions.firestore
             };
             await sendNotification(tokens, notification);
             await saveNotification(sellerId, notification);
+
+            // Send auction rejection email
+            await emailService.sendProductApprovalEmail(sellerId, after, context.params.auctionId, 'auction', 'rejected', after.rejectionReason);
         }
     });
 
@@ -436,6 +526,9 @@ exports.onNewBid = functions.firestore
             };
             await sendNotification(previousBidderTokens, outbidNotification);
             await saveNotification(before.winningUserId, outbidNotification);
+
+            // Send outbid email
+            await emailService.sendOutbidEmail(before.winningUserId, after, auctionId);
         }
     });
 
@@ -494,6 +587,9 @@ exports.notifyAuctionEnded = functions.https.onRequest(async (req, res) => {
                 };
                 await sendNotification(winnerTokens, winnerNotification);
                 await saveNotification(winnerId, winnerNotification);
+
+                // Send auction win email to winner
+                await emailService.sendAuctionWinEmail(auctionData, null, doc.id);
             }
 
             // Mark as notified
@@ -706,6 +802,9 @@ exports.scheduledAuctionCheck = functions.pubsub
                         type: 'auctionWon',
                         data: { type: 'auctionWon', auctionId: doc.id },
                     });
+
+                    // Send auction win email
+                    await emailService.sendAuctionWinEmail(auctionData, null, doc.id);
                 }
 
                 await db.collection('auctions').doc(doc.id).update({ notifiedEnded: true });
@@ -748,6 +847,9 @@ exports.onOrderCreated = functions.firestore
         };
         await sendNotification(buyerTokens, buyerNotification);
         await saveNotification(buyerId, buyerNotification);
+
+        // Send order confirmation email (bill) to buyer
+        await emailService.sendOrderConfirmationEmail(orderData, context.params.orderId);
 
         // Notify seller
         if (sellerId) {
@@ -824,6 +926,9 @@ exports.onOrderStatusChanged = functions.firestore
 
         await sendNotification(tokens, notification);
         await saveNotification(buyerId, notification);
+
+        // Send order status update email
+        await emailService.sendOrderStatusEmail(after, context.params.orderId, after.status);
     });
 
 /**
@@ -855,6 +960,9 @@ exports.onPaymentReceived = functions.firestore
 
         await sendNotification(tokens, notification);
         await saveNotification(sellerId, notification);
+
+        // Send payment received email to seller
+        await emailService.sendPaymentReceivedEmail(after, context.params.paymentId);
     });
 
 // ============================================================================
@@ -946,6 +1054,9 @@ exports.onReportStatusChanged = functions.firestore
 
         await sendNotification(tokens, notification);
         await saveNotification(userId, notification);
+
+        // Send report status email
+        await emailService.sendReportStatusEmail(userId, after, context.params.reportId, after.status);
     });
 
 // ============================================================================
@@ -978,6 +1089,16 @@ exports.onSellerActivated = functions.firestore
             };
             await sendNotification(tokens, notification);
             await saveNotification(sellerId, notification);
+
+            // Send seller approval email
+            await emailService.sendSellerApprovalEmail(sellerId, after);
+        }
+
+        // Check if verification was rejected
+        if (before.verificationStatus !== 'rejected' && after.verificationStatus === 'rejected') {
+            const sellerId = context.params.sellerId;
+            // Send seller rejection email
+            await emailService.sendSellerRejectionEmail(sellerId, after, after.rejectionReason);
         }
     });
 
@@ -1016,6 +1137,9 @@ exports.notifyAdminsNewProduct = functions.firestore
                 await sendNotification(tokens, notification);
                 await saveNotification(adminDoc.id, notification);
             }
+
+            // Send email to admins about new product
+            await emailService.sendNewApprovalNeededEmail(productData, context.params.productId, 'product');
         } catch (error) {
             console.error('Error notifying admins:', error);
         }
@@ -1052,6 +1176,9 @@ exports.notifyAdminsNewAuction = functions.firestore
                 await sendNotification(tokens, notification);
                 await saveNotification(adminDoc.id, notification);
             }
+
+            // Send email to admins about new auction
+            await emailService.sendNewApprovalNeededEmail(auctionData, context.params.auctionId, 'auction');
         } catch (error) {
             console.error('Error notifying admins about auction:', error);
         }
