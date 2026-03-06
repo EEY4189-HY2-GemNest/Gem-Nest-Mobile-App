@@ -710,125 +710,125 @@ exports.scheduledAuctionCheck = onSchedule('every 1 minutes', async (context) =>
     const db = getDb();
     const now = new Date();
 
-        try {
-            // --- Process bid reminders (5 min before end) ---
-            const fiveMinutesLater = new Date(now.getTime() + 5 * 60000);
+    try {
+        // --- Process bid reminders (5 min before end) ---
+        const fiveMinutesLater = new Date(now.getTime() + 5 * 60000);
 
-            const remindersSnapshot = await db
-                .collection('bid_reminders')
-                .where('processed', '==', false)
-                .where('reminderTime', '<=', admin.firestore.Timestamp.fromDate(fiveMinutesLater))
-                .get();
+        const remindersSnapshot = await db
+            .collection('bid_reminders')
+            .where('processed', '==', false)
+            .where('reminderTime', '<=', admin.firestore.Timestamp.fromDate(fiveMinutesLater))
+            .get();
 
-            for (const reminderDoc of remindersSnapshot.docs) {
-                const reminderData = reminderDoc.data();
-                const auctionId = reminderData.auctionId;
-                const auctionDoc = await db.collection('auctions').doc(auctionId).get();
+        for (const reminderDoc of remindersSnapshot.docs) {
+            const reminderData = reminderDoc.data();
+            const auctionId = reminderData.auctionId;
+            const auctionDoc = await db.collection('auctions').doc(auctionId).get();
 
-                if (!auctionDoc.exists) {
-                    await reminderDoc.ref.update({ processed: true });
-                    continue;
-                }
-
-                const auctionData = auctionDoc.data();
-
-                // Notify highest bidder
-                if (auctionData.winningUserId) {
-                    const tokens = await getUserFCMTokens(auctionData.winningUserId);
-                    await sendNotification(tokens, {
-                        title: '⏰ Auction Ending in 5 Minutes!',
-                        body: `"${auctionData.title}" ends soon! Current bid: Rs. ${auctionData.currentBid}`,
-                        data: {
-                            type: 'bidReminder',
-                            auctionId: auctionId,
-                        },
-                    });
-                    await saveNotification(auctionData.winningUserId, {
-                        title: '⏰ Auction Ending in 5 Minutes!',
-                        body: `"${auctionData.title}" ends soon! Current bid: Rs. ${auctionData.currentBid}`,
-                        type: 'bidReminder',
-                        data: { auctionId: auctionId, type: 'bidReminder' },
-                    });
-                }
-
-                // Notify seller
-                if (auctionData.sellerId) {
-                    const sellerTokens = await getUserFCMTokens(auctionData.sellerId);
-                    await sendNotification(sellerTokens, {
-                        title: '⏰ Your Auction Ending Soon!',
-                        body: `"${auctionData.title}" ends in 5 minutes. Current bid: Rs. ${auctionData.currentBid}`,
-                        data: {
-                            type: 'bidReminder',
-                            auctionId: auctionId,
-                        },
-                    });
-                    await saveNotification(auctionData.sellerId, {
-                        title: '⏰ Your Auction Ending Soon!',
-                        body: `"${auctionData.title}" ends in 5 minutes. Current bid: Rs. ${auctionData.currentBid}`,
-                        type: 'bidReminder',
-                        data: { auctionId: auctionId, type: 'bidReminder' },
-                    });
-                }
-
+            if (!auctionDoc.exists) {
                 await reminderDoc.ref.update({ processed: true });
+                continue;
             }
 
-            // --- Process ended auctions ---
-            const nowTimestamp = admin.firestore.Timestamp.now();
-            const endedAuctions = await db
-                .collection('auctions')
-                .where('endTime', '<', nowTimestamp.toDate().toISOString())
-                .where('notifiedEnded', '==', false)
-                .get();
+            const auctionData = auctionDoc.data();
 
-            for (const doc of endedAuctions.docs) {
-                const auctionData = doc.data();
-                const sellerId = auctionData.sellerId;
-                const winnerId = auctionData.winningUserId;
+            // Notify highest bidder
+            if (auctionData.winningUserId) {
+                const tokens = await getUserFCMTokens(auctionData.winningUserId);
+                await sendNotification(tokens, {
+                    title: '⏰ Auction Ending in 5 Minutes!',
+                    body: `"${auctionData.title}" ends soon! Current bid: Rs. ${auctionData.currentBid}`,
+                    data: {
+                        type: 'bidReminder',
+                        auctionId: auctionId,
+                    },
+                });
+                await saveNotification(auctionData.winningUserId, {
+                    title: '⏰ Auction Ending in 5 Minutes!',
+                    body: `"${auctionData.title}" ends soon! Current bid: Rs. ${auctionData.currentBid}`,
+                    type: 'bidReminder',
+                    data: { auctionId: auctionId, type: 'bidReminder' },
+                });
+            }
 
-                // Notify seller
-                const sellerTokens = await getUserFCMTokens(sellerId);
+            // Notify seller
+            if (auctionData.sellerId) {
+                const sellerTokens = await getUserFCMTokens(auctionData.sellerId);
                 await sendNotification(sellerTokens, {
-                    title: '🏁 Your Auction Ended',
-                    body: `Auction "${auctionData.title}" has ended. Final bid: Rs. ${auctionData.currentBid}`,
-                    data: { type: 'auctionEnded', auctionId: doc.id },
+                    title: '⏰ Your Auction Ending Soon!',
+                    body: `"${auctionData.title}" ends in 5 minutes. Current bid: Rs. ${auctionData.currentBid}`,
+                    data: {
+                        type: 'bidReminder',
+                        auctionId: auctionId,
+                    },
                 });
-                await saveNotification(sellerId, {
-                    title: '🏁 Your Auction Ended',
-                    body: `Auction "${auctionData.title}" has ended. Final bid: Rs. ${auctionData.currentBid}`,
-                    type: 'auctionEnded',
-                    data: { type: 'auctionEnded', auctionId: doc.id },
+                await saveNotification(auctionData.sellerId, {
+                    title: '⏰ Your Auction Ending Soon!',
+                    body: `"${auctionData.title}" ends in 5 minutes. Current bid: Rs. ${auctionData.currentBid}`,
+                    type: 'bidReminder',
+                    data: { auctionId: auctionId, type: 'bidReminder' },
                 });
-
-                // Notify winner
-                if (winnerId) {
-                    const winnerTokens = await getUserFCMTokens(winnerId);
-                    await sendNotification(winnerTokens, {
-                        title: '🎉 Congratulations! You won!',
-                        body: `You won "${auctionData.title}" with Rs. ${auctionData.currentBid}`,
-                        data: { type: 'auctionWon', auctionId: doc.id },
-                    });
-                    await saveNotification(winnerId, {
-                        title: '🎉 Congratulations! You won!',
-                        body: `You won "${auctionData.title}" with Rs. ${auctionData.currentBid}`,
-                        type: 'auctionWon',
-                        data: { type: 'auctionWon', auctionId: doc.id },
-                    });
-
-                    // Send auction win email
-                    await emailService.sendAuctionWinEmail(auctionData, null, doc.id);
-                }
-
-                await db.collection('auctions').doc(doc.id).update({ notifiedEnded: true });
             }
 
-            console.log(`Scheduled check: ${remindersSnapshot.size} reminders, ${endedAuctions.size} ended auctions`);
-        } catch (error) {
-            console.error('Error in scheduled auction check:', error);
+            await reminderDoc.ref.update({ processed: true });
         }
 
-        return null;
+        // --- Process ended auctions ---
+        const nowTimestamp = admin.firestore.Timestamp.now();
+        const endedAuctions = await db
+            .collection('auctions')
+            .where('endTime', '<', nowTimestamp.toDate().toISOString())
+            .where('notifiedEnded', '==', false)
+            .get();
+
+        for (const doc of endedAuctions.docs) {
+            const auctionData = doc.data();
+            const sellerId = auctionData.sellerId;
+            const winnerId = auctionData.winningUserId;
+
+            // Notify seller
+            const sellerTokens = await getUserFCMTokens(sellerId);
+            await sendNotification(sellerTokens, {
+                title: '🏁 Your Auction Ended',
+                body: `Auction "${auctionData.title}" has ended. Final bid: Rs. ${auctionData.currentBid}`,
+                data: { type: 'auctionEnded', auctionId: doc.id },
+            });
+            await saveNotification(sellerId, {
+                title: '🏁 Your Auction Ended',
+                body: `Auction "${auctionData.title}" has ended. Final bid: Rs. ${auctionData.currentBid}`,
+                type: 'auctionEnded',
+                data: { type: 'auctionEnded', auctionId: doc.id },
+            });
+
+            // Notify winner
+            if (winnerId) {
+                const winnerTokens = await getUserFCMTokens(winnerId);
+                await sendNotification(winnerTokens, {
+                    title: '🎉 Congratulations! You won!',
+                    body: `You won "${auctionData.title}" with Rs. ${auctionData.currentBid}`,
+                    data: { type: 'auctionWon', auctionId: doc.id },
+                });
+                await saveNotification(winnerId, {
+                    title: '🎉 Congratulations! You won!',
+                    body: `You won "${auctionData.title}" with Rs. ${auctionData.currentBid}`,
+                    type: 'auctionWon',
+                    data: { type: 'auctionWon', auctionId: doc.id },
+                });
+
+                // Send auction win email
+                await emailService.sendAuctionWinEmail(auctionData, null, doc.id);
+            }
+
+            await db.collection('auctions').doc(doc.id).update({ notifiedEnded: true });
+        }
+
+        console.log(`Scheduled check: ${remindersSnapshot.size} reminders, ${endedAuctions.size} ended auctions`);
+    } catch (error) {
+        console.error('Error in scheduled auction check:', error);
     }
+
+    return null;
+}
 );
 
 // ============================================================================
