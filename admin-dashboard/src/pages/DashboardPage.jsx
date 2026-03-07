@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Package, Gavel, LogOut, Menu, X, BarChart3, AlertTriangle, Settings, DollarSign } from 'lucide-react';
+import { Users, Package, Gavel, LogOut, Menu, X, BarChart3, AlertTriangle, Settings, DollarSign, Image } from 'lucide-react';
 import { logoutAdmin } from '../services/adminService';
 import { auth } from '../services/firebase';
 import UserManagement from '../components/UserManagement';
@@ -11,6 +11,7 @@ import NotificationPanel from '../components/NotificationPanel';
 import ReportManagement from '../components/ReportManagement';
 import TaxServiceChargeConfig from '../components/TaxServiceChargeConfig';
 import TaxEarningsPanel from '../components/TaxEarningsPanel';
+import BannerConfig from '../components/BannerConfig';
 
 export default function DashboardPage() {
     const [currentPage, setCurrentPage] = useState('dashboard');
@@ -43,6 +44,7 @@ export default function DashboardPage() {
         { id: 'analytics', label: 'Analytics', icon: BarChart3 },
         { id: 'tax-config', label: 'Tax & Charges', icon: Settings },
         { id: 'tax-earnings', label: 'Tax Earnings', icon: DollarSign },
+        { id: 'banner-config', label: 'Banners', icon: Image },
         { id: 'users', label: 'Users', icon: Users },
         { id: 'products', label: 'Products', icon: Package },
         { id: 'auctions', label: 'Auctions', icon: Gavel },
@@ -136,6 +138,7 @@ export default function DashboardPage() {
                     {currentPage === 'analytics' && <AnalyticsPanel />}
                     {currentPage === 'tax-config' && <TaxServiceChargeConfig />}
                     {currentPage === 'tax-earnings' && <TaxEarningsPanel />}
+                    {currentPage === 'banner-config' && <BannerConfig />}
                     {currentPage === 'users' && <UserManagement />}
                     {currentPage === 'products' && <ProductManagement />}
                     {currentPage === 'auctions' && <AuctionManagement />}
