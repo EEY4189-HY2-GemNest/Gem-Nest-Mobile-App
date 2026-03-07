@@ -329,14 +329,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         );
                       }
-                      if (bannerProvider.bannerList.isEmpty) {
-                        return const SizedBox(
-                          height: 150,
-                          child: NoDataWidget(
-                            title: 'No banners available',
-                            iconSize: 40,
-                          ),
-                        );
+                      if (bannerProvider.bannerImageUrls.isEmpty) {
+                        return SizedBox.shrink();
                       }
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -348,7 +342,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             viewportFraction: 1.0,
                             aspectRatio: 16 / 9,
                           ),
-                          items: bannerProvider.bannerList.map((imageUrl) {
+                          items: bannerProvider.bannerImageUrls.map((imageUrl) {
                             return ClipRRect(
                               borderRadius: BorderRadius.circular(12),
                               child: Image.network(
