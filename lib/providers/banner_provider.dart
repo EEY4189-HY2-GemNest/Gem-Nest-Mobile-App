@@ -57,12 +57,13 @@ class BannerProvider extends ChangeNotifier {
     try {
       QuerySnapshot snapshot = await FirebaseFirestore.instance
           .collection('banners')
-          .where('isActive', isEqualTo: true)
+          .orderBy('createdAt', descending: true)
           .get();
 
       _bannerList = snapshot.docs
           .map((doc) => BannerData.fromFirestore(
               doc.data() as Map<String, dynamic>, doc.id))
+          .where((banner) => banner.isActive == true)
           .toList();
 
       // Filter out expired banners
@@ -77,6 +78,7 @@ class BannerProvider extends ChangeNotifier {
       _bannerImageUrls = _bannerList.map((banner) => banner.imageUrl).toList();
       _error = null;
     } catch (e) {
+      print('Banner fetch error: $e');
       _error = 'Failed to load banners';
     }
     _isLoading = false;
