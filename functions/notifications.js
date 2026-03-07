@@ -1,6 +1,8 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const emailService = require('./email_service');
+const { onDocumentCreated, onDocumentUpdated } = require('firebase-functions/v2/firestore');
+const { onSchedule } = require('firebase-functions/v2/scheduler');
 
 // NOTE: Do NOT call admin.initializeApp() here!
 // It's already called in index.js which imports this module.
@@ -136,9 +138,11 @@ async function sendNotification(tokens, notification) {
  * Process notification triggers written by the Flutter app
  * This handles: registration, report notifications, bid reminders, etc.
  */
-exports.onNotificationTrigger = functions.firestore
-    .document('notification_triggers/{triggerId}')
-    .onCreate(async (snap, context) => {
+exports.onNotificationTrigger = onDocumentCreated(
+    'notification_triggers/{triggerId}',
+    async (event) => {
+        const snap = event.data;
+        const context = { params: event.params };
         const db = getDb();
         const triggerData = snap.data();
         const triggerType = triggerData.type;
@@ -358,7 +362,8 @@ exports.onNotificationTrigger = functions.firestore
             console.error(`Error processing notification trigger ${triggerType}:`, error);
             await snap.ref.update({ processed: false, error: error.message });
         }
-    });
+    }
+);
 
 // ============================================================================
 // PRODUCT APPROVAL NOTIFICATIONS
@@ -367,9 +372,11 @@ exports.onNotificationTrigger = functions.firestore
 /**
  * Send notification when product is approved/rejected
  */
-exports.onProductApprovalChanged = functions.firestore
-    .document('products/{productId}')
-    .onUpdate(async (change, context) => {
+exports.onProductApprovalChanged = onDocumentUpdated(
+    'products/{productId}',
+    async (event) => {
+        const change = { before: event.data.before(), after: event.data.after() };
+        const context = { params: event.params };
         const before = change.before.data();
         const after = change.after.data();
 
@@ -413,7 +420,8 @@ exports.onProductApprovalChanged = functions.firestore
             // Send product rejection email
             await emailService.sendProductApprovalEmail(sellerId, after, context.params.productId, 'product', 'rejected', after.rejectionReason);
         }
-    });
+    }
+);
 
 // ============================================================================
 // AUCTION APPROVAL NOTIFICATIONS
@@ -422,9 +430,11 @@ exports.onProductApprovalChanged = functions.firestore
 /**
  * Send notification when auction is approved/rejected
  */
-exports.onAuctionApprovalChanged = functions.firestore
-    .document('auctions/{auctionId}')
-    .onUpdate(async (change, context) => {
+exports.onAuctionApprovalChanged = onDocumentUpdated(
+    'auctions/{auctionId}',
+    async (event) => {
+        const change = { before: event.data.before(), after: event.data.after() };
+        const context = { params: event.params };
         const before = change.before.data();
         const after = change.after.data();
 
@@ -468,7 +478,8 @@ exports.onAuctionApprovalChanged = functions.firestore
             // Send auction rejection email
             await emailService.sendProductApprovalEmail(sellerId, after, context.params.auctionId, 'auction', 'rejected', after.rejectionReason);
         }
-    });
+    }
+);
 
 // ============================================================================
 // BID NOTIFICATIONS
@@ -477,9 +488,11 @@ exports.onAuctionApprovalChanged = functions.firestore
 /**
  * Send notification when a new bid is placed on an auction
  */
-exports.onNewBid = functions.firestore
-    .document('auctions/{auctionId}')
-    .onUpdate(async (change, context) => {
+exports.onNewBid = onDocumentUpdated(
+    'auctions/{auctionId}',
+    async (event) => {
+        const change = { before: event.data.before(), after: event.data.after() };
+        const context = { params: event.params };
         const before = change.before.data();
         const after = change.after.data();
 
@@ -530,7 +543,8 @@ exports.onNewBid = functions.firestore
             // Send outbid email
             await emailService.sendOutbidEmail(before.winningUserId, after, auctionId);
         }
-    });
+    }
+);
 
 // ============================================================================
 // AUCTION ENDED NOTIFICATIONS
@@ -692,131 +706,130 @@ exports.processBidReminders = functions.https.onRequest(async (req, res) => {
  * 1. Bid reminders (5 min before end)
  * 2. Auctions that have ended
  */
-exports.scheduledAuctionCheck = functions.pubsub
-    .schedule('every 1 minutes')
-    .onRun(async (context) => {
-        const db = getDb();
-        const now = new Date();
+exports.scheduledAuctionCheck = onSchedule('every 1 minutes', async (context) => {
+    const db = getDb();
+    const now = new Date();
 
-        try {
-            // --- Process bid reminders (5 min before end) ---
-            const fiveMinutesLater = new Date(now.getTime() + 5 * 60000);
+    try {
+        // --- Process bid reminders (5 min before end) ---
+        const fiveMinutesLater = new Date(now.getTime() + 5 * 60000);
 
-            const remindersSnapshot = await db
-                .collection('bid_reminders')
-                .where('processed', '==', false)
-                .where('reminderTime', '<=', admin.firestore.Timestamp.fromDate(fiveMinutesLater))
-                .get();
+        const remindersSnapshot = await db
+            .collection('bid_reminders')
+            .where('processed', '==', false)
+            .where('reminderTime', '<=', admin.firestore.Timestamp.fromDate(fiveMinutesLater))
+            .get();
 
-            for (const reminderDoc of remindersSnapshot.docs) {
-                const reminderData = reminderDoc.data();
-                const auctionId = reminderData.auctionId;
-                const auctionDoc = await db.collection('auctions').doc(auctionId).get();
+        for (const reminderDoc of remindersSnapshot.docs) {
+            const reminderData = reminderDoc.data();
+            const auctionId = reminderData.auctionId;
+            const auctionDoc = await db.collection('auctions').doc(auctionId).get();
 
-                if (!auctionDoc.exists) {
-                    await reminderDoc.ref.update({ processed: true });
-                    continue;
-                }
-
-                const auctionData = auctionDoc.data();
-
-                // Notify highest bidder
-                if (auctionData.winningUserId) {
-                    const tokens = await getUserFCMTokens(auctionData.winningUserId);
-                    await sendNotification(tokens, {
-                        title: '⏰ Auction Ending in 5 Minutes!',
-                        body: `"${auctionData.title}" ends soon! Current bid: Rs. ${auctionData.currentBid}`,
-                        data: {
-                            type: 'bidReminder',
-                            auctionId: auctionId,
-                        },
-                    });
-                    await saveNotification(auctionData.winningUserId, {
-                        title: '⏰ Auction Ending in 5 Minutes!',
-                        body: `"${auctionData.title}" ends soon! Current bid: Rs. ${auctionData.currentBid}`,
-                        type: 'bidReminder',
-                        data: { auctionId: auctionId, type: 'bidReminder' },
-                    });
-                }
-
-                // Notify seller
-                if (auctionData.sellerId) {
-                    const sellerTokens = await getUserFCMTokens(auctionData.sellerId);
-                    await sendNotification(sellerTokens, {
-                        title: '⏰ Your Auction Ending Soon!',
-                        body: `"${auctionData.title}" ends in 5 minutes. Current bid: Rs. ${auctionData.currentBid}`,
-                        data: {
-                            type: 'bidReminder',
-                            auctionId: auctionId,
-                        },
-                    });
-                    await saveNotification(auctionData.sellerId, {
-                        title: '⏰ Your Auction Ending Soon!',
-                        body: `"${auctionData.title}" ends in 5 minutes. Current bid: Rs. ${auctionData.currentBid}`,
-                        type: 'bidReminder',
-                        data: { auctionId: auctionId, type: 'bidReminder' },
-                    });
-                }
-
+            if (!auctionDoc.exists) {
                 await reminderDoc.ref.update({ processed: true });
+                continue;
             }
 
-            // --- Process ended auctions ---
-            const nowTimestamp = admin.firestore.Timestamp.now();
-            const endedAuctions = await db
-                .collection('auctions')
-                .where('endTime', '<', nowTimestamp.toDate().toISOString())
-                .where('notifiedEnded', '==', false)
-                .get();
+            const auctionData = auctionDoc.data();
 
-            for (const doc of endedAuctions.docs) {
-                const auctionData = doc.data();
-                const sellerId = auctionData.sellerId;
-                const winnerId = auctionData.winningUserId;
+            // Notify highest bidder
+            if (auctionData.winningUserId) {
+                const tokens = await getUserFCMTokens(auctionData.winningUserId);
+                await sendNotification(tokens, {
+                    title: '⏰ Auction Ending in 5 Minutes!',
+                    body: `"${auctionData.title}" ends soon! Current bid: Rs. ${auctionData.currentBid}`,
+                    data: {
+                        type: 'bidReminder',
+                        auctionId: auctionId,
+                    },
+                });
+                await saveNotification(auctionData.winningUserId, {
+                    title: '⏰ Auction Ending in 5 Minutes!',
+                    body: `"${auctionData.title}" ends soon! Current bid: Rs. ${auctionData.currentBid}`,
+                    type: 'bidReminder',
+                    data: { auctionId: auctionId, type: 'bidReminder' },
+                });
+            }
 
-                // Notify seller
-                const sellerTokens = await getUserFCMTokens(sellerId);
+            // Notify seller
+            if (auctionData.sellerId) {
+                const sellerTokens = await getUserFCMTokens(auctionData.sellerId);
                 await sendNotification(sellerTokens, {
-                    title: '🏁 Your Auction Ended',
-                    body: `Auction "${auctionData.title}" has ended. Final bid: Rs. ${auctionData.currentBid}`,
-                    data: { type: 'auctionEnded', auctionId: doc.id },
+                    title: '⏰ Your Auction Ending Soon!',
+                    body: `"${auctionData.title}" ends in 5 minutes. Current bid: Rs. ${auctionData.currentBid}`,
+                    data: {
+                        type: 'bidReminder',
+                        auctionId: auctionId,
+                    },
                 });
-                await saveNotification(sellerId, {
-                    title: '🏁 Your Auction Ended',
-                    body: `Auction "${auctionData.title}" has ended. Final bid: Rs. ${auctionData.currentBid}`,
-                    type: 'auctionEnded',
-                    data: { type: 'auctionEnded', auctionId: doc.id },
+                await saveNotification(auctionData.sellerId, {
+                    title: '⏰ Your Auction Ending Soon!',
+                    body: `"${auctionData.title}" ends in 5 minutes. Current bid: Rs. ${auctionData.currentBid}`,
+                    type: 'bidReminder',
+                    data: { auctionId: auctionId, type: 'bidReminder' },
                 });
-
-                // Notify winner
-                if (winnerId) {
-                    const winnerTokens = await getUserFCMTokens(winnerId);
-                    await sendNotification(winnerTokens, {
-                        title: '🎉 Congratulations! You won!',
-                        body: `You won "${auctionData.title}" with Rs. ${auctionData.currentBid}`,
-                        data: { type: 'auctionWon', auctionId: doc.id },
-                    });
-                    await saveNotification(winnerId, {
-                        title: '🎉 Congratulations! You won!',
-                        body: `You won "${auctionData.title}" with Rs. ${auctionData.currentBid}`,
-                        type: 'auctionWon',
-                        data: { type: 'auctionWon', auctionId: doc.id },
-                    });
-
-                    // Send auction win email
-                    await emailService.sendAuctionWinEmail(auctionData, null, doc.id);
-                }
-
-                await db.collection('auctions').doc(doc.id).update({ notifiedEnded: true });
             }
 
-            console.log(`Scheduled check: ${remindersSnapshot.size} reminders, ${endedAuctions.size} ended auctions`);
-        } catch (error) {
-            console.error('Error in scheduled auction check:', error);
+            await reminderDoc.ref.update({ processed: true });
         }
 
-        return null;
-    });
+        // --- Process ended auctions ---
+        const nowTimestamp = admin.firestore.Timestamp.now();
+        const endedAuctions = await db
+            .collection('auctions')
+            .where('endTime', '<', nowTimestamp.toDate().toISOString())
+            .where('notifiedEnded', '==', false)
+            .get();
+
+        for (const doc of endedAuctions.docs) {
+            const auctionData = doc.data();
+            const sellerId = auctionData.sellerId;
+            const winnerId = auctionData.winningUserId;
+
+            // Notify seller
+            const sellerTokens = await getUserFCMTokens(sellerId);
+            await sendNotification(sellerTokens, {
+                title: '🏁 Your Auction Ended',
+                body: `Auction "${auctionData.title}" has ended. Final bid: Rs. ${auctionData.currentBid}`,
+                data: { type: 'auctionEnded', auctionId: doc.id },
+            });
+            await saveNotification(sellerId, {
+                title: '🏁 Your Auction Ended',
+                body: `Auction "${auctionData.title}" has ended. Final bid: Rs. ${auctionData.currentBid}`,
+                type: 'auctionEnded',
+                data: { type: 'auctionEnded', auctionId: doc.id },
+            });
+
+            // Notify winner
+            if (winnerId) {
+                const winnerTokens = await getUserFCMTokens(winnerId);
+                await sendNotification(winnerTokens, {
+                    title: '🎉 Congratulations! You won!',
+                    body: `You won "${auctionData.title}" with Rs. ${auctionData.currentBid}`,
+                    data: { type: 'auctionWon', auctionId: doc.id },
+                });
+                await saveNotification(winnerId, {
+                    title: '🎉 Congratulations! You won!',
+                    body: `You won "${auctionData.title}" with Rs. ${auctionData.currentBid}`,
+                    type: 'auctionWon',
+                    data: { type: 'auctionWon', auctionId: doc.id },
+                });
+
+                // Send auction win email
+                await emailService.sendAuctionWinEmail(auctionData, null, doc.id);
+            }
+
+            await db.collection('auctions').doc(doc.id).update({ notifiedEnded: true });
+        }
+
+        console.log(`Scheduled check: ${remindersSnapshot.size} reminders, ${endedAuctions.size} ended auctions`);
+    } catch (error) {
+        console.error('Error in scheduled auction check:', error);
+    }
+
+    return null;
+}
+);
 
 // ============================================================================
 // ORDER NOTIFICATIONS
@@ -825,9 +838,11 @@ exports.scheduledAuctionCheck = functions.pubsub
 /**
  * Send notification when order is created
  */
-exports.onOrderCreated = functions.firestore
-    .document('orders/{orderId}')
-    .onCreate(async (snap, context) => {
+exports.onOrderCreated = onDocumentCreated(
+    'orders/{orderId}',
+    async (event) => {
+        const snap = event.data;
+        const context = { params: event.params };
         const orderData = snap.data();
         const buyerId = orderData.userId;
         const sellerId = orderData.sellerId;
@@ -868,14 +883,17 @@ exports.onOrderCreated = functions.firestore
             await sendNotification(sellerTokens, sellerNotification);
             await saveNotification(sellerId, sellerNotification);
         }
-    });
+    }
+);
 
 /**
  * Send notification when order status changes
  */
-exports.onOrderStatusChanged = functions.firestore
-    .document('orders/{orderId}')
-    .onUpdate(async (change, context) => {
+exports.onOrderStatusChanged = onDocumentUpdated(
+    'orders/{orderId}',
+    async (event) => {
+        const change = { before: event.data.before(), after: event.data.after() };
+        const context = { params: event.params };
         const before = change.before.data();
         const after = change.after.data();
 
@@ -929,14 +947,17 @@ exports.onOrderStatusChanged = functions.firestore
 
         // Send order status update email
         await emailService.sendOrderStatusEmail(after, context.params.orderId, after.status);
-    });
+    }
+);
 
 /**
  * Send notification when payment is received
  */
-exports.onPaymentReceived = functions.firestore
-    .document('payments/{paymentId}')
-    .onUpdate(async (change, context) => {
+exports.onPaymentReceived = onDocumentUpdated(
+    'payments/{paymentId}',
+    async (event) => {
+        const change = { before: event.data.before(), after: event.data.after() };
+        const context = { params: event.params };
         const before = change.before.data();
         const after = change.after.data();
 
@@ -963,7 +984,8 @@ exports.onPaymentReceived = functions.firestore
 
         // Send payment received email to seller
         await emailService.sendPaymentReceivedEmail(after, context.params.paymentId);
-    });
+    }
+);
 
 // ============================================================================
 // REPORT NOTIFICATIONS (Firestore Triggers)
@@ -972,9 +994,11 @@ exports.onPaymentReceived = functions.firestore
 /**
  * Notify when a new report is created in Firestore
  */
-exports.onReportCreated = functions.firestore
-    .document('reports/{reportId}')
-    .onCreate(async (snap, context) => {
+exports.onReportCreated = onDocumentCreated(
+    'reports/{reportId}',
+    async (event) => {
+        const snap = event.data;
+        const context = { params: event.params };
         const db = getDb();
         const reportData = snap.data();
 
@@ -1001,14 +1025,17 @@ exports.onReportCreated = functions.firestore
             await sendNotification(tokens, notification);
             await saveNotification(adminDoc.id, notification);
         }
-    });
+    }
+);
 
 /**
  * Notify user when report status changes
  */
-exports.onReportStatusChanged = functions.firestore
-    .document('reports/{reportId}')
-    .onUpdate(async (change, context) => {
+exports.onReportStatusChanged = onDocumentUpdated(
+    'reports/{reportId}',
+    async (event) => {
+        const change = { before: event.data.before(), after: event.data.after() };
+        const context = { params: event.params };
         const before = change.before.data();
         const after = change.after.data();
 
@@ -1057,7 +1084,8 @@ exports.onReportStatusChanged = functions.firestore
 
         // Send report status email
         await emailService.sendReportStatusEmail(userId, after, context.params.reportId, after.status);
-    });
+    }
+);
 
 // ============================================================================
 // SELLER ACCOUNT ACTIVATION
@@ -1066,9 +1094,11 @@ exports.onReportStatusChanged = functions.firestore
 /**
  * Notify seller when their account is activated by admin
  */
-exports.onSellerActivated = functions.firestore
-    .document('sellers/{sellerId}')
-    .onUpdate(async (change, context) => {
+exports.onSellerActivated = onDocumentUpdated(
+    'sellers/{sellerId}',
+    async (event) => {
+        const change = { before: event.data.before(), after: event.data.after() };
+        const context = { params: event.params };
         const before = change.before.data();
         const after = change.after.data();
 
@@ -1100,7 +1130,8 @@ exports.onSellerActivated = functions.firestore
             // Send seller rejection email
             await emailService.sendSellerRejectionEmail(sellerId, after, after.rejectionReason);
         }
-    });
+    }
+);
 
 // ============================================================================
 // ADMIN NOTIFICATIONS
@@ -1109,9 +1140,11 @@ exports.onSellerActivated = functions.firestore
 /**
  * Notify all admins when new product needs approval
  */
-exports.notifyAdminsNewProduct = functions.firestore
-    .document('products/{productId}')
-    .onCreate(async (snap, context) => {
+exports.notifyAdminsNewProduct = onDocumentCreated(
+    'products/{productId}',
+    async (event) => {
+        const snap = event.data;
+        const context = { params: event.params };
         const db = getDb();
         try {
             const productData = snap.data();
@@ -1143,14 +1176,17 @@ exports.notifyAdminsNewProduct = functions.firestore
         } catch (error) {
             console.error('Error notifying admins:', error);
         }
-    });
+    }
+);
 
 /**
  * Notify all admins when new auction needs approval
  */
-exports.notifyAdminsNewAuction = functions.firestore
-    .document('auctions/{auctionId}')
-    .onCreate(async (snap, context) => {
+exports.notifyAdminsNewAuction = onDocumentCreated(
+    'auctions/{auctionId}',
+    async (event) => {
+        const snap = event.data;
+        const context = { params: event.params };
         const db = getDb();
         try {
             const auctionData = snap.data();
@@ -1182,7 +1218,8 @@ exports.notifyAdminsNewAuction = functions.firestore
         } catch (error) {
             console.error('Error notifying admins about auction:', error);
         }
-    });
+    }
+);
 
 // ============================================================================
 // PRODUCT CATEGORY BROADCAST
@@ -1191,9 +1228,11 @@ exports.notifyAdminsNewAuction = functions.firestore
 /**
  * Notify interested users when a product in their category is approved
  */
-exports.broadcastProductApprovedByCategory = functions.firestore
-    .document('products/{productId}')
-    .onUpdate(async (change, context) => {
+exports.broadcastProductApprovedByCategory = onDocumentUpdated(
+    'products/{productId}',
+    async (event) => {
+        const change = { before: event.data.before(), after: event.data.after() };
+        const context = { params: event.params };
         const db = getDb();
         const before = change.before.data();
         const after = change.after.data();
@@ -1225,6 +1264,7 @@ exports.broadcastProductApprovedByCategory = functions.firestore
             await sendNotification(tokens, notification);
             await saveNotification(userDoc.id, notification);
         }
-    });
+    }
+);
 
 console.log('Notification functions module loaded successfully!');
