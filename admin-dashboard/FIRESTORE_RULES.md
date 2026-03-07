@@ -132,6 +132,16 @@ service cloud.firestore {
         && resource.data.buyerId == request.auth.uid;
     }
 
+    // ==================== BANNERS COLLECTION ====================
+    
+    match /banners/{bannerId} {
+      // Allow all users (authenticated or not) to read banners for home screen display
+      allow read: if true;
+      
+      // Only admins can create, update, and delete banners
+      allow create, update, delete: if isAdmin();
+    }
+
     // ==================== PAYMENTS COLLECTION ====================
     
     match /payments/{paymentId} {
