@@ -352,11 +352,10 @@ export default function BannerConfig() {
                         {banners.map((banner) => (
                             <div
                                 key={banner.id}
-                                className={`relative group rounded-lg overflow-hidden border transition-all ${
-                                    isExpired(banner.endDate)
+                                className={`relative group rounded-lg overflow-hidden border transition-all ${isExpired(banner.endDate)
                                         ? 'border-red-500/30 opacity-60'
                                         : 'border-gray-700 hover:border-primary/50'
-                                }`}
+                                    }`}
                             >
                                 {/* Image */}
                                 <img
