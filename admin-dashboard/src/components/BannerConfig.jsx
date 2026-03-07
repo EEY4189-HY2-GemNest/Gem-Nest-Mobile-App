@@ -132,12 +132,36 @@ export default function BannerConfig() {
                     const storageRef = ref(storage, fileName);
 
                     console.log('Uploading image to:', fileName);
-                    await uploadBytes(storageRef, imageFile);
+                    // Add retry logic for upload
+                    let uploadAttempts = 0;
+                    const maxAttempts = 3;
+                    
+                    while (uploadAttempts < maxAttempts) {
+                        try {
+                            await uploadBytes(storageRef, imageFile);
+                            break; // Success, exit retry loop
+                        } catch (uploadErr) {
+                            uploadAttempts++;
+                            console.warn(`Upload attempt ${uploadAttempts} failed:`, uploadErr);
+                            if (uploadAttempts >= maxAttempts) {
+                                throw uploadErr; // Max attempts reached
+                            }
+                            // Wait before retrying (exponential backoff)
+                            await new Promise(resolve => setTimeout(resolve, 1000 * uploadAttempts));
+                        }
+                    }
+                    
                     imageUrl = await getDownloadURL(storageRef);
                     console.log('Image uploaded successfully:', imageUrl);
                 } catch (uploadErr) {
                     console.error('Image upload error:', uploadErr);
-                    setError(`Image upload failed: ${uploadErr.message}`);
+                    let errorMsg = 'Image upload failed';
+                    if (uploadErr.code === 'storage/unauthorized') {
+                        errorMsg = 'Permission denied. Admin authorization required.';
+                    } else if (uploadErr.code === 'storage/retry-limit-exceeded') {
+                        errorMsg = 'Upload failed - network timeout. Please try again.';
+                    }
+                    setError(`${errorMsg}: ${uploadErr.message}`);
                     setUploading(false);
                     return;
                 }
@@ -168,7 +192,11 @@ export default function BannerConfig() {
             }, 1500);
         } catch (err) {
             console.error('Error adding banner:', err);
-            setError(err.message || 'Failed to add banner. Please try again.');
+            if (err.code === 'permission-denied') {
+                setError('Permission denied. Please ensure Firestore rules are updated.');
+            } else {
+                setError(err.message || 'Failed to add banner. Please try again.');
+            }
         } finally {
             setUploading(false);
         }
@@ -232,10 +260,11 @@ export default function BannerConfig() {
                 </div>
                 <button
                     onClick={() => setShowForm(!showForm)}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-yellow-600 text-gray-950 rounded-xl hover:from-primary/90 hover:to-yellow-700 transition-all shadow-lg shadow-primary/20 font-medium"
+                    disabled={uploading}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-yellow-600 text-gray-950 rounded-xl hover:from-primary/90 hover:to-yellow-700 transition-all shadow-lg shadow-primary/20 font-medium disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                     <Plus className="w-5 h-5" />
-                    Add Banner
+                    {uploading ? 'Adding Banner...' : 'Add Banner'}
                 </button>
             </div>
 
