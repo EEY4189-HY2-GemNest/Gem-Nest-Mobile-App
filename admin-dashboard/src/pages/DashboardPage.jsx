@@ -18,22 +18,42 @@ export default function DashboardPage() {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [admin, setAdmin] = useState(null);
     const [authChecked, setAuthChecked] = useState(false);
+    const [isOngoing, setIsOngoing] = useState(false);
 
     useEffect(() => {
+        // Restore auth state from session storage if available
+        const savedAdmin = sessionStorage.getItem('adminUser');
+        if (savedAdmin && !admin) {
+            try {
+                const adminData = JSON.parse(savedAdmin);
+                setAdmin(adminData);
+                setAuthChecked(true);
+            } catch (e) {
+                console.error('Failed to restore admin session:', e);
+            }
+        }
+
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if (!user) {
-                // Only redirect if we've already checked auth once
-                if (authChecked) {
+                // Only redirect if we've already checked auth once AND no operation is ongoing
+                if (authChecked && !isOngoing) {
+                    sessionStorage.removeItem('adminUser');
                     window.location.href = '/login';
                 }
             } else {
-                setAdmin(user);
+                const adminData = {
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName,
+                };
+                setAdmin(adminData);
+                sessionStorage.setItem('adminUser', JSON.stringify(adminData));
                 setAuthChecked(true);
             }
         });
 
         return () => unsubscribe();
-    }, [authChecked]);
+    }, [authChecked, isOngoing]);
 
     const handleLogout = async () => {
         try {
