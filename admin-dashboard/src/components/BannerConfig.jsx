@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db, storage } from '../services/firebase';
-import { collection, addDoc, deleteDoc, doc, getDocs, query, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, deleteDoc, doc, getDocs, query, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { Upload, X, Plus, Trash2, Eye, Download, Calendar, AlertCircle } from 'lucide-react';
 import ConfirmDialog from './ConfirmDialog';
@@ -85,6 +85,15 @@ export default function BannerConfig() {
         setFormData({ ...formData, endDate: e.target.value });
     };
 
+    const isValidUrl = (string) => {
+        try {
+            new URL(string);
+            return true;
+        } catch (_) {
+            return false;
+        }
+    };
+
     const validateForm = () => {
         if (!formData.useUrlDirectly && !imageFile) {
             setError('Please upload an image');
@@ -92,6 +101,10 @@ export default function BannerConfig() {
         }
         if (formData.useUrlDirectly && !formData.imageUrl.trim()) {
             setError('Please enter an image URL');
+            return false;
+        }
+        if (formData.useUrlDirectly && !isValidUrl(formData.imageUrl)) {
+            setError('Please enter a valid image URL (must start with http:// or https://)');
             return false;
         }
         if (formData.endDate && new Date(formData.endDate) < new Date()) {
@@ -113,12 +126,21 @@ export default function BannerConfig() {
 
             // Upload image if file was selected
             if (imageFile) {
-                const timestamp = Date.now();
-                const fileName = `banners/${timestamp}_${imageFile.name}`;
-                const storageRef = ref(storage, fileName);
+                try {
+                    const timestamp = Date.now();
+                    const fileName = `banners/${timestamp}_${imageFile.name}`;
+                    const storageRef = ref(storage, fileName);
 
-                await uploadBytes(storageRef, imageFile);
-                imageUrl = await getDownloadURL(storageRef);
+                    console.log('Uploading image to:', fileName);
+                    await uploadBytes(storageRef, imageFile);
+                    imageUrl = await getDownloadURL(storageRef);
+                    console.log('Image uploaded successfully:', imageUrl);
+                } catch (uploadErr) {
+                    console.error('Image upload error:', uploadErr);
+                    setError(`Image upload failed: ${uploadErr.message}`);
+                    setUploading(false);
+                    return;
+                }
             }
 
             // Add banner to Firestore
@@ -126,10 +148,12 @@ export default function BannerConfig() {
                 imageUrl,
                 isActive: true,
                 createdAt: serverTimestamp(),
-                endDate: formData.endDate ? new Date(formData.endDate) : null,
+                endDate: formData.endDate ? Timestamp.fromDate(new Date(formData.endDate)) : null,
             };
 
+            console.log('Adding banner to Firestore:', bannerData);
             await addDoc(collection(db, 'banners'), bannerData);
+            console.log('Banner added successfully');
 
             setSuccess('Banner added successfully!');
             setFormData({ imageUrl: '', endDate: '', useUrlDirectly: true });
@@ -144,7 +168,7 @@ export default function BannerConfig() {
             }, 1500);
         } catch (err) {
             console.error('Error adding banner:', err);
-            setError(err.message || 'Failed to add banner');
+            setError(err.message || 'Failed to add banner. Please try again.');
         } finally {
             setUploading(false);
         }
@@ -373,6 +397,9 @@ export default function BannerConfig() {
                                     src={banner.imageUrl}
                                     alt="Banner"
                                     className="w-full h-40 object-cover bg-gray-900"
+                                    onError={(e) => {
+                                        e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="160"%3E%3Crect fill="%23374151" width="400" height="160"/%3E%3Ctext x="50%" y="50%" font-size="16" fill="%239CA3AF" text-anchor="middle" dominant-baseline="middle"%3EFailed to load image%3C/text%3E%3C/svg%3E';
+                                    }}
                                 />
 
                                 {/* Expired Badge */}
