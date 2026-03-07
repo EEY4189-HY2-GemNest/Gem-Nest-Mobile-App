@@ -426,5 +426,6 @@ export default function BannerConfig() {
                     />
                 )}
             </div>
-            );
+        </div>
+    );
 }
