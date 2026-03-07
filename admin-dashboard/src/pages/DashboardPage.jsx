@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Package, Gavel, LogOut, Menu, X, BarChart3, AlertTriangle, Settings, DollarSign } from 'lucide-react';
+import { Users, Package, Gavel, LogOut, Menu, X, BarChart3, AlertTriangle, Settings, DollarSign, Image } from 'lucide-react';
 import { logoutAdmin } from '../services/adminService';
 import { auth } from '../services/firebase';
 import UserManagement from '../components/UserManagement';
@@ -11,23 +11,49 @@ import NotificationPanel from '../components/NotificationPanel';
 import ReportManagement from '../components/ReportManagement';
 import TaxServiceChargeConfig from '../components/TaxServiceChargeConfig';
 import TaxEarningsPanel from '../components/TaxEarningsPanel';
+import BannerConfig from '../components/BannerConfig';
 
 export default function DashboardPage() {
     const [currentPage, setCurrentPage] = useState('dashboard');
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [admin, setAdmin] = useState(null);
+    const [authChecked, setAuthChecked] = useState(false);
+    const [isOngoing, setIsOngoing] = useState(false);
 
     useEffect(() => {
+        // Restore auth state from session storage if available
+        const savedAdmin = sessionStorage.getItem('adminUser');
+        if (savedAdmin && !admin) {
+            try {
+                const adminData = JSON.parse(savedAdmin);
+                setAdmin(adminData);
+                setAuthChecked(true);
+            } catch (e) {
+                console.error('Failed to restore admin session:', e);
+            }
+        }
+
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if (!user) {
-                window.location.href = '/login';
+                // Only redirect if we've already checked auth once AND no operation is ongoing
+                if (authChecked && !isOngoing) {
+                    sessionStorage.removeItem('adminUser');
+                    window.location.href = '/login';
+                }
             } else {
-                setAdmin(user);
+                const adminData = {
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName,
+                };
+                setAdmin(adminData);
+                sessionStorage.setItem('adminUser', JSON.stringify(adminData));
+                setAuthChecked(true);
             }
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [authChecked, isOngoing]);
 
     const handleLogout = async () => {
         try {
@@ -43,6 +69,7 @@ export default function DashboardPage() {
         { id: 'analytics', label: 'Analytics', icon: BarChart3 },
         { id: 'tax-config', label: 'Tax & Charges', icon: Settings },
         { id: 'tax-earnings', label: 'Tax Earnings', icon: DollarSign },
+        { id: 'banner-config', label: 'Banners', icon: Image },
         { id: 'users', label: 'Users', icon: Users },
         { id: 'products', label: 'Products', icon: Package },
         { id: 'auctions', label: 'Auctions', icon: Gavel },
@@ -136,6 +163,7 @@ export default function DashboardPage() {
                     {currentPage === 'analytics' && <AnalyticsPanel />}
                     {currentPage === 'tax-config' && <TaxServiceChargeConfig />}
                     {currentPage === 'tax-earnings' && <TaxEarningsPanel />}
+                    {currentPage === 'banner-config' && <BannerConfig />}
                     {currentPage === 'users' && <UserManagement />}
                     {currentPage === 'products' && <ProductManagement />}
                     {currentPage === 'auctions' && <AuctionManagement />}
