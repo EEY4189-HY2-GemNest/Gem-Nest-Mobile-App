@@ -135,7 +135,7 @@ export default function BannerConfig() {
                     // Add retry logic for upload
                     let uploadAttempts = 0;
                     const maxAttempts = 3;
-                    
+
                     while (uploadAttempts < maxAttempts) {
                         try {
                             await uploadBytes(storageRef, imageFile);
@@ -150,7 +150,7 @@ export default function BannerConfig() {
                             await new Promise(resolve => setTimeout(resolve, 1000 * uploadAttempts));
                         }
                     }
-                    
+
                     imageUrl = await getDownloadURL(storageRef);
                     console.log('Image uploaded successfully:', imageUrl);
                 } catch (uploadErr) {
