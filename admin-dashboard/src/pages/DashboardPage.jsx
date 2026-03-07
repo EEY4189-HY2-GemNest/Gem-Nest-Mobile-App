@@ -17,18 +17,23 @@ export default function DashboardPage() {
     const [currentPage, setCurrentPage] = useState('dashboard');
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [admin, setAdmin] = useState(null);
+    const [authChecked, setAuthChecked] = useState(false);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if (!user) {
-                window.location.href = '/login';
+                // Only redirect if we've already checked auth once
+                if (authChecked) {
+                    window.location.href = '/login';
+                }
             } else {
                 setAdmin(user);
+                setAuthChecked(true);
             }
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [authChecked]);
 
     const handleLogout = async () => {
         try {
