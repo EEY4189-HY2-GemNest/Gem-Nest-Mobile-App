@@ -36,12 +36,13 @@ class NoDataWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(40),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(40),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
             // Gem icon with decorative circle
             Container(
               padding: const EdgeInsets.all(28),
@@ -143,6 +144,7 @@ class NoDataWidget extends StatelessWidget {
             ],
           ],
         ),
+      ),
       ),
     );
   }
