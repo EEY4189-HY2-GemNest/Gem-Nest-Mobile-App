@@ -352,24 +352,32 @@ class _HomeScreenState extends State<HomeScreen> {
                                 cacheHeight: 300,
                                 cacheWidth: 1000,
                                 errorBuilder: (context, error, stackTrace) {
-                                  debugPrint('Banner image failed to load: $imageUrl');
+                                  debugPrint(
+                                      'Banner image failed to load: $imageUrl');
                                   debugPrint('Error: $error');
                                   return Container(
                                     color: Colors.grey[800],
                                     child: Center(
                                       child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
-                                          const Icon(Icons.image_not_supported, color: Colors.grey),
+                                          const Icon(Icons.image_not_supported,
+                                              color: Colors.grey),
                                           const SizedBox(height: 8),
                                           const Text(
                                             'Failed to load image',
-                                            style: TextStyle(color: Colors.grey),
+                                            style:
+                                                TextStyle(color: Colors.grey),
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
-                                            imageUrl.isEmpty ? 'No URL provided' : 'Check image URL',
-                                            style: const TextStyle(color: Colors.grey, fontSize: 12),
+                                            imageUrl.isEmpty
+                                                ? 'No URL provided'
+                                                : 'Check image URL',
+                                            style: const TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 12),
                                           ),
                                         ],
                                       ),
