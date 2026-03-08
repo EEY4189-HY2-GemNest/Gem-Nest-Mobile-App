@@ -76,9 +76,10 @@ class BannerProvider extends ChangeNotifier {
       }).toList();
 
       // Filter out banners with empty or invalid URLs
-      _bannerList = _bannerList.where((banner) => banner.imageUrl.isNotEmpty).toList();
+      _bannerList =
+          _bannerList.where((banner) => banner.imageUrl.isNotEmpty).toList();
       _bannerImageUrls = _bannerList.map((banner) => banner.imageUrl).toList();
-      
+
       if (_bannerImageUrls.isEmpty) {
         print('No valid banner URLs found');
       } else {
