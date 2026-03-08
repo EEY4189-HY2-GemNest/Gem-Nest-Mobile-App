@@ -235,10 +235,14 @@ class _ProductListingState extends State<ProductListing>
       String sellerName = 'Unknown';
       String sellerEmail = '';
       try {
-        final sellerDoc = await _firestore.collection('sellers').doc(userId).get();
+        final sellerDoc =
+            await _firestore.collection('sellers').doc(userId).get();
         if (sellerDoc.exists) {
           final sellerData = sellerDoc.data();
-          sellerName = sellerData?['displayName'] ?? sellerData?['businessName'] ?? sellerData?['name'] ?? 'Unknown';
+          sellerName = sellerData?['displayName'] ??
+              sellerData?['businessName'] ??
+              sellerData?['name'] ??
+              'Unknown';
           sellerEmail = sellerData?['email'] ?? _auth.currentUser?.email ?? '';
         } else {
           // Fallback to auth email if seller doc doesn't exist
