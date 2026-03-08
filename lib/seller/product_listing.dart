@@ -231,6 +231,28 @@ class _ProductListingState extends State<ProductListing>
         return;
       }
 
+      // Fetch seller information
+      String sellerName = 'Unknown';
+      String sellerEmail = '';
+      try {
+        final sellerDoc =
+            await _firestore.collection('sellers').doc(userId).get();
+        if (sellerDoc.exists) {
+          final sellerData = sellerDoc.data();
+          sellerName = sellerData?['displayName'] ??
+              sellerData?['businessName'] ??
+              sellerData?['name'] ??
+              'Unknown';
+          sellerEmail = sellerData?['email'] ?? _auth.currentUser?.email ?? '';
+        } else {
+          // Fallback to auth email if seller doc doesn't exist
+          sellerEmail = _auth.currentUser?.email ?? '';
+        }
+      } catch (e) {
+        print('Error fetching seller info: $e');
+        sellerEmail = _auth.currentUser?.email ?? '';
+      }
+
       final storage = FirebaseStorage.instance;
       List<String> imageUrls = [];
 
@@ -262,6 +284,8 @@ class _ProductListingState extends State<ProductListing>
           'url': url,
           'fileName': standardFileName,
           'type': fileExtension.toLowerCase(),
+          'uploadedAt': DateTime.now().toIso8601String(),
+          'status': 'pending',
         });
       }
 
@@ -291,6 +315,8 @@ class _ProductListingState extends State<ProductListing>
       // Create product document
       final productData = {
         'sellerId': userId,
+        'sellerName': sellerName,
+        'sellerEmail': sellerEmail,
         'title': _titleController.text,
         'category': _selectedCategory,
         'pricing': double.parse(_pricingController.text),

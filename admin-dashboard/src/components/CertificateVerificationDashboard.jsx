@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase-config';
-import { collection, query, where, getDocs, updateDoc, doc, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs, getDoc, updateDoc, doc, orderBy } from 'firebase/firestore';
 import { CheckCircle, XCircle, Clock, Download, Eye, Filter, ExternalLink } from 'lucide-react';
 import CertificateDialog from './CertificateDialog';
 
@@ -29,13 +29,20 @@ export default function CertificateVerificationDashboard() {
             for (const docSnap of snapshot.docs) {
                 const product = docSnap.data();
                 if (product.gemCertificates && Array.isArray(product.gemCertificates)) {
-                    for (const cert of product.gemCertificates) {
+                    // Use stored sellerName, fallback to fetching from sellers collection
+                    let sellerName = product.sellerName || 'Unknown';
+                    if (!product.sellerName && product.sellerId) {
+                        const cert = product.gemCertificates[i];
+                        // Use uploadedAt from cert, fallback to product timestamp
+                        const uploadDate = cert.uploadedAt || product.timestamp || product.createdAt || new Date().toISOString();
+
                         certsData.push({
                             productId: docSnap.id,
                             productName: product.title,
                             sellerId: product.sellerId,
-                            sellerName: product.sellerName || 'Unknown',
+                            sellerName: sellerName,
                             ...cert,
+                            uploadedAt: uploadDate,
                             certificateUrl: product.certificateUrl || '',
                             verificationStatus: product.certificateVerificationStatus || 'pending',
                             rejectionReason: product.rejectionReason || '',
@@ -50,8 +57,13 @@ export default function CertificateVerificationDashboard() {
                 filtered = certsData.filter(c => c.verificationStatus === filter);
             }
 
-            // Sort by upload date (newest first)
-            filtered.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+            // Sort by upload date (newest first) with safe date conversion
+            filtered.sort((a, b) => {
+                const dateA = new Date(a.uploadedAt);
+                const dateB = new Date(b.uploadedAt);
+                // Handle invalid dates by treating them as 0
+                return (dateB || new Date(0)) - (dateA || new Date(0));
+            });
             setCertificates(filtered);
         } catch (error) {
             console.error('Error fetching certificates:', error);
@@ -114,6 +126,23 @@ export default function CertificateVerificationDashboard() {
                 }
             }
         });
+    };
+
+    const formatCertificateDate = (dateString) => {
+        if (!dateString) return 'N/A';
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) {
+                return 'N/A';
+            }
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        } catch (error) {
+            return 'N/A';
+        }
     };
 
     const getStatusIcon = (status) => {
@@ -229,7 +258,7 @@ export default function CertificateVerificationDashboard() {
                                     </td>
                                     <td className="py-4 px-4">
                                         <p className="text-gray-400 text-sm">
-                                            {new Date(cert.uploadedAt).toLocaleDateString()}
+                                            {formatCertificateDate(cert.uploadedAt)}
                                         </p>
                                     </td>
                                     <td className="py-4 px-4">
