@@ -271,7 +271,7 @@ export default function CertificateVerificationDashboard() {
                                     </td>
                                     <td className="py-4 px-4">
                                         <p className="text-gray-400 text-sm">
-                                            {new Date(cert.uploadedAt).toLocaleDateString()}
+                                            {formatCertificateDate(cert.uploadedAt)}
                                         </p>
                                     </td>
                                     <td className="py-4 px-4">
