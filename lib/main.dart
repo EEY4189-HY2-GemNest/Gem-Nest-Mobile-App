@@ -68,24 +68,37 @@ void main() async {
         child: const MyApp(),
       ),
     );
-  } catch (e) {
+  } catch (e, stackTrace) {
     // Handle initialization failure with a basic error app
+    debugPrint('INITIALIZATION ERROR: $e');
+    debugPrint('Stack trace: $stackTrace');
+    
     runApp(
       MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error, color: Colors.red, size: 48),
-                const SizedBox(height: 16),
-                Text(
-                  'Failed to initialize app: $e',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16),
+          body: SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error, color: Colors.red, size: 48),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Failed to initialize app',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      e.toString(),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 14, color: Colors.black87),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),

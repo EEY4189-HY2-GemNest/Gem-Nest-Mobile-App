@@ -8,30 +8,42 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 class StripeService {
   // Stripe keys - Get from environment variables
   static String get publishableKey {
-    final key = dotenv.env['STRIPE_PUBLISHABLE_KEY'];
-    if (key == null || key.isEmpty) {
-      throw Exception(
-          'STRIPE_PUBLISHABLE_KEY not found in environment variables');
+    try {
+      final key = dotenv.env['STRIPE_PUBLISHABLE_KEY'];
+      if (key != null && key.isNotEmpty) {
+        return key;
+      }
+    } catch (e) {
+      debugPrint('Warning: dotenv not initialized, using empty fallback');
     }
-    return key;
+    // Return empty string for dev mode instead of throwing
+    return '';
   }
 
   static String get secretKey {
-    final key = dotenv.env['STRIPE_SECRET_KEY'];
-    if (key == null || key.isEmpty) {
-      throw Exception('STRIPE_SECRET_KEY not found in environment variables');
+    try {
+      final key = dotenv.env['STRIPE_SECRET_KEY'];
+      if (key != null && key.isNotEmpty) {
+        return key;
+      }
+    } catch (e) {
+      debugPrint('Warning: dotenv not initialized, using empty fallback');
     }
-    return key;
+    return '';
   }
 
   static const String merchantDisplayName = 'GemNest';
 
   static String get backendUrl {
-    final url = dotenv.env['BACKEND_URL'];
-    if (url == null || url.isEmpty) {
-      throw Exception('BACKEND_URL not found in environment variables');
+    try {
+      final url = dotenv.env['BACKEND_URL'];
+      if (url != null && url.isNotEmpty) {
+        return url;
+      }
+    } catch (e) {
+      debugPrint('Warning: dotenv not initialized, using empty fallback');
     }
-    return url;
+    return '';
   }
 
   static final StripeService _instance = StripeService._internal();
@@ -43,7 +55,18 @@ class StripeService {
   StripeService._internal();
 
   static Future<void> initialize() async {
-    Stripe.publishableKey = publishableKey;
+    try {
+      final key = publishableKey;
+      if (key.isNotEmpty) {
+        Stripe.publishableKey = key;
+        debugPrint('Stripe initialized successfully');
+      } else {
+        debugPrint('Warning: Stripe publishable key is empty, skipping initialization');
+      }
+    } catch (e) {
+      debugPrint('Warning: Failed to initialize Stripe: $e');
+      // Don't rethrow, allow app to continue
+    }
   }
 
   /// Create a payment intent on the backend

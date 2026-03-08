@@ -7,12 +7,15 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 class StripeServiceDirect {
   // Stripe Publishable Key - Get from environment variables
   static String get publishableKey {
-    final key = dotenv.env['STRIPE_PUBLISHABLE_KEY'];
-    if (key == null || key.isEmpty) {
-      throw Exception(
-          'STRIPE_PUBLISHABLE_KEY not found in environment variables. Make sure .env file is loaded.');
+    try {
+      final key = dotenv.env['STRIPE_PUBLISHABLE_KEY'];
+      if (key != null && key.isNotEmpty) {
+        return key;
+      }
+    } catch (e) {
+      debugPrint('Warning: dotenv not initialized, using empty fallback');
     }
-    return key;
+    return '';
   }
 
   static const String merchantDisplayName = 'GemNest';
@@ -26,9 +29,19 @@ class StripeServiceDirect {
   StripeServiceDirect._internal();
 
   static Future<void> initialize() async {
-    Stripe.publishableKey = publishableKey;
-    developer.log(
-        'Stripe initialized with publishable key: ${publishableKey.substring(0, 20)}...');
+    try {
+      final key = publishableKey;
+      if (key.isNotEmpty) {
+        Stripe.publishableKey = key;
+        developer.log(
+            'Stripe initialized with publishable key: ${key.substring(0, 20)}...');
+      } else {
+        developer.log('Warning: Stripe publishable key is empty, skipping initialization');
+      }
+    } catch (e) {
+      developer.log('Warning: Failed to initialize Stripe: $e');
+      // Don't rethrow, allow app to continue
+    }
   }
 
   /// Simulate a successful payment for development/testing
