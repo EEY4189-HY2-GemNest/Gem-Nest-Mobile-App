@@ -545,7 +545,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       imagePath: product['imageUrl'] as String,
                                       title: product['title'] as String,
                                       price:
-                                          'LKR ${(product['pricing'] as num).toStringAsFixed(0)}',
+                                          'LKR ${(product['pricing'] as num).toStringAsFixed(2)}',
                                       product: product,
                                     );
                                   }
