@@ -9,12 +9,14 @@ import 'package:gemnest_mobile_app/Seller/listed_product_screen.dart';
 import 'package:gemnest_mobile_app/Seller/order_history_screen.dart';
 import 'package:gemnest_mobile_app/Seller/payment_config_screen.dart';
 import 'package:gemnest_mobile_app/Seller/seller_profile_screen.dart';
+import 'package:gemnest_mobile_app/providers/seller_notification_provider.dart';
 import 'package:gemnest_mobile_app/screen/auth_screens/login_screen.dart';
 import 'package:gemnest_mobile_app/screen/report_screen/report_history_screen.dart';
 import 'package:gemnest_mobile_app/theme/app_theme.dart';
+import 'package:gemnest_mobile_app/widget/seller_notification_widgets.dart';
+import 'package:provider/provider.dart';
 
 import 'auction_product.dart';
-import 'notifications_page.dart';
 import 'product_listing.dart';
 
 class SellerHomePage extends StatefulWidget {
@@ -32,7 +34,6 @@ class _SellerHomePageState extends State<SellerHomePage>
   late Animation<Offset> _slideAnimation;
   late Animation<double> _cardAnimation;
   int _selectedIndex = 0;
-  final List<Map<String, dynamic>> _notifications = [];
   String? currentUserId;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -67,6 +68,16 @@ class _SellerHomePageState extends State<SellerHomePage>
     _controller.forward();
     _cardAnimationController.forward();
     currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    
+    // Initialize seller notification provider
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final provider = context.read<SellerNotificationProvider>();
+        provider.initialize();
+        provider.subscribeToSellerTopics();
+      }
+    });
+    
     _fetchRealData();
   }
 
@@ -129,18 +140,6 @@ class _SellerHomePageState extends State<SellerHomePage>
     _controller.dispose();
     _cardAnimationController.dispose();
     super.dispose();
-  }
-
-  void _showNotification(
-      String title, int quantity, String? imagePath, String type) {
-    setState(() {
-      _notifications.add({
-        'title': title,
-        'quantity': quantity,
-        'imagePath': imagePath,
-        'type': type,
-      });
-    });
   }
 
   Future<bool> _onWillPop() async {
@@ -263,8 +262,46 @@ class _SellerHomePageState extends State<SellerHomePage>
         Navigator.push(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                NotificationsPage(notifications: _notifications),
+            pageBuilder: (context, animation, secondaryAnimation) => Scaffold(
+              backgroundColor: Colors.black,
+              appBar: AppBar(
+                backgroundColor: Colors.grey[900],
+                elevation: 0,
+                title: const Text(
+                  'Notifications',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+              body: Consumer<SellerNotificationProvider>(
+                builder: (context, provider, _) {
+                  if (provider.isLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  
+                  final notifications = provider.getSellerNotifications();
+                  if (notifications.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'No notifications yet',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
+                  }
+                  
+                  return SellerNotificationsList(
+                    filterCategory: null,
+                  );
+                },
+              ),
+            ),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
               return FadeTransition(opacity: animation, child: child);
@@ -845,93 +882,99 @@ class _SellerHomePageState extends State<SellerHomePage>
 
   Widget _buildNavIcon(IconData outlineIcon, IconData filledIcon, int index) {
     final isSelected = _selectedIndex == index;
-    final hasNotification = index == 1 && _notifications.isNotEmpty;
 
-    return AnimatedBuilder(
-      animation: Listenable.merge([_controller, _cardAnimationController]),
-      builder: (context, child) {
-        return Stack(
-          clipBehavior: Clip.none,
-          children: [
-            // Animated background circle
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 400),
-              curve: Curves.easeInOutCubic,
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isSelected
-                    ? Colors.blueAccent.withOpacity(0.25)
-                    : Colors.transparent,
-                border: Border.all(
-                  color: isSelected
-                      ? Colors.blueAccent.withOpacity(0.4)
-                      : Colors.transparent,
-                  width: 1.5,
-                ),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: Colors.blueAccent.withOpacity(0.3),
-                          blurRadius: 12,
-                          spreadRadius: 2,
-                        ),
-                      ]
-                    : [],
-              ),
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                transitionBuilder: (child, animation) {
-                  return ScaleTransition(scale: animation, child: child);
-                },
-                child: Icon(
-                  isSelected ? filledIcon : outlineIcon,
-                  key: ValueKey(isSelected),
-                  size: isSelected ? 28 : 24,
-                  color: isSelected ? Colors.blueAccent : Colors.grey[600],
-                ),
-              ),
-            ),
-            // Notification badge
-            if (hasNotification)
-              Positioned(
-                right: -2,
-                top: -2,
-                child: AnimatedScale(
-                  scale: hasNotification ? 1.0 : 0.7,
-                  duration: const Duration(milliseconds: 300),
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: Colors.redAccent,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.grey[900]!,
-                        width: 2,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.red.withOpacity(0.5),
-                          blurRadius: 8,
-                          spreadRadius: 1,
-                        ),
-                      ],
+    return Consumer<SellerNotificationProvider>(
+      builder: (context, provider, child) {
+        final hasNotification = index == 1 && provider.unreadCount > 0;
+        final unreadCount = provider.unreadCount;
+
+        return AnimatedBuilder(
+          animation:
+              Listenable.merge([_controller, _cardAnimationController]),
+          builder: (context, childWidget) {
+            return Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // Animated background circle
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 400),
+                  curve: Curves.easeInOutCubic,
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isSelected
+                        ? Colors.blueAccent.withOpacity(0.25)
+                        : Colors.transparent,
+                    border: Border.all(
+                      color: isSelected
+                          ? Colors.blueAccent.withOpacity(0.4)
+                          : Colors.transparent,
+                      width: 1.5,
                     ),
-                    child: Text(
-                      _notifications.length > 99
-                          ? '99+'
-                          : _notifications.length.toString(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.2,
-                      ),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: Colors.blueAccent.withOpacity(0.3),
+                              blurRadius: 12,
+                              spreadRadius: 2,
+                            ),
+                          ]
+                        : [],
+                  ),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    transitionBuilder: (child, animation) {
+                      return ScaleTransition(scale: animation, child: child);
+                    },
+                    child: Icon(
+                      isSelected ? filledIcon : outlineIcon,
+                      key: ValueKey(isSelected),
+                      size: isSelected ? 28 : 24,
+                      color:
+                          isSelected ? Colors.blueAccent : Colors.grey[600],
                     ),
                   ),
                 ),
-              ),
-          ],
+                // Notification badge
+                if (hasNotification)
+                  Positioned(
+                    right: -2,
+                    top: -2,
+                    child: AnimatedScale(
+                      scale: hasNotification ? 1.0 : 0.7,
+                      duration: const Duration(milliseconds: 300),
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.redAccent,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.grey[900]!,
+                            width: 2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.red.withOpacity(0.5),
+                              blurRadius: 8,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          unreadCount > 99 ? '99+' : unreadCount.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
         );
       },
     );
@@ -957,10 +1000,7 @@ class _SellerHomePageState extends State<SellerHomePage>
         transitionDuration: const Duration(milliseconds: 500),
       ),
     );
-    if (result != null && result is Map<String, dynamic>) {
-      _showNotification(
-          result['title'], result['quantity'], result['imagePath'], 'product');
-    }
+    // Product listing notifications are now handled by cloud functions
   }
 
   void _navigateToAuctionListing() async {
@@ -982,10 +1022,7 @@ class _SellerHomePageState extends State<SellerHomePage>
         transitionDuration: const Duration(milliseconds: 500),
       ),
     );
-    if (result != null && result is Map<String, dynamic>) {
-      _showNotification(
-          result['title'], result['quantity'], result['imagePath'], 'auction');
-    }
+    // Auction listing notifications are now handled by cloud functions
   }
 
   void _navigateToListedProducts() {
