@@ -254,6 +254,11 @@ class _SellerHomePageState extends State<SellerHomePage>
       _selectedIndex = index;
     });
     switch (index) {
+      case 0: // Dashboard - already on dashboard, ensure index is 0
+        setState(() {
+          _selectedIndex = 0;
+        });
+        break;
       case 1: // Notifications
         Navigator.push(
           context,
@@ -266,7 +271,12 @@ class _SellerHomePageState extends State<SellerHomePage>
             },
             transitionDuration: const Duration(milliseconds: 400),
           ),
-        );
+        ).then((_) {
+          // Reset to Dashboard when returning
+          setState(() {
+            _selectedIndex = 0;
+          });
+        });
         break;
       case 2: // Profile
         Navigator.push(
@@ -280,7 +290,12 @@ class _SellerHomePageState extends State<SellerHomePage>
             },
             transitionDuration: const Duration(milliseconds: 400),
           ),
-        );
+        ).then((_) {
+          // Reset to Dashboard when returning
+          setState(() {
+            _selectedIndex = 0;
+          });
+        });
         break;
       case 3: // Logout
         _onWillPop();
