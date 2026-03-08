@@ -498,7 +498,8 @@ class _AuctionProductState extends State<AuctionProduct>
                     controller: _currentBidController,
                     validator: (value) =>
                         value!.isEmpty ? 'Current bid is required' : null,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
                   ),
                   const SizedBox(height: 20),
                   _buildInputField(
@@ -507,7 +508,8 @@ class _AuctionProductState extends State<AuctionProduct>
                     controller: _minimumIncrementController,
                     validator: (value) =>
                         value!.isEmpty ? 'Minimum increment is required' : null,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
                   ),
                   const SizedBox(height: 20),
                   Column(
