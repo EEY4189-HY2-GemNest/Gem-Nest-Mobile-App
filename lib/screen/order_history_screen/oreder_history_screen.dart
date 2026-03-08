@@ -686,7 +686,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
           ),
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildStatusChip(String status, String orderId) {
