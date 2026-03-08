@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/category_screen/category_card.dart';
 import 'package:gemnest_mobile_app/theme/app_theme.dart';
@@ -5,68 +6,65 @@ import 'package:gemnest_mobile_app/widget/no_data_widget.dart';
 import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 
 class AllCategoriesScreen extends StatefulWidget {
-  const AllCategoriesScreen({super.key});
+  final String? selectedCategory;
+
+  const AllCategoriesScreen({
+    super.key,
+    this.selectedCategory,
+  });
 
   @override
   State<AllCategoriesScreen> createState() => _AllCategoriesScreenState();
 }
 
 class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
-  // All available categories with their images and titles
-  final List<Map<String, String>> allCategories = [
-    {
-      'imagePath': 'assets/images/category1.jpg',
-      'title': 'Blue Sapphires',
-    },
-    {
-      'imagePath': 'assets/images/category2.jpg',
-      'title': 'White Sapphires',
-    },
-    {
-      'imagePath': 'assets/images/category3.jpg',
-      'title': 'Yellow Sapphires',
-    },
-    {
-      'imagePath': 'assets/images/category1.jpg',
-      'title': 'Pink Sapphires',
-    },
-    {
-      'imagePath': 'assets/images/category2.jpg',
-      'title': 'Rubies',
-    },
-    {
-      'imagePath': 'assets/images/category3.jpg',
-      'title': 'Emeralds',
-    },
-    {
-      'imagePath': 'assets/images/category1.jpg',
-      'title': 'Diamonds',
-    },
-    {
-      'imagePath': 'assets/images/category2.jpg',
-      'title': 'Pearls',
-    },
-    {
-      'imagePath': 'assets/images/category3.jpg',
-      'title': 'Amethysts',
-    },
-    {
-      'imagePath': 'assets/images/category1.jpg',
-      'title': 'Garnets',
-    },
-    {
-      'imagePath': 'assets/images/category2.jpg',
-      'title': 'Topaz',
-    },
-    {
-      'imagePath': 'assets/images/category3.jpg',
-      'title': 'Opals',
-    },
-  ];
-
   String _searchQuery = '';
+  List<Map<String, dynamic>> allCategories = [];
+  bool _isLoading = true;
 
-  List<Map<String, String>> get filteredCategories {
+  @override
+  void initState() {
+    super.initState();
+    _fetchCategories();
+  }
+
+  Future<void> _fetchCategories() async {
+    try {
+      final categoriesSnapshot =
+          await FirebaseFirestore.instance.collection('categories').get();
+
+      final List<Map<String, dynamic>> loadedCategories = [];
+      for (var doc in categoriesSnapshot.docs) {
+        try {
+          final data = doc.data();
+          loadedCategories.add({
+            'id': doc.id,
+            'imagePath': (data['categoryImage'] ?? '') as String,
+            'title': (data['categoryName'] ?? 'Category') as String,
+          });
+        } catch (e) {
+          debugPrint('Error processing category ${doc.id}: $e');
+          continue;
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          allCategories = loadedCategories;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching categories: $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  List<Map<String, dynamic>> get filteredCategories {
     if (_searchQuery.isEmpty) {
       return allCategories;
     }
@@ -144,7 +142,9 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
               child: Row(
                 children: [
                   Text(
-                    '${filteredCategories.length} categories',
+                    _isLoading
+                        ? 'Loading categories...'
+                        : '${filteredCategories.length} categories',
                     style: const TextStyle(
                       fontSize: 12,
                       color: Colors.grey,
@@ -156,33 +156,38 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
             ),
             // Categories Grid
             Expanded(
-              child: filteredCategories.isEmpty
-                  ? const NoDataWidget(
-                      title: 'No categories found',
-                      subtitle: 'Try searching with different keywords',
-                      icon: Icons.search_off,
+              child: _isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(),
                     )
-                  : GridView.builder(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        childAspectRatio: 0.95,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                      ),
-                      itemCount: filteredCategories.length,
-                      itemBuilder: (context, index) {
-                        final category = filteredCategories[index];
-                        return CategoryCard(
-                          imagePath: category['imagePath']!,
-                          title: category['title']!,
-                        );
-                      },
-                    ),
+                  : filteredCategories.isEmpty
+                      ? const NoDataWidget(
+                          title: 'No categories found',
+                          subtitle:
+                              'Try searching with different keywords or check back later',
+                          icon: Icons.search_off,
+                        )
+                      : GridView.builder(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            childAspectRatio: 0.95,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                          ),
+                          itemCount: filteredCategories.length,
+                          itemBuilder: (context, index) {
+                            final category = filteredCategories[index];
+                            return CategoryCard(
+                              imagePath: category['imagePath'] ?? '',
+                              title: category['title'] ?? 'Category',
+                            );
+                          },
+                        ),
             ),
           ],
         ),

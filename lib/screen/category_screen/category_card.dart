@@ -9,6 +9,10 @@ class CategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Check if imagePath is a network URL or local asset
+    final bool isNetworkImage =
+        imagePath.startsWith('http://') || imagePath.startsWith('https://');
+
     return InkWell(
       onTap: () {
         // Navigate to the CategoryScreen with the category title
@@ -34,10 +38,42 @@ class CategoryCard extends StatelessWidget {
                   blurRadius: 5,
                 ),
               ],
-              image: DecorationImage(
-                image: AssetImage(imagePath),
-                fit: BoxFit.cover,
-              ),
+            ),
+            child: ClipCircle(
+              child: isNetworkImage
+                  ? Image.network(
+                      imagePath,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.image_not_supported,
+                              color: Colors.grey),
+                        );
+                      },
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          color: Colors.grey[200],
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        );
+                      },
+                    )
+                  : Image.asset(
+                      imagePath,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.image_not_supported,
+                              color: Colors.grey),
+                        );
+                      },
+                    ),
             ),
           ),
           const SizedBox(height: 8),
@@ -52,5 +88,16 @@ class CategoryCard extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class ClipCircle extends StatelessWidget {
+  final Widget child;
+
+  const ClipCircle({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipOval(child: child);
   }
 }

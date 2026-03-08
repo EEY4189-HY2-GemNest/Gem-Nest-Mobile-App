@@ -431,6 +431,38 @@ class ProductCard extends StatefulWidget {
 }
 
 class _ProductCardState extends State<ProductCard> {
+  late List<String> _categories = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    try {
+      final querySnapshot =
+          await FirebaseFirestore.instance.collection('categories').get();
+      final List<String> loadedCategories = [];
+
+      for (var doc in querySnapshot.docs) {
+        final data = doc.data();
+        final categoryName = data['categoryName'] as String?;
+        if (categoryName != null && categoryName.isNotEmpty) {
+          loadedCategories.add(categoryName);
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          _categories = loadedCategories;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading categories: $e');
+    }
+  }
+
   void _showEditDialog(BuildContext context) {
     final titleController = TextEditingController(text: widget.title);
     final pricingController = TextEditingController(text: widget.pricing);
@@ -554,15 +586,23 @@ class _ProductCardState extends State<ProductCard> {
       ),
       dropdownColor: Colors.grey[900],
       style: const TextStyle(color: Colors.white),
-      items: const [
-        DropdownMenuItem(
-            value: 'Blue Sapphires', child: Text('Blue Sapphires')),
-        DropdownMenuItem(
-            value: 'White Sapphires', child: Text('White Sapphires')),
-        DropdownMenuItem(
-            value: 'Yellow Sapphires', child: Text('Yellow Sapphires')),
-      ],
-      onChanged: onChanged,
+      items: _categories.isEmpty
+          ? [
+              const DropdownMenuItem(
+                enabled: false,
+                child: Text(
+                  'No categories available',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              )
+            ]
+          : _categories
+              .map((category) => DropdownMenuItem(
+                    value: category,
+                    child: Text(category),
+                  ))
+              .toList(),
+      onChanged: _categories.isEmpty ? null : onChanged,
     );
   }
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Package, Gavel, LogOut, Menu, X, BarChart3, AlertTriangle, Settings, DollarSign, Image } from 'lucide-react';
+import { Users, Package, Gavel, LogOut, Menu, X, BarChart3, AlertTriangle, Settings, DollarSign, Image, Gem } from 'lucide-react';
 import { logoutAdmin } from '../services/adminService';
 import { auth } from '../services/firebase';
 import UserManagement from '../components/UserManagement';
@@ -12,6 +12,7 @@ import ReportManagement from '../components/ReportManagement';
 import TaxServiceChargeConfig from '../components/TaxServiceChargeConfig';
 import TaxEarningsPanel from '../components/TaxEarningsPanel';
 import BannerConfig from '../components/BannerConfig';
+import CategoryManagement from '../components/CategoryManagement';
 
 export default function DashboardPage() {
     const [currentPage, setCurrentPage] = useState('dashboard');
@@ -70,6 +71,7 @@ export default function DashboardPage() {
     const menuItems = [
         { id: 'dashboard', label: 'Dashboard', icon: Users },
         { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+        { id: 'categories', label: 'Gem Categories', icon: Gem },
         { id: 'tax-config', label: 'Tax & Charges', icon: Settings },
         { id: 'tax-earnings', label: 'Tax Earnings', icon: DollarSign },
         { id: 'banner-config', label: 'Banners', icon: Image },
@@ -164,6 +166,7 @@ export default function DashboardPage() {
                 <div className="flex-1 overflow-auto p-6 bg-gray-950">
                     {currentPage === 'dashboard' && <Dashboard />}
                     {currentPage === 'analytics' && <AnalyticsPanel />}
+                    {currentPage === 'categories' && <CategoryManagement />}
                     {currentPage === 'tax-config' && <TaxServiceChargeConfig />}
                     {currentPage === 'tax-earnings' && <TaxEarningsPanel />}
                     {currentPage === 'banner-config' && <BannerConfig />}
