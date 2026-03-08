@@ -8,6 +8,7 @@ import 'package:gemnest_mobile_app/home_screen.dart';
 import 'package:gemnest_mobile_app/widget/no_data_widget.dart';
 import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
+import 'package:gemnest_mobile_app/widget/order_status_history_sheet.dart';
 import 'package:intl/intl.dart';
 
 class OrderHistoryScreen extends StatefulWidget {
@@ -517,7 +518,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                         ],
                       ),
                     ),
-                    _buildStatusChip(status),
+                    _buildStatusChip(status, orderId),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -674,10 +675,11 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     );
   }
 
-  Widget _buildStatusChip(String status) {
+  Widget _buildStatusChip(String status, String orderId) {
     Color backgroundColor;
     Color textColor;
     IconData icon;
+    bool isClickable = status.toLowerCase() == 'confirmed';
 
     switch (status.toLowerCase()) {
       case 'pending':
@@ -705,13 +707,18 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
         textColor = Colors.red.shade800;
         icon = Icons.cancel;
         break;
+      case 'confirmed':
+        backgroundColor = Colors.green.shade100;
+        textColor = Colors.green.shade800;
+        icon = Icons.verified;
+        break;
       default:
         backgroundColor = Colors.grey.shade100;
         textColor = Colors.grey.shade800;
         icon = Icons.help;
     }
 
-    return Container(
+    final chip = Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: backgroundColor,
@@ -732,10 +739,33 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
               letterSpacing: 0.5,
             ),
           ),
+          if (isClickable) ...[
+            const SizedBox(width: 4),
+            Icon(Icons.arrow_forward, color: textColor, size: 14),
+          ]
         ],
       ),
     );
-  }
+
+    if (isClickable) {
+      return GestureDetector(
+        onTap: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => OrderStatusHistorySheet(
+              orderId: orderId,
+              currentStatus: status,
+              orderNumber: orderId.substring(0, 8).toUpperCase(),
+            ),
+          );
+        },
+        child: chip,
+      );
+    }
+
+    return chip;
 
   Widget _buildInfoRow(IconData icon, String label, String value,
       {int maxLines = 1}) {
