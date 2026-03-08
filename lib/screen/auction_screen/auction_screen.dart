@@ -730,7 +730,7 @@ class _AuctionItemCardState extends State<AuctionItemCard>
   }
 
   String _formatCurrency(double amount) {
-    return 'Rs.${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}';
+    return 'Rs.${amount.toStringAsFixed(2).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}';
   }
 
   @override

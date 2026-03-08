@@ -349,11 +349,38 @@ class _HomeScreenState extends State<HomeScreen> {
                                 imageUrl,
                                 fit: BoxFit.cover,
                                 width: double.infinity,
+                                cacheHeight: 300,
+                                cacheWidth: 1000,
                                 errorBuilder: (context, error, stackTrace) {
-                                  return const Center(
-                                    child: Text(
-                                      'Failed to load image',
-                                      style: TextStyle(color: Colors.red),
+                                  debugPrint(
+                                      'Banner image failed to load: $imageUrl');
+                                  debugPrint('Error: $error');
+                                  return Container(
+                                    color: Colors.grey[800],
+                                    child: Center(
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          const Icon(Icons.image_not_supported,
+                                              color: Colors.grey),
+                                          const SizedBox(height: 8),
+                                          const Text(
+                                            'Failed to load image',
+                                            style:
+                                                TextStyle(color: Colors.grey),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            imageUrl.isEmpty
+                                                ? 'No URL provided'
+                                                : 'Check image URL',
+                                            style: const TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 12),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   );
                                 },
@@ -518,7 +545,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       imagePath: product['imageUrl'] as String,
                                       title: product['title'] as String,
                                       price:
-                                          'LKR ${(product['pricing'] as num).toStringAsFixed(0)}',
+                                          'LKR ${(product['pricing'] as num).toStringAsFixed(2)}',
                                       product: product,
                                     );
                                   }

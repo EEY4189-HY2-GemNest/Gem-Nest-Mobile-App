@@ -121,6 +121,9 @@ export default function BannerConfig() {
         setError('');
         setSuccess('');
 
+        // Flag that an operation is ongoing to prevent logout during upload
+        localStorage.setItem('adminOperationOngoing', 'true');
+
         try {
             let imageUrl = formData.imageUrl;
 
@@ -167,15 +170,24 @@ export default function BannerConfig() {
                 }
             }
 
+            // Validate imageUrl before saving
+            if (!imageUrl || imageUrl.trim() === '') {
+                setError('Image URL is empty. Please upload an image or provide a valid URL.');
+                setUploading(false);
+                localStorage.removeItem('adminOperationOngoing');
+                return;
+            }
+
             // Add banner to Firestore
             const bannerData = {
-                imageUrl,
+                imageUrl: imageUrl.trim(),
                 isActive: true,
                 createdAt: serverTimestamp(),
                 endDate: formData.endDate ? Timestamp.fromDate(new Date(formData.endDate)) : null,
             };
 
             console.log('Adding banner to Firestore:', bannerData);
+            console.log('Image URL:', imageUrl);
             await addDoc(collection(db, 'banners'), bannerData);
             console.log('Banner added successfully');
 
@@ -199,6 +211,8 @@ export default function BannerConfig() {
             }
         } finally {
             setUploading(false);
+            // Clear the operation flag
+            localStorage.removeItem('adminOperationOngoing');
         }
     };
 

@@ -1176,7 +1176,7 @@ class _CheckoutScreenState extends State<CheckoutScreen>
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  'Rs.${option.cost.toStringAsFixed(0)}',
+                  'Rs.${option.cost.toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,

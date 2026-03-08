@@ -629,7 +629,8 @@ class _ProductListingState extends State<ProductListing>
                     controller: _pricingController,
                     validator: (value) =>
                         value!.isEmpty ? 'Pricing is required' : null,
-                    keyboardType: TextInputType.number,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
                   ),
                   const SizedBox(height: 20),
                   _buildInputField(

@@ -162,7 +162,7 @@ class _AdminApprovalScreenState extends State<AdminApprovalScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Price: Rs. ${productData['pricing'] ?? 0}',
+                  'Price: Rs. ${((productData['pricing'] ?? 0) as num).toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
