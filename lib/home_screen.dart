@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/providers/banner_provider.dart';
 import 'package:gemnest_mobile_app/screen/auction_screen/auction_screen.dart';
 import 'package:gemnest_mobile_app/screen/auth_screens/login_screen.dart';
+import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_screen.dart';
 import 'package:gemnest_mobile_app/screen/category_screen/all_categories_screen.dart';
 import 'package:gemnest_mobile_app/screen/category_screen/category_card.dart';
@@ -641,7 +642,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 context,
                 MaterialPageRoute(builder: (context) => const AuctionScreen()),
               ).then((_) {
-                // Reset to home index when returning from auction
                 setState(() {
                   _selectedIndex = 0;
                 });
@@ -656,16 +656,53 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerDocked,
-          bottomNavigationBar: AnimatedBottomNavigationBar(
-            icons: iconList,
-            activeIndex: _selectedIndex,
-            gapLocation: GapLocation.center,
-            notchSmoothness: NotchSmoothness.smoothEdge,
-            onTap: _onItemTapped,
-            backgroundColor: AppTheme.lightBlue,
-            activeColor: AppTheme.primaryBlue,
-            leftCornerRadius: 32,
-            rightCornerRadius: 32,
+          bottomNavigationBar: Stack(
+            children: [
+              Consumer<CartProvider>(
+                builder: (context, cartProvider, child) {
+                  return AnimatedBottomNavigationBar(
+                    icons: iconList,
+                    activeIndex: _selectedIndex,
+                    gapLocation: GapLocation.center,
+                    notchSmoothness: NotchSmoothness.smoothEdge,
+                    onTap: _onItemTapped,
+                    backgroundColor: AppTheme.lightBlue,
+                    activeColor: AppTheme.primaryBlue,
+                    leftCornerRadius: 32,
+                    rightCornerRadius: 32,
+                  );
+                },
+              ),
+              // Cart badge overlay on bottom nav
+              Consumer<CartProvider>(
+                builder: (context, cartProvider, child) {
+                  final cartCount = cartProvider.cartItemCount;
+                  if (cartCount == 0) {
+                    return const SizedBox.shrink();
+                  }
+                  // Position badge on the cart icon (index 1 in the bottom nav)
+                  return Positioned(
+                    left: MediaQuery.of(context).size.width * 0.25 - 8,
+                    top: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFF6B6B),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        cartCount > 9 ? '9+' : cartCount.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
         ),
       ),
