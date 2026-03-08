@@ -68,8 +68,7 @@ class _ProductListingState extends State<ProductListing>
         _isLoadingCategories = true;
       });
 
-      final querySnapshot =
-          await _firestore.collection('categories').get();
+      final querySnapshot = await _firestore.collection('categories').get();
       final List<String> loadedCategories = [];
 
       for (var doc in querySnapshot.docs) {
