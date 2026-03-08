@@ -459,8 +459,8 @@ class _ProductCardState extends State<ProductCard> {
                 selectedCategory = value;
               }),
               const SizedBox(height: 12),
-              _buildTextField(
-                  'Pricing', pricingController, const TextInputType.numberWithOptions(decimal: true)),
+              _buildTextField('Pricing', pricingController,
+                  const TextInputType.numberWithOptions(decimal: true)),
               const SizedBox(height: 12),
               _buildTextField(
                   'Quantity', quantityController, TextInputType.number),
