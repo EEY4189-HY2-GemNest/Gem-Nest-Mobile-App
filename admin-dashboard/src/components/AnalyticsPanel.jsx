@@ -123,8 +123,8 @@ export default function AnalyticsPanel() {
                 totalTax += taxAmount;
                 totalServiceCharge += serviceChargeAmount;
 
-                if (status === 'completed' || status === 'delivered') completedOrders++;
-                else if (status === 'pending') pendingOrders++;
+                if (status === 'delivered' || status === 'completed') completedOrders++;
+                else if (status === 'pending' || status === 'confirmed') pendingOrders++;
                 else if (status === 'cancelled' || status === 'canceled') cancelledOrders++;
                 else processingOrders++;
 
@@ -154,8 +154,8 @@ export default function AnalyticsPanel() {
                         sellerMap[sellerId].serviceChargeAmount += serviceChargeAmount * proportion;
                         sellerMap[sellerId].itemCount += item.quantity || 1;
                         sellerMap[sellerId].orderCount++;
-                        if (status === 'completed' || status === 'delivered') sellerMap[sellerId].completedOrders++;
-                        if (status === 'pending') sellerMap[sellerId].pendingOrders++;
+                        if (status === 'delivered' || status === 'completed') sellerMap[sellerId].completedOrders++;
+                        if (status === 'pending' || status === 'confirmed') sellerMap[sellerId].pendingOrders++;
                     });
                 } else {
                     // Order without items array - attribute to sellerId on order
@@ -176,8 +176,8 @@ export default function AnalyticsPanel() {
                     sellerMap[sellerId].taxAmount += taxAmount;
                     sellerMap[sellerId].serviceChargeAmount += serviceChargeAmount;
                     sellerMap[sellerId].orderCount++;
-                    if (status === 'completed' || status === 'delivered') sellerMap[sellerId].completedOrders++;
-                    if (status === 'pending') sellerMap[sellerId].pendingOrders++;
+                    if (status === 'delivered' || status === 'completed') sellerMap[sellerId].completedOrders++;
+                    if (status === 'pending' || status === 'confirmed') sellerMap[sellerId].pendingOrders++;
                 }
             });
 
@@ -818,7 +818,7 @@ export default function AnalyticsPanel() {
                             style={{ width: `${monthData?.completionRate || 0}%` }}
                         ></div>
                     </div>
-                    <div className="grid grid-cols-3 gap-2 mt-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
                         <div className="text-center">
                             <p className="text-xs text-gray-500">Completed</p>
                             <p className="text-sm font-bold text-green-400">{monthData?.completedOrders || 0}</p>
@@ -826,6 +826,10 @@ export default function AnalyticsPanel() {
                         <div className="text-center">
                             <p className="text-xs text-gray-500">Pending</p>
                             <p className="text-sm font-bold text-yellow-400">{monthData?.pendingOrders || 0}</p>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-xs text-gray-500">Processing</p>
+                            <p className="text-sm font-bold text-blue-400">{monthData?.processingOrders || 0}</p>
                         </div>
                         <div className="text-center">
                             <p className="text-xs text-gray-500">Cancelled</p>
