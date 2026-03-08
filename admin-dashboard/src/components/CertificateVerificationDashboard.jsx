@@ -29,22 +29,9 @@ export default function CertificateVerificationDashboard() {
             for (const docSnap of snapshot.docs) {
                 const product = docSnap.data();
                 if (product.gemCertificates && Array.isArray(product.gemCertificates)) {
-                    // Fetch seller name from sellers collection
-                    let sellerName = 'Unknown';
-                    if (product.sellerId) {
-                        try {
-                            const sellerRef = doc(db, 'sellers', product.sellerId);
-                            const sellerSnap = await getDoc(sellerRef);
-                            if (sellerSnap.exists()) {
-                                const sellerData = sellerSnap.data();
-                                sellerName = sellerData.displayName || sellerData.businessName || sellerData.name || 'Unknown';
-                            }
-                        } catch (sellerError) {
-                            console.error('Error fetching seller info:', sellerError);
-                        }
-                    }
-
-                    for (let i = 0; i < product.gemCertificates.length; i++) {
+                    // Use stored sellerName, fallback to fetching from sellers collection
+                    let sellerName = product.sellerName || 'Unknown';
+                    if (!product.sellerName && product.sellerId) {
                         const cert = product.gemCertificates[i];
                         // Use uploadedAt from cert, fallback to product timestamp
                         const uploadDate = cert.uploadedAt || product.timestamp || product.createdAt || new Date().toISOString();
