@@ -165,7 +165,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             .get();
 
         // Safely get statusHistory field - use data() method to access fields
-        final docData = existingDoc.data() as Map<String, dynamic>? ?? {};
+        final docData = existingDoc.data() ?? {};
         List<dynamic> statusHistory =
             (docData['statusHistory'] as List<dynamic>?) ?? [];
         statusHistory.add(statusChangeEntry);
