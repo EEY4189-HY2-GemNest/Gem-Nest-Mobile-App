@@ -36,6 +36,8 @@ class _ProductListingState extends State<ProductListing>
   bool _isDownloadingTemplate = false;
   bool _isDeliveryExpanded = false;
   bool _isPaymentExpanded = false;
+  List<String> _categories = [];
+  bool _isLoadingCategories = false;
 
   Map<String, Map<String, dynamic>> _availableDeliveryMethods = {};
   final Set<String> _selectedDeliveryMethods = {};
@@ -57,6 +59,41 @@ class _ProductListingState extends State<ProductListing>
     _controller.forward();
     _loadDeliveryConfig();
     _loadPaymentConfig();
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    try {
+      setState(() {
+        _isLoadingCategories = true;
+      });
+
+      final querySnapshot =
+          await _firestore.collection('categories').get();
+      final List<String> loadedCategories = [];
+
+      for (var doc in querySnapshot.docs) {
+        final data = doc.data();
+        final categoryName = data['categoryName'] as String?;
+        if (categoryName != null && categoryName.isNotEmpty) {
+          loadedCategories.add(categoryName);
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          _categories = loadedCategories;
+          _isLoadingCategories = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading categories: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingCategories = false;
+        });
+      }
+    }
   }
 
   Future<void> _loadDeliveryConfig() async {
@@ -876,36 +913,60 @@ class _ProductListingState extends State<ProductListing>
           style: const TextStyle(color: Colors.white70, fontSize: 16),
         ),
         const SizedBox(height: 10),
-        DropdownButtonFormField<String>(
-          value: value,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.grey[900],
-            hintText: hint,
-            hintStyle: const TextStyle(color: Colors.white54, fontSize: 14),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: Colors.blue, width: 2),
-            ),
-            errorStyle: const TextStyle(color: Colors.red, fontSize: 12),
-          ),
-          dropdownColor: Colors.grey[900],
-          style: const TextStyle(color: Colors.white, fontSize: 16),
-          items: const [
-            DropdownMenuItem(
-                value: 'Blue Sapphires', child: Text('Blue Sapphires')),
-            DropdownMenuItem(
-                value: 'White Sapphires', child: Text('White Sapphires')),
-            DropdownMenuItem(
-                value: 'Yellow Sapphires', child: Text('Yellow Sapphires')),
-          ],
-          onChanged: onChanged,
-          validator: validator,
-        ),
+        _isLoadingCategories
+            ? Container(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[900],
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Center(
+                  child: SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+              )
+            : DropdownButtonFormField<String>(
+                value: value,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey[900],
+                  hintText: hint,
+                  hintStyle:
+                      const TextStyle(color: Colors.white54, fontSize: 14),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(color: Colors.blue, width: 2),
+                  ),
+                  errorStyle: const TextStyle(color: Colors.red, fontSize: 12),
+                ),
+                dropdownColor: Colors.grey[900],
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+                items: _categories.isEmpty
+                    ? [
+                        const DropdownMenuItem(
+                          enabled: false,
+                          child: Text(
+                            'No categories available',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        )
+                      ]
+                    : _categories
+                        .map((category) => DropdownMenuItem(
+                              value: category,
+                              child: Text(category),
+                            ))
+                        .toList(),
+                onChanged: _categories.isEmpty ? null : onChanged,
+                validator: validator,
+              ),
       ],
     );
   }
