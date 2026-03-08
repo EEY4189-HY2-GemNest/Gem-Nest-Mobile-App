@@ -32,10 +32,10 @@ class _ProductListingState extends State<ProductListing>
       TextEditingController();
 
   String? _selectedCategory;
-  final bool _isBulkUploading = false;
-  final bool _isDownloadingTemplate = false;
-  final bool _isDeliveryExpanded = false;
-  final bool _isPaymentExpanded = false;
+  bool _isBulkUploading = false;
+  bool _isDownloadingTemplate = false;
+  bool _isDeliveryExpanded = false;
+  bool _isPaymentExpanded = false;
 
   Map<String, Map<String, dynamic>> _availableDeliveryMethods = {};
   final Set<String> _selectedDeliveryMethods = {};
@@ -247,8 +247,6 @@ class _ProductListingState extends State<ProductListing>
       } catch (e) {
         print('Error fetching seller info: $e');
         sellerEmail = _auth.currentUser?.email ?? '';
-      }
-        return;
       }
 
       final storage = FirebaseStorage.instance;
