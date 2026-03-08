@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase-config';
-import { collection, query, where, getDocs, updateDoc, doc, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs, getDoc, updateDoc, doc, orderBy } from 'firebase/firestore';
 import { CheckCircle, XCircle, Clock, Download, Eye, Filter, ExternalLink } from 'lucide-react';
 import CertificateDialog from './CertificateDialog';
 
@@ -29,13 +29,33 @@ export default function CertificateVerificationDashboard() {
             for (const docSnap of snapshot.docs) {
                 const product = docSnap.data();
                 if (product.gemCertificates && Array.isArray(product.gemCertificates)) {
-                    for (const cert of product.gemCertificates) {
+                    // Fetch seller name from sellers collection
+                    let sellerName = 'Unknown';
+                    if (product.sellerId) {
+                        try {
+                            const sellerRef = doc(db, 'sellers', product.sellerId);
+                            const sellerSnap = await getDoc(sellerRef);
+                            if (sellerSnap.exists()) {
+                                const sellerData = sellerSnap.data();
+                                sellerName = sellerData.displayName || sellerData.businessName || sellerData.name || 'Unknown';
+                            }
+                        } catch (sellerError) {
+                            console.error('Error fetching seller info:', sellerError);
+                        }
+                    }
+
+                    for (let i = 0; i < product.gemCertificates.length; i++) {
+                        const cert = product.gemCertificates[i];
+                        // Use uploadedAt from cert, fallback to product timestamp
+                        const uploadDate = cert.uploadedAt || product.timestamp || product.createdAt || new Date().toISOString();
+                        
                         certsData.push({
                             productId: docSnap.id,
                             productName: product.title,
                             sellerId: product.sellerId,
-                            sellerName: product.sellerName || 'Unknown',
+                            sellerName: sellerName,
                             ...cert,
+                            uploadedAt: uploadDate,
                             certificateUrl: product.certificateUrl || '',
                             verificationStatus: product.certificateVerificationStatus || 'pending',
                             rejectionReason: product.rejectionReason || '',
@@ -50,8 +70,13 @@ export default function CertificateVerificationDashboard() {
                 filtered = certsData.filter(c => c.verificationStatus === filter);
             }
 
-            // Sort by upload date (newest first)
-            filtered.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+            // Sort by upload date (newest first) with safe date conversion
+            filtered.sort((a, b) => {
+                const dateA = new Date(a.uploadedAt);
+                const dateB = new Date(b.uploadedAt);
+                // Handle invalid dates by treating them as 0
+                return (dateB || new Date(0)) - (dateA || new Date(0));
+            });
             setCertificates(filtered);
         } catch (error) {
             console.error('Error fetching certificates:', error);
@@ -114,6 +139,23 @@ export default function CertificateVerificationDashboard() {
                 }
             }
         });
+    };
+
+    const formatCertificateDate = (dateString) => {
+        if (!dateString) return 'N/A';
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) {
+                return 'N/A';
+            }
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        } catch (error) {
+            return 'N/A';
+        }
     };
 
     const getStatusIcon = (status) => {
