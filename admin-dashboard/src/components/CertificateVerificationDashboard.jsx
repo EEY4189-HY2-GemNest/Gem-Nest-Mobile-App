@@ -48,7 +48,7 @@ export default function CertificateVerificationDashboard() {
                         const cert = product.gemCertificates[i];
                         // Use uploadedAt from cert, fallback to product timestamp
                         const uploadDate = cert.uploadedAt || product.timestamp || product.createdAt || new Date().toISOString();
-                        
+
                         certsData.push({
                             productId: docSnap.id,
                             productName: product.title,
@@ -148,10 +148,10 @@ export default function CertificateVerificationDashboard() {
             if (isNaN(date.getTime())) {
                 return 'N/A';
             }
-            return date.toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'short', 
-                day: 'numeric' 
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
             });
         } catch (error) {
             return 'N/A';
