@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getAllProducts, removeProduct } from '../services/adminService';
-import { Trash2, AlertCircle, Loader, ExternalLink } from 'lucide-react';
+import { Trash2, AlertCircle, Loader, ExternalLink, Eye } from 'lucide-react';
 import ActionConfirmDialog from './ActionConfirmDialog';
+import ProductDetailsModal from './ProductDetailsModal';
 
 export default function ProductManagement() {
     const [products, setProducts] = useState([]);
@@ -10,6 +11,7 @@ export default function ProductManagement() {
     const [actionLoading, setActionLoading] = useState(null);
     const [message, setMessage] = useState('');
     const [removeDialog, setRemoveDialog] = useState(null);
+    const [selectedProduct, setSelectedProduct] = useState(null);
 
     useEffect(() => {
         fetchProducts();
@@ -94,7 +96,8 @@ export default function ProductManagement() {
                     filteredProducts.map((product) => (
                         <div
                             key={product.id}
-                            className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border border-gray-700 overflow-hidden hover:border-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-gray-900/50"
+                            className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border border-gray-700 overflow-hidden hover:border-gray-600 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-gray-900/50 cursor-pointer"
+                            onClick={() => setSelectedProduct(product)}
                         >
                             {product.imageUrl && (
                                 <img
@@ -115,7 +118,7 @@ export default function ProductManagement() {
                                     <div>
                                         <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Price</p>
                                         <p className="text-primary font-bold text-lg">
-                                            Rs {product.price || 'N/A'}
+                                            Rs {product.pricing ? product.pricing.toLocaleString() : 'N/A'}
                                         </p>
                                     </div>
                                     <div>
@@ -147,20 +150,36 @@ export default function ProductManagement() {
                                     </p>
                                 </div>
 
-                                {product.isActive !== false && (
+                                <div className="flex gap-2 pt-3">
                                     <button
-                                        onClick={() => handleRemove(product.id)}
-                                        disabled={actionLoading === product.id}
-                                        className="w-full px-4 py-2 bg-gradient-to-r from-red-900 to-red-800 hover:from-red-800 hover:to-red-700 text-red-200 rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50 transition-all shadow-lg hover:shadow-red-900/30"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setSelectedProduct(product);
+                                        }}
+                                        className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-900 to-blue-800 hover:from-blue-800 hover:to-blue-700 text-blue-200 rounded-lg font-bold flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-blue-900/30"
                                     >
-                                        {actionLoading === product.id ? (
-                                            <Loader className="w-4 h-4 animate-spin" />
-                                        ) : (
-                                            <Trash2 className="w-4 h-4" />
-                                        )}
-                                        Remove
+                                        <Eye className="w-4 h-4" />
+                                        View Details
                                     </button>
-                                )}
+
+                                    {product.isActive !== false && (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleRemove(product.id);
+                                            }}
+                                            disabled={actionLoading === product.id}
+                                            className="flex-1 px-4 py-2 bg-gradient-to-r from-red-900 to-red-800 hover:from-red-800 hover:to-red-700 text-red-200 rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50 transition-all shadow-lg hover:shadow-red-900/30"
+                                        >
+                                            {actionLoading === product.id ? (
+                                                <Loader className="w-4 h-4 animate-spin" />
+                                            ) : (
+                                                <Trash2 className="w-4 h-4" />
+                                            )}
+                                            Remove
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     ))
@@ -183,6 +202,13 @@ export default function ProductManagement() {
                     onCancel={() => setRemoveDialog(null)}
                 />
             )}
+
+            {/* Product Details Modal */}
+            <ProductDetailsModal
+                product={selectedProduct}
+                isOpen={!!selectedProduct}
+                onClose={() => setSelectedProduct(null)}
+            />
         </div>
     );
 }
