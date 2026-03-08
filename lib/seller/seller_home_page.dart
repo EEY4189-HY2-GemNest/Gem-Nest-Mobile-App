@@ -254,6 +254,11 @@ class _SellerHomePageState extends State<SellerHomePage>
       _selectedIndex = index;
     });
     switch (index) {
+      case 0: // Dashboard - already on dashboard, ensure index is 0
+        setState(() {
+          _selectedIndex = 0;
+        });
+        break;
       case 1: // Notifications
         Navigator.push(
           context,
@@ -266,7 +271,12 @@ class _SellerHomePageState extends State<SellerHomePage>
             },
             transitionDuration: const Duration(milliseconds: 400),
           ),
-        );
+        ).then((_) {
+          // Reset to Dashboard when returning
+          setState(() {
+            _selectedIndex = 0;
+          });
+        });
         break;
       case 2: // Profile
         Navigator.push(
@@ -280,7 +290,12 @@ class _SellerHomePageState extends State<SellerHomePage>
             },
             transitionDuration: const Duration(milliseconds: 400),
           ),
-        );
+        ).then((_) {
+          // Reset to Dashboard when returning
+          setState(() {
+            _selectedIndex = 0;
+          });
+        });
         break;
       case 3: // Logout
         _onWillPop();
@@ -748,98 +763,177 @@ class _SellerHomePageState extends State<SellerHomePage>
   }
 
   Widget _buildModernBottomNav() {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.grey[900]!, Colors.black87],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
+    return SafeArea(
+      top: false,
+      child: Container(
+        margin: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.grey[850]!.withOpacity(0.95),
+              Colors.black87.withOpacity(0.95),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+          borderRadius: BorderRadius.circular(32),
+          border: Border.all(
+            color: Colors.blue.withOpacity(0.25),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.blue.withOpacity(0.25),
+              blurRadius: 25,
+              offset: const Offset(0, 10),
+            ),
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
         ),
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: Colors.blue.withOpacity(0.3), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.blue.withOpacity(0.2),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(30),
+          child: BottomNavigationBar(
+            backgroundColor: Colors.transparent,
+            selectedItemColor: Colors.blueAccent,
+            unselectedItemColor: Colors.grey[600],
+            type: BottomNavigationBarType.fixed,
+            elevation: 0,
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+            items: [
+              BottomNavigationBarItem(
+                icon:
+                    _buildNavIcon(Icons.dashboard_outlined, Icons.dashboard, 0),
+                label: 'Dashboard',
+              ),
+              BottomNavigationBarItem(
+                icon: _buildNavIcon(Icons.notifications_outlined,
+                    Icons.notifications_active, 1),
+                label: 'Notifications',
+              ),
+              BottomNavigationBarItem(
+                icon: _buildNavIcon(Icons.person_outline, Icons.person, 2),
+                label: 'Profile',
+              ),
+              BottomNavigationBarItem(
+                icon: _buildNavIcon(Icons.logout_outlined, Icons.logout, 3),
+                label: 'Logout',
+              ),
+            ],
+            selectedLabelStyle: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.3,
+              color: Colors.blueAccent,
+            ),
+            unselectedLabelStyle: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[600],
+            ),
+            selectedIconTheme: const IconThemeData(size: 28),
+            unselectedIconTheme: const IconThemeData(size: 26),
           ),
-        ],
-      ),
-      child: BottomNavigationBar(
-        backgroundColor: Colors.transparent,
-        selectedItemColor: Colors.blueAccent,
-        unselectedItemColor: Colors.grey[500],
-        type: BottomNavigationBarType.fixed,
-        elevation: 0,
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        items: [
-          BottomNavigationBarItem(
-            icon: _buildNavIcon(Icons.dashboard_outlined, Icons.dashboard, 0),
-            label: 'Dashboard',
-          ),
-          BottomNavigationBarItem(
-            icon: _buildNavIcon(
-                Icons.notifications_outlined, Icons.notifications, 1),
-            label: 'Notifications',
-          ),
-          BottomNavigationBarItem(
-            icon: _buildNavIcon(Icons.person_outline, Icons.person, 2),
-            label: 'Profile',
-          ),
-          BottomNavigationBarItem(
-            icon: _buildNavIcon(Icons.logout_outlined, Icons.logout, 3),
-            label: 'Logout',
-          ),
-        ],
-        selectedLabelStyle:
-            const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-        unselectedLabelStyle:
-            const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+        ),
       ),
     );
   }
 
   Widget _buildNavIcon(IconData outlineIcon, IconData filledIcon, int index) {
     final isSelected = _selectedIndex == index;
-    return Stack(
-      children: [
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: isSelected
-                ? Colors.blueAccent.withOpacity(0.2)
-                : Colors.transparent,
-          ),
-          child: Icon(
-            isSelected ? filledIcon : outlineIcon,
-            size: 26,
-          ),
-        ),
-        if (index == 1 && _notifications.isNotEmpty)
-          Positioned(
-            right: 4,
-            top: 4,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: const BoxDecoration(
-                color: Colors.redAccent,
+    final hasNotification = index == 1 && _notifications.isNotEmpty;
+
+    return AnimatedBuilder(
+      animation: Listenable.merge([_controller, _cardAnimationController]),
+      builder: (context, child) {
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // Animated background circle
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeInOutCubic,
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
+                color: isSelected
+                    ? Colors.blueAccent.withOpacity(0.25)
+                    : Colors.transparent,
+                border: Border.all(
+                  color: isSelected
+                      ? Colors.blueAccent.withOpacity(0.4)
+                      : Colors.transparent,
+                  width: 1.5,
+                ),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: Colors.blueAccent.withOpacity(0.3),
+                          blurRadius: 12,
+                          spreadRadius: 2,
+                        ),
+                      ]
+                    : [],
               ),
-              child: Text(
-                _notifications.length.toString(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (child, animation) {
+                  return ScaleTransition(scale: animation, child: child);
+                },
+                child: Icon(
+                  isSelected ? filledIcon : outlineIcon,
+                  key: ValueKey(isSelected),
+                  size: isSelected ? 28 : 24,
+                  color: isSelected ? Colors.blueAccent : Colors.grey[600],
                 ),
               ),
             ),
-          ),
-      ],
+            // Notification badge
+            if (hasNotification)
+              Positioned(
+                right: -2,
+                top: -2,
+                child: AnimatedScale(
+                  scale: hasNotification ? 1.0 : 0.7,
+                  duration: const Duration(milliseconds: 300),
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.redAccent,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.grey[900]!,
+                        width: 2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.red.withOpacity(0.5),
+                          blurRadius: 8,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      _notifications.length > 99
+                          ? '99+'
+                          : _notifications.length.toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 

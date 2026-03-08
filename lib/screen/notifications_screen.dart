@@ -314,7 +314,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     // Handle deep linking based on actionUrl
     if (notification.actionUrl != null) {
-      // TODO: Implement deep linking based on actionUrl
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Navigate to: ${notification.actionUrl}'),
