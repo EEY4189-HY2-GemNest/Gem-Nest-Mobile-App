@@ -2,7 +2,9 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gemnest_mobile_app/widget/order_status_history_sheet.dart';
 import 'package:gemnest_mobile_app/widget/professional_back_button.dart';
 import 'package:intl/intl.dart';
 
@@ -17,7 +19,9 @@ class OrderDetailsScreen extends StatefulWidget {
 
 class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   final TextEditingController _deliveryDateController = TextEditingController();
+  final TextEditingController _commentController = TextEditingController();
   String? _selectedStatus;
+  String? _previousStatus;
   final List<String> _statusOptions = [
     'Pending',
     'Processing',
@@ -52,19 +56,133 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             DateFormat('yyyy-MM-dd').format(DateTime.now());
       }
       _selectedStatus = doc['status'];
+      _previousStatus = doc['status']; // Store initial status
     });
   }
 
   Future<void> _updateOrder() async {
+    // If status changed, show comment dialog
+    if (_selectedStatus != _previousStatus) {
+      _showStatusChangeDialog();
+    } else {
+      // Just update delivery date
+      await _performUpdate(null);
+    }
+  }
+
+  void _showStatusChangeDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Update Order Status'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            RichText(
+              text: TextSpan(
+                style: const TextStyle(color: Colors.black, fontSize: 14),
+                children: [
+                  const TextSpan(text: 'Status: '),
+                  TextSpan(
+                    text: '$_previousStatus → $_selectedStatus',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Add a comment (optional):',
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _commentController,
+              maxLines: 3,
+              minLines: 2,
+              decoration: InputDecoration(
+                hintText: 'e.g., Item shipped from warehouse',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blueAccent,
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+              _performUpdate(_commentController.text);
+            },
+            child: const Text('Update'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _performUpdate(String? comment) async {
     try {
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      final now = DateTime.now();
+
+      // Prepare update data
+      Map<String, dynamic> updateData = {
+        'deliveryDate': _deliveryDateController.text,
+        'lastUpdated': DateFormat('yyyy-MM-dd HH:mm').format(now),
+      };
+
+      // If status changed, add status history entry
+      if (_selectedStatus != _previousStatus) {
+        updateData['status'] = _selectedStatus;
+
+        // Create status change entry
+        final statusChangeEntry = {
+          'id': '${widget.orderId}_${now.millisecondsSinceEpoch}',
+          'orderId': widget.orderId,
+          'previousStatus': _previousStatus,
+          'newStatus': _selectedStatus,
+          'changedAt': Timestamp.fromDate(now),
+          'comment': comment?.isEmpty ?? true ? null : comment,
+          'changedBy': userId ?? 'unknown',
+        };
+
+        // Get existing status history
+        final existingDoc = await FirebaseFirestore.instance
+            .collection('orders')
+            .doc(widget.orderId)
+            .get();
+
+        // Safely get statusHistory field - use data() method to access fields
+        final docData = existingDoc.data() ?? {};
+        List<dynamic> statusHistory =
+            (docData['statusHistory'] as List<dynamic>?) ?? [];
+        statusHistory.add(statusChangeEntry);
+
+        updateData['statusHistory'] = statusHistory;
+
+        // Update previous status for next comparison
+        _previousStatus = _selectedStatus;
+        _commentController.clear();
+      }
+
+      // Perform update
       await FirebaseFirestore.instance
           .collection('orders')
           .doc(widget.orderId)
-          .update({
-        'deliveryDate': _deliveryDateController.text,
-        'status': _selectedStatus,
-        'lastUpdated': DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now()),
-      });
+          .update(updateData);
+
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -108,6 +226,19 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         _deliveryDateController.text = DateFormat('yyyy-MM-dd').format(picked);
       });
     }
+  }
+
+  void _showStatusHistory() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => OrderStatusHistorySheet(
+        orderId: widget.orderId,
+        currentStatus: _selectedStatus ?? 'N/A',
+        orderNumber: widget.orderId.substring(0, 8).toUpperCase(),
+      ),
+    );
   }
 
   @override
@@ -333,21 +464,48 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueAccent,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                          elevation: 2,
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: SizedBox(
+                            height: 50,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blueAccent,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)),
+                                elevation: 2,
+                              ),
+                              onPressed: _updateOrder,
+                              child: const Text('Save Changes',
+                                  style: TextStyle(
+                                      fontSize: 16, color: Colors.white)),
+                            ),
+                          ),
                         ),
-                        onPressed: _updateOrder,
-                        child: const Text('Save Changes',
-                            style:
-                                TextStyle(fontSize: 16, color: Colors.white)),
-                      ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          flex: 1,
+                          child: SizedBox(
+                            height: 50,
+                            child: OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(
+                                    color: Colors.blueAccent, width: 1.5),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)),
+                              ),
+                              onPressed: _showStatusHistory,
+                              icon: const Icon(Icons.history,
+                                  color: Colors.blueAccent, size: 18),
+                              label: const Text('History',
+                                  style: TextStyle(
+                                      color: Colors.blueAccent, fontSize: 14)),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -486,6 +644,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   @override
   void dispose() {
     _deliveryDateController.dispose();
+    _commentController.dispose();
     super.dispose();
   }
 }

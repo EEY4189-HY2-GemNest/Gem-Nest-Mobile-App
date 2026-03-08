@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/home_screen.dart';
 import 'package:gemnest_mobile_app/widget/no_data_widget.dart';
+import 'package:gemnest_mobile_app/widget/order_status_history_sheet.dart';
 import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
 import 'package:intl/intl.dart';
@@ -470,27 +471,41 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
 
     final items = order['items'] as List<dynamic>? ?? [];
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Card(
-        elevation: 8,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              colors: [Colors.white, Colors.grey.shade50],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+    return GestureDetector(
+      onTap: () {
+        // Show status history when card is tapped
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) => OrderStatusHistorySheet(
+            orderId: orderId,
+            currentStatus: status,
+            orderNumber: orderId.substring(0, 8).toUpperCase(),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        child: Card(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(
+                colors: [Colors.white, Colors.grey.shade50],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -517,7 +532,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                         ],
                       ),
                     ),
-                    _buildStatusChip(status),
+                    _buildStatusChip(status, orderId),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -671,10 +686,10 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
           ),
         ),
       ),
-    );
+    ));
   }
 
-  Widget _buildStatusChip(String status) {
+  Widget _buildStatusChip(String status, String orderId) {
     Color backgroundColor;
     Color textColor;
     IconData icon;
@@ -705,6 +720,11 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
         textColor = Colors.red.shade800;
         icon = Icons.cancel;
         break;
+      case 'confirmed':
+        backgroundColor = Colors.green.shade100;
+        textColor = Colors.green.shade800;
+        icon = Icons.verified;
+        break;
       default:
         backgroundColor = Colors.grey.shade100;
         textColor = Colors.grey.shade800;
@@ -732,6 +752,8 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
               letterSpacing: 0.5,
             ),
           ),
+          const SizedBox(width: 4),
+          Icon(Icons.arrow_forward, color: textColor, size: 14),
         ],
       ),
     );
@@ -998,7 +1020,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          _formatDate(order['orderDate']),
+                          formatDate(order['orderDate']),
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey.shade600,
@@ -1008,7 +1030,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                     ),
                     Row(
                       children: [
-                        _buildModernStatusChip(order['status'] ?? 'Pending'),
+                        buildModernStatusChip(order['status'] ?? 'Pending'),
                         const SizedBox(width: 8),
                         GestureDetector(
                           onTap: () => Navigator.pop(context),
@@ -1044,19 +1066,19 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                       Row(
                         children: [
                           Expanded(
-                            child: _buildQuickInfoCard(
+                            child: buildQuickInfoCard(
                               icon: Icons.calendar_today,
                               label: 'Order Date',
-                              value: _formatDate(order['orderDate']),
+                              value: formatDate(order['orderDate']),
                               color: const Color(0xFF1E88E5),
                             ),
                           ),
                           const SizedBox(width: 10),
                           Expanded(
-                            child: _buildQuickInfoCard(
+                            child: buildQuickInfoCard(
                               icon: Icons.local_shipping,
                               label: 'Delivery',
-                              value: _formatDate(order['deliveryDate']),
+                              value: formatDate(order['deliveryDate']),
                               color: const Color(0xFF00BCD4),
                             ),
                           ),
@@ -1084,17 +1106,17 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                               ),
                             ),
                             const SizedBox(height: 8),
-                            _buildCompactInfoRow(
+                            buildCompactInfoRow(
                               'Name:',
                               order['name'] ?? 'N/A',
                             ),
-                            _buildCompactInfoRow(
+                            buildCompactInfoRow(
                               'Mobile:',
                               order['mobile'] ?? 'N/A',
                             ),
-                            _buildCompactInfoRow(
+                            buildCompactInfoRow(
                               'Address:',
-                              _formatAddress(order['address']),
+                              formatAddress(order['address']),
                               isLast: true,
                             ),
                           ],
@@ -1130,7 +1152,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                                       .map((e) {
                                     final isLast = e.key ==
                                         (order['items'] as List).length - 1;
-                                    return _buildCompactInfoRow(
+                                    return buildCompactInfoRow(
                                       '${e.value['title'] ?? 'Item'}:',
                                       'Qty: ${e.value['quantity'] ?? 1}',
                                       isLast: isLast,
@@ -1162,11 +1184,11 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                               ),
                             ),
                             const SizedBox(height: 8),
-                            _buildCompactInfoRow(
+                            buildCompactInfoRow(
                               'Method:',
-                              _formatPaymentMethod(order['paymentMethod']),
+                              formatPaymentMethod(order['paymentMethod']),
                             ),
-                            _buildCompactInfoRow(
+                            buildCompactInfoRow(
                               'Status:',
                               order['status'] ?? 'N/A',
                               isLast: true,
@@ -1250,7 +1272,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     );
   }
 
-  Widget _buildQuickInfoCard({
+  Widget buildQuickInfoCard({
     required IconData icon,
     required String label,
     required String value,
@@ -1296,7 +1318,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     );
   }
 
-  Widget _buildCompactInfoRow(
+  Widget buildCompactInfoRow(
     String label,
     String value, {
     bool isLast = false,
@@ -1344,7 +1366,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     );
   }
 
-  String _formatDate(dynamic dateValue) {
+  String formatDate(dynamic dateValue) {
     if (dateValue == null) return 'N/A';
 
     if (dateValue is String) {
@@ -1358,7 +1380,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     return 'N/A';
   }
 
-  String _formatPaymentMethod(dynamic paymentValue) {
+  String formatPaymentMethod(dynamic paymentValue) {
     if (paymentValue == null) return 'N/A';
 
     if (paymentValue is String) {
@@ -1377,7 +1399,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     return 'N/A';
   }
 
-  String _formatAddress(dynamic addressValue) {
+  String formatAddress(dynamic addressValue) {
     if (addressValue == null) return 'N/A';
 
     if (addressValue is String) {
@@ -1398,7 +1420,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     return 'N/A';
   }
 
-  Widget _buildModernStatusChip(String status) {
+  Widget buildModernStatusChip(String status) {
     Color backgroundColor;
     Color textColor;
     IconData icon;
