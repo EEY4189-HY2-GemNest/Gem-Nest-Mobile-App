@@ -778,7 +778,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         key: Key(notificationId),
                         direction: DismissDirection.endToStart,
                         onDismissed: (_) {
-                          _deleteNotificationWithConfirmation(notificationId);
+                          _deleteNotification(notificationId);
                         },
                         background: Container(
                           margin: const EdgeInsets.only(bottom: 10),
