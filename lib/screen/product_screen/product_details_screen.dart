@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/screen/cart_screen/cart_provider.dart';
+import 'package:gemnest_mobile_app/screen/cart_screen/cart_screen.dart';
 import 'package:gemnest_mobile_app/widget/certificate_viewer.dart';
 import 'package:gemnest_mobile_app/widget/certificate_webview.dart';
 import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
@@ -147,6 +148,54 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ? '${productName.substring(0, 27)}...'
             : productName,
         onBackPressed: () => Navigator.pop(context),
+        actions: [
+          Consumer<CartProvider>(
+            builder: (context, cartProvider, child) {
+              final cartCount = cartProvider.cartItemCount;
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.shopping_cart_outlined,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CartScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  if (cartCount > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFF6B6B),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          cartCount > 9 ? '9+' : cartCount.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

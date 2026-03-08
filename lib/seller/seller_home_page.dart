@@ -11,6 +11,7 @@ import 'package:gemnest_mobile_app/Seller/payment_config_screen.dart';
 import 'package:gemnest_mobile_app/Seller/seller_profile_screen.dart';
 import 'package:gemnest_mobile_app/screen/auth_screens/login_screen.dart';
 import 'package:gemnest_mobile_app/screen/report_screen/report_history_screen.dart';
+import 'package:gemnest_mobile_app/theme/app_theme.dart';
 
 import 'auction_product.dart';
 import 'notifications_page.dart';
@@ -146,48 +147,103 @@ class _SellerHomePageState extends State<SellerHomePage>
     final logoutContext = context;
     return (await showDialog(
           context: logoutContext,
+          barrierDismissible: false,
           builder: (dialogContext) => AlertDialog(
+            backgroundColor: Colors.white,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            backgroundColor: Colors.black87,
-            title: const Row(
-              children: [
-                Icon(Icons.logout, color: Colors.redAccent),
-                SizedBox(width: 10),
-                Text('Confirm Logout',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.white)),
-              ],
-            ),
-            content: const Text('Are you sure you want to logout?',
-                style: TextStyle(fontSize: 16, color: Colors.white70)),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(false),
-                child: const Text('Cancel',
-                    style: TextStyle(color: Colors.grey, fontSize: 16)),
+            title: Center(
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.shade50,
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                    child: Icon(
+                      Icons.logout,
+                      color: Colors.orange.shade600,
+                      size: 32,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Logout?',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.darkGray,
+                        ),
+                  ),
+                ],
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  await FirebaseAuth.instance.signOut();
-                  if (!mounted) return;
-                  Navigator.of(dialogContext).pop(true);
-                  Navigator.pushAndRemoveUntil(
-                    logoutContext,
-                    MaterialPageRoute(
-                        builder: (context) => const LoginScreen()),
-                    (route) => false,
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                ),
-                child: const Text('Logout',
-                    style: TextStyle(color: Colors.white, fontSize: 16)),
+            ),
+            content: Text(
+              'Are you sure you want to logout?',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppTheme.mediumGray,
+                  ),
+            ),
+            actions: [
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        side: const BorderSide(
+                          color: AppTheme.primaryBlue,
+                          width: 1.5,
+                        ),
+                      ),
+                      onPressed: () => Navigator.of(dialogContext).pop(false),
+                      child: Text(
+                        'Cancel',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              color: AppTheme.primaryBlue,
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange.shade600,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () async {
+                        await FirebaseAuth.instance.signOut();
+                        if (!mounted) return;
+                        Navigator.of(dialogContext).pop(true);
+                        Navigator.pushAndRemoveUntil(
+                          logoutContext,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginScreen()),
+                          (route) => false,
+                        );
+                      },
+                      child: Text(
+                        'Logout',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
+            actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           ),
         )) ??
         false;
