@@ -75,7 +75,18 @@ class BannerProvider extends ChangeNotifier {
         return true;
       }).toList();
 
+      // Filter out banners with empty or invalid URLs
+      _bannerList = _bannerList.where((banner) => banner.imageUrl.isNotEmpty).toList();
       _bannerImageUrls = _bannerList.map((banner) => banner.imageUrl).toList();
+      
+      if (_bannerImageUrls.isEmpty) {
+        print('No valid banner URLs found');
+      } else {
+        print('Loaded ${_bannerImageUrls.length} banner(s):');
+        for (var i = 0; i < _bannerImageUrls.length; i++) {
+          print('Banner $i: ${_bannerImageUrls[i].substring(0, 50)}...');
+        }
+      }
       _error = null;
     } catch (e) {
       print('Banner fetch error: $e');
