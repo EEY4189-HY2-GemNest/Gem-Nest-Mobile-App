@@ -36,13 +36,53 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
   String userName = 'Guest';
   List<Map<String, dynamic>> popularProducts = [];
+  List<Map<String, dynamic>> categories = [];
   bool _isLoadingGems = true;
+  bool _isLoadingCategories = true;
 
   @override
   void initState() {
     super.initState();
     _fetchUserName();
     _fetchRandomGems();
+    _fetchCategories();
+  }
+
+  Future<void> _fetchCategories() async {
+    try {
+      final categoriesSnapshot = await FirebaseFirestore.instance
+          .collection('categories')
+          .get();
+
+      final List<Map<String, dynamic>> loadedCategories = [];
+      for (var doc in categoriesSnapshot.docs) {
+        try {
+          final data = doc.data();
+          loadedCategories.add({
+            'id': doc.id,
+            'categoryName': (data['categoryName'] ?? 'Category') as String,
+            'categoryImage': (data['categoryImage'] ?? '') as String,
+          });
+        } catch (e) {
+          debugPrint('Error processing category ${doc.id}: $e');
+          continue;
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          categories = loadedCategories;
+          _isLoadingCategories = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching categories: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingCategories = false;
+        });
+      }
+    }
   }
 
   Future<void> _fetchUserName() async {
@@ -522,20 +562,38 @@ class _HomeScreenState extends State<HomeScreen> {
                       mainAxisSpacing: 8,
                       crossAxisSpacing: 8,
                     ),
-                    delegate: SliverChildListDelegate(const [
-                      CategoryCard(
-                        imagePath: 'assets/images/category1.jpg',
-                        title: 'Blue Sapphires',
-                      ),
-                      CategoryCard(
-                        imagePath: 'assets/images/category2.jpg',
-                        title: 'White Sapphires',
-                      ),
-                      CategoryCard(
-                        imagePath: 'assets/images/category3.jpg',
-                        title: 'Yellow Sapphires',
-                      ),
-                    ]),
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        if (_isLoadingCategories) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                        if (categories.isEmpty) {
+                          return const SizedBox.shrink();
+                        }
+
+                        final category = categories[index];
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AllCategoriesScreen(
+                                  selectedCategory: category['categoryName'],
+                                ),
+                              ),
+                            );
+                          },
+                          child: CategoryCard(
+                            imagePath: category['categoryImage'] ?? 'assets/images/category1.jpg',
+                            title: category['categoryName'] ?? 'Category',
+                          ),
+                        );
+                      },
+                      childCount: _isLoadingCategories ? 1 : (categories.length > 3 ? 3 : categories.length),
+                    ),
                   ),
                 ),
                 SliverToBoxAdapter(
