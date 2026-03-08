@@ -187,7 +187,6 @@ class _BuyerNotificationsListState extends State<BuyerNotificationsList> {
   }
 
   void _navigateToAction(BuildContext context, String actionUrl) {
-    // TODO: Implement deep linking based on actionUrl
     print('Navigate to: $actionUrl');
   }
 }
