@@ -40,7 +40,15 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         .get();
     setState(() {
       orderData = doc;
-      _deliveryDateController.text = doc['deliveryDate'];
+      // Convert Timestamp to String if needed
+      dynamic deliveryDate = doc['deliveryDate'];
+      if (deliveryDate is Timestamp) {
+        _deliveryDateController.text = DateFormat('yyyy-MM-dd').format(deliveryDate.toDate());
+      } else if (deliveryDate is String) {
+        _deliveryDateController.text = deliveryDate;
+      } else {
+        _deliveryDateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      }
       _selectedStatus = doc['status'];
     });
   }
@@ -246,36 +254,42 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                         fontWeight: FontWeight.bold,
                                         color: Colors.white)),
                             const SizedBox(height: 12),
-                            ...items.map((item) => Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 8),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(item['title'],
-                                                style: const TextStyle(
-                                                    fontWeight: FontWeight.w600,
-                                                    color: Colors.white)),
-                                            Text('Qty: ${item['quantity']}',
-                                                style: const TextStyle(
-                                                    color: Colors.white60)),
-                                          ],
-                                        ),
+                            ...items.map((item) {
+                              final title = item['title'] ?? 'Unknown Item';
+                              final quantity = item['quantity'] ?? 0;
+                              final totalPrice = item['totalPrice'] ?? 0.0;
+                              final price = totalPrice is num ? totalPrice : 0.0;
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(title,
+                                              style: const TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.white)),
+                                          Text('Qty: $quantity',
+                                              style: const TextStyle(
+                                                  color: Colors.white60)),
+                                        ],
                                       ),
-                                      Text(
-                                          'Rs. ${item['totalPrice'].toStringAsFixed(2)}',
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.blueAccent)),
-                                    ],
-                                  ),
-                                )),
+                                    ),
+                                    Text(
+                                        'Rs. ${price.toStringAsFixed(2)}',
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blueAccent)),
+                                  ],
+                                ),
+                              );
+                            }),
                           ],
                         ),
                       ),
@@ -344,7 +358,14 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   }
 
   Widget _buildInfoRow(IconData icon, String label, dynamic value) {
-    final displayValue = (value ?? 'N/A').toString();
+    String displayValue = 'N/A';
+    if (value != null) {
+      if (value is Timestamp) {
+        displayValue = DateFormat('yyyy-MM-dd').format(value.toDate());
+      } else {
+        displayValue = value.toString();
+      }
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -398,6 +419,12 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   }
 
   Widget _buildEditableStatusRow(IconData icon, String label) {
+    // Build dropdown items, ensuring current status is included
+    List<String> dropdownItems = List.from(_statusOptions);
+    if (_selectedStatus != null && !dropdownItems.contains(_selectedStatus)) {
+      dropdownItems.add(_selectedStatus!);
+    }
+    
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -419,7 +446,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               ),
               dropdownColor: Colors.grey[900]!,
               style: const TextStyle(color: Colors.white),
-              items: _statusOptions.map((String status) {
+              items: dropdownItems.map((String status) {
                 return DropdownMenuItem<String>(
                   value: status,
                   child: Text(status),
