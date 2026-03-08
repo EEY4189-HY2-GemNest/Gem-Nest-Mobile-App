@@ -30,9 +30,8 @@ class _AllCategoriesScreenState extends State<AllCategoriesScreen> {
 
   Future<void> _fetchCategories() async {
     try {
-      final categoriesSnapshot = await FirebaseFirestore.instance
-          .collection('categories')
-          .get();
+      final categoriesSnapshot =
+          await FirebaseFirestore.instance.collection('categories').get();
 
       final List<Map<String, dynamic>> loadedCategories = [];
       for (var doc in categoriesSnapshot.docs) {
