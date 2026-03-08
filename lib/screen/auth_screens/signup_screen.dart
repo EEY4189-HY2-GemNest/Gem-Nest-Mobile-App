@@ -22,6 +22,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool isBuyer = true;
   bool isPasswordVisible = false;
   bool isConfirmPasswordVisible = false;
+  bool _isLoading = false;
 
   final TextEditingController displayNameController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
@@ -290,6 +291,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
+    // Prevent multiple submissions
+    if (_isLoading) return;
+
+    setState(() => _isLoading = true);
+
     try {
       UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
@@ -392,6 +398,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         message: 'Error: $e',
         isError: true,
       );
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -481,7 +489,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     isPassword: true),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: _saveUser,
+                  onPressed: _isLoading ? null : _saveUser,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
@@ -491,10 +499,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'Register',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2.5,
+                          ),
+                        )
+                      : const Text(
+                          'Register',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                 ),
                 const SizedBox(height: 20),
                 // Already have account? Login section
