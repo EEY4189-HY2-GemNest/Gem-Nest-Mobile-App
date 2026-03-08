@@ -65,9 +65,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _fetchRandomGems() async {
     try {
-      final productsSnapshot = await FirebaseFirestore.instance
-          .collection('products')
-          .get();
+      final productsSnapshot =
+          await FirebaseFirestore.instance.collection('products').get();
 
       final List<Map<String, dynamic>> products = [];
       for (var doc in productsSnapshot.docs) {
@@ -314,9 +313,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   'GemNest Mobile App',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
               ],
             ),
@@ -517,11 +516,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   sliver: SliverGrid(
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          childAspectRatio: 1.0,
-                          mainAxisSpacing: 8,
-                          crossAxisSpacing: 8,
-                        ),
+                      crossAxisCount: 3,
+                      childAspectRatio: 1.0,
+                      mainAxisSpacing: 8,
+                      crossAxisSpacing: 8,
+                    ),
                     delegate: SliverChildListDelegate(const [
                       CategoryCard(
                         imagePath: 'assets/images/category1.jpg',
@@ -596,41 +595,41 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         )
                       : popularProducts.isEmpty
-                      ? SliverToBoxAdapter(
-                          child: SizedBox(
-                            height: 150,
-                            child: NoDataWidget(
-                              title: 'No gems available',
-                              iconSize: 40,
-                            ),
-                          ),
-                        )
-                      : SliverGrid(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
+                          ? SliverToBoxAdapter(
+                              child: SizedBox(
+                                height: 150,
+                                child: NoDataWidget(
+                                  title: 'No gems available',
+                                  iconSize: 40,
+                                ),
+                              ),
+                            )
+                          : SliverGrid(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 2,
                                 childAspectRatio: 0.68,
                                 mainAxisSpacing: 12,
                                 crossAxisSpacing: 12,
                               ),
-                          delegate: SliverChildBuilderDelegate((
-                            context,
-                            index,
-                          ) {
-                            if (index < popularProducts.length) {
-                              final product = popularProducts[index];
-                              return ProductCard(
-                                id: product['id'] as String,
-                                imagePath: product['imageUrl'] as String,
-                                title: product['title'] as String,
-                                price:
-                                    'LKR ${(product['pricing'] as num).toStringAsFixed(2)}',
-                                product: product,
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          }, childCount: popularProducts.length),
-                        ),
+                              delegate: SliverChildBuilderDelegate((
+                                context,
+                                index,
+                              ) {
+                                if (index < popularProducts.length) {
+                                  final product = popularProducts[index];
+                                  return ProductCard(
+                                    id: product['id'] as String,
+                                    imagePath: product['imageUrl'] as String,
+                                    title: product['title'] as String,
+                                    price:
+                                        'LKR ${(product['pricing'] as num).toStringAsFixed(2)}',
+                                    product: product,
+                                  );
+                                }
+                                return const SizedBox.shrink();
+                              }, childCount: popularProducts.length),
+                            ),
                 ),
                 const SliverToBoxAdapter(child: SizedBox(height: 30)),
               ],
@@ -759,9 +758,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     'Notifications',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: AppTheme.primaryBlue,
-                    ),
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.primaryBlue,
+                        ),
                   ),
                   Row(
                     children: [
