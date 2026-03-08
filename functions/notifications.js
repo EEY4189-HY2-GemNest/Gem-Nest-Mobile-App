@@ -180,7 +180,7 @@ exports.onNotificationTrigger = onDocumentCreated(
                         },
                     });
 
-                    // Also send FCM to admins
+                    // Also send FCM to admins AND save notifications to Firestore
                     const adminsSnapshot = await db
                         .collection('users')
                         .where('role', '==', 'admin')
@@ -188,14 +188,23 @@ exports.onNotificationTrigger = onDocumentCreated(
 
                     for (const adminDoc of adminsSnapshot.docs) {
                         const adminTokens = await getUserFCMTokens(adminDoc.id);
-                        await sendNotification(adminTokens, {
+                        const adminNotification = {
                             title: '👤 New Seller Registration',
                             body: `New seller "${triggerData.businessName}" needs verification.`,
+                            type: 'newSellerRegistration',
                             data: {
                                 type: 'newSellerRegistration',
                                 sellerId: userId,
+                                sellerEmail: triggerData.email,
+                                businessName: triggerData.businessName,
                             },
-                        });
+                        };
+                        
+                        // Send FCM notification
+                        await sendNotification(adminTokens, adminNotification);
+                        
+                        // Save notification to Firestore for offline access
+                        await saveNotification(adminDoc.id, adminNotification);
                     }
 
                     // Send seller registration details email to admin
