@@ -767,7 +767,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
 
     return chip;
 
-  Widget _buildInfoRow(IconData icon, String label, String value,
+  Widget buildInfoRow(IconData icon, String label, String value,
       {int maxLines = 1}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -806,7 +806,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     );
   }
 
-  Widget _buildEmptyState(IconData icon, String title, String message) {
+  Widget buildEmptyState(IconData icon, String title, String message) {
     return Center(
       child: FadeTransition(
         opacity: _fadeAnimation,
@@ -830,7 +830,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     );
   }
 
-  Widget _getStatusIcon(String status) {
+  Widget getStatusIcon(String status) {
     switch (status.toLowerCase()) {
       case 'all':
         return const Icon(Icons.all_inclusive,
@@ -851,7 +851,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     }
   }
 
-  Stream<QuerySnapshot> _getFilteredOrdersStream(String userId) {
+  Stream<QuerySnapshot> getFilteredOrdersStream(String userId) {
     Query query = FirebaseFirestore.instance
         .collection('orders')
         .where('userId', isEqualTo: userId);
@@ -873,7 +873,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     return query.snapshots();
   }
 
-  List<QueryDocumentSnapshot> _applySorting(
+  List<QueryDocumentSnapshot> applySorting(
       List<QueryDocumentSnapshot> orders) {
     switch (_selectedSortBy) {
       case 'date_desc':
@@ -973,7 +973,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     return orders;
   }
 
-  void _showOrderDetails(Map<String, dynamic> order, String orderId) {
+  void showOrderDetails(Map<String, dynamic> order, String orderId) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1028,7 +1028,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          _formatDate(order['orderDate']),
+                          formatDate(order['orderDate']),
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey.shade600,
@@ -1038,7 +1038,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                     ),
                     Row(
                       children: [
-                        _buildModernStatusChip(order['status'] ?? 'Pending'),
+                        buildModernStatusChip(order['status'] ?? 'Pending'),
                         const SizedBox(width: 8),
                         GestureDetector(
                           onTap: () => Navigator.pop(context),
@@ -1074,19 +1074,19 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                       Row(
                         children: [
                           Expanded(
-                            child: _buildQuickInfoCard(
+                            child: buildQuickInfoCard(
                               icon: Icons.calendar_today,
                               label: 'Order Date',
-                              value: _formatDate(order['orderDate']),
+                              value: formatDate(order['orderDate']),
                               color: const Color(0xFF1E88E5),
                             ),
                           ),
                           const SizedBox(width: 10),
                           Expanded(
-                            child: _buildQuickInfoCard(
+                            child: buildQuickInfoCard(
                               icon: Icons.local_shipping,
                               label: 'Delivery',
-                              value: _formatDate(order['deliveryDate']),
+                              value: formatDate(order['deliveryDate']),
                               color: const Color(0xFF00BCD4),
                             ),
                           ),
@@ -1114,17 +1114,17 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                               ),
                             ),
                             const SizedBox(height: 8),
-                            _buildCompactInfoRow(
+                            buildCompactInfoRow(
                               'Name:',
                               order['name'] ?? 'N/A',
                             ),
-                            _buildCompactInfoRow(
+                            buildCompactInfoRow(
                               'Mobile:',
                               order['mobile'] ?? 'N/A',
                             ),
-                            _buildCompactInfoRow(
+                            buildCompactInfoRow(
                               'Address:',
-                              _formatAddress(order['address']),
+                              formatAddress(order['address']),
                               isLast: true,
                             ),
                           ],
@@ -1160,7 +1160,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                                       .map((e) {
                                     final isLast = e.key ==
                                         (order['items'] as List).length - 1;
-                                    return _buildCompactInfoRow(
+                                    return buildCompactInfoRow(
                                       '${e.value['title'] ?? 'Item'}:',
                                       'Qty: ${e.value['quantity'] ?? 1}',
                                       isLast: isLast,
@@ -1192,11 +1192,11 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                               ),
                             ),
                             const SizedBox(height: 8),
-                            _buildCompactInfoRow(
+                            buildCompactInfoRow(
                               'Method:',
-                              _formatPaymentMethod(order['paymentMethod']),
+                              formatPaymentMethod(order['paymentMethod']),
                             ),
-                            _buildCompactInfoRow(
+                            buildCompactInfoRow(
                               'Status:',
                               order['status'] ?? 'N/A',
                               isLast: true,
@@ -1280,7 +1280,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     );
   }
 
-  Widget _buildQuickInfoCard({
+  Widget buildQuickInfoCard({
     required IconData icon,
     required String label,
     required String value,
@@ -1326,7 +1326,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     );
   }
 
-  Widget _buildCompactInfoRow(
+  Widget buildCompactInfoRow(
     String label,
     String value, {
     bool isLast = false,
@@ -1374,7 +1374,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     );
   }
 
-  String _formatDate(dynamic dateValue) {
+  String formatDate(dynamic dateValue) {
     if (dateValue == null) return 'N/A';
 
     if (dateValue is String) {
@@ -1388,7 +1388,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     return 'N/A';
   }
 
-  String _formatPaymentMethod(dynamic paymentValue) {
+  String formatPaymentMethod(dynamic paymentValue) {
     if (paymentValue == null) return 'N/A';
 
     if (paymentValue is String) {
@@ -1407,7 +1407,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     return 'N/A';
   }
 
-  String _formatAddress(dynamic addressValue) {
+  String formatAddress(dynamic addressValue) {
     if (addressValue == null) return 'N/A';
 
     if (addressValue is String) {
@@ -1428,7 +1428,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
     return 'N/A';
   }
 
-  Widget _buildModernStatusChip(String status) {
+  Widget buildModernStatusChip(String status) {
     Color backgroundColor;
     Color textColor;
     IconData icon;
