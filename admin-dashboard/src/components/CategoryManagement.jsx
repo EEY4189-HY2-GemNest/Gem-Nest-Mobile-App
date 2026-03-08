@@ -9,7 +9,7 @@ export default function CategoryManagement() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
-    
+
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [imageFile, setImageFile] = useState(null);
@@ -72,7 +72,7 @@ export default function CategoryManagement() {
     // Handle save (add or update)
     const handleSave = async (e) => {
         e.preventDefault();
-        
+
         if (!formData.categoryName.trim()) {
             setError('Category name is required');
             return;
@@ -138,7 +138,7 @@ export default function CategoryManagement() {
 
         try {
             setUploading(true);
-            
+
             // Delete image from storage if it exists
             if (imageUrl) {
                 try {
@@ -308,7 +308,7 @@ export default function CategoryManagement() {
                                 <label className="block text-sm font-medium text-gray-300 mb-2">
                                     Category Image *
                                 </label>
-                                
+
                                 {imagePreview && (
                                     <div className="mb-3 relative rounded-lg overflow-hidden border border-gray-700">
                                         <img
