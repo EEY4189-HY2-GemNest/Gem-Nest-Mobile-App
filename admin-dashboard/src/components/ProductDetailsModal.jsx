@@ -63,11 +63,10 @@ export default function ProductDetailsModal({ product, isOpen, onClose }) {
                         </div>
                         <div className="bg-gradient-to-br from-green-900/30 to-green-900/10 border border-green-700/30 rounded-xl p-4">
                             <p className="text-gray-400 text-xs uppercase tracking-wide font-semibold mb-2">Status</p>
-                            <span className={`inline-flex items-center px-3 py-2 rounded-lg font-bold ${
-                                product.isActive !== false 
-                                    ? 'bg-green-900/40 text-green-300 border border-green-700/50' 
+                            <span className={`inline-flex items-center px-3 py-2 rounded-lg font-bold ${product.isActive !== false
+                                    ? 'bg-green-900/40 text-green-300 border border-green-700/50'
                                     : 'bg-red-900/40 text-red-300 border border-red-700/50'
-                            }`}>
+                                }`}>
                                 {product.isActive !== false ? 'Active' : 'Inactive'}
                             </span>
                         </div>
@@ -179,13 +178,12 @@ export default function ProductDetailsModal({ product, isOpen, onClose }) {
                     {product.approvalStatus && (
                         <div className="bg-gray-700/30 rounded-lg border border-gray-600/50 p-4">
                             <p className="text-gray-400 text-xs uppercase tracking-wide font-semibold mb-2">Approval Status</p>
-                            <span className={`inline-flex px-3 py-1 rounded-full text-sm font-bold ${
-                                product.approvalStatus === 'approved' 
-                                    ? 'bg-green-900/40 text-green-300' 
+                            <span className={`inline-flex px-3 py-1 rounded-full text-sm font-bold ${product.approvalStatus === 'approved'
+                                    ? 'bg-green-900/40 text-green-300'
                                     : product.approvalStatus === 'rejected'
-                                    ? 'bg-red-900/40 text-red-300'
-                                    : 'bg-yellow-900/40 text-yellow-300'
-                            }`}>
+                                        ? 'bg-red-900/40 text-red-300'
+                                        : 'bg-yellow-900/40 text-yellow-300'
+                                }`}>
                                 {product.approvalStatus.charAt(0).toUpperCase() + product.approvalStatus.slice(1)}
                             </span>
                         </div>
