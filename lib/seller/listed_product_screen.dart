@@ -441,9 +441,8 @@ class _ProductCardState extends State<ProductCard> {
 
   Future<void> _loadCategories() async {
     try {
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('categories')
-          .get();
+      final querySnapshot =
+          await FirebaseFirestore.instance.collection('categories').get();
       final List<String> loadedCategories = [];
 
       for (var doc in querySnapshot.docs) {
