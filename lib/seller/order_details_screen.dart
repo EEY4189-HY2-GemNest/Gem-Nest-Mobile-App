@@ -43,11 +43,13 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       // Convert Timestamp to String if needed
       dynamic deliveryDate = doc['deliveryDate'];
       if (deliveryDate is Timestamp) {
-        _deliveryDateController.text = DateFormat('yyyy-MM-dd').format(deliveryDate.toDate());
+        _deliveryDateController.text =
+            DateFormat('yyyy-MM-dd').format(deliveryDate.toDate());
       } else if (deliveryDate is String) {
         _deliveryDateController.text = deliveryDate;
       } else {
-        _deliveryDateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+        _deliveryDateController.text =
+            DateFormat('yyyy-MM-dd').format(DateTime.now());
       }
       _selectedStatus = doc['status'];
     });
@@ -258,7 +260,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                               final title = item['title'] ?? 'Unknown Item';
                               final quantity = item['quantity'] ?? 0;
                               final totalPrice = item['totalPrice'] ?? 0.0;
-                              final price = totalPrice is num ? totalPrice : 0.0;
+                              final price =
+                                  totalPrice is num ? totalPrice : 0.0;
                               return Padding(
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 8),
@@ -281,8 +284,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                         ],
                                       ),
                                     ),
-                                    Text(
-                                        'Rs. ${price.toStringAsFixed(2)}',
+                                    Text('Rs. ${price.toStringAsFixed(2)}',
                                         style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                             color: Colors.blueAccent)),
@@ -424,7 +426,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     if (_selectedStatus != null && !dropdownItems.contains(_selectedStatus)) {
       dropdownItems.add(_selectedStatus!);
     }
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
