@@ -6,9 +6,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/home_screen.dart';
 import 'package:gemnest_mobile_app/widget/no_data_widget.dart';
+import 'package:gemnest_mobile_app/widget/order_status_history_sheet.dart';
 import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:gemnest_mobile_app/widget/shared_bottom_nav.dart';
-import 'package:gemnest_mobile_app/widget/order_status_history_sheet.dart';
 import 'package:intl/intl.dart';
 
 class OrderHistoryScreen extends StatefulWidget {
@@ -1029,7 +1029,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          this.formatDate(order['orderDate']),
+                          formatDate(order['orderDate']),
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey.shade600,
@@ -1039,7 +1039,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                     ),
                     Row(
                       children: [
-                            this.buildModernStatusChip(order['status'] ?? 'Pending'),
+                        buildModernStatusChip(order['status'] ?? 'Pending'),
                         const SizedBox(width: 8),
                         GestureDetector(
                           onTap: () => Navigator.pop(context),
@@ -1075,19 +1075,19 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                       Row(
                         children: [
                           Expanded(
-                            child: this.buildQuickInfoCard(
+                            child: buildQuickInfoCard(
                               icon: Icons.calendar_today,
                               label: 'Order Date',
-                              value: this.formatDate(order['orderDate']),
+                              value: formatDate(order['orderDate']),
                               color: const Color(0xFF1E88E5),
                             ),
                           ),
                           const SizedBox(width: 10),
                           Expanded(
-                            child: this.buildQuickInfoCard(
+                            child: buildQuickInfoCard(
                               icon: Icons.local_shipping,
                               label: 'Delivery',
-                              value: this.formatDate(order['deliveryDate']),
+                              value: formatDate(order['deliveryDate']),
                               color: const Color(0xFF00BCD4),
                             ),
                           ),
@@ -1115,17 +1115,17 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                               ),
                             ),
                             const SizedBox(height: 8),
-                            this.buildCompactInfoRow(
+                            buildCompactInfoRow(
                               'Name:',
                               order['name'] ?? 'N/A',
                             ),
-                            this.buildCompactInfoRow(
+                            buildCompactInfoRow(
                               'Mobile:',
                               order['mobile'] ?? 'N/A',
                             ),
-                            this.buildCompactInfoRow(
+                            buildCompactInfoRow(
                               'Address:',
-                              this.formatAddress(order['address']),
+                              formatAddress(order['address']),
                               isLast: true,
                             ),
                           ],
@@ -1161,7 +1161,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                                       .map((e) {
                                     final isLast = e.key ==
                                         (order['items'] as List).length - 1;
-                                    return this.buildCompactInfoRow(
+                                    return buildCompactInfoRow(
                                       '${e.value['title'] ?? 'Item'}:',
                                       'Qty: ${e.value['quantity'] ?? 1}',
                                       isLast: isLast,
@@ -1193,11 +1193,11 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen>
                               ),
                             ),
                             const SizedBox(height: 8),
-                            this.buildCompactInfoRow(
+                            buildCompactInfoRow(
                               'Method:',
-                              this.formatPaymentMethod(order['paymentMethod']),
+                              formatPaymentMethod(order['paymentMethod']),
                             ),
-                            this.buildCompactInfoRow(
+                            buildCompactInfoRow(
                               'Status:',
                               order['status'] ?? 'N/A',
                               isLast: true,
