@@ -43,7 +43,8 @@ class OrderStatusChange {
       newStatus: map['newStatus'] ?? '',
       changedAt: (map['changedAt'] is Timestamp)
           ? (map['changedAt'] as Timestamp).toDate()
-          : DateTime.parse(map['changedAt'] as String? ?? DateTime.now().toString()),
+          : DateTime.parse(
+              map['changedAt'] as String? ?? DateTime.now().toString()),
       comment: map['comment'],
       changedBy: map['changedBy'] ?? '',
     );
