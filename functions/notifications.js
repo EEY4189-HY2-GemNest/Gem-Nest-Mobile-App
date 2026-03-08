@@ -199,10 +199,10 @@ exports.onNotificationTrigger = onDocumentCreated(
                                 businessName: triggerData.businessName,
                             },
                         };
-                        
+
                         // Send FCM notification
                         await sendNotification(adminTokens, adminNotification);
-                        
+
                         // Save notification to Firestore for offline access
                         await saveNotification(adminDoc.id, adminNotification);
                     }
