@@ -65,8 +65,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _fetchRandomGems() async {
     try {
-      final productsSnapshot =
-          await FirebaseFirestore.instance.collection('products').get();
+      final productsSnapshot = await FirebaseFirestore.instance
+          .collection('products')
+          .get();
 
       final List<Map<String, dynamic>> products = [];
       for (var doc in productsSnapshot.docs) {
@@ -109,7 +110,8 @@ class _HomeScreenState extends State<HomeScreen> {
           .toList();
 
       debugPrint(
-          'Selected ${randomProducts.length} random products for display');
+        'Selected ${randomProducts.length} random products for display',
+      );
 
       // Log each product
       for (var p in randomProducts) {
@@ -184,16 +186,21 @@ class _HomeScreenState extends State<HomeScreen> {
     return await showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            title: const Text('Logout',
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            title: const Text(
+              'Logout',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             content: const Text('Are you sure you want to logout?'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child:
-                    const Text('Cancel', style: TextStyle(color: Colors.grey)),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.grey),
+                ),
               ),
               ElevatedButton(
                 onPressed: () async {
@@ -203,7 +210,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const LoginScreen()),
+                          builder: (context) => const LoginScreen(),
+                        ),
                         (route) => false,
                       );
                     }
@@ -214,10 +222,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.errorRed,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-                child:
-                    const Text('Logout', style: TextStyle(color: Colors.white)),
+                child: const Text(
+                  'Logout',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ],
           ),
@@ -235,9 +246,7 @@ class _HomeScreenState extends State<HomeScreen> {
           appBar: AppBar(
             automaticallyImplyLeading: false,
             flexibleSpace: Container(
-              decoration: BoxDecoration(
-                gradient: AppTheme.primaryGradient,
-              ),
+              decoration: BoxDecoration(gradient: AppTheme.primaryGradient),
             ),
             elevation: 4,
             title: Row(
@@ -248,9 +257,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   'GemNest Mobile App',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
@@ -259,8 +268,11 @@ class _HomeScreenState extends State<HomeScreen> {
               Stack(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.notifications_none,
-                        color: Colors.white, size: 24),
+                    icon: const Icon(
+                      Icons.notifications_none,
+                      color: Colors.white,
+                      size: 24,
+                    ),
                     onPressed: _showNotifications,
                   ),
                   Positioned(
@@ -353,7 +365,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 cacheWidth: 1000,
                                 errorBuilder: (context, error, stackTrace) {
                                   debugPrint(
-                                      'Banner image failed to load: $imageUrl');
+                                    'Banner image failed to load: $imageUrl',
+                                  );
                                   debugPrint('Error: $error');
                                   return Container(
                                     color: Colors.grey[800],
@@ -362,13 +375,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
-                                          const Icon(Icons.image_not_supported,
-                                              color: Colors.grey),
+                                          const Icon(
+                                            Icons.image_not_supported,
+                                            color: Colors.grey,
+                                          ),
                                           const SizedBox(height: 8),
                                           const Text(
                                             'Failed to load image',
-                                            style:
-                                                TextStyle(color: Colors.grey),
+                                            style: TextStyle(
+                                              color: Colors.grey,
+                                            ),
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
@@ -376,8 +392,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 ? 'No URL provided'
                                                 : 'Check image URL',
                                             style: const TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 12),
+                                              color: Colors.grey,
+                                              fontSize: 12,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -401,7 +418,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         const Text(
                           'Categories',
                           style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         GestureDetector(
                           onTap: () {
@@ -441,24 +460,25 @@ class _HomeScreenState extends State<HomeScreen> {
                   sliver: SliverGrid(
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      childAspectRatio: 1.0,
-                      mainAxisSpacing: 8,
-                      crossAxisSpacing: 8,
-                    ),
-                    delegate: SliverChildListDelegate(
-                      const [
-                        CategoryCard(
-                            imagePath: 'assets/images/category1.jpg',
-                            title: 'Blue Sapphires'),
-                        CategoryCard(
-                            imagePath: 'assets/images/category2.jpg',
-                            title: 'White Sapphires'),
-                        CategoryCard(
-                            imagePath: 'assets/images/category3.jpg',
-                            title: 'Yellow Sapphires'),
-                      ],
-                    ),
+                          crossAxisCount: 3,
+                          childAspectRatio: 1.0,
+                          mainAxisSpacing: 8,
+                          crossAxisSpacing: 8,
+                        ),
+                    delegate: SliverChildListDelegate(const [
+                      CategoryCard(
+                        imagePath: 'assets/images/category1.jpg',
+                        title: 'Blue Sapphires',
+                      ),
+                      CategoryCard(
+                        imagePath: 'assets/images/category2.jpg',
+                        title: 'White Sapphires',
+                      ),
+                      CategoryCard(
+                        imagePath: 'assets/images/category3.jpg',
+                        title: 'Yellow Sapphires',
+                      ),
+                    ]),
                   ),
                 ),
                 SliverToBoxAdapter(
@@ -519,41 +539,41 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         )
                       : popularProducts.isEmpty
-                          ? SliverToBoxAdapter(
-                              child: SizedBox(
-                                height: 150,
-                                child: NoDataWidget(
-                                  title: 'No gems available',
-                                  iconSize: 40,
-                                ),
-                              ),
-                            )
-                          : SliverGrid(
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                      ? SliverToBoxAdapter(
+                          child: SizedBox(
+                            height: 150,
+                            child: NoDataWidget(
+                              title: 'No gems available',
+                              iconSize: 40,
+                            ),
+                          ),
+                        )
+                      : SliverGrid(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 2,
                                 childAspectRatio: 0.68,
                                 mainAxisSpacing: 12,
                                 crossAxisSpacing: 12,
                               ),
-                              delegate: SliverChildBuilderDelegate(
-                                (context, index) {
-                                  if (index < popularProducts.length) {
-                                    final product = popularProducts[index];
-                                    return ProductCard(
-                                      id: product['id'] as String,
-                                      imagePath: product['imageUrl'] as String,
-                                      title: product['title'] as String,
-                                      price:
-                                          'LKR ${(product['pricing'] as num).toStringAsFixed(2)}',
-                                      product: product,
-                                    );
-                                  }
-                                  return const SizedBox.shrink();
-                                },
-                                childCount: popularProducts.length,
-                              ),
-                            ),
+                          delegate: SliverChildBuilderDelegate((
+                            context,
+                            index,
+                          ) {
+                            if (index < popularProducts.length) {
+                              final product = popularProducts[index];
+                              return ProductCard(
+                                id: product['id'] as String,
+                                imagePath: product['imageUrl'] as String,
+                                title: product['title'] as String,
+                                price:
+                                    'LKR ${(product['pricing'] as num).toStringAsFixed(2)}',
+                                product: product,
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          }, childCount: popularProducts.length),
+                        ),
                 ),
                 const SliverToBoxAdapter(child: SizedBox(height: 30)),
               ],
@@ -572,8 +592,9 @@ class _HomeScreenState extends State<HomeScreen> {
               });
             },
             backgroundColor: AppTheme.mediumBlue,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
             elevation: 8,
             child: const Icon(Icons.gavel),
           ),
@@ -623,14 +644,16 @@ class _HomeScreenState extends State<HomeScreen> {
           .get();
 
       return snapshot.docs
-          .map((doc) => {
-                'id': doc.id,
-                'title': doc['title'] ?? 'Notification',
-                'message': doc['body'] ?? doc['message'] ?? '',
-                'read': doc['isRead'] ?? doc['read'] ?? false,
-                'timestamp': doc['createdAt'] ?? doc['timestamp'],
-                'type': doc['type'] ?? 'general',
-              })
+          .map(
+            (doc) => {
+              'id': doc.id,
+              'title': doc['title'] ?? 'Notification',
+              'message': doc['body'] ?? doc['message'] ?? '',
+              'read': doc['isRead'] ?? doc['read'] ?? false,
+              'timestamp': doc['createdAt'] ?? doc['timestamp'],
+              'type': doc['type'] ?? 'general',
+            },
+          )
           .toList();
     } catch (e) {
       debugPrint('Error fetching notifications: $e');
@@ -678,11 +701,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text(
                     'Notifications',
-                    style:
-                        Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              color: AppTheme.primaryBlue,
-                            ),
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: AppTheme.primaryBlue,
+                    ),
                   ),
                   Row(
                     children: [
@@ -693,8 +715,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           final hasNotifications =
                               snapshot.hasData && snapshot.data!.isNotEmpty;
                           return IconButton(
-                            icon: const Icon(Icons.delete_outline,
-                                color: Colors.red),
+                            icon: const Icon(
+                              Icons.delete_outline,
+                              color: Colors.red,
+                            ),
                             onPressed: hasNotifications
                                 ? () => _showDeleteAllNotificationsDialog()
                                 : null,
@@ -740,8 +764,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   final notifications = snapshot.data!;
                   return ListView.builder(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     itemCount: notifications.length,
                     itemBuilder: (context, index) {
                       final notification = notifications[index];
@@ -762,8 +788,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           alignment: Alignment.centerRight,
-                          child: const Icon(Icons.delete_outline,
-                              color: Colors.white),
+                          child: const Icon(
+                            Icons.delete_outline,
+                            color: Colors.white,
+                          ),
                         ),
                         child: GestureDetector(
                           onTap: () {
@@ -773,7 +801,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           },
                           onLongPress: () {
                             _showNotificationOptionsSheet(
-                                context, notificationId, notification);
+                              context,
+                              notificationId,
+                              notification,
+                            );
                           },
                           child: Container(
                             margin: const EdgeInsets.only(bottom: 10),
@@ -834,7 +865,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   children: [
                                     Text(
                                       _formatNotificationTime(
-                                          notification['timestamp']),
+                                        notification['timestamp'],
+                                      ),
                                       style: TextStyle(
                                         fontSize: 11,
                                         color: Colors.grey.shade500,
@@ -913,24 +945,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              Icon(
-                Icons.delete_outline,
-                size: 48,
-                color: Colors.red.shade400,
-              ),
+              Icon(Icons.delete_outline, size: 48, color: Colors.red.shade400),
               const SizedBox(height: 16),
               Text(
                 'Delete Notification?',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
                 'This action cannot be undone',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[600],
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
               ),
               const SizedBox(height: 24),
               Row(
@@ -966,8 +994,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showNotificationOptionsSheet(BuildContext context, String notificationId,
-      Map<String, dynamic> notification) {
+  void _showNotificationOptionsSheet(
+    BuildContext context,
+    String notificationId,
+    Map<String, dynamic> notification,
+  ) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -992,10 +1023,9 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 16),
               Text(
                 'Notification Options',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               ListTile(
