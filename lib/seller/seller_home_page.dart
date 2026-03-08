@@ -791,12 +791,13 @@ class _SellerHomePageState extends State<SellerHomePage>
             onTap: _onItemTapped,
             items: [
               BottomNavigationBarItem(
-                icon: _buildNavIcon(Icons.dashboard_outlined, Icons.dashboard, 0),
+                icon:
+                    _buildNavIcon(Icons.dashboard_outlined, Icons.dashboard, 0),
                 label: 'Dashboard',
               ),
               BottomNavigationBarItem(
-                icon: _buildNavIcon(
-                    Icons.notifications_outlined, Icons.notifications_active, 1),
+                icon: _buildNavIcon(Icons.notifications_outlined,
+                    Icons.notifications_active, 1),
                 label: 'Notifications',
               ),
               BottomNavigationBarItem(
