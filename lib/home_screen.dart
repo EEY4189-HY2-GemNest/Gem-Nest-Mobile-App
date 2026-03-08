@@ -641,169 +641,486 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showNotifications() {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true,
+      isScrollControlled: false,
       backgroundColor: Colors.transparent,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.7,
-        maxChildSize: 0.95,
-        minChildSize: 0.5,
-        builder: (context, scrollController) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 20,
-                offset: Offset(0, -8),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              // Drag handle
-              Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.75,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 20,
+              offset: Offset(0, -8),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            // Drag handle
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              // Header
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Notifications',
-                      style:
-                          Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.w800,
-                                color: AppTheme.primaryBlue,
-                              ),
-                    ),
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Icon(
-                          Icons.close,
-                          size: 18,
-                          color: Colors.grey.shade700,
+            ),
+            // Header with delete all icon
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Notifications',
+                    style:
+                        Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: AppTheme.primaryBlue,
+                            ),
+                  ),
+                  Row(
+                    children: [
+                      // Delete All Icon Button
+                      FutureBuilder<List<Map<String, dynamic>>>(
+                        future: _getNotifications(),
+                        builder: (context, snapshot) {
+                          final hasNotifications =
+                              snapshot.hasData && snapshot.data!.isNotEmpty;
+                          return IconButton(
+                            icon: const Icon(Icons.delete_outline,
+                                color: Colors.red),
+                            onPressed: hasNotifications
+                                ? () => _showDeleteAllNotificationsDialog()
+                                : null,
+                            tooltip: 'Delete all notifications',
+                          );
+                        },
+                      ),
+                      // Close button
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            Icons.close,
+                            size: 18,
+                            color: Colors.grey.shade700,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                ],
               ),
-              // Notifications list
-              Expanded(
-                child: FutureBuilder<List<Map<String, dynamic>>>(
-                  future: _getNotifications(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const NoDataWidget(
-                        title: 'No notifications yet',
-                        icon: Icons.notifications_off,
-                      );
-                    }
+            ),
+            // Notifications list with fixed height
+            Expanded(
+              child: FutureBuilder<List<Map<String, dynamic>>>(
+                future: _getNotifications(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const NoDataWidget(
+                      title: 'No notifications yet',
+                      icon: Icons.notifications_off,
+                    );
+                  }
 
-                    final notifications = snapshot.data!;
-                    return ListView.builder(
-                      controller: scrollController,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      itemCount: notifications.length,
-                      itemBuilder: (context, index) {
-                        final notification = notifications[index];
-                        final isRead = notification['read'] as bool;
+                  final notifications = snapshot.data!;
+                  return ListView.builder(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    itemCount: notifications.length,
+                    itemBuilder: (context, index) {
+                      final notification = notifications[index];
+                      final isRead = notification['read'] as bool;
+                      final notificationId = notification['id'] as String;
 
-                        return Container(
+                      return Dismissible(
+                        key: Key(notificationId),
+                        direction: DismissDirection.endToStart,
+                        onDismissed: (_) {
+                          _deleteNotificationWithConfirmation(notificationId);
+                        },
+                        background: Container(
                           margin: const EdgeInsets.only(bottom: 10),
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.only(right: 20),
                           decoration: BoxDecoration(
-                            color: isRead
-                                ? Colors.grey.shade50
-                                : Colors.blue.shade50,
+                            color: Colors.red.withOpacity(0.7),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
+                          ),
+                          alignment: Alignment.centerRight,
+                          child: const Icon(Icons.delete_outline,
+                              color: Colors.white),
+                        ),
+                        child: GestureDetector(
+                          onTap: () {
+                            if (!isRead) {
+                              _markNotificationAsRead(notificationId);
+                            }
+                          },
+                          onLongPress: () {
+                            _showNotificationOptionsSheet(
+                                context, notificationId, notification);
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
                               color: isRead
-                                  ? Colors.grey.shade200
-                                  : AppTheme.primaryBlue.withOpacity(0.3),
+                                  ? Colors.grey.shade50
+                                  : Colors.blue.shade50,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isRead
+                                    ? Colors.grey.shade200
+                                    : AppTheme.primaryBlue.withOpacity(0.3),
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        notification['title'] as String,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14,
+                                          color: Colors.grey.shade800,
+                                        ),
+                                      ),
+                                    ),
+                                    if (!isRead)
+                                      Container(
+                                        width: 8,
+                                        height: 8,
+                                        decoration: const BoxDecoration(
+                                          color: AppTheme.primaryBlue,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  notification['message'] as String,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      _formatNotificationTime(
+                                          notification['timestamp']),
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.grey.shade500,
+                                      ),
+                                    ),
+                                    Text(
+                                      isRead ? 'Read' : 'Unread',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w500,
+                                        color: isRead
+                                            ? Colors.grey[500]
+                                            : AppTheme.primaryBlue,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      notification['title'] as String,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14,
-                                        color: Colors.grey.shade800,
-                                      ),
-                                    ),
-                                  ),
-                                  if (!isRead)
-                                    Container(
-                                      width: 8,
-                                      height: 8,
-                                      decoration: const BoxDecoration(
-                                        color: AppTheme.primaryBlue,
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                notification['message'] as String,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey.shade600,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                _formatNotificationTime(
-                                    notification['timestamp']),
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.grey.shade500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  },
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _markNotificationAsRead(String notificationId) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .collection('notifications')
+            .doc(notificationId)
+            .update({'read': true});
+
+        // Refresh notifications
+        setState(() {
+          // Trigger rebuild to update notification count badge
+        });
+      }
+    } catch (e) {
+      debugPrint('Error marking notification as read: $e');
+      _showErrorSnackBar('Failed to mark as read');
+    }
+  }
+
+  void _deleteNotificationWithConfirmation(String notificationId) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
                 ),
+              ),
+              const SizedBox(height: 20),
+              Icon(
+                Icons.delete_outline,
+                size: 48,
+                color: Colors.red.shade400,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Delete Notification?',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'This action cannot be undone',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey[600],
+                    ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cancel'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _deleteNotification(notificationId);
+                      },
+                      child: const Text(
+                        'Delete',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void _showNotificationOptionsSheet(BuildContext context, String notificationId,
+      Map<String, dynamic> notification) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Notification Options',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                leading: const Icon(Icons.done, color: Colors.green),
+                title: const Text('Mark as Read'),
+                onTap: () {
+                  Navigator.pop(context);
+                  final isRead = notification['read'] as bool;
+                  if (!isRead) {
+                    _markNotificationAsRead(notificationId);
+                  }
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: const Text(
+                  'Delete',
+                  style: TextStyle(color: Colors.red),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _deleteNotificationWithConfirmation(notificationId);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _deleteNotification(String notificationId) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .collection('notifications')
+            .doc(notificationId)
+            .delete();
+
+        if (mounted) {
+          _showSuccessSnackBar('Notification deleted');
+        }
+      }
+    } catch (e) {
+      debugPrint('Error deleting notification: $e');
+      _showErrorSnackBar('Failed to delete notification');
+    }
+  }
+
+  void _showDeleteAllNotificationsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete All Notifications?'),
+        content: const Text(
+          'This will permanently delete all your notifications. This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _deleteAllNotifications();
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete All'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _deleteAllNotifications() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final notifications = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .collection('notifications')
+            .get();
+
+        for (var doc in notifications.docs) {
+          await doc.reference.delete();
+        }
+
+        if (mounted) {
+          _showSuccessSnackBar('All notifications deleted');
+          Navigator.pop(context);
+        }
+      }
+    } catch (e) {
+      debugPrint('Error deleting all notifications: $e');
+      _showErrorSnackBar('Failed to delete notifications');
+    }
+  }
+
+  void _showErrorSnackBar(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  void _showSuccessSnackBar(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   String _formatNotificationTime(dynamic timestamp) {
