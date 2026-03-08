@@ -137,7 +137,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final productName = _product['title'] ?? 'Product';
-    final productPrice = (((_product['pricing'] ?? 0) as num).toDouble()).toStringAsFixed(2);
+    final productPrice =
+        (((_product['pricing'] ?? 0) as num).toDouble()).toStringAsFixed(2);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
