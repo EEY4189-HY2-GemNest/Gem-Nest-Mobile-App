@@ -619,7 +619,7 @@ export default function AnalyticsPanel() {
         <thead><tr><th>#</th><th>Seller</th><th class="text-right">Revenue</th><th class="text-right">Tax</th><th class="text-right">Service Charge</th><th class="text-center">Orders</th><th class="text-center">Completed</th></tr></thead>
         <tbody>
             ${sellerBreakdown.length === 0 ? '<tr><td colspan="7" class="text-center" style="padding:20px;color:#999">No seller data for this month</td></tr>' :
-                sellerBreakdown.map((s, i) => `
+                    sellerBreakdown.map((s, i) => `
             <tr>
                 <td>${i + 1}</td>
                 <td>${s.sellerName}</td>
