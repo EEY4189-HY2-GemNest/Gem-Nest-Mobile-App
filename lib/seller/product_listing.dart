@@ -262,6 +262,8 @@ class _ProductListingState extends State<ProductListing>
           'url': url,
           'fileName': standardFileName,
           'type': fileExtension.toLowerCase(),
+          'uploadedAt': DateTime.now().toIso8601String(),
+          'status': 'pending',
         });
       }
 
