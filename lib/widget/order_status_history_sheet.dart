@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/models/order_status_change.dart';
-import 'package:intl/intl.dart';
 
 /// Displays order status change history in a bottom sheet
 class OrderStatusHistorySheet extends StatelessWidget {
@@ -222,9 +221,11 @@ class OrderStatusHistorySheet extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: _getStatusColor(change.previousStatus).withOpacity(0.2),
+                  color:
+                      _getStatusColor(change.previousStatus).withOpacity(0.2),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -237,11 +238,11 @@ class OrderStatusHistorySheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              const Icon(Icons.arrow_forward,
-                  size: 16, color: Colors.grey),
+              const Icon(Icons.arrow_forward, size: 16, color: Colors.grey),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: _getStatusColor(change.newStatus).withOpacity(0.2),
                   borderRadius: BorderRadius.circular(6),
