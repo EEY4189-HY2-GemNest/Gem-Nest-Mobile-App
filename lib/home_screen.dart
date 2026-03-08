@@ -50,9 +50,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _fetchCategories() async {
     try {
-      final categoriesSnapshot = await FirebaseFirestore.instance
-          .collection('categories')
-          .get();
+      final categoriesSnapshot =
+          await FirebaseFirestore.instance.collection('categories').get();
 
       final List<Map<String, dynamic>> loadedCategories = [];
       for (var doc in categoriesSnapshot.docs) {
@@ -587,12 +586,15 @@ class _HomeScreenState extends State<HomeScreen> {
                             );
                           },
                           child: CategoryCard(
-                            imagePath: category['categoryImage'] ?? 'assets/images/category1.jpg',
+                            imagePath: category['categoryImage'] ??
+                                'assets/images/category1.jpg',
                             title: category['categoryName'] ?? 'Category',
                           ),
                         );
                       },
-                      childCount: _isLoadingCategories ? 1 : (categories.length > 3 ? 3 : categories.length),
+                      childCount: _isLoadingCategories
+                          ? 1
+                          : (categories.length > 3 ? 3 : categories.length),
                     ),
                   ),
                 ),
