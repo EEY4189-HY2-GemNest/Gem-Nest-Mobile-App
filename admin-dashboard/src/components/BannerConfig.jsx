@@ -120,7 +120,7 @@ export default function BannerConfig() {
         setUploading(true);
         setError('');
         setSuccess('');
-        
+
         // Flag that an operation is ongoing to prevent logout during upload
         localStorage.setItem('adminOperationOngoing', 'true');
 
