@@ -68,7 +68,7 @@ class _SellerHomePageState extends State<SellerHomePage>
     _controller.forward();
     _cardAnimationController.forward();
     currentUserId = FirebaseAuth.instance.currentUser?.uid;
-    
+
     // Initialize seller notification provider
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -77,7 +77,7 @@ class _SellerHomePageState extends State<SellerHomePage>
         provider.subscribeToSellerTopics();
       }
     });
-    
+
     _fetchRealData();
   }
 
@@ -285,7 +285,7 @@ class _SellerHomePageState extends State<SellerHomePage>
                   if (provider.isLoading) {
                     return const Center(child: CircularProgressIndicator());
                   }
-                  
+
                   final notifications = provider.getSellerNotifications();
                   if (notifications.isEmpty) {
                     return const Center(
@@ -295,7 +295,7 @@ class _SellerHomePageState extends State<SellerHomePage>
                       ),
                     );
                   }
-                  
+
                   return SellerNotificationsList(
                     filterCategory: null,
                   );
@@ -889,8 +889,7 @@ class _SellerHomePageState extends State<SellerHomePage>
         final unreadCount = provider.unreadCount;
 
         return AnimatedBuilder(
-          animation:
-              Listenable.merge([_controller, _cardAnimationController]),
+          animation: Listenable.merge([_controller, _cardAnimationController]),
           builder: (context, childWidget) {
             return Stack(
               clipBehavior: Clip.none,
@@ -930,8 +929,7 @@ class _SellerHomePageState extends State<SellerHomePage>
                       isSelected ? filledIcon : outlineIcon,
                       key: ValueKey(isSelected),
                       size: isSelected ? 28 : 24,
-                      color:
-                          isSelected ? Colors.blueAccent : Colors.grey[600],
+                      color: isSelected ? Colors.blueAccent : Colors.grey[600],
                     ),
                   ),
                 ),
