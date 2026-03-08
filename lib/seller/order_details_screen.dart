@@ -99,6 +99,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             const SizedBox(height: 8),
             TextField(
               controller: _commentController,
+              maxLines: 3,
+              minLines: 2,
               decoration: InputDecoration(
                 hintText: 'e.g., Item shipped from warehouse',
                 border: OutlineInputBorder(
@@ -106,8 +108,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 ),
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                maxLines: 3,
-                minLines: 2,
               ),
             ),
           ],
