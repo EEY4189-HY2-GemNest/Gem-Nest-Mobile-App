@@ -44,7 +44,7 @@ class _AuctionPaymentScreenState extends State<AuctionPaymentScreen> {
   final TextEditingController _cvcController = TextEditingController();
 
   String _formatCurrency(double amount) {
-    return 'Rs.${amount.toStringAsFixed(0).replaceAllMapped(
+    return 'Rs.${amount.toStringAsFixed(2).replaceAllMapped(
           RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
           (Match m) => '${m[1]},',
         )}';
