@@ -36,7 +36,7 @@ export default function DashboardPage() {
         const unsubscribe = auth.onAuthStateChanged((user) => {
             // Check both state and localStorage for ongoing operations
             const operationOngoing = isOngoing || localStorage.getItem('adminOperationOngoing') === 'true';
-            
+
             if (!user) {
                 // Only redirect if we've already checked auth once AND no operation is ongoing
                 if (authChecked && !operationOngoing) {
