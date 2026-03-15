@@ -251,9 +251,11 @@ class _AuctionProductState extends State<AuctionProduct>
           : DateTime.now().toUtc().toIso8601String();
 
       final userId = _auth.currentUser?.uid;
+      final startBid = double.tryParse(_currentBidController.text) ?? 0.0;
       await _firestore.collection('auctions').add({
         'title': _titleController.text,
-        'currentBid': double.tryParse(_currentBidController.text) ?? 0.0,
+        'startingPrice': startBid,
+        'currentBid': startBid,
         'endTime': endTimeIso,
         'imagePath': imageUrl,
         'lastBidTime': FieldValue.serverTimestamp(),
