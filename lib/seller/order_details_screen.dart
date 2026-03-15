@@ -351,8 +351,13 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                 Icons.local_shipping, 'Delivery Date:'),
                             _buildInfoRow(Icons.location_on, 'Address:',
                                 order['address'] ?? order['shippingAddress']),
-                            _buildInfoRow(Icons.payment, 'Payment Method:',
-                                order['paymentMethod'] ?? order['paymentType']),
+                            _buildInfoRow(
+                                Icons.payment,
+                                'Payment Method:',
+                                (order['paymentMethod'] is Map)
+                                    ? (order['paymentMethod'] as Map)['name'] ??
+                                        'Unknown'
+                                    : order['paymentMethod'] ?? order['paymentType']),
                             _buildEditableStatusRow(Icons.update, 'Status:'),
                           ],
                         ),
@@ -388,11 +393,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                         color: Colors.white)),
                             const SizedBox(height: 12),
                             ...items.map((item) {
-                              final title = item['title'] ?? 'Unknown Item';
+                              final title = item['name'] ?? item['title'] ?? 'Unknown Item';
                               final quantity = item['quantity'] ?? 0;
-                              final totalPrice = item['totalPrice'] ?? 0.0;
-                              final price =
-                                  totalPrice is num ? totalPrice : 0.0;
+                              final unitPrice = (item['price'] ?? item['totalPrice'] ?? 0.0) as num;
+                              final price = (unitPrice * quantity).toDouble();
                               return Padding(
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 8),
