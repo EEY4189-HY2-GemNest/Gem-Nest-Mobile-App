@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gemnest_mobile_app/widget/bid_history_widget.dart';
 import 'package:gemnest_mobile_app/widget/certificate_viewer.dart';
-import 'package:gemnest_mobile_app/widget/certificate_webview.dart';
 import 'package:gemnest_mobile_app/widget/shared_app_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -20,16 +19,28 @@ class AuctionDetailsScreen extends StatefulWidget {
   State<AuctionDetailsScreen> createState() => _AuctionDetailsScreenState();
 }
 
-class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
+class _AuctionDetailsScreenState extends State<AuctionDetailsScreen>
+    with SingleTickerProviderStateMixin {
   late Map<String, dynamic> _auction;
   Map<String, dynamic>? _sellerData;
   bool _isLoading = true;
+  late AnimationController _animationController;
 
   @override
   void initState() {
     super.initState();
     _auction = widget.auction;
+    _animationController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat();
     _fetchSellerData();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchSellerData() async {
@@ -56,9 +67,11 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
 
   Future<void> _callSeller() async {
     if (_sellerData == null || _sellerData!['phone'] == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Seller phone number not available')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Seller phone number not available')),
+        );
+      }
       return;
     }
 
@@ -70,39 +83,47 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
         await launchUrl(phoneUri);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error calling seller: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error calling seller: $e')),
+        );
+      }
     }
   }
 
   Future<void> _sendWhatsApp() async {
     if (_sellerData == null || _sellerData!['phone'] == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Seller phone number not available')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Seller phone number not available')),
+        );
+      }
       return;
     }
 
     final phoneNumber = _sellerData!['phone'];
     final String message =
-        'Hi, I am interested in bidding for ${_auction['title']}';
+        'Hi, I am interested in bidding for ${_auction['title']}. Can you provide more details?';
     final Uri whatsappUri = Uri.parse(
       'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}',
     );
 
     try {
       if (await canLaunchUrl(whatsappUri)) {
-        await launchUrl(whatsappUri);
+        await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('WhatsApp not installed')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('WhatsApp not installed')),
+          );
+        }
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error opening WhatsApp: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error opening WhatsApp: $e')),
+        );
+      }
     }
   }
 
@@ -137,51 +158,89 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
     final days = duration.inDays;
     final hours = duration.inHours % 24;
     final minutes = duration.inMinutes % 60;
+    final seconds = duration.inSeconds % 60;
+
     if (days > 0) {
       return '${days}d ${hours}h ${minutes}m';
     } else if (hours > 0) {
-      return '${hours}h ${minutes}m';
+      return '${hours}h ${minutes}m ${seconds}s';
     } else {
-      return '${minutes}m remaining';
+      return '${minutes}m ${seconds}s';
+    }
+  }
+
+  String _getImageUrl() {
+    return _auction['imageUrl'] ??
+        _auction['image'] ??
+        _auction['imagePath'] ??
+        '';
+  }
+
+  String _getFormattedPrice(dynamic price) {
+    if (price == null) return '0';
+    if (price is String) {
+      final parsed = double.tryParse(price) ?? 0.0;
+      return parsed.toStringAsFixed(0);
+    }
+    if (price is num) {
+      return (price).toStringAsFixed(0);
+    }
+    return '0';
+  }
+
+  IconData _getCertificateIcon(String? type) {
+    switch (type?.toLowerCase()) {
+      case 'gem':
+        return Icons.diamond;
+      case 'certificate':
+        return Icons.verified;
+      case 'authentication':
+        return Icons.security;
+      default:
+        return Icons.description;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl = _auction['imageUrl'];
+    final imageUrl = _getImageUrl();
     final timeRemaining = _getTimeRemaining();
     final isAuctionEnded = (timeRemaining?.inSeconds ?? 0) <= 0;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: const Color(0xFFFAFBFC),
       appBar: SharedAppBar(
         title: _auction['title'] ?? 'Auction Details',
         onBackPressed: () => Navigator.pop(context),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation(Color(0xFF667eea)),
+              ),
+            )
           : SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Premium Image Section with Badge
+                  // ===== PREMIUM IMAGE SECTION =====
                   Stack(
                     children: [
-                      // Main Image
+                      // Image Container
                       Container(
                         width: double.infinity,
-                        height: 380,
+                        height: 280,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 12,
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 16,
                               offset: const Offset(0, 4),
                             ),
                           ],
                         ),
-                        child: imageUrl != null && imageUrl.isNotEmpty
+                        child: imageUrl.isNotEmpty
                             ? Image.network(
                                 imageUrl,
                                 fit: BoxFit.cover,
@@ -198,82 +257,146 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                                                   loadingProgress
                                                       .expectedTotalBytes!
                                               : null,
+                                      valueColor: const AlwaysStoppedAnimation(
+                                        Color(0xFF667eea),
+                                      ),
                                     ),
                                   );
                                 },
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Container(
-                                  color: Colors.grey[200],
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.image_not_supported,
-                                          size: 80, color: Colors.grey[400]),
-                                      const SizedBox(height: 12),
-                                      Text(
-                                        'Image not available',
-                                        style:
-                                            TextStyle(color: Colors.grey[600]),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    color: Colors.grey[100],
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(20),
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey[200],
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
+                                          child: Icon(
+                                            Icons.image_not_supported_outlined,
+                                            size: 64,
+                                            color: Colors.grey[400],
+                                          ),
+                                        ),
+                                        const SizedBox(height: 16),
+                                        Text(
+                                          'Image Could Not Load',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.grey[700],
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          'Check your connection',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey[500],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
                               )
                             : Container(
-                                color: Colors.grey[200],
+                                color: Colors.grey[100],
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.image_not_supported,
-                                        size: 80, color: Colors.grey[400]),
-                                    const SizedBox(height: 12),
+                                    Container(
+                                      padding: const EdgeInsets.all(20),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[200],
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Icon(
+                                        Icons.image_outlined,
+                                        size: 64,
+                                        color: Colors.grey[400],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
                                     Text(
-                                      'No image provided',
-                                      style: TextStyle(color: Colors.grey[600]),
+                                      'No Image Available',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.grey[700],
+                                      ),
                                     ),
                                   ],
                                 ),
                               ),
                       ),
-                      // Status Badge
+                      // Status Badge - Live/Ended
                       Positioned(
                         top: 16,
                         right: 16,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
+                            horizontal: 14,
+                            vertical: 8,
+                          ),
                           decoration: BoxDecoration(
                             color: isAuctionEnded
-                                ? Colors.grey[700]
-                                : Colors.red[600],
-                            borderRadius: BorderRadius.circular(20),
+                                ? const Color(0xFF9E9E9E)
+                                : const Color(0xFFFF6B6B),
+                            borderRadius: BorderRadius.circular(24),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
-                                blurRadius: 6,
-                                offset: const Offset(0, 2),
+                                color: (isAuctionEnded
+                                        ? Colors.grey
+                                        : const Color(0xFFFF6B6B))
+                                    .withOpacity(0.4),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
                               ),
                             ],
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Container(
-                                width: 6,
-                                height: 6,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(3),
+                              if (!isAuctionEnded)
+                                ScaleTransition(
+                                  scale: Tween(begin: 0.8, end: 1.0).animate(
+                                    CurvedAnimation(
+                                      parent: _animationController,
+                                      curve: Curves.easeInOut,
+                                    ),
+                                  ),
+                                  child: Container(
+                                    width: 6,
+                                    height: 6,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(3),
+                                    ),
+                                  ),
+                                )
+                              else
+                                Container(
+                                  width: 6,
+                                  height: 6,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(3),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 6),
+                              const SizedBox(width: 8),
                               Text(
                                 isAuctionEnded ? 'ENDED' : 'LIVE',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 11,
-                                  letterSpacing: 1,
+                                  fontSize: 12,
+                                  letterSpacing: 1.2,
                                 ),
                               ),
                             ],
@@ -283,158 +406,212 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                     ],
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
 
-                  // Title and Category
+                  // ===== TITLE & CATEGORY =====
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           _auction['title'] ?? 'Auction Item',
                           style: const TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            fontSize: 28,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF1A1A2E),
+                            height: 1.2,
                           ),
                         ),
                         const SizedBox(height: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.blue[50],
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            _auction['category'] ?? 'Gems',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.blue[700],
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF667eea).withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.diamond,
+                                    size: 14,
+                                    color: const Color(0xFF667eea),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    _auction['category'] ?? 'Premium Gems',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF667eea),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
+                            const SizedBox(width: 8),
+                            if (_auction['lotNumber'] != null)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 5,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  'Lot #${_auction['lotNumber']}',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ],
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
 
-                  // Time Remaining Card (Premium Design)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: isAuctionEnded
-                              ? [Colors.grey[600]!, Colors.grey[700]!]
-                              : [Colors.orange[400]!, Colors.orange[600]!],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(16),
+                  Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      gradient: isAuctionEnded
+                          ? LinearGradient(
+                              colors: [
+                                Colors.grey[600]!,
+                                Colors.grey[700]!,
+                              ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              )
+                            : const LinearGradient(
+                                colors: [
+                                  Color(0xFFFFA500),
+                                  Color(0xFFFF8C00),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                        borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color:
-                                (isAuctionEnded ? Colors.grey : Colors.orange)
-                                    .withOpacity(0.3),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
+                            color: (isAuctionEnded
+                                    ? Colors.grey
+                                    : const Color(0xFFFFA500))
+                                .withOpacity(0.3),
+                            blurRadius: 16,
+                            offset: const Offset(0, 6),
                           ),
                         ],
                       ),
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
                             'Time Remaining',
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 12,
                               color: Colors.white70,
                               fontWeight: FontWeight.w500,
-                              letterSpacing: 0.5,
+                              letterSpacing: 0.8,
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                           Text(
                             _formatDuration(timeRemaining ?? Duration.zero),
                             style: const TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 28,
+                              fontWeight: FontWeight.w900,
                               color: Colors.white,
                               letterSpacing: -0.5,
+                              fontFamily: 'Monospace',
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                           Text(
                             'Ends: ${_formatDate(_auction['endTime'])}',
                             style: const TextStyle(
                               fontSize: 12,
                               color: Colors.white70,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 10),
 
-                  // Bidding Information Card
+                  // ===== BIDDING INFORMATION =====
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
                           'Bidding Information',
                           style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF1A1A2E),
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 10),
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.grey[200]!),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Colors.grey[200]!,
+                              width: 1,
+                            ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
+                                color: Colors.black.withOpacity(0.04),
+                                blurRadius: 12,
+                                offset: const Offset(0, 3),
                               ),
                             ],
                           ),
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(12),
                           child: Column(
                             children: [
-                              _buildBidRow(
+                              _buildBidInfoRow(
                                 'Current Bid',
                                 'Rs. ${_auction['currentBid']?.toStringAsFixed(0) ?? '0'}',
-                                Colors.green[600]!,
-                                isHighlighted: true,
+                                const Color(0xFF28a745),
                               ),
-                              const SizedBox(height: 16),
-                              Divider(color: Colors.grey[200]),
-                              const SizedBox(height: 16),
-                              _buildBidRow(
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8),
+                                child: Divider(color: Colors.grey[100]),
+                              ),
+                              _buildBidInfoRow(
                                 'Starting Price',
-                                'Rs. ${_auction['startingPrice']?.toStringAsFixed(0) ?? '0'}',
+                                'Rs. ${_getFormattedPrice(_auction['startingPrice'])}',
                                 Colors.grey[600]!,
                               ),
-                              const SizedBox(height: 16),
-                              Divider(color: Colors.grey[200]),
-                              const SizedBox(height: 16),
-                              _buildBidRow(
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8),
+                                child: Divider(color: Colors.grey[100]),
+                              ),
+                              _buildBidInfoRow(
                                 'Total Bids',
                                 '${_auction['bidHistory']?.length ?? _auction['bidCount']?.toString() ?? '0'} bids',
-                                Colors.blue[600]!,
+                                const Color(0xFF667eea),
                               ),
                             ],
                           ),
@@ -443,11 +620,11 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 10),
 
-                  // Bid History Section
+                  // ===== BID HISTORY =====
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -455,34 +632,40 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
-                              'Bid History',
+                              'Recent Bids',
                               style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF1A1A2E),
                               ),
                             ),
-                            Icon(Icons.history,
-                                color: Colors.blue[600], size: 22),
+                            Icon(
+                              Icons.trending_up_rounded,
+                              color: const Color(0xFF667eea),
+                              size: 24,
+                            ),
                           ],
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 8),
                         Container(
-                          constraints: const BoxConstraints(maxHeight: 300),
+                          constraints: const BoxConstraints(maxHeight: 200),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.grey[200]!),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Colors.grey[200]!,
+                              width: 1,
+                            ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
+                                color: Colors.black.withOpacity(0.04),
+                                blurRadius: 12,
+                                offset: const Offset(0, 3),
                               ),
                             ],
                           ),
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(20),
                             child: BidHistoryWidget(
                               auctionId: _auction['id'] ?? '',
                               isSeller: false,
@@ -493,37 +676,48 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 10),
 
-                  // Description Section
+                  // ===== DESCRIPTION =====
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
                           'Description',
                           style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF1A1A2E),
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 10),
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey[200]!),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: Colors.grey[200]!,
+                              width: 1,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.04),
+                                blurRadius: 12,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
                           ),
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(12),
                           child: Text(
                             _auction['description'] ??
                                 'No description available',
                             style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey.shade700,
-                              height: 1.6,
+                              fontSize: 15,
+                              color: Colors.grey[700],
+                              height: 1.7,
+                              fontWeight: FontWeight.w400,
                             ),
                           ),
                         ),
@@ -531,32 +725,42 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 10),
 
-                  // Gem Certificate Section
+                  // ===== GEM CERTIFICATES =====
                   if (_auction['gemCertificates'] != null &&
                       (_auction['gemCertificates'] is List
                           ? (_auction['gemCertificates'] as List).isNotEmpty
                           : false))
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'Gem Certificate',
+                            'Gem Certificates',
                             style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF1A1A2E),
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 14),
                           Container(
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              border: Border.all(color: Colors.grey[200]!),
-                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Colors.grey[200]!,
+                                width: 1,
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.04),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
                             ),
                             child: ListView.builder(
                               shrinkWrap: true,
@@ -566,72 +770,91 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                               itemBuilder: (context, index) {
                                 final cert = (_auction['gemCertificates']
                                     as List)[index];
-                                return ListTile(
-                                  leading: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.purple[50],
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    padding: const EdgeInsets.all(8),
-                                    child: Icon(
-                                      _getCertificateIcon(cert['type']),
-                                      color: Colors.purple[600],
-                                      size: 20,
-                                    ),
-                                  ),
-                                  title: Text(
-                                    cert['fileName'] ?? 'Certificate $index',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  subtitle: Text(
-                                    'Status: ${cert['status'] ?? 'Verified'}',
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  trailing: GestureDetector(
-                                    onTap: () {
-                                      final String url = cert['url'] ?? '';
-                                      final String certFileName =
-                                          cert['fileName'] ??
-                                              'Certificate ${index + 1}';
-                                      final String certType =
-                                          cert['type'] ?? '';
-                                      if (url.isNotEmpty) {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                CertificateViewerScreen(
-                                              url: url,
-                                              fileName: certFileName,
-                                              type: certType,
+                                return Column(
+                                  children: [
+                                    ListTile(
+                                      contentPadding: const EdgeInsets.fromLTRB(
+                                          16, 8, 16, 8),
+                                      leading: Container(
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF9C27B0)
+                                              .withOpacity(0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        padding: const EdgeInsets.all(10),
+                                        child: Icon(
+                                          _getCertificateIcon(cert['type']),
+                                          color: const Color(0xFF9C27B0),
+                                          size: 20,
+                                        ),
+                                      ),
+                                      title: Text(
+                                        cert['fileName'] ?? 'Certificate',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 15,
+                                          color: Color(0xFF1A1A2E),
+                                        ),
+                                      ),
+                                      subtitle: Text(
+                                        'Verified Certificate',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                      trailing: Material(
+                                        color: Colors.transparent,
+                                        child: InkWell(
+                                          onTap: () {
+                                            final String url =
+                                                cert['url'] ?? '';
+                                            final String certFileName =
+                                                cert['fileName'] ??
+                                                    'Certificate ${index + 1}';
+                                            if (url.isNotEmpty) {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      CertificateViewerScreen(
+                                                    url: url,
+                                                    fileName: certFileName,
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 6,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFF667eea)
+                                                  .withOpacity(0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: const Icon(
+                                              Icons.open_in_new_rounded,
+                                              size: 16,
+                                              color: Color(0xFF667eea),
                                             ),
                                           ),
-                                        );
-                                      }
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 6),
-                                      decoration: BoxDecoration(
-                                        color: Colors.purple[100],
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Text(
-                                        'View',
-                                        style: TextStyle(
-                                          color: Colors.purple[700],
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
                                         ),
                                       ),
                                     ),
-                                  ),
+                                    if (index <
+                                        (_auction['gemCertificates'] as List)
+                                                .length -
+                                            1)
+                                      Divider(
+                                        color: Colors.grey[100],
+                                        height: 1,
+                                      ),
+                                  ],
                                 );
                               },
                             ),
@@ -640,350 +863,202 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen> {
                       ),
                     ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 10),
 
-                  // Certificate URL Section
-                  if (_auction['certificateUrl'] != null &&
-                      (_auction['certificateUrl'] as String).isNotEmpty)
+                  // ===== SELLER INFORMATION =====
+                  if (_sellerData != null)
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Container(
-                        padding: const EdgeInsets.all(18),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Seller Information',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF1A1A2E),
                             ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.link_rounded,
-                                  color: Colors.teal[600],
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 10),
-                                const Text(
-                                  'Certificate Verification',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                  ),
+                          ),
+                          const SizedBox(height: 14),
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  const Color(0xFF667eea).withOpacity(0.05),
+                                  const Color(0xFF667eea).withOpacity(0.02),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              border: Border.all(
+                                color: const Color(0xFF667eea).withOpacity(0.2),
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.04),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 3),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 12),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => CertificateWebViewScreen(
-                                      url: _auction['certificateUrl'],
-                                      title: 'Certificate Verification',
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.teal[50],
-                                  border: Border.all(
-                                      color: Colors.teal[200]!, width: 1),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Row(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              children: [
+                                Row(
                                   children: [
                                     Container(
-                                      padding: const EdgeInsets.all(8),
+                                      padding: const EdgeInsets.all(2),
                                       decoration: BoxDecoration(
-                                        color: Colors.teal[100],
-                                        borderRadius: BorderRadius.circular(8),
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: const Color(0xFF667eea),
+                                          width: 2,
+                                        ),
                                       ),
-                                      child: Icon(
-                                        Icons.verified_outlined,
-                                        color: Colors.teal[600],
-                                        size: 20,
+                                      child: CircleAvatar(
+                                        radius: 32,
+                                        backgroundColor: const Color(0xFF667eea)
+                                            .withOpacity(0.1),
+                                        child: const Icon(
+                                          Icons.store,
+                                          color: Color(0xFF667eea),
+                                          size: 32,
+                                        ),
                                       ),
                                     ),
-                                    const SizedBox(width: 12),
+                                    const SizedBox(width: 16),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          const Text(
-                                            'View Certificate Online',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 13,
-                                              color: Colors.black87,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
                                           Text(
-                                            _auction['certificateUrl'],
-                                            style: TextStyle(
-                                              fontSize: 11,
-                                              color: Colors.teal[700],
+                                            _sellerData!['name'] ??
+                                                _sellerData!['displayName'] ??
+                                                'Seller',
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w700,
+                                              color: Color(0xFF1A1A2E),
                                             ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
                                           ),
+                                          const SizedBox(height: 6),
+                                          if (_sellerData!['email'] != null)
+                                            Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.email_outlined,
+                                                  size: 14,
+                                                  color: Colors.grey[600],
+                                                ),
+                                                const SizedBox(width: 6),
+                                                Expanded(
+                                                  child: Text(
+                                                    _sellerData!['email'],
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.grey[600],
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                    maxLines: 1,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                         ],
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color: Colors.teal[600],
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: const Icon(
-                                        Icons.open_in_new,
-                                        color: Colors.white,
-                                        size: 16,
                                       ),
                                     ),
                                   ],
                                 ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                  const SizedBox(height: 24),
-
-                  // Seller Information Card
-                  if (_sellerData != null)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Colors.blue[50]!, Colors.blue[100]!],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          border: Border.all(color: Colors.blue[200]!),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Seller Information',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 32,
-                                  backgroundColor: Colors.blue[600],
-                                  child: Icon(
-                                    Icons.store,
-                                    color: Colors.white,
-                                    size: 32,
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        _sellerData!['name'] ?? 'Seller',
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black87,
+                                const SizedBox(height: 10),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: ElevatedButton.icon(
+                                        onPressed: _callSeller,
+                                        icon: const Icon(Icons.call_rounded),
+                                        label: const Text('Call'),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              const Color(0xFF28a745),
+                                          foregroundColor: Colors.white,
+                                          elevation: 0,
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 10,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
                                         ),
                                       ),
-                                      const SizedBox(height: 4),
-                                      if (_sellerData!['email'] != null)
-                                        Text(
-                                          _sellerData!['email'],
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey[600],
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: ElevatedButton.icon(
+                                        onPressed: _sendWhatsApp,
+                                        icon: const Icon(Icons.chat_rounded),
+                                        label: const Text('WhatsApp'),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              const Color(0xFF25D366),
+                                          foregroundColor: Colors.white,
+                                          elevation: 0,
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 10,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
                                           ),
                                         ),
-                                      if (_sellerData!['phone'] != null)
-                                        Text(
-                                          _sellerData!['phone'],
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey[600],
-                                          ),
-                                        ),
-                                    ],
-                                  ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
 
-                  const SizedBox(height: 32),
-
-                  // Action Buttons
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      children: [
-                        // Call Seller Button
-                        Expanded(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.green[500]!,
-                                  Colors.green[600]!
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.green.withOpacity(0.3),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.transparent,
-                                foregroundColor: Colors.white,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 14),
-                                shadowColor: Colors.transparent,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              onPressed: _callSeller,
-                              icon: const Icon(Icons.phone, size: 18),
-                              label: const Text(
-                                'Call',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        // WhatsApp Button
-                        Expanded(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [Colors.teal[500]!, Colors.teal[600]!],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.teal.withOpacity(0.3),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.transparent,
-                                foregroundColor: Colors.white,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 14),
-                                shadowColor: Colors.transparent,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              onPressed: _sendWhatsApp,
-                              icon: const Icon(Icons.chat, size: 18),
-                              label: const Text(
-                                'WhatsApp',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                 ],
               ),
             ),
     );
   }
 
-  Widget _buildBidRow(String label, String value, Color valueColor,
-      {bool isHighlighted = false}) {
+  Widget _buildBidInfoRow(String label, String value, Color color) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-            fontWeight: FontWeight.w500,
-          ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
         Text(
           value,
           style: TextStyle(
-            fontSize: isHighlighted ? 18 : 16,
-            fontWeight: isHighlighted ? FontWeight.bold : FontWeight.w600,
-            color: valueColor,
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: color,
           ),
         ),
       ],
     );
-  }
-
-  IconData _getCertificateIcon(String? type) {
-    switch (type?.toLowerCase()) {
-      case 'pdf':
-        return Icons.picture_as_pdf;
-      case 'jpg':
-      case 'jpeg':
-      case 'png':
-        return Icons.image;
-      default:
-        return Icons.file_present;
-    }
   }
 }
