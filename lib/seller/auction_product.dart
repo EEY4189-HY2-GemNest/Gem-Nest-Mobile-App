@@ -493,11 +493,11 @@ class _AuctionProductState extends State<AuctionProduct>
                   ),
                   const SizedBox(height: 20),
                   _buildInputField(
-                    label: 'Current Bid',
-                    hint: 'Enter current bid',
+                    label: 'Start Bid',
+                    hint: 'Enter start bid',
                     controller: _currentBidController,
                     validator: (value) =>
-                        value!.isEmpty ? 'Current bid is required' : null,
+                        value!.isEmpty ? 'Start bid is required' : null,
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
                   ),
