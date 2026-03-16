@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { getAllProducts, removeProduct } from '../services/adminService';
-import { Trash2, AlertCircle, Loader, ExternalLink, Eye } from 'lucide-react';
+import { getAllProducts } from '../services/adminService';
+import { AlertCircle, ExternalLink, Eye } from 'lucide-react';
 import ActionConfirmDialog from './ActionConfirmDialog';
 import ProductDetailsModal from './ProductDetailsModal';
 
@@ -8,9 +8,7 @@ export default function ProductManagement() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [actionLoading, setActionLoading] = useState(null);
     const [message, setMessage] = useState('');
-    const [removeDialog, setRemoveDialog] = useState(null);
     const [selectedProduct, setSelectedProduct] = useState(null);
 
     useEffect(() => {
@@ -29,28 +27,6 @@ export default function ProductManagement() {
         }
     };
 
-    const handleRemove = (productId) => {
-        const product = products.find(p => p.id === productId);
-        setRemoveDialog({
-            productId,
-            productName: product?.title || 'Product',
-            onConfirm: async () => {
-                try {
-                    setActionLoading(productId);
-                    await removeProduct(productId);
-                    setProducts(products.map(p => p.id === productId ? { ...p, isActive: false } : p));
-                    setMessage('Product removed');
-                    setTimeout(() => setMessage(''), 3000);
-                    setRemoveDialog(null);
-                } catch (error) {
-                    setMessage('Error removing product: ' + error.message);
-                    setRemoveDialog(null);
-                } finally {
-                    setActionLoading(null);
-                }
-            }
-        });
-    };
 
     const filteredProducts = products.filter(product =>
         product.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -161,24 +137,6 @@ export default function ProductManagement() {
                                         <Eye className="w-4 h-4" />
                                         View Details
                                     </button>
-
-                                    {product.isActive !== false && (
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleRemove(product.id);
-                                            }}
-                                            disabled={actionLoading === product.id}
-                                            className="flex-1 px-4 py-2 bg-gradient-to-r from-red-900 to-red-800 hover:from-red-800 hover:to-red-700 text-red-200 rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50 transition-all shadow-lg hover:shadow-red-900/30"
-                                        >
-                                            {actionLoading === product.id ? (
-                                                <Loader className="w-4 h-4 animate-spin" />
-                                            ) : (
-                                                <Trash2 className="w-4 h-4" />
-                                            )}
-                                            Remove
-                                        </button>
-                                    )}
                                 </div>
                             </div>
                         </div>
@@ -189,19 +147,6 @@ export default function ProductManagement() {
             <div className="text-gray-400 text-sm font-medium">
                 Showing {filteredProducts.length} products
             </div>
-
-            {/* Remove Product Dialog */}
-            {removeDialog && (
-                <ActionConfirmDialog
-                    type="danger"
-                    title="Remove Product"
-                    message={`Are you sure you want to remove "${removeDialog.productName}"? This action cannot be undone.`}
-                    actionText="Remove Product"
-                    isLoading={actionLoading !== null}
-                    onConfirm={removeDialog.onConfirm}
-                    onCancel={() => setRemoveDialog(null)}
-                />
-            )}
 
             {/* Product Details Modal */}
             <ProductDetailsModal
